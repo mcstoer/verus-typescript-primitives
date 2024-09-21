@@ -349,3 +349,13 @@ export const DATA_TYPE_STRING: VDXFKeyInterface =
       "name": "vrsc::data.type.string"
     },
 };
+
+export const UPDATE_IDENTITY_REQUEST_VDXF_KEY: VDXFKeyInterface = 
+  {
+  "vdxfid": "todo_vdxfid",
+  "hash160result": "todo_hash160result",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::identity.actions.update"
+  },
+};
