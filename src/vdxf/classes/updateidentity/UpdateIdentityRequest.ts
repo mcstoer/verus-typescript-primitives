@@ -14,9 +14,7 @@ import { Hash160 } from "./../Hash160";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION} from "../../../constants/vdxf";
 import bufferutils from "../../../utils/bufferutils";
 import { toBase58Check } from "../../../utils/address";
-import { Request } from "../Request";
 import { UpdateIdentityDetails, UpdateIdentityDetailsJson } from "./UpdateIdentityDetails";
-import { Challenge, ChallengeInterface } from "../Challenge";
 import base64url from "base64url";
 
 export interface UpdateIdentityRequestInterface {
