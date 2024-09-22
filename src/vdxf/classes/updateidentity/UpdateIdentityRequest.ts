@@ -36,7 +36,7 @@ export type UpdateIdentityRequestJson = {
 export class UpdateIdentityRequest extends VDXFObject {
   system_id: string;
   signing_id: string;
-  signature?: VerusIDSignature;
+  signature: VerusIDSignature;
   details: UpdateIdentityDetails;
 
   constructor(
