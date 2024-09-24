@@ -359,3 +359,13 @@ export const UPDATE_IDENTITY_REQUEST_VDXF_KEY: VDXFKeyInterface =
     "name": "vrsc::identity.actions.update"
   }
 };
+
+export const SOCIAL_POST_VDXF_KEY: VDXFKeyInterface = 
+  {
+  "vdxfid": "i5G9ugeH75zUwkgmzJHykcExFkHgtzPbkZ",
+  "hash160result": "dfe9aca5e027ab6a10a9528e5b0e33b5ed4a9913",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::social.post"
+  }
+};
