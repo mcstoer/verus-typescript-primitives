@@ -5,18 +5,18 @@ import { SEND_CURRENCY } from "../../../constants/cmds";
 type output = {
   currency: string;
   amount: number;
-  convertto: string;
-  exportto: string;
-  exportid: boolean;
-  exportcurrency: boolean;
-  feecurrency: string;
-  via: string;
+  convertto?: string;
+  exportto?: string;
+  exportid?: boolean;
+  exportcurrency?: boolean;
+  feecurrency?: string;
+  via?: string;
   address: string;
-  refundto: string;
-  memo: string;
-  preconvert: boolean;
-  burn: boolean;
-  mintnew: boolean;
+  refundto?: string;
+  memo?: string;
+  preconvert?: boolean;
+  burn?: boolean;
+  mintnew?: boolean;
 }
 
 export class SendCurrencyRequest extends ApiRequest {
