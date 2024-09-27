@@ -9,7 +9,7 @@ import { ContentMultiMap } from "../../pbaas/ContentMultiMap";
 import { SOCIAL_POST_VDXF_KEY } from "../../vdxf/keys";
 
 describe('Serializes and deserializes Update Identity Request', () => {
-  test('Create and serialize then deserialize' , async () => {
+  test('Create and serialize then deserialize with no contentmultimap' , async () => {
 
     const contentmap = new Map();
     contentmap.set("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j", Buffer.alloc(32));
@@ -26,21 +26,6 @@ describe('Serializes and deserializes Update Identity Request', () => {
       system_id: IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"),
       name: "TestID",
       content_map: contentmap,
-      content_multimap: ContentMultiMap.fromJson({
-        iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j: [
-          { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
-          { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
-          { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
-          { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' }
-        ],
-        iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq: '6868686868686868686868686868686868686868',
-        i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7: [
-          '6868686868686868686868686868686868686868',
-          '6868686868686868686868686868686868686868',
-          '6868686868686868686868686868686868686868'
-        ],
-        i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz: { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' }
-      }),
       recovery_authority: IdentityID.fromAddress("i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz"),
       revocation_authority: IdentityID.fromAddress("i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7"),
       unlock_after: new BN("123456", 10)
@@ -70,9 +55,22 @@ describe('Serializes and deserializes Update Identity Request', () => {
     expect(_req.signing_id).toBe(req.signing_id);
     expect(_req.signature).toStrictEqual(req.signature);
     expect(_req.details).toStrictEqual(req.details);
+
+    expect(_req.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+    expect(UpdateIdentityRequest.fromJson(req.toJson()).toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+
+    const requri = req.toWalletDeeplinkUri()
+    const _reqfromuri = UpdateIdentityRequest.fromWalletDeeplinkUri(requri)
+
+    expect(_reqfromuri.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+
+    const reqqrstring = req.toQrString()
+    const _reqfromqrstring = UpdateIdentityRequest.fromQrString(reqqrstring)
+
+    expect(_reqfromqrstring.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
   })
 
-  test('Serialize a post and deserialize' , async () => {
+  test('Serialize and deserialize with a contentmultimap containing a post' , async () => {
 
     const contentmap = new Map();
     contentmap.set("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j", Buffer.alloc(32));
@@ -89,18 +87,18 @@ describe('Serializes and deserializes Update Identity Request', () => {
       system_id: IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"),
       name: "TestID",
       content_map: contentmap,
-      content_multimap: ContentMultiMap.fromJson({
-        SOCIAL_POST_VDXF_KEY: [
-          { "data": JSON.stringify({"label":"","mimetype":"text/plain","message":"Hello world2!"}) },
-        ],
-      }),
       recovery_authority: IdentityID.fromAddress("i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz"),
       revocation_authority: IdentityID.fromAddress("i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7"),
       unlock_after: new BN("123456", 10)
     })
 
     const details = new UpdateIdentityDetails({
-        identity: identity
+        identity: identity,
+        contentmultimap: {
+          SOCIAL_POST_VDXF_KEY: [
+            { "data": {"label":"","mimetype":"text/plain","message":"Hello world2!"} },
+          ],
+        }
     })
 
     // Need to have system_id, signing_id, signature and details.
@@ -123,5 +121,18 @@ describe('Serializes and deserializes Update Identity Request', () => {
     expect(_req.signing_id).toBe(req.signing_id);
     expect(_req.signature).toStrictEqual(req.signature);
     expect(_req.details).toStrictEqual(req.details);
+
+    expect(_req.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+    expect(UpdateIdentityRequest.fromJson(req.toJson()).toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+
+    const requri = req.toWalletDeeplinkUri()
+    const _reqfromuri = UpdateIdentityRequest.fromWalletDeeplinkUri(requri)
+
+    expect(_reqfromuri.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
+
+    const reqqrstring = req.toQrString()
+    const _reqfromqrstring = UpdateIdentityRequest.fromQrString(reqqrstring)
+
+    expect(_reqfromqrstring.toBuffer().toString('hex')).toBe(req.toBuffer().toString('hex'));
   })
 });
