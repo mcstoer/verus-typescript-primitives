@@ -349,3 +349,14 @@ export const DATA_TYPE_STRING: VDXFKeyInterface =
       "name": "vrsc::data.type.string"
     },
 };
+
+// Social
+export const SOCIAL_FOLLOW: VDXFKeyInterface = 
+  {
+  "vdxfid": "i6R3tWgQR2JQDiNEHHa6c3saPsRFZdLxsi",
+  "hash160result": "64c48be73d4f515cebd1d4a7d238e7e2ff224020",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::social.follow"
+  }
+}
