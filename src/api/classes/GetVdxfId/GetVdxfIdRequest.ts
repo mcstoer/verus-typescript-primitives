@@ -4,8 +4,8 @@ import { GET_VDXF_ID } from "../../../constants/cmds";
 
 type InitialVdxfData = {
   vdxfkey: string,
-  uint256: string,
-  indexnum: string
+  uint256?: string,
+  indexnum?: string
 }
 
 export class GetVdxfIdRequest extends ApiRequest {
