@@ -1,152 +1,184 @@
-import varint from '../utils/varint'
-import varuint from '../utils/varuint'
-import { fromBase58Check, toBase58Check } from "../utils/address";
-import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
-import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
-import { SerializableEntity } from '../utils/types/SerializableEntity';
+import { BigNumber } from "../utils/types/BigNumber";
+import { SerializableEntity } from "../utils/types/SerializableEntity";
+import bufferutils from "../utils/bufferutils";
+import varuint from "../utils/varuint";
+import { NULL_ADDRESS } from '../constants/vdxf';
+import varint from '../utils/varint';
+import { readLimitedString } from '../utils/string';
 
-const { BufferReader, BufferWriter } = bufferutils
+const { BufferReader, BufferWriter } = bufferutils;
 
-export interface CredentialJson { 
-  version: number;
-  flags: number;
-  credentialkey: string;
-  credential?: object; 
-  scopes: object;
-  label: string;
+export type CredentialJson = {
+  version?: number,
+  flags?: number,
+  credentialkey?: string,
+  credential?: Object,
+  scopes?: Object,
+  label?: string,
 }
 
 export class Credential implements SerializableEntity {
-  version: BigNumber;
-  flags: BigNumber;
-  credential_key: string;
-  credential: object;
-  scopes: object;
-  label: string;
 
-  static FIRST_VERSION = new BN(1);
-  static LAST_VERSION = new BN(1);
-  static CURRENT_VERSION = new BN(1);
+  // Credential enum types 
+  static VERSION_INVALID = new BN(0, 10);
+  static VERSION_FIRST = new BN(1, 10);
+  static VERSION_LAST = new BN(1, 10);
+  static VERSION_CURRENT = new BN(1, 10);
 
-  static FLAG_LABEL_PRESENT = new BN(1);
+  static FLAG_LABEL_PRESENT = new BN(1, 10);
 
   static MAX_JSON_STRING_LENGTH = 512;
 
-  constructor(data?) {
+  version: BigNumber;
+  flags: BigNumber;
+  credentialKey: string;
+  credential: Object;
+  scopes: Object;
+  label: string;
+
+  constructor(data?: {
+    version?: BigNumber,
+    flags?: BigNumber,
+    credentialKey?: string,
+    credential?: Object,
+    scopes?: Object,
+    label?: string,
+  }) {
+    this.version = Credential.VERSION_INVALID;
+    this.flags = new BN(0, 10);
+    this.credentialKey = "";
+    this.credential = {};
+    this.scopes = {};
+    this.label = "";
 
     if (data) {
-      this.version = data.version || Credential.CURRENT_VERSION;
-      this.flags = data.flags || new BN(0);
-      this.credential_key = data.credential_key || '';
-      this.credential = data.credential || {};
-      this.scopes = data.scopes || {};
-      this.label = data.label || '';      
-    }
-  }
+      if (data.flags) this.flags = new BN(data.flags);
+      if (data.version) this.version = new BN(data.version);
+      if (data.credentialKey) this.credentialKey = data.credentialKey;
+      if (data.credential) this.credential = data.credential;
+      if (data.scopes) this.scopes = data.scopes;
+      if (data.label) this.label = data.label;
 
-    calcFlags()
-    {
-        return ((this.label && this.label.length > 0) ? Credential.FLAG_LABEL_PRESENT : new BN(0));
-    }
-
-    setFlags()
-    {
-        this.flags = this.calcFlags();
-    }
-
-  getByteLength() {
-    let byteLength = 0;
-    this.setFlags();
-
-    byteLength += varint.encodingLength(this.version);
-    byteLength += varint.encodingLength(this.flags);
-
-    byteLength += 20; // credentialskey
-
-    if (JSON.stringify(this.credential).length > Credential.MAX_JSON_STRING_LENGTH) {
-      throw new Error(`Credential JSON exceeds maximum length of ${Credential.MAX_JSON_STRING_LENGTH} characters`);
-    }
-    byteLength += varuint.encodingLength(JSON.stringify(this.credential).length); // credential json length
-    byteLength += Buffer.byteLength(JSON.stringify(this.credential), 'utf8'); // credential json utf8 length
-
-    if (JSON.stringify(this.scopes).length > Credential.MAX_JSON_STRING_LENGTH) {
-      throw new Error(`Scopes JSON exceeds maximum length of ${Credential.MAX_JSON_STRING_LENGTH} characters`);
-    }
-    byteLength += varuint.encodingLength(JSON.stringify(this.scopes).length); // scopes json length
-    byteLength += Buffer.byteLength(JSON.stringify(this.scopes), 'utf8'); // scopes json utf8 length
-
-    if (this.flags.and(Credential.FLAG_LABEL_PRESENT).gt(new BN(0))) {
-      if (this.label.length > Credential.MAX_JSON_STRING_LENGTH) {
-        throw new Error(`Label exceeds maximum length of ${Credential.MAX_JSON_STRING_LENGTH} characters`);
+      if (JSON.stringify(this.credential).length > Credential.MAX_JSON_STRING_LENGTH || 
+        JSON.stringify(this.scopes).length > Credential.MAX_JSON_STRING_LENGTH
+      ) {
+        this.version = Credential.VERSION_INVALID;
       }
-      byteLength += varuint.encodingLength(this.label.length); // label json length
-      byteLength += Buffer.byteLength(this.label, 'utf8'); // label json utf8 length
-    }
 
-    return byteLength
+      this.setFlags();
+    }
   }
 
-  toBuffer() {
-    const bufferWriter = new BufferWriter(Buffer.alloc(this.getByteLength()))
+  getByteLength(): number {
+    let length = 0;
 
-    bufferWriter.writeVarInt(this.version);
-    bufferWriter.writeVarInt(this.flags);
-    bufferWriter.writeSlice(fromBase58Check(this.credential_key).hash);
-    bufferWriter.writeVarSlice(Buffer.from(JSON.stringify(this.credential), 'utf8'));
-    bufferWriter.writeVarSlice(Buffer.from(JSON.stringify(this.scopes), 'utf8'));
-    if (this.flags.and(Credential.FLAG_LABEL_PRESENT).gt(new BN(0))) {
-      bufferWriter.writeVarSlice(Buffer.from(this.label, 'utf8'));
-    }
+    length += varint.encodingLength(this.version);
+    length += varint.encodingLength(this.flags);
+    
+    const credentialKeyLength = this.credentialKey.length;
+    length += varuint.encodingLength(credentialKeyLength);
+    length += credentialKeyLength;
 
-    return bufferWriter.buffer
+    // Both the credential and scopes are serialized as JSON strings.
+    const credStr = JSON.stringify(this.credential);
+    const credentialLength = credStr.length;
+    length += varuint.encodingLength(credentialLength);
+    length += credentialLength;
+
+    const scopesStr = JSON.stringify(this.scopes);
+    const scopesLength = scopesStr.length;
+    length += varuint.encodingLength(scopesLength);
+    length += scopesLength;
+
+    if (this.hasLabel()) {
+      length += varuint.encodingLength(this.label.length);
+      length += Buffer.from(this.label).length;
+    } 
+
+    return length;
   }
 
-  fromBuffer(buffer: Buffer, offset: number = 0) {
+  toBuffer(): Buffer {
+    const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
+
+    writer.writeVarInt(this.version);
+    writer.writeVarInt(this.flags);
+    
+    writer.writeVarSlice(Buffer.from(this.credentialKey));
+
+    writer.writeVarSlice(Buffer.from(JSON.stringify(this.credential)));
+    writer.writeVarSlice(Buffer.from(JSON.stringify(this.scopes)));
+
+    if (this.hasLabel()) {
+      writer.writeVarSlice(Buffer.from(this.label));
+    }
+
+    return writer.buffer;
+  }
+
+  fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.version = reader.readVarInt();
-    this.flags = reader.readVarInt();
-    this.credential_key = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
-    const credentialJson = reader.readVarSlice();
-    this.credential = credentialJson.length > 0 ? JSON.parse(credentialJson.toString('utf8')) : {};
-    const scopesJson = reader.readVarSlice();
-    this.scopes = scopesJson.length > 0 ? JSON.parse(scopesJson.toString('utf8')) : {};
-    this.label = reader.readVarSlice().toString('utf8');
+    this.version = new BN(reader.readVarInt(), 10);
+    this.flags = new BN(reader.readVarInt(), 10);
+
+    this.credentialKey = Buffer.from(reader.readVarSlice()).toString();
+    
+    this.credential = JSON.parse(
+      Buffer.from(readLimitedString(reader, Credential.MAX_JSON_STRING_LENGTH)
+    ).toString());
+
+    this.scopes = JSON.parse(
+      Buffer.from(readLimitedString(reader, Credential.MAX_JSON_STRING_LENGTH)
+    ).toString());
+
+    if (this.hasLabel()) {
+      this.label = Buffer.from(reader.readVarSlice()).toString();
+    }
 
     return reader.offset;
   }
 
-  isValid(): boolean {
-    return this.version.gte(Credential.FIRST_VERSION) &&
-      this.version.lte(Credential.LAST_VERSION) &&
-      fromBase58Check(this.credential_key).hash.length == 20;
+  hasLabel(): boolean {
+    return this.flags.and(Credential.FLAG_LABEL_PRESENT).gt(new BN(0, 10));
   }
 
-  toJson() {
+  calcFlags(): BigNumber {
+    return this.label.length > 0 ? Credential.FLAG_LABEL_PRESENT : new BN(0, 10);
+  }
 
-    let retval: CredentialJson = {
+  setFlags() {
+    this.flags = this.calcFlags();
+  }
 
+  // The credentials is invalid if the version is not within the valid range or the key is null.
+  isValid(): boolean {
+    return this.version.gte(Credential.VERSION_FIRST) && this.version.lte(Credential.VERSION_LAST)
+      && this.credentialKey !== NULL_ADDRESS;
+  }
+
+  toJson(): CredentialJson {
+    const ret: CredentialJson = {
       version: this.version.toNumber(),
       flags: this.flags.toNumber(),
-      credentialkey: this.credential_key,
+      credentialkey: this.credentialKey,
       credential: this.credential,
       scopes: this.scopes,
-      label: this.label
+      label: this.hasLabel() ? this.label : null
     };
 
-    return retval;
+    return ret;
   }
 
-  static fromJson(data: CredentialJson): Credential {
+  static fromJson(json: CredentialJson): Credential {
     return new Credential({
-      version: new BN(data.version),
-      flags: new BN(data.flags),
-      credential_key: data.credentialkey,
-      credential: data.credential,
-      scopes: data.scopes,
-      label: data.label
-    })
+      version: json.version ? new BN(json.version, 10) : undefined,
+      flags: json.flags ? new BN(json.flags, 10) : undefined,
+      credentialKey: json.credentialkey,
+      credential: json.credential,
+      scopes: json.scopes,
+      label: json.label,
+    });
   }
 }

@@ -1,32 +1,158 @@
-import { Credential } from '../../pbaas/Credential';
-import { URLRef, URLRefJson } from '../../pbaas/URLRef';
-import { DATA_TYPE_STRING } from "../../vdxf";
-import { VDXF_UNI_VALUE_VERSION_CURRENT, VdxfUniValue } from "../../pbaas/VdxfUniValue";
-import { BN } from 'bn.js';
-import { BigNumber } from '../../utils/types/BigNumber';
+import { Credential } from "../../pbaas/Credential";
+import {IDENTITY_CREDENTIAL_PLAINLOGIN} from "../../vdxf/keys";
+
+const verifyCredentialSerialization = (c: Credential) => {
+  const cFromBuf = new Credential();
+  cFromBuf.fromBuffer(c.toBuffer());
+
+  expect(cFromBuf.isValid()).toBe(true);
+  expect(cFromBuf).toEqual(c);
+
+  // Test JSON serialization and deserialization.
+  const cJson = c.toJson();
+  const cFromJson = Credential.fromJson(cJson);
+
+  expect(cFromJson.isValid()).toBe(true);
+  expect(cFromJson).toEqual(c);
+};
 
 describe('Serializes and deserializes Credential', () => {
-   function testCredential() {
+  test('(de)serialize Credential without label', () => {
+    const c = new Credential({
+      version: Credential.VERSION_CURRENT,
+      credentialKey: IDENTITY_CREDENTIAL_PLAINLOGIN.vdxfid,
+      credential: ["myname", "mypassword"],
+      scopes: ["CardUsingApplication@"],
+    });
 
-    const credentialHex = "010101f503c4f232c4599167a02357c25b75d5ad3ff0177b226e616d65223a2254657374204163636f756e74227d1a7b2261646472657373223a22546573742041646472657373227d074c6162656c2031"
+    verifyCredentialSerialization(c);
+  });
 
-    const credentialObject = Credential.fromJson({
-      "version": 1,
-      "flags": 1,
-      "credentialkey": "i3esdByX2PKx5vJiuNrRb61KAKqsBEMxac",
-      "credential": {name:"Test Account"},
-      "scopes": {address:"Test Address"},
-      "label": "Label 1"
-     });
+  test('(de)serialize Credential with label', () => {
+    const c = new Credential({
+      version: Credential.VERSION_CURRENT,
+      credentialKey: IDENTITY_CREDENTIAL_PLAINLOGIN.vdxfid,
+      credential: ["terrible name", "terrible password 1"],
+      scopes: ["MailService@", "SecondaryMailService@"],
+      label: "hint: bad",
+    });
 
-    const credentialObject2 = new Credential();
-    credentialObject2.fromBuffer(Buffer.from(credentialHex, 'hex'));
+    verifyCredentialSerialization(c);
+  });
 
-    expect(credentialObject.toBuffer().toString('hex')).toBe(credentialObject2.toBuffer().toString('hex'));
-    expect(credentialObject.toJson()).toStrictEqual(credentialObject2.toJson());
-  }
+  test('(de)serialize Credential with JSON object credential and scopes', () => {
+    const c = new Credential({
+      version: Credential.VERSION_CURRENT,
+      credentialKey: "iHdfNK2nkKsxWAdRYToBpDRHFU9EnJGSG4",
+      credential: {
+        "first": "thing",
+        "second": "mypassword"
+      },
+      scopes: {
+        "place": "Location"
+      },
+    });
 
-  test('test Credential deserializes with ontent', () => {
-    testCredential();
+    verifyCredentialSerialization(c);
+  });
+
+  test('(de)serialize Credential with String credential and scopes', () => {
+    const c = new Credential({
+      version: Credential.VERSION_CURRENT,
+      credentialKey: "iHdfNK2nkKsxWAdRYToBpDRHFU9anJGSG4",
+      credential: "cred",
+      scopes: "scope@"
+    });
+
+    verifyCredentialSerialization(c);
+  });
+
+  test('create Credential from and to JSON using fromJson and toJson', () => {
+    const credential = ["testuser", "testpass"];
+    const scopes = ["TestService@"];
+    const label = "test credential";
+
+    const credentialJson = {
+      version: Credential.VERSION_CURRENT.toNumber(),
+      credentialkey: IDENTITY_CREDENTIAL_PLAINLOGIN.vdxfid,
+      credential: credential,
+      scopes: scopes,
+      label: label,
+      flags: Credential.FLAG_LABEL_PRESENT.toNumber()
+    };
+
+    const c = Credential.fromJson(credentialJson);
+    
+    // Check that the class representation matches the initial Json.
+    expect(c.isValid()).toBe(true);
+    expect(c.version).toStrictEqual(Credential.VERSION_CURRENT);
+    expect(c.credentialKey).toBe(IDENTITY_CREDENTIAL_PLAINLOGIN.vdxfid);
+    expect(c.credential).toEqual(credential);
+    expect(c.scopes).toEqual(scopes);
+    expect(c.label).toBe(label);
+    expect(c.hasLabel()).toBe(true);
+
+    expect(credentialJson).toStrictEqual(c.toJson());
+  });
+
+  describe('(de)serialize Credential with invalid length credential and scopes', () => {
+    test('invalid length credential', () => {
+      const c = new Credential({
+        version: Credential.VERSION_CURRENT,
+        credentialKey: "iHdfNK2nkKsxWAdRYToBpDRHFU9anJGSG4",
+        credential: "a".repeat(Credential.MAX_JSON_STRING_LENGTH + 1),
+        scopes: "scope@"
+      });
+      expect(() => {
+        verifyCredentialSerialization(c);
+      }).toThrow();
+    });
+
+    test('invalid length scopes', () => {
+      const c = new Credential({
+        version: Credential.VERSION_CURRENT,
+        credentialKey: "iHdfNK2nkKsxWAdRYToBpDRHFU9anJGSG4",
+        credential: "cred",
+        scopes: "s".repeat(Credential.MAX_JSON_STRING_LENGTH + 1)
+      });
+      expect(() => {
+        verifyCredentialSerialization(c);
+      }).toThrow();
+    });
+  });
+});
+
+describe('constructing invalid Credentials', () => {
+  test('Credential with invalid version', () => {
+    const c = new Credential({
+      version: Credential.VERSION_INVALID,
+    });
+
+    expect(c.isValid()).toBe(false);
+  });
+
+  test('Credential with invalid length credential', () => {
+    const c = new Credential({
+      credential: "a".repeat(Credential.MAX_JSON_STRING_LENGTH + 1),
+    });
+
+    expect(c.isValid()).toBe(false);
+  });
+
+  test('Credential with invalid length scopes', () => {
+    const c = new Credential({
+      scopes: "d".repeat(Credential.MAX_JSON_STRING_LENGTH + 1),
+    });
+
+    expect(c.isValid()).toBe(false);
+  });
+
+  test('Credential with both invalid length credential and scopes', () => {
+    const c = new Credential({
+      credential: "a".repeat(Credential.MAX_JSON_STRING_LENGTH + 1),
+      scopes: "d".repeat(Credential.MAX_JSON_STRING_LENGTH + 1),
+    });
+
+    expect(c.isValid()).toBe(false);
   });
 });
