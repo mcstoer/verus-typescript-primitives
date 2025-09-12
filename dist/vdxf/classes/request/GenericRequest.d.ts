@@ -1,0 +1,60 @@
+import { VDXFObject, VerusIDSignature, VerusIDSignatureInterface, VerusIDSignatureJson } from "../../";
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { DataDescriptor, DataDescriptorJson } from "../../../pbaas";
+import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "../payment/VerusPayInvoiceDetails";
+export declare const GENERIC_REQUEST_VERSION_CURRENT: import("bn.js");
+export declare const GENERIC_REQUEST_VERSION_FIRSTVALID: import("bn.js");
+export declare const GENERIC_REQUEST_VERSION_LASTVALID: import("bn.js");
+export declare const GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR: import("bn.js");
+export declare const GENERIC_REQUEST_TYPE_INVOICE: import("bn.js");
+export declare const GENERIC_REQUEST_BASE_FLAGS: import("bn.js");
+export declare const GENERIC_REQUEST_FLAG_SIGNED: import("bn.js");
+export type GenericRequestDetails = DataDescriptor | VerusPayInvoiceDetails;
+export type GenericRequestDetailsJson = DataDescriptorJson | VerusPayInvoiceDetailsJson;
+export interface GenericRequestInterface {
+    details: GenericRequestDetails;
+    type?: BigNumber;
+    flags?: BigNumber;
+    system_id?: string;
+    signing_id?: string;
+    signature?: VerusIDSignatureInterface;
+    version?: BigNumber;
+}
+export type GenericRequestJson = {
+    vdxfkey: string;
+    details: GenericRequestDetailsJson;
+    system_id?: string;
+    signing_id?: string;
+    signature?: VerusIDSignatureJson;
+    version: string;
+    type?: string;
+    flags?: string;
+};
+export declare class GenericRequest extends VDXFObject {
+    system_id: string;
+    signing_id: string;
+    signature?: VerusIDSignature;
+    details: GenericRequestDetails;
+    type: BigNumber;
+    flags: BigNumber;
+    constructor(request?: GenericRequestInterface);
+    isValidVersion(): boolean;
+    isSigned(): boolean;
+    isDataDescriptor(): boolean;
+    isInvoice(): boolean;
+    setSigned(): void;
+    private getRawDetailsSha256;
+    getDetailsHash(signedBlockheight: number, signatureVersion?: number): Buffer<ArrayBufferLike>;
+    protected _dataByteLength(signer?: string): number;
+    protected _toDataBuffer(signer?: string): Buffer;
+    dataByteLength(): number;
+    toDataBuffer(): Buffer;
+    protected _fromDataBuffer(buffer: Buffer, offset?: number): number;
+    fromDataBuffer(buffer: Buffer, offset?: number): number;
+    toWalletDeeplinkUri(): string;
+    static fromWalletDeeplinkUri(uri: string): GenericRequest;
+    toQrString(): string;
+    static fromQrString(qrstring: string): GenericRequest;
+    static fromJson(data: GenericRequestJson): GenericRequest;
+    toJson(): GenericRequestJson;
+}

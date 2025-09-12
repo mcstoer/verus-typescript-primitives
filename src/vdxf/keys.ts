@@ -20,6 +20,16 @@ export const VERUSPAY_INVOICE_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "iEETy7La3FTN2Sd2hNRgepek5S8x8eeUeQ"
 }
 
+export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "4ba3719af89a7225998a3c62140160f4799822e1",
+  "indexid": "xUq3NnSiUW7icegVTtnZeuYwiQDhdoykiY",
+  "qualifiedname": {
+    "name": "vrsc::request",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iPzvuz1ddBu3zUoTcD8QgX2QgkCgmXH698"
+}
+
 export const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "0bcef8b06c211828d16dc038e4d34d097aeb64e4",
   "indexid": "xV8GreW8nt1Py99r8KPsLxDyy6UYJQvXja",
