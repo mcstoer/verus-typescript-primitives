@@ -24,6 +24,7 @@ export * from "./identity/IdentityUpdateEnvelope";
 export * from "./identity/IdentityUpdateRequestDetails";
 export * from "./identity/IdentityUpdateResponseDetails";
 export * from './ResponseUri';
+export * from './request/GenericRequest';
 export { Hash160 } from './Hash160';
 export { RedirectUri, Subject, ProvisioningInfo, RequestedPermission, Audience, AltAuthFactor, Attestation, } from "./Challenge";
 export { ProvisioningTxid } from './provisioning/ProvisioningResult';

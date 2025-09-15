@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GenericRequest = exports.GENERIC_REQUEST_FLAG_SIGNED = exports.GENERIC_REQUEST_BASE_FLAGS = exports.GENERIC_REQUEST_TYPE_INVOICE = exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR = exports.GENERIC_REQUEST_VERSION_LASTVALID = exports.GENERIC_REQUEST_VERSION_FIRSTVALID = exports.GENERIC_REQUEST_VERSION_CURRENT = void 0;
+exports.GenericRequest = void 0;
 const __1 = require("../../");
 const keys_1 = require("../../keys");
 const Hash160_1 = require("./../Hash160");
@@ -12,53 +12,45 @@ const base64url_1 = require("base64url");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
 const VerusPayInvoiceDetails_1 = require("../payment/VerusPayInvoiceDetails");
-exports.GENERIC_REQUEST_VERSION_CURRENT = new bn_js_1.BN(1, 10);
-exports.GENERIC_REQUEST_VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
-exports.GENERIC_REQUEST_VERSION_LASTVALID = new bn_js_1.BN(1, 10);
-exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR = new bn_js_1.BN(0, 10);
-exports.GENERIC_REQUEST_TYPE_INVOICE = new bn_js_1.BN(1, 0);
-exports.GENERIC_REQUEST_BASE_FLAGS = new bn_js_1.BN(0, 0);
-exports.GENERIC_REQUEST_FLAG_SIGNED = new bn_js_1.BN(1, 0);
+const varint_1 = require("../../../utils/varint");
 class GenericRequest extends __1.VDXFObject {
     constructor(request = {
         details: new pbaas_1.DataDescriptor(),
-        type: exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR,
-        flags: exports.GENERIC_REQUEST_BASE_FLAGS
+        type: GenericRequest.TYPE_DATA_DESCRIPTOR,
+        flags: GenericRequest.BASE_FLAGS
     }) {
         super(__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid);
         this.system_id = request.system_id;
         this.signing_id = request.signing_id;
-        this.signature = request.signature
-            ? new __1.VerusIDSignature(request.signature, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY, false)
-            : undefined;
+        this.signature = request.signature;
         this.details = request.details;
         if (request.type)
             this.type = request.type;
         else
-            this.type = exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR;
+            this.type = GenericRequest.TYPE_DATA_DESCRIPTOR;
         if (request.flags)
             this.flags = request.flags;
         else
-            this.flags = exports.GENERIC_REQUEST_BASE_FLAGS;
+            this.flags = GenericRequest.BASE_FLAGS;
         if (request.version)
             this.version = request.version;
         else
-            this.version = exports.GENERIC_REQUEST_VERSION_CURRENT;
+            this.version = GenericRequest.VERSION_CURRENT;
     }
     isValidVersion() {
-        return this.version.gte(exports.GENERIC_REQUEST_VERSION_FIRSTVALID) && this.version.lte(exports.GENERIC_REQUEST_VERSION_LASTVALID);
+        return this.version.gte(GenericRequest.VERSION_FIRSTVALID) && this.version.lte(GenericRequest.VERSION_LASTVALID);
     }
     isSigned() {
-        return !!(this.flags.and(exports.GENERIC_REQUEST_FLAG_SIGNED).toNumber());
+        return !!(this.flags.and(GenericRequest.FLAG_SIGNED).toNumber());
     }
     isDataDescriptor() {
-        return this.type.eq(exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR);
+        return this.type.eq(GenericRequest.TYPE_DATA_DESCRIPTOR);
     }
     isInvoice() {
-        return this.type.eq(exports.GENERIC_REQUEST_TYPE_INVOICE);
+        return this.type.eq(GenericRequest.TYPE_INVOICE);
     }
     setSigned() {
-        this.flags = this.version.xor(exports.GENERIC_REQUEST_FLAG_SIGNED);
+        this.flags = this.version.xor(GenericRequest.FLAG_SIGNED);
     }
     getRawDetailsSha256() {
         return createHash("sha256").update(this.details.toBuffer()).digest();
@@ -90,24 +82,26 @@ class GenericRequest extends __1.VDXFObject {
             return this.getRawDetailsSha256();
     }
     _dataByteLength(signer = this.signing_id) {
+        let length = 0;
+        length += varint_1.default.encodingLength(this.flags);
+        length += varint_1.default.encodingLength(this.type);
         if (this.isSigned()) {
-            let length = 0;
             const _signature = this.signature
                 ? this.signature
-                : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY, false);
+                : new pbaas_1.SignatureData();
             const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
             length += _system_id.getByteLength();
             const _signing_id = Hash160_1.Hash160.fromAddress(signer);
             length += _signing_id.getByteLength();
-            length += _signature.byteLength();
-            length += this.details.getByteLength();
-            return length;
+            length += _signature.getByteLength();
         }
-        else
-            return this.details.getByteLength();
+        length += this.details.getByteLength();
+        return length;
     }
     _toDataBuffer(signer = this.signing_id) {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.dataByteLength()));
+        writer.writeVarInt(this.flags);
+        writer.writeVarInt(this.type);
         if (this.isSigned()) {
             const _signing_id = Hash160_1.Hash160.fromAddress(signer);
             const _signature = this.signature
@@ -128,20 +122,32 @@ class GenericRequest extends __1.VDXFObject {
         return this._toDataBuffer();
     }
     _fromDataBuffer(buffer, offset) {
+        if (buffer.length == 0)
+            throw new Error("Cannot create request from empty buffer");
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         const reqLength = reader.readCompactSize();
         if (reqLength == 0) {
             throw new Error("Cannot create request from empty buffer");
         }
         else {
+            this.flags = reader.readVarInt();
+            this.type = reader.readVarInt();
             if (this.isSigned()) {
                 this.system_id = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
                 this.signing_id = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
-                const _sig = new __1.VerusIDSignature(undefined, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY, false);
-                reader.offset = _sig.fromBuffer(reader.buffer, reader.offset, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY.vdxfid);
+                const _sig = new pbaas_1.SignatureData();
+                reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
                 this.signature = _sig;
             }
-            const _details = new VerusPayInvoiceDetails_1.VerusPayInvoiceDetails();
+            let _details;
+            if (this.type.eq(GenericRequest.TYPE_INVOICE)) {
+                _details = new VerusPayInvoiceDetails_1.VerusPayInvoiceDetails();
+            }
+            else if (this.type.eq(GenericRequest.TYPE_DATA_DESCRIPTOR)) {
+                _details = new pbaas_1.DataDescriptor();
+            }
+            else
+                throw new Error("Unrecognized type");
             reader.offset = _details.fromBuffer(reader.buffer, reader.offset);
             this.details = _details;
         }
@@ -168,9 +174,9 @@ class GenericRequest extends __1.VDXFObject {
         return inv;
     }
     static fromJson(data) {
-        const type = data.type ? new bn_js_1.BN(data.type) : exports.GENERIC_REQUEST_TYPE_DATA_DESCRIPTOR;
+        const type = data.type ? new bn_js_1.BN(data.type) : GenericRequest.TYPE_DATA_DESCRIPTOR;
         let details;
-        if (type.eq(exports.GENERIC_REQUEST_TYPE_INVOICE)) {
+        if (type.eq(GenericRequest.TYPE_INVOICE)) {
             details = VerusPayInvoiceDetails_1.VerusPayInvoiceDetails.fromJson(data.details);
         }
         else {
@@ -178,7 +184,7 @@ class GenericRequest extends __1.VDXFObject {
         }
         return new GenericRequest({
             details,
-            signature: data.signature != null ? __1.VerusIDSignature.fromJson(data.signature) : undefined,
+            signature: data.signature != null ? pbaas_1.SignatureData.fromJson(data.signature) : undefined,
             signing_id: data.signing_id,
             system_id: data.system_id,
             version: new bn_js_1.BN(data.version),
@@ -191,7 +197,7 @@ class GenericRequest extends __1.VDXFObject {
             vdxfkey: this.vdxfkey,
             system_id: this.system_id,
             signing_id: this.signing_id,
-            signature: this.isSigned() ? this.signature.toJson() : this.signature,
+            signature: this.isSigned() ? this.signature.toJson() : undefined,
             details: this.details.toJson(),
             version: this.version.toString(),
             type: this.type.toString(),
@@ -200,3 +206,10 @@ class GenericRequest extends __1.VDXFObject {
     }
 }
 exports.GenericRequest = GenericRequest;
+GenericRequest.VERSION_CURRENT = new bn_js_1.BN(1, 10);
+GenericRequest.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
+GenericRequest.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
+GenericRequest.TYPE_DATA_DESCRIPTOR = new bn_js_1.BN(0, 10);
+GenericRequest.TYPE_INVOICE = new bn_js_1.BN(1, 10);
+GenericRequest.BASE_FLAGS = new bn_js_1.BN(0, 10);
+GenericRequest.FLAG_SIGNED = new bn_js_1.BN(1, 10);

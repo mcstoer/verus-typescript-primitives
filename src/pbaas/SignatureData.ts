@@ -240,6 +240,7 @@ export class SignatureData implements SerializableEntity {
     return returnObj;
   }
 
+  // To fully implement, refer to VerusCoin/src/pbaas/crosschainrpc.cpp line 337, IdentitySignatureHash
   getIdentityHash(sigObject: { version: number, hash_type: number, height: number }) {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(sigObject.height);
