@@ -13,6 +13,7 @@ class DataDescriptor {
     constructor(data) {
         this.flags = new bn_js_1.BN(0);
         this.version = DataDescriptor.DEFAULT_VERSION;
+        this.objectdata = Buffer.from([]);
         if (data != null) {
             if (data.flags != null)
                 this.flags = data.flags;
