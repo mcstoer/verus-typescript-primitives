@@ -1,6 +1,7 @@
 import { DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINNAME, KOMODO_ASSETCHAIN_MAXLEN, NULL_I_ADDR } from "../constants/pbaas";
 import { I_ADDR_VERSION } from "../constants/vdxf";
 import { hash, hash160 } from "./hash";
+import { toLowerCaseCLocale } from "./tolower";
 
 const bs58check = require("bs58check")
 
@@ -42,7 +43,7 @@ export const toBase58Check = (hash: Buffer, version: number): string => {
 
 export const nameAndParentAddrToIAddr = (name: string, parentIAddr?: string): string => {
   let idHash: Buffer;
-  const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
+  const nameBuffer = Buffer.from(toLowerCaseCLocale(name), "utf8");
 
   if (parentIAddr == null) {
     idHash = hash(nameBuffer);
@@ -74,7 +75,7 @@ export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = 
 
   for (let i = splitFqnDot.length - 1; i >= 0; i--) {
     let idHash: Buffer;
-    const parentName = Buffer.from(splitFqnDot[i].toLowerCase(), "utf8");
+    const parentName = Buffer.from(toLowerCaseCLocale(splitFqnDot[i]), "utf8");
 
     if (parentName.length > 0) {
       if (Parent == null) {
@@ -89,7 +90,7 @@ export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = 
   }
 
   let idHash: Buffer;
-  const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
+  const nameBuffer = Buffer.from(toLowerCaseCLocale(name), "utf8");
 
   if (Parent == null) {
     idHash = hash(nameBuffer);
@@ -198,12 +199,12 @@ function parseSubNames(
     retNames.pop();
   }
 
-  const verusChainNameLc = verusChainName.toLowerCase();
+  const verusChainNameLc = toLowerCaseCLocale(verusChainName)
 
   if (addVerus) {
     if (explicitChain) {
       const chainParts = chain.split(".");
-      const lastChainPart = chainParts[chainParts.length - 1].toLowerCase();
+      const lastChainPart = toLowerCaseCLocale(chainParts[chainParts.length - 1])
 
       if (lastChainPart !== "" && lastChainPart !== verusChainNameLc) {
         chainParts.push(verusChainNameLc);
@@ -214,7 +215,8 @@ function parseSubNames(
       }
     }
 
-    const lastName = retNames[retNames.length - 1]?.toLowerCase();
+    const lastName = toLowerCaseCLocale(retNames[retNames.length - 1])
+
     if (lastName !== "" && lastName !== verusChainNameLc) {
       retNames.push(verusChainNameLc);
     } else if (lastName === "") {
@@ -257,14 +259,14 @@ function cleanName(
   if (
     newParent &&
     subNames.length > 1 &&
-    last.toLowerCase() === verusChainName.toLowerCase()
+    toLowerCaseCLocale(last) === toLowerCaseCLocale(verusChainName)
   ) {
     subNames.pop();
   }
 
   // Build up the parent hash from right to left
   for (let i = subNames.length - 1; i > 0; i--) {
-    const parentNameStr = Buffer.from(subNames[i].toLowerCase(), 'utf8');
+    const parentNameStr = Buffer.from(toLowerCaseCLocale(subNames[i]), 'utf8');
 
     let idHash: Buffer;
 

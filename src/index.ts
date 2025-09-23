@@ -14,6 +14,7 @@ export * from './utils/ops'
 export * from './utils/evals'
 export * from './utils/script'
 export * from './utils/cccustom'
+export * from './utils/tolower'
 
 export * from './pbaas/index'
 export * from './pbaas/PartialIdentity'
