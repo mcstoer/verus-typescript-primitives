@@ -514,3 +514,12 @@ exports.IDENTITY_CREDENTIAL_USERNAME = {
         name: "vrsc::identity.credential.username"
     },
 };
+exports.ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS = {
+    "vdxfid": "i4BWC5Lr7gAT7KzyDx82Ye5DeFQD8ckcXe",
+    "indexid": "x91cesmvxzP7jVt15dnBX2bkfuRDya9TPq",
+    "hash160result": "3c520f0bde6be181461ebbff11bce396a604c007",
+    "qualifiedname": {
+        "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+        "name": "vrsc::attestation.view.request.multipleattestations"
+    }
+};

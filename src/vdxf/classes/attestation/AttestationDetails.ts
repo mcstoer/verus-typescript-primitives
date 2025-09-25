@@ -408,6 +408,7 @@ export class AttestationDetails implements SerializableEntity {
   }
 
   toJson(): AttestationDetailsJson {
+    this.setFlags(); // Ensure flags are set before converting to JSON
     const retval: AttestationDetailsJson = {
       version: this.version.toNumber(),
       attestations: this.attestations.map((attestation) => attestation.toJson())
