@@ -12,59 +12,6 @@ import { createHash } from 'crypto';
 
 const { BufferReader, BufferWriter } = bufferutils
 
-export const ENDORSEMENT: VDXFKeyInterface = {
-  "vdxfid": "iDbPhzm8g7mQ94Cy2VNn7dJPVk5zcDRhPS",
-  "indexid": "xJRWAoCDXRz4mE5ztB2w61pvXQ71WSXnGu",
-  "hash160result": "dbfcb74829379cb79d39d9dbe81a76627bb8fd6e",
-  "qualifiedname": {
-    "namespace": "iNQFA8jtYe9JYq6Qr49ZxAhvWErFurWjTa",
-    "name": "valu.vrsc::endorsement"
-  }
-}
-
-export const ENDORSEMENT_SKILL: VDXFKeyInterface = {
-  "vdxfid": "iBJqQMRzpCW1WVYoU2Ty2VbCJnvyTEsE1C",
-  "indexid": "xG8ws9s5fWig8fRqKi87zt7jLSwzNoJ3s7",
-  "hash160result": "309091e8f181bd19279b6cd8873aaafaf4d8eb55",
-  "qualifiedname": {
-    "namespace": "iNQFA8jtYe9JYq6Qr49ZxAhvWErFurWjTa",
-    "name": "valu.vrsc::endorsement.skill"
-  }
-}
-
-export const ENDORSEMENT_QUALIFICATION: VDXFKeyInterface = {
-  "vdxfid": "iGW3WFP1h8ZDsJWLFMvTF3ZqLuiMRBK6jV",
-  "indexid": "xML9y3p6YSmtVUPN73acDS6NNZjNE6JbQo",
-  "hash160result": "d2f91effc976eee2d9574d4ab5e4f0456827e38e",
-  "qualifiedname": {
-    "namespace": "iNQFA8jtYe9JYq6Qr49ZxAhvWErFurWjTa",
-    "name": "valu.vrsc::endorsement.qualification"
-  }
-}
-
-export const ENDORSEMENT_REFERENCE: VDXFKeyInterface = {
-  "vdxfid": "iArNtGt8xYWBQaDtYATfhdR1NXq1ecZgRp",
-  "indexid": "xFgVM5KDorir2k6vPr7pg1wYQBr2VEywYv",
-  "hash160result": "ebc99d117c8e67fa10dfdd6a3295d40458e5ea50",
-  "qualifiedname": {
-    "namespace": "iNQFA8jtYe9JYq6Qr49ZxAhvWErFurWjTa",
-    "name": "valu.vrsc::endorsement.reference"
-  }
-}
-
-
-export const ENDORSEMENT_PROJECT: VDXFKeyInterface = {
-  "vdxfid": "i7tTikSbJcLDBFpZyb8Uk3UfVjsLxz25Q4",
-  "indexid": "xCiaBYsg9vYsoRhbqGndiS1CXPtMpCtFg3",
-  "hash160result": "0ff2447acd00a1c5494156edee5481591c636730",
-  "qualifiedname": {
-    "namespace": "iNQFA8jtYe9JYq6Qr49ZxAhvWErFurWjTa",
-    "name": "valu.vrsc::endorsement.project"
-  }
-}
-
-const ENDORSEMENT_TYPES = [ENDORSEMENT_SKILL, ENDORSEMENT_QUALIFICATION, ENDORSEMENT_REFERENCE, ENDORSEMENT_PROJECT];
-
 export interface EndorsementJson {
   version: number;
   flags?: number;
@@ -116,7 +63,6 @@ export class Endorsement implements SerializableEntity {
   getByteLength() {
     let byteLength = 0;
 
-    byteLength += varint.encodingLength(this.version);
     byteLength += varint.encodingLength(this.flags);
     byteLength += varuint.encodingLength(Buffer.from(this.endorsee, 'utf-8').byteLength);
     byteLength += Buffer.from(this.endorsee, 'utf-8').byteLength;
@@ -172,7 +118,6 @@ export class Endorsement implements SerializableEntity {
     this.setFlags();
     const bufferWriter = new BufferWriter(Buffer.alloc(this.getByteLength()))
 
-    bufferWriter.writeVarInt(this.version);
     bufferWriter.writeVarInt(this.flags);
     bufferWriter.writeVarSlice(Buffer.from(this.endorsee, 'utf-8'));
     bufferWriter.writeVarSlice(this.reference);
@@ -199,7 +144,6 @@ export class Endorsement implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset: number = 0) {
     const reader = new BufferReader(buffer, offset);
 
-    this.version = reader.readVarInt();
     this.flags = reader.readVarInt();
     this.endorsee = reader.readVarSlice().toString('utf-8');
     this.reference = reader.readVarSlice();
@@ -225,22 +169,19 @@ export class Endorsement implements SerializableEntity {
     return reader.offset;
   }
 
-  toIdentityUpdateJson(type: VDXFKeyInterface): { [key: string]: { [key: string]: [string] } } {
+  toIdentityUpdateJson(vdxfid): { [key: string]: { [key: string]: [string] } } {
 
     const contentmultimap = {};
 
-    if (!type) {
-      throw new Error('Type is required')
+    if (!vdxfid) {
+      throw new Error('Vdxfid is required')
     }
 
     if (!this.signature || !this.signature.isValid()) {
       throw new Error('Signature is required')
     }
-
-    if (!ENDORSEMENT_TYPES.includes(type)) {
-      throw new Error('Unsupported endorsement type');
-    }
-    contentmultimap[type.vdxfid] = [{ serializedhex: this.toBuffer().toString('hex') }];
+ 
+    contentmultimap[vdxfid] = [{ serializedhex: this.toBuffer().toString('hex') }];
 
     return {
       contentmultimap: contentmultimap

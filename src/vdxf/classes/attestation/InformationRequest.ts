@@ -30,10 +30,6 @@ export interface RequestItemJson {
 }
 
 
-export interface IdentityInformationRequestJson {
-  version: number;
-  items: RequestItemJson[];
-}
 export class RequestItem implements SerializableEntity {
 
   static VERSION_INVALID = new BN(0);
@@ -77,7 +73,7 @@ export class RequestItem implements SerializableEntity {
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(RequestInformation.FIRST_VERSION) && this.version.lte(RequestInformation.LAST_VERSION);
+    let valid = this.version.gte(RequestItem.FIRST_VERSION) && this.version.lte(RequestItem.LAST_VERSION);
     valid &&= this.isFormatValid();
     valid &&= (this.type.gte(RequestItem.ATTESTATION) && this.type.lte(RequestItem.CREDENTIAL));
     return valid;
@@ -85,7 +81,6 @@ export class RequestItem implements SerializableEntity {
 
   getByteLength(): number {
     let length = 0;
-    length += varint.encodingLength(this.version);
     length += varint.encodingLength(this.format);
     length += varint.encodingLength(this.type);
     
@@ -110,7 +105,6 @@ export class RequestItem implements SerializableEntity {
 
   toBuffer(): Buffer {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
-    writer.writeVarInt(this.version);
     writer.writeVarInt(this.format);
     writer.writeVarInt(this.type);
     
@@ -132,7 +126,6 @@ export class RequestItem implements SerializableEntity {
 
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
-    this.version = reader.readVarInt();
     this.format = reader.readVarInt();
     this.type = reader.readVarInt();
     
@@ -169,80 +162,5 @@ export class RequestItem implements SerializableEntity {
     this.id = json.id;
     this.signer = json.signer;
     this.requestedkeys = json.requestedkeys || [];
-  }
-}
-
-export class RequestInformation implements SerializableEntity {
-  static VERSION_INVALID = new BN(0);
-  static FIRST_VERSION = new BN(1);
-  static LAST_VERSION = new BN(1);
-  static DEFAULT_VERSION = new BN(1);
-  
-  version: BigNumber;
-  items: RequestItem[];
-  
-  constructor(data: RequestInformation) {
-    this.version = data?.version ? new BN(data.version) : RequestInformation.DEFAULT_VERSION;
-    this.items = data?.items || [];
-  }
-
-  isValid(): boolean {
-    let valid = this.version.gte(RequestInformation.FIRST_VERSION) && this.version.lte(RequestInformation.LAST_VERSION);
-    valid &&= this.items.every(item => {
-      return item.isValid();
-    });
-    return valid;
-  }
-
-  getByteLength(): number {
-    let length = 0;
-    length += varint.encodingLength(this.version);
-    length += varuint.encodingLength(this.items.length);
-    for (const item of this.items) {
-      length += item.getByteLength();
-    }
-    return length;
-  }
-
-  toBuffer(): Buffer {
-    const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
-    writer.writeVarInt(this.version);
-    writer.writeCompactSize(this.items ? this.items.length : 0);
-    if (this.items) {
-      for (const item of this.items) {
-        const itemBuffer = item.toBuffer();
-        writer.writeSlice(itemBuffer);
-      }
-    }
-    return writer.buffer;
-  }
-
-  fromBuffer(buffer: Buffer, offset?: number): number {
-    const reader = new BufferReader(buffer, offset);
-    this.version = reader.readVarInt();
-    this.items = [];
-    const itemsLength = reader.readCompactSize();
-    for (let i = 0; i < itemsLength; i++) {
-      const item = new RequestItem();
-      reader.offset = item.fromBuffer(buffer, reader.offset);
-      this.items.push(item);
-    }
-    return reader.offset;
-  }
-
-  toJSON(): IdentityInformationRequestJson {
-    return {
-      version: this.version.toNumber(),
-      items: this.items.map(item => item.toJSON())
-    };
-  }
-
-  fromJSON(json: IdentityInformationRequestJson): void {
-    this.version = new BN(json.version);
-    this.items = json.items.map(itemJson => {
-      const item = new RequestItem();
-      item.fromJSON(itemJson);
-      return item;
-    });
   }
 }

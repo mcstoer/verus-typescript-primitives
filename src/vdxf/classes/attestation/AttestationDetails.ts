@@ -316,7 +316,6 @@ export class AttestationDetails implements SerializableEntity {
     this.setFlags();
     let length = 0;
 
-    length += varint.encodingLength(this.version);
     length += varint.encodingLength(this.flags);
 
     if (this.hasLabel() && this.label) {
@@ -346,7 +345,6 @@ export class AttestationDetails implements SerializableEntity {
   toBuffer(): Buffer {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
-    writer.writeVarInt(this.version);
     writer.writeVarInt(this.flags);
 
     if (this.hasLabel() && this.label) {
@@ -374,7 +372,6 @@ export class AttestationDetails implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.version = reader.readVarInt();
     this.flags = reader.readVarInt();
 
     if (this.hasLabel()) {

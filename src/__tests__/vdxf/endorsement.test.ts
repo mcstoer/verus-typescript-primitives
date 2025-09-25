@@ -1,5 +1,5 @@
 
-import { Endorsement, ENDORSEMENT_SKILL } from "../../vdxf/classes/endorsement/Endorsement";
+import { Endorsement } from "../../vdxf/classes/endorsement/Endorsement";
 
 
 describe('Serializes and deserializes Endorsement', () => {
@@ -34,7 +34,7 @@ describe('Serializes and deserializes Endorsement', () => {
 
         e.setFlags();
 
-        expect(() => e.toIdentityUpdateJson(ENDORSEMENT_SKILL)).toThrow("Signature is required");
+        expect(() => e.toIdentityUpdateJson("iBJqQMRzpCW1WVYoU2Ty2VbCJnvyTEsE1C")).toThrow("Signature is required");
 
     });
 });
