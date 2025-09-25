@@ -1,4 +1,4 @@
-import { RequestItem, RequestedFormatFlags, InformationType } from "../../vdxf/classes/attestation/InformationRequest";
+import { RequestItem, RequestedFormatFlags, InformationType } from "../../vdxf/classes/requestobjects/InformationRequest";
 import { BN } from "bn.js";
 
 describe('Information Request Tests', () => {

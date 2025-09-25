@@ -1,5 +1,5 @@
 
-import { ProvisionIdentity } from "../../vdxf/classes/provisioning/ProvisioningIdentity";
+import { ProvisionIdentity } from "../../vdxf/classes/requestobjects/ProvisioningIdentity";
 
 
 describe('Serializes and deserializes ProvisionIdentity', () => {
