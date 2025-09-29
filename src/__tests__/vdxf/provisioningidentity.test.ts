@@ -8,9 +8,9 @@ describe('Serializes and deserializes ProvisionIdentity', () => {
         const provisionJson = {
             version: 1,
             flags: ProvisionIdentity.FLAG_HAS_IDENTITYID.or(ProvisionIdentity.FLAG_HAS_WEBHOOK).toNumber(),
-            identity_id: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
-            system_id: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
-            parent_id: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
+            identityId: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
+            systemId: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            parentId: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
             webhook: "https://mydomain.com/webhook"            
         }
 
@@ -27,9 +27,9 @@ describe('Serializes and deserializes ProvisionIdentity', () => {
             version: 1,
             flags: ProvisionIdentity.FLAG_HAS_IDENTITYID
             .or(ProvisionIdentity.FLAG_HAS_WEBHOOK).or(ProvisionIdentity.FLAG_HAS_FQN).toNumber(),
-            identity_id: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
-            system_id: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
-            parent_id: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
+            identityId: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
+            systemId: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            parentId: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB",
             webhook: "https://mydomain.com/webhook",
             fqn: "my.fully.vrsc@"
         }

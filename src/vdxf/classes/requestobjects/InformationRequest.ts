@@ -67,8 +67,7 @@ export class RequestItem implements SerializableEntity {
     return (
       f.eq(RequestItem.FULL_DATA) ||
       f.eq(RequestItem.PARTIAL_DATA) ||
-      f.eq(RequestItem.FULL_DATA.or(RequestItem.COLLECTION)) ||
-      f.eq(RequestItem.PARTIAL_DATA.or(RequestItem.COLLECTION))
+      f.eq(RequestItem.COLLECTION) 
     );
   }
 

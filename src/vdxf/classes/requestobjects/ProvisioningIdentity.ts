@@ -11,9 +11,9 @@ import { createHash } from "crypto";
 export interface ProvisionIdentityInterface {
   version?: BigNumber;
   flags: BigNumber;  
-  system_id?: string;
-  parent_id?: string;
-  identity_id?: string;
+  systemId?: string;
+  parentId?: string;
+  identityId?: string;
   fqn?: string;
   webhook?: string;
 }
@@ -22,9 +22,9 @@ export class ProvisionIdentity implements SerializableEntity {
 
   version: BigNumber = ProvisionIdentity.VERSION_CURRENT;
   flags: BigNumber;  
-  system_id?: string;
-  parent_id: string;
-  identity_id?: string;
+  systemId?: string;
+  parentId: string;
+  identityId?: string;
   fqn?: string;
   webhook?: string;
   
@@ -45,9 +45,9 @@ export class ProvisionIdentity implements SerializableEntity {
   ) {
     this.version = provisionIdentity.version || ProvisionIdentity.VERSION_CURRENT;
     this.flags = provisionIdentity.flags;
-    this.system_id = provisionIdentity?.system_id;
-    this.parent_id = provisionIdentity?.parent_id;
-    this.identity_id = provisionIdentity?.identity_id;
+    this.systemId = provisionIdentity?.systemId;
+    this.parentId = provisionIdentity?.parentId;
+    this.identityId = provisionIdentity?.identityId;
     this.fqn = provisionIdentity?.fqn;
     this.webhook = provisionIdentity?.webhook;
 
@@ -62,14 +62,14 @@ export class ProvisionIdentity implements SerializableEntity {
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_PARENT_AS_FQN).eq(ProvisionIdentity.FLAG_PARENT_AS_FQN)) {
-      length += varuint.encodingLength(this.parent_id ? this.parent_id.length : 0);
-      length += this.parent_id ? Buffer.from(this.parent_id, 'utf8').length : 0;
+      length += varuint.encodingLength(this.parentId ? this.parentId.length : 0);
+      length += this.parentId ? Buffer.from(this.parentId, 'utf8').length : 0;
     } else {
-      length += 20; // parent_id as hash
+      length += 20; // parentId as hash
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_IDENTITYID).eq(ProvisionIdentity.FLAG_HAS_IDENTITYID)) {
-      length += 20; // identity_id as hash
+      length += 20; // identityId as hash
     } 
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_FQN).eq(ProvisionIdentity.FLAG_HAS_FQN)) {
@@ -92,17 +92,17 @@ export class ProvisionIdentity implements SerializableEntity {
     writer.writeVarInt(this.flags);
 
     if (!this.flags.and(ProvisionIdentity.FLAG_SYSTEM_AS_SIGNATURE).eq(ProvisionIdentity.FLAG_SYSTEM_AS_SIGNATURE)) {
-      writer.writeSlice(fromBase58Check(this.system_id).hash);
+      writer.writeSlice(fromBase58Check(this.systemId).hash);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_PARENT_AS_FQN).eq(ProvisionIdentity.FLAG_PARENT_AS_FQN)) {
-      writer.writeVarSlice(Buffer.from(this.parent_id || '', 'utf8'));
+      writer.writeVarSlice(Buffer.from(this.parentId || '', 'utf8'));
     } else {
-      writer.writeSlice(fromBase58Check(this.parent_id).hash);
+      writer.writeSlice(fromBase58Check(this.parentId).hash);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_IDENTITYID).eq(ProvisionIdentity.FLAG_HAS_IDENTITYID)) {
-      writer.writeSlice(fromBase58Check(this.identity_id).hash);
+      writer.writeSlice(fromBase58Check(this.identityId).hash);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_FQN).eq(ProvisionIdentity.FLAG_HAS_FQN)) {
@@ -123,17 +123,17 @@ export class ProvisionIdentity implements SerializableEntity {
     this.flags = reader.readVarInt();
 
     if (!this.flags.and(ProvisionIdentity.FLAG_SYSTEM_AS_SIGNATURE).eq(ProvisionIdentity.FLAG_SYSTEM_AS_SIGNATURE)) {
-      this.system_id = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+      this.systemId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_PARENT_AS_FQN).eq(ProvisionIdentity.FLAG_PARENT_AS_FQN)) {
-      this.parent_id = reader.readVarSlice().toString('utf8');
+      this.parentId = reader.readVarSlice().toString('utf8');
     } else {
-      this.parent_id = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+      this.parentId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_IDENTITYID).eq(ProvisionIdentity.FLAG_HAS_IDENTITYID)) {
-      this.identity_id = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+      this.identityId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
     }
 
     if (this.flags.and(ProvisionIdentity.FLAG_HAS_FQN).eq(ProvisionIdentity.FLAG_HAS_FQN)) {
@@ -152,9 +152,9 @@ export class ProvisionIdentity implements SerializableEntity {
     return {
       version: this.version ? this.version.toNumber() : 0,
       flags: this.flags ? this.flags.toNumber() : 0,
-      system_id: this.system_id,
-      parent_id: this.parent_id,
-      identity_id: this.identity_id,
+      systemId: this.systemId,
+      parentId: this.parentId,
+      identityId: this.identityId,
       fqn: this.fqn,
       webhook: this.webhook
     };
@@ -164,9 +164,9 @@ export class ProvisionIdentity implements SerializableEntity {
     return new ProvisionIdentity({
       version: new BN(data?.version || 0),
       flags: new BN(data?.flags || 0),
-      system_id: data.system_id,
-      parent_id: data.parent_id,
-      identity_id: data.identity_id,
+      systemId: data.systemId,
+      parentId: data.parentId,
+      identityId: data.identityId,
       fqn: data.fqn,
       webhook: data.webhook
     })
@@ -176,14 +176,14 @@ export class ProvisionIdentity implements SerializableEntity {
   setFlags() {
     this.flags = new BN(0, 10);
     
-    if (!this.system_id) {
+    if (!this.systemId) {
       this.flags = this.flags.or(ProvisionIdentity.FLAG_SYSTEM_AS_SIGNATURE);
     }
     
-    if (this.parent_id) {
-      // Check if parent_id is a valid base58 address or should be treated as FQN
+    if (this.parentId) {
+      // Check if parentId is a valid base58 address or should be treated as FQN
       try {
-        fromBase58Check(this.parent_id);
+        fromBase58Check(this.parentId);
         // If it doesn't throw, it's a valid address, don't set FQN flag
       } catch {
         // If it throws, treat as FQN
@@ -191,7 +191,7 @@ export class ProvisionIdentity implements SerializableEntity {
       }
     }
     
-    if (this.identity_id) {
+    if (this.identityId) {
       this.flags = this.flags.or(ProvisionIdentity.FLAG_HAS_IDENTITYID);
     }
     
@@ -207,8 +207,8 @@ export class ProvisionIdentity implements SerializableEntity {
   isValid(): boolean {
     let valid = this.flags != null && this.flags.gte(new BN(0));
     
-    // At minimum, we need either system_id or parent_id
-    valid &&= (this.parent_id != null && this.parent_id.length > 0);
+    // At minimum, we need either systemId or parentId
+    valid &&= (this.parentId != null && this.parentId.length > 0);
     
     return valid;
   }

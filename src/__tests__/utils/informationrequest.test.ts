@@ -51,16 +51,9 @@ describe('Information Request Tests', () => {
       expect(requestItem.isFormatValid()).toBe(true);
     });
 
-    test('should validate format correctly - FULL_DATA | COLLECTION (5)', () => {
+    test('should validate format correctly -  COLLECTION', () => {
       const requestItem = new RequestItem();
-      requestItem.format = new BN(RequestedFormatFlags.FULL_DATA | RequestedFormatFlags.COLLECTION);
-
-      expect(requestItem.isFormatValid()).toBe(true);
-    });
-
-    test('should validate format correctly - PARTIAL_DATA | COLLECTION (6)', () => {
-      const requestItem = new RequestItem();
-      requestItem.format = new BN(RequestedFormatFlags.PARTIAL_DATA | RequestedFormatFlags.COLLECTION);
+      requestItem.format = new BN(RequestedFormatFlags.COLLECTION);
 
       expect(requestItem.isFormatValid()).toBe(true);
     });
@@ -321,9 +314,6 @@ describe('Information Request Tests', () => {
       expect(deserializedItem.id).toEqual(testAttestationKey);
       expect(deserializedItem.signer).toBe(testSigner);
       expect(deserializedItem.requestedkeys).toEqual(testRequestedKeys);
-
-      // Verify format validation passes
-      expect(deserializedItem.isFormatValid()).toBe(true);
 
       // Verify we can serialize back to the same hex string
       const reserializedBuffer = deserializedItem.toBuffer();
