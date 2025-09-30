@@ -68,6 +68,6 @@ export declare const DATA_TYPE_STRING: VDXFKeyInterface;
 export declare const DATA_TYPE_DEFINEDKEY: VDXFKeyInterface;
 export declare const DATA_TYPE_OBJECT_DATADESCRIPTOR: VDXFKeyInterface;
 export declare const DATA_TYPE_OBJECT_CREDENTIAL: VDXFKeyInterface;
-export declare const IDENTITY_CREDENTIALS: VDXFKeyInterface;
+export declare const IDENTITY_CREDENTIAL: VDXFKeyInterface;
 export declare const IDENTITY_CREDENTIAL_PLAINLOGIN: VDXFKeyInterface;
 export declare const IDENTITY_CREDENTIAL_USERNAME: VDXFKeyInterface;

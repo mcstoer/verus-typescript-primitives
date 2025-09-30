@@ -558,12 +558,12 @@ export const DATA_TYPE_OBJECT_CREDENTIAL: VDXFKeyInterface = {
   },
 };
 
-export const IDENTITY_CREDENTIALS: VDXFKeyInterface = {
-  vdxfid: "iM8ULboymw7rqdjX5YihsmxFG59dbyT2Cj",
-  hash160result: "089fcd4c0bb1edb78789a223cf76a3399e5ca7c1",
+export const IDENTITY_CREDENTIAL: VDXFKeyInterface = {
+  vdxfid: "iMRGoNZvSuayeu17PmbXv2CA6eRL4xfmhm",
+  hash160result: "888557a3eb9ef8b0e871ee8489de586e25cdd4c4",
   qualifiedname: {
     namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    name: "vrsc::identity.credentials"
+    name: "vrsc::identity.credential"
   },
 };
 
