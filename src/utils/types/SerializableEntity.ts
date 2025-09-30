@@ -3,3 +3,9 @@ export interface SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number;
   getByteLength(): number;
 }
+
+export interface SerializableDataEntity {
+  getDataByteLength(): number;
+  toDataBuffer(): Buffer;
+  fromDataBuffer(buffer: Buffer, offset?: number): number;
+}

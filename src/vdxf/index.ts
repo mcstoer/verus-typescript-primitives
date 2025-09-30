@@ -167,6 +167,13 @@ export class BufferDataVdxfObject extends VDXFObject {
       vdxfkey: this.vdxfkey,
     };
   }
+
+  static fromJson(json: { data: string; vdxfkey: string }) {
+    return new BufferDataVdxfObject(
+      json.data,
+      json.vdxfkey,
+    );
+  }
 }
 
 export class VDXFData extends VDXFObject {
