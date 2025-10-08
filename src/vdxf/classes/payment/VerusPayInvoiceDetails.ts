@@ -7,6 +7,7 @@ import { TransferDestination, TransferDestinationJson } from '../../../pbaas/Tra
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { I_ADDR_VERSION } from '../../../constants/vdxf';
 import createHash = require('create-hash');
+import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export const VERUSPAY_INVALID = new BN(0, 10)
@@ -29,7 +30,7 @@ export type VerusPayInvoiceDetailsJson = {
   acceptedsystems?: Array<string>,
 }
 
-export class VerusPayInvoiceDetails {
+export class VerusPayInvoiceDetails implements SerializableEntity {
   flags: BigNumber;
   amount: BigNumber;
   destination: TransferDestination;
