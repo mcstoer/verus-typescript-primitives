@@ -50,7 +50,7 @@ export class RequestItem implements SerializableEntity {
   type: BigNumber;
   id: {[key: string]: string};
   signer: string;
-  requestedkeys?: string[];
+  requestedKeys?: string[];
 
   constructor(json?: RequestItem) {
     this.version = json?.version || RequestItem.DEFAULT_VERSION;
@@ -58,7 +58,7 @@ export class RequestItem implements SerializableEntity {
     this.type = json?.type || RequestItem.ATTESTATION;
     this.id = json?.id || {};
     this.signer = json?.signer || '';
-    this.requestedkeys = json?.requestedkeys || [];
+    this.requestedKeys = json?.requestedKeys || [];
   }
 
   isFormatValid(): boolean {
@@ -92,9 +92,9 @@ export class RequestItem implements SerializableEntity {
     length += varuint.encodingLength(Buffer.byteLength(this.signer, 'utf8'));
     length += Buffer.byteLength(this.signer, 'utf8');
     
-    length += varuint.encodingLength(this.requestedkeys ? this.requestedkeys.length : 0);
-    if (this.requestedkeys) {
-      for (const key of this.requestedkeys) {    
+    length += varuint.encodingLength(this.requestedKeys ? this.requestedKeys.length : 0);
+    if (this.requestedKeys) {
+      for (const key of this.requestedKeys) {    
         length += varuint.encodingLength(Buffer.byteLength(key, 'utf8'));    
         length += Buffer.byteLength(key, 'utf8');
       }
@@ -114,9 +114,9 @@ export class RequestItem implements SerializableEntity {
     // Write signer
     writer.writeVarSlice(Buffer.from(this.signer, 'utf8'));
     
-    writer.writeCompactSize(this.requestedkeys ? this.requestedkeys.length : 0);
-    if (this.requestedkeys) {
-      for (const key of this.requestedkeys) {
+    writer.writeCompactSize(this.requestedKeys ? this.requestedKeys.length : 0);
+    if (this.requestedKeys) {
+      for (const key of this.requestedKeys) {
         writer.writeVarSlice(Buffer.from(key, 'utf8'));
       }
     }
@@ -135,10 +135,10 @@ export class RequestItem implements SerializableEntity {
     // Read signer
     this.signer = reader.readVarSlice().toString('utf8');
     
-    this.requestedkeys = [];
+    this.requestedKeys = [];
     const requestedKeysLength = reader.readCompactSize();
     for (let i = 0; i < requestedKeysLength; i++) {
-      this.requestedkeys.push(reader.readVarSlice().toString('utf8'));
+      this.requestedKeys.push(reader.readVarSlice().toString('utf8'));
     }
     return reader.offset;
   }
@@ -150,7 +150,7 @@ export class RequestItem implements SerializableEntity {
       type: this.type.toNumber(),
       id: this.id,
       signer: this.signer,
-      requestedkeys: this.requestedkeys
+      requestedkeys: this.requestedKeys
     };
   }
 
@@ -160,6 +160,6 @@ export class RequestItem implements SerializableEntity {
     this.type = new BN(json.type);
     this.id = json.id;
     this.signer = json.signer;
-    this.requestedkeys = json.requestedkeys || [];
+    this.requestedKeys = json.requestedkeys || [];
   }
 }

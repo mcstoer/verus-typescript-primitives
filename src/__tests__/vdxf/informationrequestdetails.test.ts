@@ -31,7 +31,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(item.type.toString()).toBe("1"); // ATTESTATION
       expect(item.id).toEqual({});
       expect(item.signer).toBe("");
-      expect(item.requestedkeys).toEqual([]);
+      expect(item.requestedKeys).toEqual([]);
     });
 
     test("creates instance with custom values", () => {
@@ -41,7 +41,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
         type: new BN(InformationType.CREDENTIAL),
         id: { attestationId: "123", type: "identity" },
         signer: TEST_IDENTITY_ID_1,
-        requestedkeys: ["key1", "key2"]
+        requestedKeys: ["key1", "key2"]
       });
 
       expect(item.version.toString()).toBe("1");
@@ -49,7 +49,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(item.type.toNumber()).toBe(InformationType.CREDENTIAL);
       expect(item.id).toEqual({ attestationId: "123", type: "identity" });
       expect(item.signer).toBe(TEST_IDENTITY_ID_1);
-      expect(item.requestedkeys).toEqual(["key1", "key2"]);
+      expect(item.requestedKeys).toEqual(["key1", "key2"]);
     });
   });
 
@@ -161,7 +161,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
         type: new BN(InformationType.CREDENTIAL),
         id: { attestationId: "abc123", type: "identity", scope: "personal" },
         signer: TEST_IDENTITY_ID_1,
-        requestedkeys: ["name", "email", "birthdate"]
+        requestedKeys: ["name", "email", "birthdate"]
       });
 
       const buffer = original.toBuffer();
@@ -173,7 +173,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(deserialized.type.toString()).toBe(original.type.toString());
       expect(deserialized.id).toEqual(original.id);
       expect(deserialized.signer).toBe(original.signer);
-      expect(deserialized.requestedkeys).toEqual(original.requestedkeys);
+      expect(deserialized.requestedKeys).toEqual(original.requestedKeys);
     });
 
     test("roundtrip JSON serialization", () => {
@@ -183,7 +183,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
         type: new BN(InformationType.CLAIM),
         id: { claimId: "xyz789" },
         signer: TEST_IDENTITY_ID_1,
-        requestedkeys: ["verified", "timestamp"]
+        requestedKeys: ["verified", "timestamp"]
       });
 
       const json = original.toJSON();
@@ -195,41 +195,41 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(fromJson.type.toString()).toBe(original.type.toString());
       expect(fromJson.id).toEqual(original.id);
       expect(fromJson.signer).toBe(original.signer);
-      expect(fromJson.requestedkeys).toEqual(original.requestedkeys);
+      expect(fromJson.requestedKeys).toEqual(original.requestedKeys);
     });
 
-    test("handles empty requestedkeys", () => {
+    test("handles empty requestedKeys", () => {
       const item = createRequestItem({
         version: new BN(1),
         format: new BN(RequestedFormatFlags.FULL_DATA),
         type: new BN(InformationType.ATTESTATION),
         id: { id: "test" },
         signer: TEST_IDENTITY_ID_1,
-        requestedkeys: []
+        requestedKeys: []
       });
 
       const buffer = item.toBuffer();
       const deserialized = new RequestItem();
       deserialized.fromBuffer(buffer);
 
-      expect(deserialized.requestedkeys).toEqual([]);
+      expect(deserialized.requestedKeys).toEqual([]);
     });
 
-    test("handles undefined requestedkeys", () => {
+    test("handles undefined requestedKeys", () => {
       const item = createRequestItem({
         version: new BN(1),
         format: new BN(RequestedFormatFlags.FULL_DATA),
         type: new BN(InformationType.ATTESTATION),
         id: { id: "test" },
         signer: TEST_IDENTITY_ID_1
-        // requestedkeys is undefined
+        // requestedKeys is undefined
       });
 
       const buffer = item.toBuffer();
       const deserialized = new RequestItem();
       deserialized.fromBuffer(buffer);
 
-      expect(deserialized.requestedkeys).toEqual([]);
+      expect(deserialized.requestedKeys).toEqual([]);
     });
   });
 
@@ -279,7 +279,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
         type: new BN(InformationType.CREDENTIAL),
         id: { test: "value" },
         signer: TEST_IDENTITY_ID_1,
-        requestedkeys: ["key1", "key2"]
+        requestedKeys: ["key1", "key2"]
       });
 
       const expectedLength = item.getByteLength();
@@ -299,15 +299,15 @@ describe("RequestItem (InformationRequestDetails)", () => {
         type: new BN(InformationType.ATTESTATION),
         id: { [ATTESTATION_NAME.vdxfid]: VALU_ATTESTATION_NAME }, // "vrsc::attestation.name" : name
         signer: VALU_SIGNER,
-        requestedkeys: [IDENTITY_FIRSTNAME.vdxfid, IDENTITY_DATEOFBIRTH.vdxfid]
+        requestedKeys: [IDENTITY_FIRSTNAME.vdxfid, IDENTITY_DATEOFBIRTH.vdxfid]
       });
 
       expect(certificationRequest.format.toNumber()).toBe(RequestedFormatFlags.PARTIAL_DATA);
       expect(certificationRequest.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(certificationRequest.id[ATTESTATION_NAME.vdxfid]).toBe(VALU_ATTESTATION_NAME);
       expect(certificationRequest.signer).toBe(VALU_SIGNER);
-      expect(certificationRequest.requestedkeys).toContain(IDENTITY_FIRSTNAME.vdxfid);
-      expect(certificationRequest.requestedkeys).toContain(IDENTITY_DATEOFBIRTH.vdxfid);
+      expect(certificationRequest.requestedKeys).toContain(IDENTITY_FIRSTNAME.vdxfid);
+      expect(certificationRequest.requestedKeys).toContain(IDENTITY_DATEOFBIRTH.vdxfid);
       expect(certificationRequest.isValid()).toBe(true);
 
       // Test serialization roundtrip
@@ -319,7 +319,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(deserialized.type.toNumber()).toBe(certificationRequest.type.toNumber());
       expect(deserialized.id).toEqual(certificationRequest.id);
       expect(deserialized.signer).toBe(certificationRequest.signer);
-      expect(deserialized.requestedkeys).toEqual(certificationRequest.requestedkeys);
+      expect(deserialized.requestedKeys).toEqual(certificationRequest.requestedKeys);
     });
 
     test("certification request with full data", () => {
@@ -334,7 +334,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(certificationRequest1.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(certificationRequest1.id[ATTESTATION_NAME.vdxfid]).toBe(VALU_ATTESTATION_NAME);
       expect(certificationRequest1.signer).toBe(VALU_SIGNER);
-      expect(certificationRequest1.requestedkeys).toEqual([]); // Default empty array
+      expect(certificationRequest1.requestedKeys).toEqual([]); // Default empty array
       expect(certificationRequest1.isValid()).toBe(true);
 
       // Test serialization roundtrip
@@ -346,7 +346,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(deserialized.type.toNumber()).toBe(certificationRequest1.type.toNumber());
       expect(deserialized.id).toEqual(certificationRequest1.id);
       expect(deserialized.signer).toBe(certificationRequest1.signer);
-      expect(deserialized.requestedkeys).toEqual(certificationRequest1.requestedkeys);
+      expect(deserialized.requestedKeys).toEqual(certificationRequest1.requestedKeys);
     });
 
     test("certification request with collection format", () => {
@@ -364,7 +364,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(certificationRequest2.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(certificationRequest2.id[ATTESTATION_NAME.vdxfid]).toBe(VALU_ATTESTATION_NAME);
       expect(certificationRequest2.signer).toBe(VALU_SIGNER);
-      expect(certificationRequest2.requestedkeys).toEqual([]); // Default empty array
+      expect(certificationRequest2.requestedKeys).toEqual([]); // Default empty array
       expect(certificationRequest2.isValid()).toBe(true);
 
       // Test serialization roundtrip
@@ -376,7 +376,7 @@ describe("RequestItem (InformationRequestDetails)", () => {
       expect(deserialized.type.toNumber()).toBe(certificationRequest2.type.toNumber());
       expect(deserialized.id).toEqual(certificationRequest2.id);
       expect(deserialized.signer).toBe(certificationRequest2.signer);
-      expect(deserialized.requestedkeys).toEqual(certificationRequest2.requestedkeys);
+      expect(deserialized.requestedKeys).toEqual(certificationRequest2.requestedKeys);
     });
 
     test("validates VDXF key usage", () => {
@@ -399,14 +399,14 @@ describe("RequestItem (InformationRequestDetails)", () => {
           "customKey": "customValue"
         },
         signer: VALU_SIGNER,
-        requestedkeys: [IDENTITY_FIRSTNAME.vdxfid, "customRequestedKey"]
+        requestedKeys: [IDENTITY_FIRSTNAME.vdxfid, "customRequestedKey"]
       });
 
       expect(mixedRequest.isValid()).toBe(true);
       expect(mixedRequest.id[ATTESTATION_NAME.vdxfid]).toBe(VALU_ATTESTATION_NAME);
       expect(mixedRequest.id["customKey"]).toBe("customValue");
-      expect(mixedRequest.requestedkeys).toContain(IDENTITY_FIRSTNAME.vdxfid);
-      expect(mixedRequest.requestedkeys).toContain("customRequestedKey");
+      expect(mixedRequest.requestedKeys).toContain(IDENTITY_FIRSTNAME.vdxfid);
+      expect(mixedRequest.requestedKeys).toContain("customRequestedKey");
     });
   });
 });

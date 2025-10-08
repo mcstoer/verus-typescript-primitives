@@ -15,7 +15,7 @@ describe('Information Request Tests', () => {
       expect(requestItem.type.toNumber()).toBe(1); // ATTESTATION
       expect(requestItem.id).toEqual({});
       expect(requestItem.signer).toBe('');
-      expect(requestItem.requestedkeys).toEqual([]);
+      expect(requestItem.requestedKeys).toEqual([]);
     });
 
     test('should create RequestItem with provided values', () => {
@@ -25,7 +25,7 @@ describe('Information Request Tests', () => {
       testItem.type = new BN(InformationType.ATTESTATION);
       testItem.id = testAttestationKey;
       testItem.signer = testSigner;
-      testItem.requestedkeys = testRequestedKeys;
+      testItem.requestedKeys = testRequestedKeys;
 
       const requestItem = new RequestItem(testItem);
 
@@ -34,7 +34,7 @@ describe('Information Request Tests', () => {
       expect(requestItem.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(requestItem.id).toEqual(testAttestationKey);
       expect(requestItem.signer).toBe(testSigner);
-      expect(requestItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(requestItem.requestedKeys).toEqual(testRequestedKeys);
     });
 
     test('should validate format correctly - FULL_DATA', () => {
@@ -79,7 +79,7 @@ describe('Information Request Tests', () => {
       requestItem.type = new BN(InformationType.ATTESTATION);
       requestItem.id = testAttestationKey;
       requestItem.signer = testSigner;
-      requestItem.requestedkeys = testRequestedKeys;
+      requestItem.requestedKeys = testRequestedKeys;
 
       // Serialize to buffer
       const buffer = requestItem.toBuffer();
@@ -95,7 +95,7 @@ describe('Information Request Tests', () => {
       expect(deserializedItem.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(deserializedItem.id).toEqual(testAttestationKey);
       expect(deserializedItem.signer).toBe(testSigner);
-      expect(deserializedItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(deserializedItem.requestedKeys).toEqual(testRequestedKeys);
     });
 
     test('should serialize and deserialize to JSON correctly', () => {
@@ -105,7 +105,7 @@ describe('Information Request Tests', () => {
       requestItem.type = new BN(InformationType.CREDENTIAL);
       requestItem.id = testAttestationKey;
       requestItem.signer = testSigner;
-      requestItem.requestedkeys = testRequestedKeys;
+      requestItem.requestedKeys = testRequestedKeys;
 
       // Serialize to JSON
       const json = requestItem.toJSON();
@@ -127,7 +127,7 @@ describe('Information Request Tests', () => {
       expect(deserializedItem.type.toNumber()).toBe(InformationType.CREDENTIAL);
       expect(deserializedItem.id).toEqual(testAttestationKey);
       expect(deserializedItem.signer).toBe(testSigner);
-      expect(deserializedItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(deserializedItem.requestedKeys).toEqual(testRequestedKeys);
     });
 
     test('should calculate byte length correctly', () => {
@@ -137,7 +137,7 @@ describe('Information Request Tests', () => {
       requestItem.type = new BN(InformationType.ATTESTATION);
       requestItem.id = testAttestationKey;
       requestItem.signer = testSigner;
-      requestItem.requestedkeys = testRequestedKeys;
+      requestItem.requestedKeys = testRequestedKeys;
 
       const byteLength = requestItem.getByteLength();
       const buffer = requestItem.toBuffer();
@@ -187,7 +187,7 @@ describe('Information Request Tests', () => {
       originalItem.type = new BN(InformationType.CREDENTIAL);
       originalItem.id = testAttestationKey;
       originalItem.signer = testSigner;
-      originalItem.requestedkeys = testRequestedKeys;
+      originalItem.requestedKeys = testRequestedKeys;
 
       // JSON round-trip
       const json = originalItem.toJSON();
@@ -205,7 +205,7 @@ describe('Information Request Tests', () => {
       expect(fromBufferItem.type.toNumber()).toBe(originalItem.type.toNumber());
       expect(fromBufferItem.id).toEqual(originalItem.id);
       expect(fromBufferItem.signer).toBe(originalItem.signer);
-      expect(fromBufferItem.requestedkeys).toEqual(originalItem.requestedkeys);
+      expect(fromBufferItem.requestedKeys).toEqual(originalItem.requestedKeys);
     });
 
     test('should handle buffer round-trip with hex string', () => {
@@ -215,7 +215,7 @@ describe('Information Request Tests', () => {
       requestItem.type = new BN(InformationType.ATTESTATION);
       requestItem.id = testAttestationKey;
       requestItem.signer = testSigner;
-      requestItem.requestedkeys = testRequestedKeys;
+      requestItem.requestedKeys = testRequestedKeys;
 
       // Serialize to buffer and convert to hex
       const buffer = requestItem.toBuffer();
@@ -228,7 +228,7 @@ describe('Information Request Tests', () => {
 
       expect(reconstructedItem.id).toEqual(testAttestationKey);
       expect(reconstructedItem.signer).toBe(testSigner);
-      expect(reconstructedItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(reconstructedItem.requestedKeys).toEqual(testRequestedKeys);
       expect(reconstructedItem.format.toNumber()).toBe(RequestedFormatFlags.FULL_DATA);
       expect(reconstructedItem.type.toNumber()).toBe(InformationType.ATTESTATION);
     });
@@ -241,7 +241,7 @@ describe('Information Request Tests', () => {
       originalItem.type = new BN(InformationType.CREDENTIAL); // 3
       originalItem.id = testAttestationKey;
       originalItem.signer = testSigner;
-      originalItem.requestedkeys = testRequestedKeys;
+      originalItem.requestedKeys = testRequestedKeys;
 
       // Generate the hex string
       const originalBuffer = originalItem.toBuffer();
@@ -258,7 +258,7 @@ describe('Information Request Tests', () => {
       expect(deserializedItem.type.toNumber()).toBe(3); // CREDENTIAL
       expect(deserializedItem.id).toEqual(testAttestationKey);
       expect(deserializedItem.signer).toBe(testSigner);
-      expect(deserializedItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(deserializedItem.requestedKeys).toEqual(testRequestedKeys);
 
       // Verify round-trip integrity - serialize again and compare
       const reserializedBuffer = deserializedItem.toBuffer();
@@ -273,7 +273,7 @@ describe('Information Request Tests', () => {
       minimalItem.type = new BN(InformationType.ATTESTATION);
       minimalItem.id = {};
       minimalItem.signer = "";
-      minimalItem.requestedkeys = [];
+      minimalItem.requestedKeys = [];
 
       const minimalBuffer = minimalItem.toBuffer();
       const minimalHex = minimalBuffer.toString('hex');
@@ -287,7 +287,7 @@ describe('Information Request Tests', () => {
       expect(deserializedMinimal.type.toNumber()).toBe(InformationType.ATTESTATION);
       expect(deserializedMinimal.id).toEqual({});
       expect(deserializedMinimal.signer).toBe("");
-      expect(deserializedMinimal.requestedkeys).toEqual([]);
+      expect(deserializedMinimal.requestedKeys).toEqual([]);
 
       // Verify round-trip
       const reserializedMinimal = deserializedMinimal.toBuffer();
@@ -299,7 +299,7 @@ describe('Information Request Tests', () => {
       // - version: 1, format: 6 (PARTIAL_DATA | COLLECTION), type: 3 (CREDENTIAL)
       // - id: {"iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Valu Proof of Life"}
       // - signer: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB"
-      // - requestedkeys: ["iPzSt64gwsqmxcz3Ht7zhMngLC6no6S74K", "i6E3RQUUX3jt8CkizuLX6ihZHTegCmmbj4"]
+      // - requestedKeys: ["iPzSt64gwsqmxcz3Ht7zhMngLC6no6S74K", "i6E3RQUUX3jt8CkizuLX6ihZHTegCmmbj4"]
       const knownHexString = "06033b7b226945456a566b764d394e697a3475325743723651517a78317a705653764446756231223a2256616c752050726f6f66206f66204c696665227d22694b6a725443776f5046526b3434664169326e594e62504731365a55516a76314e42022269507a53743634677773716d78637a334874377a684d6e674c43366e6f365337344b22693645335251555558336a7438436b697a754c583669685a48546567436d6d626a34";
 
       // Deserialize from known hex string
@@ -313,7 +313,7 @@ describe('Information Request Tests', () => {
       expect(deserializedItem.type.toNumber()).toBe(3); // CREDENTIAL
       expect(deserializedItem.id).toEqual(testAttestationKey);
       expect(deserializedItem.signer).toBe(testSigner);
-      expect(deserializedItem.requestedkeys).toEqual(testRequestedKeys);
+      expect(deserializedItem.requestedKeys).toEqual(testRequestedKeys);
 
       // Verify we can serialize back to the same hex string
       const reserializedBuffer = deserializedItem.toBuffer();
