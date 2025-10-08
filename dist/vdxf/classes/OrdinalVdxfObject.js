@@ -24,9 +24,9 @@ class OrdinalVdxfObject {
     constructor(request = {
         type: OrdinalVdxfObject.TYPE_DATA_DESCRIPTOR
     }) {
-        if (request.vdxfkey) {
+        if (request.vdxfKey) {
             this.type = OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE;
-            this.vdxfkey = request.vdxfkey;
+            this.vdxfKey = request.vdxfKey;
             if (request.data) {
                 this.data = request.data;
             }
@@ -58,7 +58,7 @@ class OrdinalVdxfObject {
         let length = 0;
         length += varuint_1.default.encodingLength(this.type.toNumber());
         if (this.isDefinedByVdxfKey()) {
-            length += (0, address_1.fromBase58Check)(this.vdxfkey).hash.length;
+            length += (0, address_1.fromBase58Check)(this.vdxfKey).hash.length;
         }
         length += varint_1.default.encodingLength(this.version);
         const dataLength = this.getDataByteLength();
@@ -70,7 +70,7 @@ class OrdinalVdxfObject {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.type.toNumber());
         if (this.isDefinedByVdxfKey()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.vdxfkey).hash);
+            writer.writeSlice((0, address_1.fromBase58Check)(this.vdxfKey).hash);
         }
         writer.writeVarInt(this.version);
         writer.writeVarSlice(this.toDataBuffer());
@@ -86,7 +86,7 @@ class OrdinalVdxfObject {
         else
             this.type = type;
         if (this.isDefinedByVdxfKey()) {
-            this.vdxfkey = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.vdxfKey = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
         }
         this.version = reader.readVarInt();
         const dataBuf = reader.readVarSlice();
@@ -100,7 +100,7 @@ class OrdinalVdxfObject {
         return {
             type: this.type ? this.type.toString() : undefined,
             version: this.version ? this.version.toString() : undefined,
-            vdxfkey: this.vdxfkey,
+            vdxfKey: this.vdxfKey,
             data: this.data ? this.isDefinedByVdxfKey() ? this.data.toString('hex') : this.data.toJson() : undefined
         };
     }
@@ -126,12 +126,12 @@ OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE = new bn_js_1.BN(102, 10);
 class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject {
     constructor(request = {
         data: Buffer.alloc(0),
-        vdxfkey: vdxf_1.NULL_ADDRESS
+        vdxfKey: vdxf_1.NULL_ADDRESS
     }) {
         super({
             type: OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE,
             data: request.data,
-            vdxfkey: request.vdxfkey
+            vdxfKey: request.vdxfKey
         });
     }
     getDataByteLength() {
@@ -145,7 +145,7 @@ class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject {
     }
     static fromJson(details) {
         return new GeneralTypeOrdinalVdxfObject({
-            vdxfkey: details.vdxfkey,
+            vdxfKey: details.vdxfKey,
             data: details.data ? Buffer.from(details.data, 'hex') : undefined
         });
     }

@@ -12,14 +12,14 @@ import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/Ve
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
   version?: BigNumber;
   type?: BigNumber;
-  vdxfkey?: string;
+  vdxfKey?: string;
   data?: T;
 }
 
 export type OrdinalVdxfObjectJsonTemplate<T> = {
   version: string;
   type: string;
-  vdxfkey?: string;
+  vdxfKey?: string;
   data?: T;
 }
 
@@ -44,7 +44,7 @@ export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfOb
 export class OrdinalVdxfObject implements SerializableEntity {
   version: BigNumber;
   type: BigNumber;
-  vdxfkey?: string;
+  vdxfKey?: string;
   data?: BufferOrOrdinalVdxfObjectReservedData;
 
   static VERSION_INVALID = new BN(0, 10)
@@ -62,9 +62,9 @@ export class OrdinalVdxfObject implements SerializableEntity {
       type: OrdinalVdxfObject.TYPE_DATA_DESCRIPTOR
     }
   ) {
-    if (request.vdxfkey) {
+    if (request.vdxfKey) {
       this.type = OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE;
-      this.vdxfkey = request.vdxfkey;
+      this.vdxfKey = request.vdxfKey;
 
       if (request.data) {
         this.data = request.data;
@@ -99,7 +99,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     length += varuint.encodingLength(this.type.toNumber());
 
     if (this.isDefinedByVdxfKey()) {
-      length += fromBase58Check(this.vdxfkey).hash.length;
+      length += fromBase58Check(this.vdxfKey).hash.length;
     }
 
     length += varint.encodingLength(this.version);
@@ -120,7 +120,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     writer.writeCompactSize(this.type.toNumber());
 
     if (this.isDefinedByVdxfKey()) {
-      writer.writeSlice(fromBase58Check(this.vdxfkey).hash);
+      writer.writeSlice(fromBase58Check(this.vdxfKey).hash);
     }
 
     writer.writeVarInt(this.version);
@@ -140,7 +140,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     } else this.type = type;
 
     if (this.isDefinedByVdxfKey()) {
-      this.vdxfkey = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.vdxfKey = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
 
     this.version = reader.readVarInt();
@@ -159,7 +159,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     return {
       type: this.type ? this.type.toString() : undefined,
       version: this.version ? this.version.toString() : undefined,
-      vdxfkey: this.vdxfkey,
+      vdxfKey: this.vdxfKey,
       data: this.data ? this.isDefinedByVdxfKey() ? this.data.toString('hex') : (this.data as OrdinalVdxfObjectReservedData).toJson() : undefined
     };
   }
@@ -181,18 +181,18 @@ export class OrdinalVdxfObject implements SerializableEntity {
 
 export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
   data: Buffer;
-  vdxfkey: string;
+  vdxfKey: string;
 
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<Buffer> = {
       data: Buffer.alloc(0),
-      vdxfkey: NULL_ADDRESS
+      vdxfKey: NULL_ADDRESS
     }
   ) {
     super({
       type: OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE,
       data: request.data,
-      vdxfkey: request.vdxfkey
+      vdxfKey: request.vdxfKey
     })
   }
 
@@ -210,7 +210,7 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
 
   static fromJson(details: OrdinalVdxfObjectJson): GeneralTypeOrdinalVdxfObject {
     return new GeneralTypeOrdinalVdxfObject({
-      vdxfkey: details.vdxfkey,
+      vdxfKey: details.vdxfKey,
       data: details.data ? Buffer.from(details.data as string, 'hex') : undefined
     });
   }

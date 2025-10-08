@@ -5,13 +5,13 @@ import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/Ve
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
     version?: BigNumber;
     type?: BigNumber;
-    vdxfkey?: string;
+    vdxfKey?: string;
     data?: T;
 }
 export type OrdinalVdxfObjectJsonTemplate<T> = {
     version: string;
     type: string;
-    vdxfkey?: string;
+    vdxfKey?: string;
     data?: T;
 };
 export type OrdinalVdxfObjectReservedData = DataDescriptor | VerusPayInvoiceDetails;
@@ -26,7 +26,7 @@ export declare const getOrdinalVdxfObjectClassForType: (type: BigNumber) => Ordi
 export declare class OrdinalVdxfObject implements SerializableEntity {
     version: BigNumber;
     type: BigNumber;
-    vdxfkey?: string;
+    vdxfKey?: string;
     data?: BufferOrOrdinalVdxfObjectReservedData;
     static VERSION_INVALID: import("bn.js");
     static VERSION_FIRST: import("bn.js");
@@ -52,7 +52,7 @@ export declare class OrdinalVdxfObject implements SerializableEntity {
 }
 export declare class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
     data: Buffer;
-    vdxfkey: string;
+    vdxfKey: string;
     constructor(request?: OrdinalVdxfObjectInterfaceTemplate<Buffer>);
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
