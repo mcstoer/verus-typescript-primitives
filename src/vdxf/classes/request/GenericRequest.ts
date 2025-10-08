@@ -1,21 +1,12 @@
 import {
   WALLET_VDXF_KEY,
-  GENERIC_REQUEST_DEEPLINK_VDXF_KEY,
-  VDXFObject,
-  VerusIDSignature
+  GENERIC_REQUEST_DEEPLINK_VDXF_KEY
 } from "../../";
-import { IDENTITY_AUTH_SIG_VDXF_KEY } from "../../keys";
-import { Hash160 } from "./../Hash160";
 import bufferutils from "../../../utils/bufferutils";
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, VERUS_DATA_SIGNATURE_PREFIX } from "../../../constants/vdxf";
-import { fromBase58Check, toBase58Check } from "../../../utils/address";
-import createHash = require("create-hash");
 import base64url from "base64url";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { DataDescriptor, DataDescriptorJson, SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
-import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "../payment/VerusPayInvoiceDetails";
-import varint from "../../../utils/varint";
+import { SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";

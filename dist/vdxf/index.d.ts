@@ -55,6 +55,10 @@ export declare class BufferDataVdxfObject extends VDXFObject {
         data: string;
         vdxfkey: string;
     };
+    static fromJson(json: {
+        data: string;
+        vdxfkey: string;
+    }): BufferDataVdxfObject;
 }
 export declare class VDXFData extends VDXFObject {
     data: Buffer;

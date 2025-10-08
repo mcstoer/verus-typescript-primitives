@@ -2,32 +2,20 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GenericRequest = void 0;
 const __1 = require("../../");
-const keys_1 = require("../../keys");
-const Hash160_1 = require("./../Hash160");
 const bufferutils_1 = require("../../../utils/bufferutils");
-const vdxf_1 = require("../../../constants/vdxf");
-const address_1 = require("../../../utils/address");
-const createHash = require("create-hash");
 const base64url_1 = require("base64url");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
-const VerusPayInvoiceDetails_1 = require("../payment/VerusPayInvoiceDetails");
-const varint_1 = require("../../../utils/varint");
-class GenericRequest extends __1.VDXFObject {
+const OrdinalVdxfObject_1 = require("../OrdinalVdxfObject");
+const varuint_1 = require("../../../utils/varuint");
+class GenericRequest {
     constructor(request = {
-        details: new pbaas_1.DataDescriptor(),
-        type: GenericRequest.TYPE_DATA_DESCRIPTOR,
+        details: [],
         flags: GenericRequest.BASE_FLAGS
     }) {
-        super(__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid);
-        this.system_id = request.system_id;
-        this.signing_id = request.signing_id;
         this.signature = request.signature;
         this.details = request.details;
-        if (request.type)
-            this.type = request.type;
-        else
-            this.type = GenericRequest.TYPE_DATA_DESCRIPTOR;
+        this.createdat = request.createdat;
         if (request.flags)
             this.flags = request.flags;
         else
@@ -36,6 +24,7 @@ class GenericRequest extends __1.VDXFObject {
             this.version = request.version;
         else
             this.version = GenericRequest.VERSION_CURRENT;
+        this.setFlags();
     }
     isValidVersion() {
         return this.version.gte(GenericRequest.VERSION_FIRSTVALID) && this.version.lte(GenericRequest.VERSION_LASTVALID);
@@ -43,130 +32,134 @@ class GenericRequest extends __1.VDXFObject {
     isSigned() {
         return !!(this.flags.and(GenericRequest.FLAG_SIGNED).toNumber());
     }
-    isDataDescriptor() {
-        return this.type.eq(GenericRequest.TYPE_DATA_DESCRIPTOR);
-    }
-    isInvoice() {
-        return this.type.eq(GenericRequest.TYPE_INVOICE);
+    hasMultiDetails() {
+        return !!(this.flags.and(GenericRequest.FLAG_MULTI_DETAILS).toNumber());
     }
     setSigned() {
         this.flags = this.version.xor(GenericRequest.FLAG_SIGNED);
     }
-    getRawDetailsSha256() {
-        return createHash("sha256").update(this.details.toBuffer()).digest();
+    setHasMultiDetails() {
+        this.flags = this.version.xor(GenericRequest.FLAG_MULTI_DETAILS);
     }
-    getDetailsHash(signedBlockheight, signatureVersion = 2) {
-        if (this.isSigned()) {
-            var heightBufferWriter = new bufferutils_1.default.BufferWriter(Buffer.allocUnsafe(4));
-            heightBufferWriter.writeUInt32(signedBlockheight);
-            if (signatureVersion === 1) {
-                return createHash("sha256")
-                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
-                    .update((0, address_1.fromBase58Check)(this.system_id).hash)
-                    .update(heightBufferWriter.buffer)
-                    .update((0, address_1.fromBase58Check)(this.signing_id).hash)
-                    .update(this.getRawDetailsSha256())
-                    .digest();
-            }
-            else {
-                return createHash("sha256")
-                    .update((0, address_1.fromBase58Check)(this.system_id).hash)
-                    .update(heightBufferWriter.buffer)
-                    .update((0, address_1.fromBase58Check)(this.signing_id).hash)
-                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
-                    .update(this.getRawDetailsSha256())
-                    .digest();
-            }
-        }
-        else
-            return this.getRawDetailsSha256();
+    setHasCreatedAt() {
+        this.flags = this.version.xor(GenericRequest.FLAG_HAS_CREATED_AT);
     }
-    _dataByteLength(signer = this.signing_id) {
+    setFlags() {
+        if (this.createdat)
+            this.setHasCreatedAt();
+        if (this.details && this.details.length > 1)
+            this.setHasMultiDetails();
+        if (this.signature)
+            this.setSigned();
+    }
+    // private getRawDetailsSha256() {
+    //   return createHash("sha256").update(this.details.toBuffer()).digest();
+    // }
+    // getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
+    //   if (this.isSigned()) {
+    //     var heightBufferWriter = new bufferutils.BufferWriter(
+    //       Buffer.allocUnsafe(4)
+    //     );
+    //     heightBufferWriter.writeUInt32(signedBlockheight);
+    //     if (signatureVersion === 1) {
+    //       return createHash("sha256")
+    //         .update(VERUS_DATA_SIGNATURE_PREFIX)
+    //         .update(fromBase58Check(this.system_id).hash)
+    //         .update(heightBufferWriter.buffer)
+    //         .update(fromBase58Check(this.signing_id).hash)
+    //         .update(this.getRawDetailsSha256())
+    //         .digest();
+    //     } else {
+    //       return createHash("sha256")
+    //         .update(fromBase58Check(this.system_id).hash)
+    //         .update(heightBufferWriter.buffer)
+    //         .update(fromBase58Check(this.signing_id).hash)
+    //         .update(VERUS_DATA_SIGNATURE_PREFIX)
+    //         .update(this.getRawDetailsSha256())
+    //         .digest();
+    //     }
+    //   } else return this.getRawDetailsSha256()
+    // }
+    getDetails(index = 0) {
+        return this.details[index];
+    }
+    getByteLength() {
         let length = 0;
-        length += varint_1.default.encodingLength(this.flags);
-        length += varint_1.default.encodingLength(this.type);
+        length += varuint_1.default.encodingLength(this.version.toNumber());
+        length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.isSigned()) {
-            const _signature = this.signature
-                ? this.signature
-                : new pbaas_1.SignatureData();
-            const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
-            length += _system_id.getByteLength();
-            const _signing_id = Hash160_1.Hash160.fromAddress(signer);
-            length += _signing_id.getByteLength();
-            length += _signature.getByteLength();
+            length += this.signature.getByteLength();
         }
-        length += this.details.getByteLength();
+        if (this.hasMultiDetails()) {
+            length += varuint_1.default.encodingLength(this.details.length);
+            for (const detail of this.details) {
+                length += detail.getByteLength();
+            }
+        }
+        else {
+            length += this.getDetails().getByteLength();
+        }
         return length;
     }
-    _toDataBuffer(signer = this.signing_id) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.dataByteLength()));
-        writer.writeVarInt(this.flags);
-        writer.writeVarInt(this.type);
+    toBuffer() {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
+        writer.writeCompactSize(this.version.toNumber());
+        writer.writeCompactSize(this.flags.toNumber());
         if (this.isSigned()) {
-            const _signing_id = Hash160_1.Hash160.fromAddress(signer);
-            const _signature = this.signature
-                ? this.signature
-                : new __1.VerusIDSignature({ signature: "" }, keys_1.IDENTITY_AUTH_SIG_VDXF_KEY, false);
-            const _system_id = Hash160_1.Hash160.fromAddress(this.system_id);
-            writer.writeSlice(_system_id.toBuffer());
-            writer.writeSlice(_signing_id.toBuffer());
-            writer.writeSlice(_signature.toBuffer());
+            writer.writeSlice(this.signature.toBuffer());
         }
-        writer.writeSlice(this.details.toBuffer());
+        if (this.hasMultiDetails()) {
+            writer.writeCompactSize(this.details.length);
+            for (const detail of this.details) {
+                writer.writeSlice(detail.toBuffer());
+            }
+        }
+        else {
+            writer.writeSlice(this.getDetails().toBuffer());
+        }
         return writer.buffer;
     }
-    dataByteLength() {
-        return this._dataByteLength();
-    }
-    toDataBuffer() {
-        return this._toDataBuffer();
-    }
-    _fromDataBuffer(buffer, offset) {
+    fromBuffer(buffer, offset) {
         if (buffer.length == 0)
             throw new Error("Cannot create request from empty buffer");
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
-        const reqLength = reader.readCompactSize();
-        if (reqLength == 0) {
-            throw new Error("Cannot create request from empty buffer");
+        this.version = new bn_js_1.BN(reader.readCompactSize());
+        this.flags = new bn_js_1.BN(reader.readCompactSize());
+        if (this.isSigned()) {
+            const _sig = new pbaas_1.SignatureData();
+            reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
+            this.signature = _sig;
+        }
+        if (this.hasMultiDetails()) {
+            this.details = [];
+            const numItems = reader.readCompactSize();
+            for (let i = 0; i < numItems; i++) {
+                const ord = OrdinalVdxfObject_1.OrdinalVdxfObject.createFromBuffer(reader.buffer, reader.offset);
+                reader.offset = ord.offset;
+                this.details.push(ord.obj);
+            }
         }
         else {
-            this.flags = reader.readVarInt();
-            this.type = reader.readVarInt();
-            if (this.isSigned()) {
-                this.system_id = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
-                this.signing_id = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
-                const _sig = new pbaas_1.SignatureData();
-                reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
-                this.signature = _sig;
-            }
-            let _details;
-            if (this.type.eq(GenericRequest.TYPE_INVOICE)) {
-                _details = new VerusPayInvoiceDetails_1.VerusPayInvoiceDetails();
-            }
-            else if (this.type.eq(GenericRequest.TYPE_DATA_DESCRIPTOR)) {
-                _details = new pbaas_1.DataDescriptor();
-            }
-            else
-                throw new Error("Unrecognized type");
-            reader.offset = _details.fromBuffer(reader.buffer, reader.offset);
-            this.details = _details;
+            const ord = OrdinalVdxfObject_1.OrdinalVdxfObject.createFromBuffer(reader.buffer, reader.offset);
+            reader.offset = ord.offset;
+            this.details = [ord.obj];
         }
         return reader.offset;
     }
-    fromDataBuffer(buffer, offset) {
-        return this._fromDataBuffer(buffer, offset);
+    toString() {
+        return base64url_1.default.encode(this.toBuffer());
     }
     toWalletDeeplinkUri() {
-        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}://x-callback-url/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString(false)}`;
+        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}://x-callback-url/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
     }
     static fromWalletDeeplinkUri(uri) {
         const split = uri.split(`${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
         const inv = new GenericRequest();
-        inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0, __1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid);
+        inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0);
         return inv;
     }
     toQrString() {
-        return this.toString(true);
+        return this.toString();
     }
     static fromQrString(qrstring) {
         const inv = new GenericRequest();
@@ -174,33 +167,32 @@ class GenericRequest extends __1.VDXFObject {
         return inv;
     }
     static fromJson(data) {
-        const type = data.type ? new bn_js_1.BN(data.type) : GenericRequest.TYPE_DATA_DESCRIPTOR;
-        let details;
-        if (type.eq(GenericRequest.TYPE_INVOICE)) {
-            details = VerusPayInvoiceDetails_1.VerusPayInvoiceDetails.fromJson(data.details);
-        }
-        else {
-            details = pbaas_1.DataDescriptor.fromJson(data.details);
-        }
-        return new GenericRequest({
-            details,
-            signature: data.signature != null ? pbaas_1.SignatureData.fromJson(data.signature) : undefined,
-            signing_id: data.signing_id,
-            system_id: data.system_id,
-            version: new bn_js_1.BN(data.version),
-            type: new bn_js_1.BN(data.type),
-            flags: new bn_js_1.BN(data.flags)
-        });
+        return new GenericRequest();
+        // let details: GenericRequestDetails;
+        // if (type.eq(GenericRequest.TYPE_INVOICE)) {
+        //   details = VerusPayInvoiceDetails.fromJson(data.details as VerusPayInvoiceDetailsJson);
+        // } else {
+        //   details = DataDescriptor.fromJson(data.details as DataDescriptorJson);
+        // }
+        // return new GenericRequest({
+        //   details,
+        //   signature: data.signature != null ? SignatureData.fromJson(data.signature) : undefined,
+        //   version: new BN(data.version),
+        //   type: new BN(data.type),
+        //   flags: new BN(data.flags)
+        // })
     }
     toJson() {
+        const details = [];
+        if (this.details != null) {
+            for (const detail of this.details) {
+                details.push(detail.toJson());
+            }
+        }
         return {
-            vdxfkey: this.vdxfkey,
-            system_id: this.system_id,
-            signing_id: this.signing_id,
             signature: this.isSigned() ? this.signature.toJson() : undefined,
-            details: this.details.toJson(),
+            details: details,
             version: this.version.toString(),
-            type: this.type.toString(),
             flags: this.flags.toString()
         };
     }
@@ -209,7 +201,7 @@ exports.GenericRequest = GenericRequest;
 GenericRequest.VERSION_CURRENT = new bn_js_1.BN(1, 10);
 GenericRequest.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
 GenericRequest.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
-GenericRequest.TYPE_DATA_DESCRIPTOR = new bn_js_1.BN(0, 10);
-GenericRequest.TYPE_INVOICE = new bn_js_1.BN(1, 10);
 GenericRequest.BASE_FLAGS = new bn_js_1.BN(0, 10);
 GenericRequest.FLAG_SIGNED = new bn_js_1.BN(1, 10);
+GenericRequest.FLAG_HAS_CREATED_AT = new bn_js_1.BN(2, 10);
+GenericRequest.FLAG_MULTI_DETAILS = new bn_js_1.BN(4, 10);

@@ -5,7 +5,7 @@ import { SerializableDataEntity, SerializableEntity } from "../../utils/types/Se
 import varuint from "../../utils/varuint";
 import { fromBase58Check, toBase58Check } from "../../utils/address";
 import varint from "../../utils/varint";
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from "../../constants/vdxf";
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../constants/vdxf";
 import { DataDescriptor, DataDescriptorJson } from "../../pbaas";
 import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/VerusPayInvoiceDetails";
 
@@ -91,9 +91,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     return Buffer.alloc(0);
   }
 
-  fromDataBuffer(buffer: Buffer, offset: number): number {
-    return 0;
-  }
+  fromDataBuffer(buffer: Buffer): void {}
 
   getByteLength(): number {
     let length = 0;
@@ -146,26 +144,15 @@ export class OrdinalVdxfObject implements SerializableEntity {
     }
 
     this.version = reader.readVarInt();
+    const dataBuf = reader.readVarSlice();
     
-    reader.offset = this.fromDataBuffer(reader.buffer, reader.offset);
+    this.fromDataBuffer(dataBuf);
 
     return reader.offset;
   }
 
   fromBuffer(buffer: Buffer, offset?: number): number {
     return this.fromBufferOptionalType(buffer, offset);
-  }
-
-  static fromJson(details: OrdinalVdxfObjectJson): OrdinalVdxfObject {
-    const type = details.type ? new BN(details.type) : undefined;
-
-    // Each extended class needs to define its own static fromJson where it fills in the data field
-    return new OrdinalVdxfObject({
-      type: type ? new BN(details.type) : undefined,
-      version: details.version ? new BN(details.version) : undefined,
-      vdxfkey: details.vdxfkey,
-      data: details.data && type && type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE) ? Buffer.from(details.data as string, 'hex') : undefined
-    });
   }
 
   toJson(): OrdinalVdxfObjectJson {
@@ -186,7 +173,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     const Entity = getOrdinalVdxfObjectClassForType(type);
     const ord = new Entity();
 
-    ord.fromBufferOptionalType(buffer, offset, type);
+    ord.fromBufferOptionalType(buffer, reader.offset, type);
 
     return { offset, obj: ord };
   }
@@ -194,15 +181,18 @@ export class OrdinalVdxfObject implements SerializableEntity {
 
 export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
   data: Buffer;
+  vdxfkey: string;
 
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<Buffer> = {
-      data: Buffer.alloc(0)
+      data: Buffer.alloc(0),
+      vdxfkey: NULL_ADDRESS
     }
   ) {
     super({
       type: OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE,
-      data: request.data
+      data: request.data,
+      vdxfkey: request.vdxfkey
     })
   }
 
@@ -214,12 +204,15 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
     return this.data;
   }
 
-  fromDataBuffer(buffer: Buffer, offset: number): number {
-    const reader = new bufferutils.BufferReader(buffer, offset);
+  fromDataBuffer(buffer: Buffer): void {
+    this.data = Buffer.from(buffer)
+  }
 
-    this.data = reader.readVarSlice();
-
-    return reader.offset;
+  static fromJson(details: OrdinalVdxfObjectJson): GeneralTypeOrdinalVdxfObject {
+    return new GeneralTypeOrdinalVdxfObject({
+      vdxfkey: details.vdxfkey,
+      data: details.data ? Buffer.from(details.data as string, 'hex') : undefined
+    });
   }
 }
 
@@ -249,19 +242,15 @@ export class SerializableEntityOrdinalVdxfObject extends OrdinalVdxfObject imple
     return this.data.toBuffer();
   }
 
-  fromDataBuffer(buffer: Buffer, offset: number): number {
-    const reader = new bufferutils.BufferReader(buffer, offset);
-
-    const dataDescriptorBuf = reader.readVarSlice();
-
+  fromDataBuffer(buffer: Buffer): void {
     this.data = new this.entity();
-    this.data.fromBuffer(dataDescriptorBuf);
-
-    return reader.offset;
+    this.data.fromBuffer(buffer);
   }
 }
 
 export class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+  data: DataDescriptor;
+
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<DataDescriptor> = {
       data: new DataDescriptor()
@@ -275,9 +264,17 @@ export class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVd
       DataDescriptor
     );
   }
+
+  static fromJson(details: OrdinalVdxfObjectJsonTemplate<DataDescriptorJson>): DataDescriptorOrdinalVdxfObject {
+    return new DataDescriptorOrdinalVdxfObject({
+      data: DataDescriptor.fromJson(details.data)
+    })
+  }
 }
 
 export class VerusPayInvoiceOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+  data: VerusPayInvoiceDetails;
+
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<VerusPayInvoiceDetails> = {
       data: new VerusPayInvoiceDetails()
@@ -290,5 +287,11 @@ export class VerusPayInvoiceOrdinalVdxfObject extends SerializableEntityOrdinalV
       },
       VerusPayInvoiceDetails
     );
+  }
+
+  static fromJson(details: OrdinalVdxfObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceOrdinalVdxfObject {
+    return new VerusPayInvoiceOrdinalVdxfObject({
+      data: VerusPayInvoiceDetails.fromJson(details.data)
+    })
   }
 }

@@ -123,6 +123,9 @@ class BufferDataVdxfObject extends VDXFObject {
             vdxfkey: this.vdxfkey,
         };
     }
+    static fromJson(json) {
+        return new BufferDataVdxfObject(json.data, json.vdxfkey);
+    }
 }
 exports.BufferDataVdxfObject = BufferDataVdxfObject;
 class VDXFData extends VDXFObject {

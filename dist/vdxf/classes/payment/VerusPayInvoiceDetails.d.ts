@@ -1,5 +1,6 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { TransferDestination, TransferDestinationJson } from '../../../pbaas/TransferDestination';
+import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 export declare const VERUSPAY_INVALID: import("bn.js");
 export declare const VERUSPAY_VALID: import("bn.js");
 export declare const VERUSPAY_ACCEPTS_CONVERSION: import("bn.js");
@@ -18,7 +19,7 @@ export type VerusPayInvoiceDetailsJson = {
     maxestimatedslippage?: string;
     acceptedsystems?: Array<string>;
 };
-export declare class VerusPayInvoiceDetails {
+export declare class VerusPayInvoiceDetails implements SerializableEntity {
     flags: BigNumber;
     amount: BigNumber;
     destination: TransferDestination;

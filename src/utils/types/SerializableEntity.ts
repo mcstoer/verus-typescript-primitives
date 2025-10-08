@@ -7,5 +7,7 @@ export interface SerializableEntity {
 export interface SerializableDataEntity {
   getDataByteLength(): number;
   toDataBuffer(): Buffer;
-  fromDataBuffer(buffer: Buffer, offset?: number): number;
+
+  // fromDataBuffer doesn't get passed an offset because it gets passed only the varslice of the buffer it is meant to interpret.
+  fromDataBuffer(buffer: Buffer): void;
 }
