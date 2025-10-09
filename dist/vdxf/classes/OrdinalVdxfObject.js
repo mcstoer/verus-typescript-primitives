@@ -111,8 +111,8 @@ class OrdinalVdxfObject {
         const type = new bn_js_1.BN(reader.readCompactSize());
         const Entity = (0, exports.getOrdinalVdxfObjectClassForType)(type);
         const ord = new Entity();
-        ord.fromBufferOptionalType(buffer, reader.offset, type);
-        return { offset, obj: ord };
+        reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type);
+        return { offset: reader.offset, obj: ord };
     }
 }
 exports.OrdinalVdxfObject = OrdinalVdxfObject;

@@ -5,22 +5,22 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 export interface GenericRequestInterface {
     version?: BigNumber;
     flags?: BigNumber;
-    createdat?: BigNumber;
     signature?: SignatureData;
+    createdAt?: BigNumber;
     details: Array<OrdinalVdxfObject>;
 }
 export type GenericRequestJson = {
     version: string;
     flags?: string;
-    createdat?: BigNumber;
-    details: Array<OrdinalVdxfObjectJson>;
     signature?: SignatureJsonDataInterface;
+    createdAt?: BigNumber;
+    details: Array<OrdinalVdxfObjectJson>;
 };
 export declare class GenericRequest implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
-    createdat?: BigNumber;
     signature?: SignatureData;
+    createdAt?: BigNumber;
     details: Array<OrdinalVdxfObject>;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
@@ -33,11 +33,16 @@ export declare class GenericRequest implements SerializableEntity {
     isValidVersion(): boolean;
     isSigned(): boolean;
     hasMultiDetails(): boolean;
+    hasCreatedAt(): boolean;
     setSigned(): void;
     setHasMultiDetails(): void;
     setHasCreatedAt(): void;
     setFlags(): void;
+    private getRawDetailsSha256;
+    getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
     getDetails(index?: number): OrdinalVdxfObject;
+    private getDetailsBufferLength;
+    private getDetailsBuffer;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
@@ -46,6 +51,5 @@ export declare class GenericRequest implements SerializableEntity {
     static fromWalletDeeplinkUri(uri: string): GenericRequest;
     toQrString(): string;
     static fromQrString(qrstring: string): GenericRequest;
-    static fromJson(data: GenericRequestJson): GenericRequest;
     toJson(): GenericRequestJson;
 }

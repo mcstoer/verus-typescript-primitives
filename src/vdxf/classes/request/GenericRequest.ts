@@ -10,28 +10,31 @@ import { SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import { createHash } from "crypto";
+import { fromBase58Check } from "../../../utils/address";
+import { VERUS_DATA_SIGNATURE_PREFIX } from "../../../constants/vdxf";
 
 export interface GenericRequestInterface {
   version?: BigNumber;
   flags?: BigNumber;
-  createdat?: BigNumber;
   signature?: SignatureData;
+  createdAt?: BigNumber;
   details: Array<OrdinalVdxfObject>;
 }
 
 export type GenericRequestJson = {
   version: string;
   flags?: string;
-  createdat?: BigNumber;
-  details: Array<OrdinalVdxfObjectJson>;
   signature?: SignatureJsonDataInterface;
+  createdAt?: BigNumber;
+  details: Array<OrdinalVdxfObjectJson>;
 }
 
 export class GenericRequest implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
-  createdat?: BigNumber;
   signature?: SignatureData;
+  createdAt?: BigNumber;
   details: Array<OrdinalVdxfObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
@@ -51,7 +54,7 @@ export class GenericRequest implements SerializableEntity {
   ) {
     this.signature = request.signature;
     this.details = request.details;
-    this.createdat = request.createdat;
+    this.createdAt = request.createdAt;
 
     if (request.flags) this.flags = request.flags;
     else this.flags = GenericRequest.BASE_FLAGS;
@@ -74,67 +77,68 @@ export class GenericRequest implements SerializableEntity {
     return !!(this.flags.and(GenericRequest.FLAG_MULTI_DETAILS).toNumber());
   }
 
+  hasCreatedAt() {
+    return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
+  }
+
   setSigned() {
-    this.flags = this.version.xor(GenericRequest.FLAG_SIGNED);
+    this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
   }
 
   setHasMultiDetails() {
-    this.flags = this.version.xor(GenericRequest.FLAG_MULTI_DETAILS);
+    this.flags = this.flags.xor(GenericRequest.FLAG_MULTI_DETAILS);
   }
 
   setHasCreatedAt() {
-    this.flags = this.version.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+    this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
   }
 
   setFlags() {
-    if (this.createdat) this.setHasCreatedAt();
+    if (this.createdAt) this.setHasCreatedAt();
     if (this.details && this.details.length > 1) this.setHasMultiDetails();
     if (this.signature) this.setSigned();
   }
 
-  // private getRawDetailsSha256() {
-  //   return createHash("sha256").update(this.details.toBuffer()).digest();
-  // }
+  private getRawDetailsSha256() {
+    return createHash("sha256").update(this.getDetailsBuffer()).digest();
+  }
 
-  // getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
-  //   if (this.isSigned()) {
-  //     var heightBufferWriter = new bufferutils.BufferWriter(
-  //       Buffer.allocUnsafe(4)
-  //     );
-  //     heightBufferWriter.writeUInt32(signedBlockheight);
+  getDetailsHash(signedBlockheight: number) {
+    if (this.isSigned()) {
+      var heightBufferWriter = new bufferutils.BufferWriter(
+        Buffer.alloc(4)
+      );
+      heightBufferWriter.writeUInt32(signedBlockheight);
   
-  //     if (signatureVersion === 1) {
-  //       return createHash("sha256")
-  //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-  //         .update(fromBase58Check(this.system_id).hash)
-  //         .update(heightBufferWriter.buffer)
-  //         .update(fromBase58Check(this.signing_id).hash)
-  //         .update(this.getRawDetailsSha256())
-  //         .digest();
-  //     } else {
-  //       return createHash("sha256")
-  //         .update(fromBase58Check(this.system_id).hash)
-  //         .update(heightBufferWriter.buffer)
-  //         .update(fromBase58Check(this.signing_id).hash)
-  //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-  //         .update(this.getRawDetailsSha256())
-  //         .digest();
-  //     }
-  //   } else return this.getRawDetailsSha256()
-  // }
+      if (this.signature.version.toNumber() === 1) {
+        return createHash("sha256")
+          .update(VERUS_DATA_SIGNATURE_PREFIX)
+          .update(fromBase58Check(this.signature!.system_ID).hash)
+          .update(heightBufferWriter.buffer)
+          .update(fromBase58Check(this.signature!.identity_ID).hash)
+          .update(this.getRawDetailsSha256())
+          .digest();
+      } else {
+        return createHash("sha256")
+          .update(fromBase58Check(this.signature!.system_ID).hash)
+          .update(heightBufferWriter.buffer)
+          .update(fromBase58Check(this.signature!.identity_ID).hash)
+          .update(VERUS_DATA_SIGNATURE_PREFIX)
+          .update(this.getRawDetailsSha256())
+          .digest();
+      }
+    } else return this.getRawDetailsSha256()
+  }
 
   getDetails(index = 0): OrdinalVdxfObject {
     return this.details[index];
   }
 
-  getByteLength(): number {
+  private getDetailsBufferLength(): number {
     let length = 0;
 
-    length += varuint.encodingLength(this.version.toNumber());
-    length += varuint.encodingLength(this.flags.toNumber());
-
-    if (this.isSigned()) {  
-      length += this.signature!.getByteLength()
+    if (this.hasCreatedAt()) {
+      length += varuint.encodingLength(this.createdAt.toNumber());
     }
 
     if (this.hasMultiDetails()) {
@@ -146,6 +150,43 @@ export class GenericRequest implements SerializableEntity {
     } else {
       length += this.getDetails().getByteLength();
     }
+
+    return length;
+  }
+
+  private getDetailsBuffer(): Buffer {
+    const writer = new bufferutils.BufferWriter(
+      Buffer.alloc(this.getDetailsBufferLength())
+    );
+
+    if (this.hasCreatedAt()) {
+      writer.writeCompactSize(this.createdAt.toNumber());
+    }
+
+     if (this.hasMultiDetails()) {
+      writer.writeCompactSize(this.details.length);
+      
+      for (const detail of this.details) {
+        writer.writeSlice(detail.toBuffer());
+      }
+    } else {
+      writer.writeSlice(this.getDetails().toBuffer());
+    }
+
+    return writer.buffer;
+  }
+
+  getByteLength(): number {
+    let length = 0;
+
+    length += varuint.encodingLength(this.version.toNumber());
+    length += varuint.encodingLength(this.flags.toNumber());
+
+    if (this.isSigned()) {  
+      length += this.signature!.getByteLength();
+    }
+    
+    length += this.getDetailsBufferLength();
 
     return length;
   }
@@ -162,15 +203,7 @@ export class GenericRequest implements SerializableEntity {
       writer.writeSlice(this.signature!.toBuffer());
     }
 
-    if (this.hasMultiDetails()) {
-      writer.writeCompactSize(this.details.length);
-      
-      for (const detail of this.details) {
-        writer.writeSlice(detail.toBuffer());
-      }
-    } else {
-      writer.writeSlice(this.getDetails().toBuffer());
-    }
+    writer.writeSlice(this.getDetailsBuffer());
 
     return writer.buffer;
   }
@@ -187,6 +220,10 @@ export class GenericRequest implements SerializableEntity {
       const _sig = new SignatureData();
       reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
       this.signature = _sig;
+    }
+
+    if (this.hasCreatedAt()) {
+      this.createdAt = new BN(reader.readCompactSize());
     }
 
     if (this.hasMultiDetails()) {
@@ -238,25 +275,6 @@ export class GenericRequest implements SerializableEntity {
     inv.fromBuffer(base64url.toBuffer(qrstring), 0);
 
     return inv;
-  }
-
-  static fromJson(data: GenericRequestJson): GenericRequest {
-    return new GenericRequest();
-    // let details: GenericRequestDetails;
-
-    // if (type.eq(GenericRequest.TYPE_INVOICE)) {
-    //   details = VerusPayInvoiceDetails.fromJson(data.details as VerusPayInvoiceDetailsJson);
-    // } else {
-    //   details = DataDescriptor.fromJson(data.details as DataDescriptorJson);
-    // }
-
-    // return new GenericRequest({
-    //   details,
-    //   signature: data.signature != null ? SignatureData.fromJson(data.signature) : undefined,
-    //   version: new BN(data.version),
-    //   type: new BN(data.type),
-    //   flags: new BN(data.flags)
-    // })
   }
 
   toJson(): GenericRequestJson {

@@ -173,9 +173,9 @@ export class OrdinalVdxfObject implements SerializableEntity {
     const Entity = getOrdinalVdxfObjectClassForType(type);
     const ord = new Entity();
 
-    ord.fromBufferOptionalType(buffer, reader.offset, type);
+    reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type);
 
-    return { offset, obj: ord };
+    return { offset: reader.offset, obj: ord };
   }
 }
 

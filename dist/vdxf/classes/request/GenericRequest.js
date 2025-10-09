@@ -8,6 +8,9 @@ const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
 const OrdinalVdxfObject_1 = require("../OrdinalVdxfObject");
 const varuint_1 = require("../../../utils/varuint");
+const crypto_1 = require("crypto");
+const address_1 = require("../../../utils/address");
+const vdxf_1 = require("../../../constants/vdxf");
 class GenericRequest {
     constructor(request = {
         details: [],
@@ -15,7 +18,7 @@ class GenericRequest {
     }) {
         this.signature = request.signature;
         this.details = request.details;
-        this.createdat = request.createdat;
+        this.createdAt = request.createdAt;
         if (request.flags)
             this.flags = request.flags;
         else
@@ -35,60 +38,62 @@ class GenericRequest {
     hasMultiDetails() {
         return !!(this.flags.and(GenericRequest.FLAG_MULTI_DETAILS).toNumber());
     }
+    hasCreatedAt() {
+        return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
+    }
     setSigned() {
-        this.flags = this.version.xor(GenericRequest.FLAG_SIGNED);
+        this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
     }
     setHasMultiDetails() {
-        this.flags = this.version.xor(GenericRequest.FLAG_MULTI_DETAILS);
+        this.flags = this.flags.xor(GenericRequest.FLAG_MULTI_DETAILS);
     }
     setHasCreatedAt() {
-        this.flags = this.version.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
     }
     setFlags() {
-        if (this.createdat)
+        if (this.createdAt)
             this.setHasCreatedAt();
         if (this.details && this.details.length > 1)
             this.setHasMultiDetails();
         if (this.signature)
             this.setSigned();
     }
-    // private getRawDetailsSha256() {
-    //   return createHash("sha256").update(this.details.toBuffer()).digest();
-    // }
-    // getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
-    //   if (this.isSigned()) {
-    //     var heightBufferWriter = new bufferutils.BufferWriter(
-    //       Buffer.allocUnsafe(4)
-    //     );
-    //     heightBufferWriter.writeUInt32(signedBlockheight);
-    //     if (signatureVersion === 1) {
-    //       return createHash("sha256")
-    //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-    //         .update(fromBase58Check(this.system_id).hash)
-    //         .update(heightBufferWriter.buffer)
-    //         .update(fromBase58Check(this.signing_id).hash)
-    //         .update(this.getRawDetailsSha256())
-    //         .digest();
-    //     } else {
-    //       return createHash("sha256")
-    //         .update(fromBase58Check(this.system_id).hash)
-    //         .update(heightBufferWriter.buffer)
-    //         .update(fromBase58Check(this.signing_id).hash)
-    //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-    //         .update(this.getRawDetailsSha256())
-    //         .digest();
-    //     }
-    //   } else return this.getRawDetailsSha256()
-    // }
+    getRawDetailsSha256() {
+        return (0, crypto_1.createHash)("sha256").update(this.getDetailsBuffer()).digest();
+    }
+    getDetailsHash(signedBlockheight) {
+        if (this.isSigned()) {
+            var heightBufferWriter = new bufferutils_1.default.BufferWriter(Buffer.alloc(4));
+            heightBufferWriter.writeUInt32(signedBlockheight);
+            if (this.signature.version.toNumber() === 1) {
+                return (0, crypto_1.createHash)("sha256")
+                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
+                    .update((0, address_1.fromBase58Check)(this.signature.system_ID).hash)
+                    .update(heightBufferWriter.buffer)
+                    .update((0, address_1.fromBase58Check)(this.signature.identity_ID).hash)
+                    .update(this.getRawDetailsSha256())
+                    .digest();
+            }
+            else {
+                return (0, crypto_1.createHash)("sha256")
+                    .update((0, address_1.fromBase58Check)(this.signature.system_ID).hash)
+                    .update(heightBufferWriter.buffer)
+                    .update((0, address_1.fromBase58Check)(this.signature.identity_ID).hash)
+                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
+                    .update(this.getRawDetailsSha256())
+                    .digest();
+            }
+        }
+        else
+            return this.getRawDetailsSha256();
+    }
     getDetails(index = 0) {
         return this.details[index];
     }
-    getByteLength() {
+    getDetailsBufferLength() {
         let length = 0;
-        length += varuint_1.default.encodingLength(this.version.toNumber());
-        length += varuint_1.default.encodingLength(this.flags.toNumber());
-        if (this.isSigned()) {
-            length += this.signature.getByteLength();
+        if (this.hasCreatedAt()) {
+            length += varuint_1.default.encodingLength(this.createdAt.toNumber());
         }
         if (this.hasMultiDetails()) {
             length += varuint_1.default.encodingLength(this.details.length);
@@ -101,12 +106,10 @@ class GenericRequest {
         }
         return length;
     }
-    toBuffer() {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
-        writer.writeCompactSize(this.version.toNumber());
-        writer.writeCompactSize(this.flags.toNumber());
-        if (this.isSigned()) {
-            writer.writeSlice(this.signature.toBuffer());
+    getDetailsBuffer() {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getDetailsBufferLength()));
+        if (this.hasCreatedAt()) {
+            writer.writeCompactSize(this.createdAt.toNumber());
         }
         if (this.hasMultiDetails()) {
             writer.writeCompactSize(this.details.length);
@@ -119,6 +122,26 @@ class GenericRequest {
         }
         return writer.buffer;
     }
+    getByteLength() {
+        let length = 0;
+        length += varuint_1.default.encodingLength(this.version.toNumber());
+        length += varuint_1.default.encodingLength(this.flags.toNumber());
+        if (this.isSigned()) {
+            length += this.signature.getByteLength();
+        }
+        length += this.getDetailsBufferLength();
+        return length;
+    }
+    toBuffer() {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
+        writer.writeCompactSize(this.version.toNumber());
+        writer.writeCompactSize(this.flags.toNumber());
+        if (this.isSigned()) {
+            writer.writeSlice(this.signature.toBuffer());
+        }
+        writer.writeSlice(this.getDetailsBuffer());
+        return writer.buffer;
+    }
     fromBuffer(buffer, offset) {
         if (buffer.length == 0)
             throw new Error("Cannot create request from empty buffer");
@@ -129,6 +152,9 @@ class GenericRequest {
             const _sig = new pbaas_1.SignatureData();
             reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
             this.signature = _sig;
+        }
+        if (this.hasCreatedAt()) {
+            this.createdAt = new bn_js_1.BN(reader.readCompactSize());
         }
         if (this.hasMultiDetails()) {
             this.details = [];
@@ -165,22 +191,6 @@ class GenericRequest {
         const inv = new GenericRequest();
         inv.fromBuffer(base64url_1.default.toBuffer(qrstring), 0);
         return inv;
-    }
-    static fromJson(data) {
-        return new GenericRequest();
-        // let details: GenericRequestDetails;
-        // if (type.eq(GenericRequest.TYPE_INVOICE)) {
-        //   details = VerusPayInvoiceDetails.fromJson(data.details as VerusPayInvoiceDetailsJson);
-        // } else {
-        //   details = DataDescriptor.fromJson(data.details as DataDescriptorJson);
-        // }
-        // return new GenericRequest({
-        //   details,
-        //   signature: data.signature != null ? SignatureData.fromJson(data.signature) : undefined,
-        //   version: new BN(data.version),
-        //   type: new BN(data.type),
-        //   flags: new BN(data.flags)
-        // })
     }
     toJson() {
         const details = [];

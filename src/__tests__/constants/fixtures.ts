@@ -321,3 +321,5 @@ export const mmrDescriptorForRootProof = {
     ]
   }
 }
+
+export const TEST_IDENTITY_ID = "i8jHXEEYEQ7KEoYe6eKXBib8cUBZ6vjWSd"
