@@ -29,14 +29,17 @@ export declare class GenericRequest implements SerializableEntity {
     static FLAG_SIGNED: import("bn.js");
     static FLAG_HAS_CREATED_AT: import("bn.js");
     static FLAG_MULTI_DETAILS: import("bn.js");
+    static FLAG_IS_TESTNET: import("bn.js");
     constructor(request?: GenericRequestInterface);
     isValidVersion(): boolean;
     isSigned(): boolean;
     hasMultiDetails(): boolean;
     hasCreatedAt(): boolean;
+    isTestnet(): boolean;
     setSigned(): void;
     setHasMultiDetails(): void;
     setHasCreatedAt(): void;
+    setIsTestnet(): void;
     setFlags(): void;
     private getRawDetailsSha256;
     getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;

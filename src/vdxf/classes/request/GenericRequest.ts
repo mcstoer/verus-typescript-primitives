@@ -45,6 +45,7 @@ export class GenericRequest implements SerializableEntity {
   static FLAG_SIGNED = new BN(1, 10)
   static FLAG_HAS_CREATED_AT = new BN(2, 10)
   static FLAG_MULTI_DETAILS = new BN(4, 10)
+  static FLAG_IS_TESTNET = new BN(8, 10)
 
   constructor(
     request: GenericRequestInterface = {
@@ -81,6 +82,10 @@ export class GenericRequest implements SerializableEntity {
     return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
   }
 
+  isTestnet() {
+    return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
+  }
+
   setSigned() {
     this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
   }
@@ -91,6 +96,10 @@ export class GenericRequest implements SerializableEntity {
 
   setHasCreatedAt() {
     this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+  }
+
+  setIsTestnet() {
+    this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
   }
 
   setFlags() {
@@ -234,7 +243,7 @@ export class GenericRequest implements SerializableEntity {
   }
 
   toWalletDeeplinkUri(): string {
-    return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}://x-callback-url/${
+    return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${
       GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid
     }/${this.toString()}`;
   }

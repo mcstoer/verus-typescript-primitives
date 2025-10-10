@@ -39,6 +39,9 @@ class GenericRequest {
     hasCreatedAt() {
         return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
     }
+    isTestnet() {
+        return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
+    }
     setSigned() {
         this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
     }
@@ -47,6 +50,9 @@ class GenericRequest {
     }
     setHasCreatedAt() {
         this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+    }
+    setIsTestnet() {
+        this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
     }
     setFlags() {
         if (this.createdAt)
@@ -157,7 +163,7 @@ class GenericRequest {
         return base64url_1.default.encode(this.toBuffer());
     }
     toWalletDeeplinkUri() {
-        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}://x-callback-url/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
+        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
     }
     static fromWalletDeeplinkUri(uri) {
         const split = uri.split(`${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
@@ -197,3 +203,4 @@ GenericRequest.BASE_FLAGS = new bn_js_1.BN(0, 10);
 GenericRequest.FLAG_SIGNED = new bn_js_1.BN(1, 10);
 GenericRequest.FLAG_HAS_CREATED_AT = new bn_js_1.BN(2, 10);
 GenericRequest.FLAG_MULTI_DETAILS = new bn_js_1.BN(4, 10);
+GenericRequest.FLAG_IS_TESTNET = new bn_js_1.BN(8, 10);
