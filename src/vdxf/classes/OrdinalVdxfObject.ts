@@ -19,7 +19,7 @@ export interface OrdinalVdxfObjectInterfaceTemplate<T> {
 export type OrdinalVdxfObjectJsonTemplate<T> = {
   version: string;
   type: string;
-  vdxfKey?: string;
+  vdxfkey?: string;
   data?: T;
 }
 
@@ -159,7 +159,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     return {
       type: this.type ? this.type.toString() : undefined,
       version: this.version ? this.version.toString() : undefined,
-      vdxfKey: this.vdxfKey,
+      vdxfkey: this.vdxfKey,
       data: this.data ? this.isDefinedByVdxfKey() ? this.data.toString('hex') : (this.data as OrdinalVdxfObjectReservedData).toJson() : undefined
     };
   }
@@ -210,7 +210,7 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
 
   static fromJson(details: OrdinalVdxfObjectJson): GeneralTypeOrdinalVdxfObject {
     return new GeneralTypeOrdinalVdxfObject({
-      vdxfKey: details.vdxfKey,
+      vdxfKey: details.vdxfkey,
       data: details.data ? Buffer.from(details.data as string, 'hex') : undefined
     });
   }

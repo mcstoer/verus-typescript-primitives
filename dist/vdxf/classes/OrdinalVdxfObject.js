@@ -100,7 +100,7 @@ class OrdinalVdxfObject {
         return {
             type: this.type ? this.type.toString() : undefined,
             version: this.version ? this.version.toString() : undefined,
-            vdxfKey: this.vdxfKey,
+            vdxfkey: this.vdxfKey,
             data: this.data ? this.isDefinedByVdxfKey() ? this.data.toString('hex') : this.data.toJson() : undefined
         };
     }
@@ -145,7 +145,7 @@ class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject {
     }
     static fromJson(details) {
         return new GeneralTypeOrdinalVdxfObject({
-            vdxfKey: details.vdxfKey,
+            vdxfKey: details.vdxfkey,
             data: details.data ? Buffer.from(details.data, 'hex') : undefined
         });
     }

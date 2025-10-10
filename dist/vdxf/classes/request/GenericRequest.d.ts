@@ -13,7 +13,7 @@ export type GenericRequestJson = {
     version: string;
     flags?: string;
     signature?: SignatureJsonDataInterface;
-    createdAt?: BigNumber;
+    createdat?: string;
     details: Array<OrdinalVdxfObjectJson>;
 };
 export declare class GenericRequest implements SerializableEntity {

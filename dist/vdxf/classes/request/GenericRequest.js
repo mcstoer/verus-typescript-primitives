@@ -184,7 +184,8 @@ class GenericRequest {
             signature: this.isSigned() ? this.signature.toJson() : undefined,
             details: details,
             version: this.version.toString(),
-            flags: this.flags.toString()
+            flags: this.flags.toString(),
+            createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined
         };
     }
 }

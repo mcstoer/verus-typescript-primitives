@@ -11,7 +11,7 @@ export interface OrdinalVdxfObjectInterfaceTemplate<T> {
 export type OrdinalVdxfObjectJsonTemplate<T> = {
     version: string;
     type: string;
-    vdxfKey?: string;
+    vdxfkey?: string;
     data?: T;
 };
 export type OrdinalVdxfObjectReservedData = DataDescriptor | VerusPayInvoiceDetails;

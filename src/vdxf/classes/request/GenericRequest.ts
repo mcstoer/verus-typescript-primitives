@@ -26,7 +26,7 @@ export type GenericRequestJson = {
   version: string;
   flags?: string;
   signature?: SignatureJsonDataInterface;
-  createdAt?: BigNumber;
+  createdat?: string;
   details: Array<OrdinalVdxfObjectJson>;
 }
 
@@ -272,7 +272,8 @@ export class GenericRequest implements SerializableEntity {
       signature: this.isSigned() ? this.signature.toJson() : undefined,
       details: details,
       version: this.version.toString(),
-      flags: this.flags.toString()
+      flags: this.flags.toString(),
+      createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined
     };
   }
 }
