@@ -14,7 +14,7 @@ exports.GENERIC_REQUEST_DEEPLINK_VDXF_KEY = {
     "hash160result": "4ba3719af89a7225998a3c62140160f4799822e1",
     "indexid": "xUq3NnSiUW7icegVTtnZeuYwiQDhdoykiY",
     "qualifiedname": {
-        "name": "vrsc::generic.request",
+        "name": "vrsc::request.generic",
         "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
     },
     "vdxfid": "iPzvuz1ddBu3zUoTcD8QgX2QgkCgmXH698"

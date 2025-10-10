@@ -6,7 +6,7 @@ import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
+import { EHashTypes, SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
@@ -103,30 +103,12 @@ export class GenericRequest implements SerializableEntity {
     return createHash("sha256").update(this.getDetailsBuffer()).digest();
   }
 
-  getDetailsHash(signedBlockheight: number) {
+  getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
     if (this.isSigned()) {
-      var heightBufferWriter = new bufferutils.BufferWriter(
-        Buffer.alloc(4)
-      );
-      heightBufferWriter.writeUInt32(signedBlockheight);
-  
-      if (this.signature.version.toNumber() === 1) {
-        return createHash("sha256")
-          .update(VERUS_DATA_SIGNATURE_PREFIX)
-          .update(fromBase58Check(this.signature!.system_ID).hash)
-          .update(heightBufferWriter.buffer)
-          .update(fromBase58Check(this.signature!.identity_ID).hash)
-          .update(this.getRawDetailsSha256())
-          .digest();
-      } else {
-        return createHash("sha256")
-          .update(fromBase58Check(this.signature!.system_ID).hash)
-          .update(heightBufferWriter.buffer)
-          .update(fromBase58Check(this.signature!.identity_ID).hash)
-          .update(VERUS_DATA_SIGNATURE_PREFIX)
-          .update(this.getRawDetailsSha256())
-          .digest();
-      }
+      const sigHash = this.getRawDetailsSha256();
+      
+      this.signature.signature_hash = sigHash;
+      return this.signature.getIdentityHash({ version: 2, hash_type: EHashTypes.HASH_SHA256, height: signedBlockheight });
     } else return this.getRawDetailsSha256()
   }
 

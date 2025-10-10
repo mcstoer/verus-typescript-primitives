@@ -9,8 +9,6 @@ const pbaas_1 = require("../../../pbaas");
 const OrdinalVdxfObject_1 = require("../OrdinalVdxfObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
 class GenericRequest {
     constructor(request = {
         details: [],
@@ -63,26 +61,9 @@ class GenericRequest {
     }
     getDetailsHash(signedBlockheight) {
         if (this.isSigned()) {
-            var heightBufferWriter = new bufferutils_1.default.BufferWriter(Buffer.alloc(4));
-            heightBufferWriter.writeUInt32(signedBlockheight);
-            if (this.signature.version.toNumber() === 1) {
-                return (0, crypto_1.createHash)("sha256")
-                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
-                    .update((0, address_1.fromBase58Check)(this.signature.system_ID).hash)
-                    .update(heightBufferWriter.buffer)
-                    .update((0, address_1.fromBase58Check)(this.signature.identity_ID).hash)
-                    .update(this.getRawDetailsSha256())
-                    .digest();
-            }
-            else {
-                return (0, crypto_1.createHash)("sha256")
-                    .update((0, address_1.fromBase58Check)(this.signature.system_ID).hash)
-                    .update(heightBufferWriter.buffer)
-                    .update((0, address_1.fromBase58Check)(this.signature.identity_ID).hash)
-                    .update(vdxf_1.VERUS_DATA_SIGNATURE_PREFIX)
-                    .update(this.getRawDetailsSha256())
-                    .digest();
-            }
+            const sigHash = this.getRawDetailsSha256();
+            this.signature.signature_hash = sigHash;
+            return this.signature.getIdentityHash({ version: 2, hash_type: pbaas_1.EHashTypes.HASH_SHA256, height: signedBlockheight });
         }
         else
             return this.getRawDetailsSha256();
