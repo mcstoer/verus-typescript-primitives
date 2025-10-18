@@ -21,26 +21,38 @@ const { BufferReader, BufferWriter } = bufferutils;
 import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { TransferDestination, TransferDestinationJson } from '../../../pbaas/TransferDestination';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-
-
-export interface AppEncryptionRequestDetailsInterface {
-  flags: BigNumber;
-  encryptToKey: string;
-  derivationNumber: BigNumber;
-  optionalDerivationNumber?: BigNumber;
-  fromAddress?: TransferDestination;
-  toAddress?: TransferDestination;
-}
+import { escape } from 'querystring';
+import varuint from '../../../utils/varuint';
+import { I_ADDR_VERSION } from '../../../constants/vdxf';
+import { fromBase58Check, toBase58Check } from '../../..';
+import { CompactIdentityObject } from './CompactIdentityObject';
 
 export interface AppEncryptionRequestDetailsJson {
+  version: number;
   flags: number;
   encryptToKey: string;
   derivationnumber: number;
   optionalderivationnumber?: number;
-  fromaddress?: TransferDestinationJson;
-  toaddress?: TransferDestinationJson;
+  fromaddress?: string;
+  toaddress?: string;
 }
 
+/**
+ * Checks if a string is a valid hexadecimal address
+ * @param flags - Optional flags for the request
+ * @flag HAS_FROM_ADDRESS - Indicates if a from address is included
+ * @flag HAS_TO_ADDRESS - Indicates if a to address is included
+ * @flag HAS_OPTIONAL_SEED_DERIVATION - Indicates if an optional derivation number is included
+ * @flag ADDRESSES_NOT_FQN - Indicates if addresses are in hex format rather than FQN
+ * 
+ * @param encryptToKey - The encryption key to use for encrypting to
+ * @param derivationNumber - The derivation number to validate
+ * @param optionalDerivationNumber - The optional derivation number to validate
+ * @param fromAddress - The from address to be included in the encryption either 
+ * john.domain@ or [20-byte hex iaddress][20-byte hex system]
+ * @param toAddress - The to address to be included in the encryption either
+ * john.domain@ or [20-byte hex iaddress][20-byte hex system]
+ */
 
 export class AppEncryptionRequestDetails implements SerializableEntity {
 
@@ -51,18 +63,18 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
   static HAS_FROM_ADDRESS = new BN(1);
   static HAS_TO_ADDRESS = new BN(2);
-  static BOTH_ADDRESSES = new BN(4);
-  static HAS_OPTIONAL_SEED_DERIVATION = new BN(8);
+  static HAS_OPTIONAL_SEED_DERIVATION = new BN(4);
 
-  version: BigNumber = AppEncryptionRequestDetails.DEFAULT_VERSION;
+  version: BigNumber;
   flags: BigNumber;
   encryptToKey: string;
   derivationNumber: BigNumber;
   optionalDerivationNumber?: BigNumber;
-  fromAddress?: TransferDestination;
-  toAddress?: TransferDestination;
+  fromAddress?: CompactIdentityObject;
+  toAddress?: CompactIdentityObject;
 
-  constructor(data?: AppEncryptionRequestDetailsInterface) {
+  constructor(data?: AppEncryptionRequestDetails) {
+    this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.encryptToKey = data?.encryptToKey || '';
     this.derivationNumber = data?.derivationNumber || new BN(0);
@@ -73,16 +85,16 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
   setFlags(): void {
     this.flags = new BN(0);
-    
+
     if (this.optionalDerivationNumber != null) {
       this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_OPTIONAL_SEED_DERIVATION);
     }
-    
-    if (this.fromAddress != null && this.toAddress != null) {
-      this.flags = this.flags.or(AppEncryptionRequestDetails.BOTH_ADDRESSES);
-    } else if (this.fromAddress != null) {
+
+    if (this.fromAddress != null) {
       this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS);
-    } else if (this.toAddress != null) {
+    }
+
+    if (this.toAddress != null) {
       this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
     }
   }
@@ -95,6 +107,22 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return valid;
   }
 
+  hasOptionalSeedDerivation(): boolean {
+    return this.flags.and(AppEncryptionRequestDetails.HAS_OPTIONAL_SEED_DERIVATION).gt(new BN(0));
+  }
+
+  hasFromAddress(): boolean {
+    return this.flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0));
+  }
+
+  hasToAddress(): boolean {
+    return this.flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0));
+  }
+
+  isHexAddress(address: string): boolean {
+    return address.length === 40 && address.match(/^[0-9a-fA-F]+$/) !== null;
+  }
+
   getByteLength(): number {
     let length = 0;
 
@@ -102,28 +130,38 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     // encryptToKey - zaddress encoding (43 bytes for sapling address data)
     length += 43; // Sapling address decoded data (11 + 32 bytes)
-    
+
     length += varint.encodingLength(this.derivationNumber);
 
-    if(this.flags.and(AppEncryptionRequestDetails.HAS_OPTIONAL_SEED_DERIVATION).gt(new BN(0))) {
+    if (this.hasOptionalSeedDerivation()) {
       length += varint.encodingLength(this.optionalDerivationNumber);
     }
 
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      length += this.fromAddress!.getByteLength();
-    } 
-    
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      length += this.toAddress!.getByteLength();
+    if (this.hasFromAddress()) {
+      if (this.isHexAddress(this.fromAddress!)) {
+        length += 20;
+      } else {
+        length += varuint.encodingLength(Buffer.from(this.fromAddress!, 'utf8').byteLength);
+        length += Buffer.from(this.fromAddress!, 'utf8').byteLength;
+      }
+    }
+
+    if (this.hasToAddress()) {
+      if (this.isHexAddress(this.toAddress!)) {
+        length += 20;
+      } else {
+        length += varuint.encodingLength(Buffer.from(this.toAddress!, 'utf8').byteLength);
+        length += Buffer.from(this.toAddress!, 'utf8').byteLength;
+      }
     }
 
     return length;
-  }  toBuffer(): Buffer {
+  }
+
+  toBuffer(): Buffer {
     // Set flags before serialization
     this.setFlags();
-    
+
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     // Write flags
@@ -137,19 +175,25 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     writer.writeVarInt(this.derivationNumber);
 
     // Write optional derivation number if flag is set
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_OPTIONAL_SEED_DERIVATION).gt(new BN(0))) {
+    if (this.hasOptionalSeedDerivation()) {
       writer.writeVarInt(this.optionalDerivationNumber);
     }
 
     // Write addresses based on flags
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      writer.writeSlice(this.fromAddress!.toBuffer());
+    if (this.hasFromAddress()) {
+      if (this.isHexAddress(this.fromAddress!)) {
+        writer.writeSlice(Buffer.from(this.fromAddress!, 'hex'));
+      } else {
+        writer.writeVarSlice(Buffer.from(this.fromAddress!, 'utf8'));
+      }
     }
-    
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      writer.writeSlice(this.toAddress!.toBuffer());
+
+    if (this.hasToAddress()) {
+      if (this.isHexAddress(this.toAddress!)) {
+        writer.writeSlice(Buffer.from(this.toAddress!, 'hex'));
+      } else {
+        writer.writeVarSlice(Buffer.from(this.toAddress!, 'utf8'));
+      }
     }
 
     return writer.buffer;
@@ -169,21 +213,25 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     this.derivationNumber = reader.readVarInt();
 
     // Read optional derivation number if flag is set
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_OPTIONAL_SEED_DERIVATION).gt(new BN(0))) {
+    if (this.hasOptionalSeedDerivation()) {
       this.optionalDerivationNumber = reader.readVarInt();
     }
 
     // Read addresses based on flags
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      this.fromAddress = new TransferDestination();
-      reader.offset = this.fromAddress.fromBuffer(buffer, reader.offset);
+    if (this.hasFromAddress()) {
+      if (this.isHexAddress(this.fromAddress!)) {
+        this.fromAddress = reader.readSlice(20).toString('hex');
+      } else {
+        this.fromAddress = reader.readVarSlice().toString('utf8');
+      }
     }
-    
-    if (this.flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0)) || 
-        this.flags.and(AppEncryptionRequestDetails.BOTH_ADDRESSES).gt(new BN(0))) {
-      this.toAddress = new TransferDestination();
-      reader.offset = this.toAddress.fromBuffer(buffer, reader.offset);
+
+    if (this.hasToAddress()) {
+      if (this.isHexAddress(this.toAddress!)) {
+        this.toAddress = reader.readSlice(20).toString('hex');
+      } else {
+        this.toAddress = reader.readVarSlice().toString('utf8');
+      }
     }
 
     return reader.offset;
@@ -192,26 +240,28 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   toJSON(): AppEncryptionRequestDetailsJson {
     // Set flags before serialization
     this.setFlags();
-    
+
     return {
+      version: this.version.toNumber(),
       flags: this.flags.toNumber(),
       encryptToKey: this.encryptToKey,
       derivationnumber: this.derivationNumber.toNumber(),
       optionalderivationnumber: this.optionalDerivationNumber?.toNumber(),
-      fromaddress: this.fromAddress?.toJson(),
-      toaddress: this.toAddress?.toJson()
+      fromaddress: this.fromAddress,
+      toaddress: this.toAddress
     };
   }
 
   static fromJSON(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails {
-    return new AppEncryptionRequestDetails({
-      flags: new BN(json.flags),
-      encryptToKey: json.encryptToKey,
-      derivationNumber: new BN(json.derivationnumber),
-      optionalDerivationNumber: json.optionalderivationnumber ? new BN(json.optionalderivationnumber) : undefined,
-      fromAddress: json.fromaddress ? TransferDestination.fromJson(json.fromaddress) : undefined,
-      toAddress: json.toaddress ? TransferDestination.fromJson(json.toaddress) : undefined
-    });
+    const instance = new AppEncryptionRequestDetails();
+    instance.version = new BN(json.version);
+    instance.flags = new BN(json.flags);
+    instance.encryptToKey = json.encryptToKey;
+    instance.derivationNumber = new BN(json.derivationnumber);
+    instance.optionalDerivationNumber = json?.optionalderivationnumber ? new BN(json.optionalderivationnumber) : undefined;
+    instance.fromAddress = json?.fromaddress;
+    instance.toAddress = json?.toaddress;
+    return instance;
   }
 
 }

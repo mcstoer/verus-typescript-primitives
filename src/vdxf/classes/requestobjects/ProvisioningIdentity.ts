@@ -20,7 +20,7 @@ export interface ProvisionIdentityInterface {
 
 export class ProvisionIdentity implements SerializableEntity {
 
-  version: BigNumber = ProvisionIdentity.VERSION_CURRENT;
+  version: BigNumber = ProvisionIdentity.DEFAULT_VERSION;
   flags: BigNumber;  
   systemId?: string;
   parentId: string;
@@ -29,7 +29,7 @@ export class ProvisionIdentity implements SerializableEntity {
   webhook?: string;
   
   // Version
-  static VERSION_CURRENT = new BN(1, 10)
+  static DEFAULT_VERSION = new BN(1, 10)
   static VERSION_FIRSTVALID = new BN(1, 10)
   static VERSION_LASTVALID = new BN(1, 10)
 
@@ -43,7 +43,7 @@ export class ProvisionIdentity implements SerializableEntity {
     provisionIdentity: ProvisionIdentityInterface = {
       flags: new BN(0, 10)}
   ) {
-    this.version = provisionIdentity.version || ProvisionIdentity.VERSION_CURRENT;
+    this.version = provisionIdentity.version || ProvisionIdentity.DEFAULT_VERSION;
     this.flags = provisionIdentity.flags;
     this.systemId = provisionIdentity?.systemId;
     this.parentId = provisionIdentity?.parentId;

@@ -26,19 +26,15 @@ import varint from '../../../utils/varint';
 import varuint from '../../../utils/varuint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
-
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-
 
 export interface RequestUserDataJson {
   version: number;
-  flags: BigNumber;
+  flags: number;
   searchDatakey: {[key: string]: string};   // ID object of the specific information requested
   signer: string;
   requestedkeys?: string[]; // Specific keys within the data object being requested
-  statement?: string;  
 }
-
 
 export class RequestUserData implements SerializableEntity {
 
@@ -50,41 +46,52 @@ export class RequestUserData implements SerializableEntity {
   static FULL_DATA = new BN(1);
   static PARTIAL_DATA = new BN(2);
   static COLLECTION = new BN(4);
-  static HAS_STATEMENT = new BN(8);
 
-  static ATTESTATION = new BN(16);
-  static CLAIM = new BN(32);
-  static CREDENTIAL = new BN(64);
+  static ATTESTATION = new BN(8);
+  static CLAIM = new BN(16);
+  static CREDENTIAL = new BN(32);
 
   version: BigNumber;
   flags: BigNumber;
   searchDataKey: {[key: string]: string};
   signer: string;
   requestedKeys?: string[];
-  statement?: string;  
 
   constructor(data?: RequestUserData) {
     this.version = data?.version || RequestUserData.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.searchDataKey = data?.searchDataKey || {};
     this.signer = data?.signer || '';
-    this.requestedKeys = data?.requestedKeys || [];
-    this.statement = data?.statement;
+    this.requestedKeys = data?.requestedKeys;
+
   }
 
   setFlags(): void {
     this.flags = new BN(0);    
-   
-    if (this.statement && this.statement.length > 0) {
-      this.flags = this.flags.or(RequestUserData.HAS_STATEMENT);
-    }
+
+  }
+
+  versionIsValid(): boolean {
+    return this.version.gte(RequestUserData.FIRST_VERSION) && this.version.lte(RequestUserData.LAST_VERSION);
+  }
+
+  hasFlags(): boolean {
+    return this.flags.gte(new BN(0));
+  }
+
+  hasSearchDataKey(): boolean {
+    return Object.keys(this.searchDataKey).length > 0;
+  }
+
+  hasSigner(): boolean {
+    return this.signer.length > 0;
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(RequestUserData.FIRST_VERSION) && this.version.lte(RequestUserData.LAST_VERSION);
-    valid &&= (this.flags.gte(new BN(0)));
-    valid &&= (Object.keys(this.searchDataKey).length > 0);
-    valid &&= (this.signer.length > 0);
+    let valid = this.versionIsValid();
+    valid &&= (this.hasFlags());
+    valid &&= (this.hasSearchDataKey());
+    valid &&= (this.hasSigner());
     return valid;
   }
 
@@ -107,12 +114,6 @@ export class RequestUserData implements SerializableEntity {
       for (const key of this.requestedKeys) {    
         length += 20  // VDXF key length 
       }
-    }
-    
-    // Add statement length if present
-    if (this.statement && this.statement.length > 0) {
-      length += varuint.encodingLength(Buffer.byteLength(this.statement, 'utf8'));
-      length += Buffer.byteLength(this.statement, 'utf8');
     }
     
     return length;

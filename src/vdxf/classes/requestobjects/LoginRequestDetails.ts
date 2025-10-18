@@ -49,14 +49,14 @@ export interface LoginRequestDetailsJson {
 }
 
 export class LoginRequestDetails implements SerializableEntity {
-  version: BigNumber = LoginRequestDetails.VERSION_CURRENT;
+  version: BigNumber = LoginRequestDetails.DEFAULT_VERSION;
   challengeId: string;
   flags?: BigNumber;  
   permissions?: Array<LoginPermission>;
   callbackUri?: CallbackUri;
 
   // Version
-  static VERSION_CURRENT = new BN(1, 10)
+  static DEFAULT_VERSION = new BN(1, 10)
   static VERSION_FIRSTVALID = new BN(1, 10)
   static VERSION_LASTVALID = new BN(1, 10)
 
@@ -71,7 +71,7 @@ export class LoginRequestDetails implements SerializableEntity {
     this.flags = challenge?.flags || new BN(0, 10);
     this.permissions = challenge?.permissions || null;
     this.callbackUri = challenge?.callbackUri || null;
-    this.version = LoginRequestDetails.VERSION_CURRENT;
+    this.version = LoginRequestDetails.DEFAULT_VERSION;
   }
 
   getByteLength(): number {
