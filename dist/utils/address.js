@@ -56,7 +56,7 @@ const toIAddress = (fullyqualifiedname, rootSystemName = "") => {
         throw new Error("Invalid name");
     const cleanFqn = splitFqnAt[0];
     const splitFqnDot = cleanFqn.split('.');
-    if (splitFqnDot[splitFqnDot.length - 1] !== rootSystemName &&
+    if ((0, tolower_1.toLowerCaseCLocale)(splitFqnDot[splitFqnDot.length - 1]) !== (0, tolower_1.toLowerCaseCLocale)(rootSystemName) &&
         splitFqnDot[splitFqnDot.length - 1] !== "") {
         splitFqnDot.push(rootSystemName);
     }

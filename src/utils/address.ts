@@ -64,8 +64,10 @@ export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = 
 
   const splitFqnDot = cleanFqn.split('.');
 
-  if (splitFqnDot[splitFqnDot.length - 1] !== rootSystemName && 
-      splitFqnDot[splitFqnDot.length - 1] !== "") {
+  if (
+    toLowerCaseCLocale(splitFqnDot[splitFqnDot.length - 1]) !== toLowerCaseCLocale(rootSystemName) &&
+    splitFqnDot[splitFqnDot.length - 1] !== ""
+  ) {
     splitFqnDot.push(rootSystemName)
   }
 
