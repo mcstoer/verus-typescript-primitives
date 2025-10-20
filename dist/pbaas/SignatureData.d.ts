@@ -65,5 +65,5 @@ export declare class SignatureData implements SerializableEntity {
         version: number;
         hash_type: number;
         height: number;
-    }): any;
+    }): Buffer<ArrayBufferLike>;
 }

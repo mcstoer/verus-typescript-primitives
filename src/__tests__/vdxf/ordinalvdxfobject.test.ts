@@ -40,17 +40,17 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
   it('should serialize / deserialize a GeneralTypeOrdinalVdxfObject (opaque buffer) via buffer', () => {
     const sample = Buffer.from('deadbeef', 'hex');
-    const obj = new GeneralTypeOrdinalVdxfObject({ data: sample, vdxfKey: DEFAULT_VERUS_CHAINID });
+    const obj = new GeneralTypeOrdinalVdxfObject({ data: sample, key: DEFAULT_VERUS_CHAINID });
 
     // check some properties
     expect(obj.isDefinedByVdxfKey()).toBe(true);
     expect(obj.data).toEqual(sample);
-    expect(obj.vdxfKey).toEqual(DEFAULT_VERUS_CHAINID);
+    expect(obj.key).toEqual(DEFAULT_VERUS_CHAINID);
 
     const round = roundTripBuffer(obj);
     expect(round).toBeInstanceOf(GeneralTypeOrdinalVdxfObject);
     expect((round as GeneralTypeOrdinalVdxfObject).data).toEqual(sample);
-    expect(((round as GeneralTypeOrdinalVdxfObject).vdxfKey)).toEqual(DEFAULT_VERUS_CHAINID);
+    expect(((round as GeneralTypeOrdinalVdxfObject).key)).toEqual(DEFAULT_VERUS_CHAINID);
 
     // Their JSON should match hex
     const j = obj.toJson();
@@ -58,7 +58,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const roundJ = roundTripJson<GeneralTypeOrdinalVdxfObject>(obj);
     expect(roundJ).toBeInstanceOf(GeneralTypeOrdinalVdxfObject);
     expect((roundJ as GeneralTypeOrdinalVdxfObject).data).toEqual(sample);
-    expect(((roundJ as GeneralTypeOrdinalVdxfObject).vdxfKey)).toEqual(DEFAULT_VERUS_CHAINID);
+    expect(((roundJ as GeneralTypeOrdinalVdxfObject).key)).toEqual(DEFAULT_VERUS_CHAINID);
   });
 
   it('should serialize / deserialize a DataDescriptorOrdinalVdxfObject via buffer', () => {
@@ -141,20 +141,20 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   });
 
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.TYPE_DATA_DESCRIPTOR))
+    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.TYPE_INVOICE))
+    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE))
       .toBe(VerusPayInvoiceOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE))
+    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
 
     // unrecognized
     expect(() => getOrdinalVdxfObjectClassForType(new BN(999))).toThrow();
   });
 
-  it('base OrdinalVdxfObject buffer round trip (no vdxfKey path)', () => {
-    // This tests the fallback when no vdxfKey is provided
-    const base = new OrdinalVdxfObject({ type: OrdinalVdxfObject.TYPE_DATA_DESCRIPTOR });
+  it('base OrdinalVdxfObject buffer round trip (no key path)', () => {
+    // This tests the fallback when no key is provided
+    const base = new OrdinalVdxfObject({ type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR });
     const buf = base.toBuffer();
     const parsed = new OrdinalVdxfObject();
     parsed.fromBuffer(buf);

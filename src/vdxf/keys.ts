@@ -20,14 +20,24 @@ export const VERUSPAY_INVOICE_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "iEETy7La3FTN2Sd2hNRgepek5S8x8eeUeQ"
 }
 
-export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "4ba3719af89a7225998a3c62140160f4799822e1",
-  "indexid": "xUq3NnSiUW7icegVTtnZeuYwiQDhdoykiY",
+export const VERUSPAY_INVOICE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "743a23f19531686d70b26a2e220b50a9c70d78a3",
+  "indexid": "xPCyrdbnb89NftNSuPaVFENwzGDmAukVbS",
   "qualifiedname": {
-    "name": "vrsc::request",
+    "name": "veruspay.vrsc::invoice.details",
+    "namespace": "iAisVse7piEiE2VsixZx4SARyHzSpxYxgq"
+  },
+  "vdxfid": "iJNsPqAhjovi3iVR3hvLGqrQxcCkHq9n9H"
+}
+
+export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "bc05c4263031cc791296fa8bd15553ccef3de4ba",
+  "indexid": "xRLq15vpenCUGVpmZgqEtoygZW2b32oVgX",
+  "qualifiedname": {
+    "name": "vrsc::request.generic",
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
-  "vdxfid": "iPzvuz1ddBu3zUoTcD8QgX2QgkCgmXH698"
+  "vdxfid": "iLWiYHVjoTyoeKwji1B5vRT9Xr1aA9yyvX"
 }
 
 export const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface = {

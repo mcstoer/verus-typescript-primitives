@@ -6,32 +6,36 @@ import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
+import { EHashTypes, SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import { createHash } from "crypto";
 
 export interface GenericRequestInterface {
   version?: BigNumber;
   flags?: BigNumber;
-  createdat?: BigNumber;
   signature?: SignatureData;
+  createdAt?: BigNumber;
+  salt?: Buffer;
   details: Array<OrdinalVdxfObject>;
 }
 
 export type GenericRequestJson = {
   version: string;
   flags?: string;
-  createdat?: BigNumber;
-  details: Array<OrdinalVdxfObjectJson>;
   signature?: SignatureJsonDataInterface;
+  createdat?: string;
+  salt?: string;
+  details: Array<OrdinalVdxfObjectJson>;
 }
 
 export class GenericRequest implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
-  createdat?: BigNumber;
   signature?: SignatureData;
+  createdAt?: BigNumber;
+  salt?: Buffer; // var length buffer
   details: Array<OrdinalVdxfObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
@@ -42,6 +46,8 @@ export class GenericRequest implements SerializableEntity {
   static FLAG_SIGNED = new BN(1, 10)
   static FLAG_HAS_CREATED_AT = new BN(2, 10)
   static FLAG_MULTI_DETAILS = new BN(4, 10)
+  static FLAG_IS_TESTNET = new BN(8, 10)
+  static FLAG_HAS_SALT = new BN(16, 10)
 
   constructor(
     request: GenericRequestInterface = {
@@ -51,7 +57,8 @@ export class GenericRequest implements SerializableEntity {
   ) {
     this.signature = request.signature;
     this.details = request.details;
-    this.createdat = request.createdat;
+    this.createdAt = request.createdAt;
+    this.salt = request.salt;
 
     if (request.flags) this.flags = request.flags;
     else this.flags = GenericRequest.BASE_FLAGS;
@@ -74,67 +81,74 @@ export class GenericRequest implements SerializableEntity {
     return !!(this.flags.and(GenericRequest.FLAG_MULTI_DETAILS).toNumber());
   }
 
+  hasCreatedAt() {
+    return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
+  }
+
+  hasSalt() {
+    return !!(this.flags.and(GenericRequest.FLAG_HAS_SALT).toNumber());
+  }
+
+  isTestnet() {
+    return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
+  }
+
   setSigned() {
-    this.flags = this.version.xor(GenericRequest.FLAG_SIGNED);
+    this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
   }
 
   setHasMultiDetails() {
-    this.flags = this.version.xor(GenericRequest.FLAG_MULTI_DETAILS);
+    this.flags = this.flags.xor(GenericRequest.FLAG_MULTI_DETAILS);
   }
 
   setHasCreatedAt() {
-    this.flags = this.version.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+    this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+  }
+
+  setHasSalt() {
+    this.flags = this.flags.xor(GenericRequest.FLAG_HAS_SALT);
+  }
+
+  setIsTestnet() {
+    this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
   }
 
   setFlags() {
-    if (this.createdat) this.setHasCreatedAt();
+    if (this.createdAt) this.setHasCreatedAt();
     if (this.details && this.details.length > 1) this.setHasMultiDetails();
     if (this.signature) this.setSigned();
+    if (this.salt) this.setHasSalt();
   }
 
-  // private getRawDetailsSha256() {
-  //   return createHash("sha256").update(this.details.toBuffer()).digest();
-  // }
+  private getRawDataSha256() {
+    return createHash("sha256").update(this.toBufferOptionalSig(false)).digest();
+  }
 
-  // getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
-  //   if (this.isSigned()) {
-  //     var heightBufferWriter = new bufferutils.BufferWriter(
-  //       Buffer.allocUnsafe(4)
-  //     );
-  //     heightBufferWriter.writeUInt32(signedBlockheight);
-  
-  //     if (signatureVersion === 1) {
-  //       return createHash("sha256")
-  //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-  //         .update(fromBase58Check(this.system_id).hash)
-  //         .update(heightBufferWriter.buffer)
-  //         .update(fromBase58Check(this.signing_id).hash)
-  //         .update(this.getRawDetailsSha256())
-  //         .digest();
-  //     } else {
-  //       return createHash("sha256")
-  //         .update(fromBase58Check(this.system_id).hash)
-  //         .update(heightBufferWriter.buffer)
-  //         .update(fromBase58Check(this.signing_id).hash)
-  //         .update(VERUS_DATA_SIGNATURE_PREFIX)
-  //         .update(this.getRawDetailsSha256())
-  //         .digest();
-  //     }
-  //   } else return this.getRawDetailsSha256()
-  // }
+  getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
+    if (this.isSigned()) {
+      const sigHash = this.getRawDataSha256();
+      
+      this.signature.signature_hash = sigHash;
+      return this.signature.getIdentityHash({ version: 2, hash_type: EHashTypes.HASH_SHA256, height: signedBlockheight });
+    } else return this.getRawDataSha256()
+  }
 
   getDetails(index = 0): OrdinalVdxfObject {
     return this.details[index];
   }
 
-  getByteLength(): number {
+  private getDetailsBufferLength(): number {
     let length = 0;
 
-    length += varuint.encodingLength(this.version.toNumber());
-    length += varuint.encodingLength(this.flags.toNumber());
+    if (this.hasCreatedAt()) {
+      length += varuint.encodingLength(this.createdAt.toNumber());
+    }
 
-    if (this.isSigned()) {  
-      length += this.signature!.getByteLength()
+    if (this.hasSalt()) {
+      const saltLen = this.salt.length;
+
+      length += varuint.encodingLength(saltLen);
+      length += saltLen;
     }
 
     if (this.hasMultiDetails()) {
@@ -150,21 +164,22 @@ export class GenericRequest implements SerializableEntity {
     return length;
   }
 
-  toBuffer(): Buffer {
+  private getDetailsBuffer(): Buffer {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.getByteLength())
+      Buffer.alloc(this.getDetailsBufferLength())
     );
 
-    writer.writeCompactSize(this.version.toNumber());
-    writer.writeCompactSize(this.flags.toNumber());
+    if (this.hasCreatedAt()) {
+      writer.writeCompactSize(this.createdAt.toNumber());
+    }
 
-    if (this.isSigned()) {
-      writer.writeSlice(this.signature!.toBuffer());
+    if (this.hasSalt()) {
+      writer.writeVarSlice(this.salt);
     }
 
     if (this.hasMultiDetails()) {
       writer.writeCompactSize(this.details.length);
-      
+
       for (const detail of this.details) {
         writer.writeSlice(detail.toBuffer());
       }
@@ -173,6 +188,42 @@ export class GenericRequest implements SerializableEntity {
     }
 
     return writer.buffer;
+  }
+
+  getByteLength(): number {
+    let length = 0;
+
+    length += varuint.encodingLength(this.version.toNumber());
+    length += varuint.encodingLength(this.flags.toNumber());
+
+    if (this.isSigned()) {  
+      length += this.signature!.getByteLength();
+    }
+    
+    length += this.getDetailsBufferLength();
+
+    return length;
+  }
+
+  private toBufferOptionalSig(includeSig = true) {
+    const writer = new bufferutils.BufferWriter(
+      Buffer.alloc(this.getByteLength())
+    );
+
+    writer.writeCompactSize(this.version.toNumber());
+    writer.writeCompactSize(this.flags.toNumber());
+
+    if (this.isSigned() && includeSig) {
+      writer.writeSlice(this.signature!.toBuffer());
+    }
+
+    writer.writeSlice(this.getDetailsBuffer());
+
+    return writer.buffer;
+  }
+
+  toBuffer(): Buffer {
+    return this.toBufferOptionalSig(true);
   }
 
   fromBuffer(buffer: Buffer, offset?: number): number {
@@ -187,6 +238,14 @@ export class GenericRequest implements SerializableEntity {
       const _sig = new SignatureData();
       reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
       this.signature = _sig;
+    }
+
+    if (this.hasCreatedAt()) {
+      this.createdAt = new BN(reader.readCompactSize());
+    }
+
+    if (this.hasSalt()) {
+      this.salt = reader.readVarSlice();
     }
 
     if (this.hasMultiDetails()) {
@@ -215,7 +274,7 @@ export class GenericRequest implements SerializableEntity {
   }
 
   toWalletDeeplinkUri(): string {
-    return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}://x-callback-url/${
+    return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${
       GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid
     }/${this.toString()}`;
   }
@@ -240,25 +299,6 @@ export class GenericRequest implements SerializableEntity {
     return inv;
   }
 
-  static fromJson(data: GenericRequestJson): GenericRequest {
-    return new GenericRequest();
-    // let details: GenericRequestDetails;
-
-    // if (type.eq(GenericRequest.TYPE_INVOICE)) {
-    //   details = VerusPayInvoiceDetails.fromJson(data.details as VerusPayInvoiceDetailsJson);
-    // } else {
-    //   details = DataDescriptor.fromJson(data.details as DataDescriptorJson);
-    // }
-
-    // return new GenericRequest({
-    //   details,
-    //   signature: data.signature != null ? SignatureData.fromJson(data.signature) : undefined,
-    //   version: new BN(data.version),
-    //   type: new BN(data.type),
-    //   flags: new BN(data.flags)
-    // })
-  }
-
   toJson(): GenericRequestJson {
     const details = [];
 
@@ -272,7 +312,8 @@ export class GenericRequest implements SerializableEntity {
       signature: this.isSigned() ? this.signature.toJson() : undefined,
       details: details,
       version: this.version.toString(),
-      flags: this.flags.toString()
+      flags: this.flags.toString(),
+      createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined
     };
   }
 }
