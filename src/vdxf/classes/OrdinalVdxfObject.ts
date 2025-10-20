@@ -9,8 +9,9 @@ import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../constan
 import { DataDescriptor, DataDescriptorJson } from "../../pbaas";
 import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/VerusPayInvoiceDetails";
 import { OrdinalVdxfObjectOrdinalMap } from "./OrdinalVdxfObjectOrdinalMap";
-import { DATA_TYPE_OBJECT_DATADESCRIPTOR, VERUSPAY_INVOICE_DETAILS_VDXF_KEY } from "../keys";
+import { DATA_TYPE_OBJECT_DATADESCRIPTOR, VERUSPAY_INVOICE_DETAILS_VDXF_KEY, LOGIN_REQUEST_DETAILS_VDXF_KEY } from "../keys";
 import { DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINNAME } from "../../constants/pbaas";
+import { LoginRequestDetails, LoginRequestDetailsJson } from "../..";
 
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
   version?: BigNumber;
@@ -26,8 +27,8 @@ export type OrdinalVdxfObjectJsonTemplate<T> = {
   data?: T;
 }
 
-export type OrdinalVdxfObjectReservedData = DataDescriptor | VerusPayInvoiceDetails;
-export type OrdinalVdxfObjectReservedDataJson = DataDescriptorJson | VerusPayInvoiceDetailsJson;
+export type OrdinalVdxfObjectReservedData = DataDescriptor | VerusPayInvoiceDetails | LoginRequestDetails;
+export type OrdinalVdxfObjectReservedDataJson = DataDescriptorJson | VerusPayInvoiceDetailsJson | LoginRequestDetailsJson ;
 export type BufferOrOrdinalVdxfObjectReservedData = Buffer | OrdinalVdxfObjectReservedData;
 export type StringOrOrdinalVdxfObjectReservedDataJson = string | OrdinalVdxfObjectReservedDataJson;
 
@@ -40,6 +41,7 @@ export type OrdinalVdxfObjectClass = new (...args: any[]) => OrdinalVdxfObject;
 export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfObjectClass => {
   if (type.eq(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR)) return DataDescriptorOrdinalVdxfObject;
   else if (type.eq(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE)) return VerusPayInvoiceOrdinalVdxfObject;
+  else if (type.eq(OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS)) return LoginRequestDetailsOrdinalVdxfObject;
   else if (
     type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR) || 
     type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) || 
@@ -61,6 +63,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
 
   static ORDINAL_DATA_DESCRIPTOR = new BN(0, 10);
   static ORDINAL_VERUSPAY_INVOICE = new BN(1, 10);
+  static ORDINAL_LOGIN_REQUEST_DETAILS = new BN(2, 10);
 
   static VDXF_OBJECT_RESERVED_BYTE_I_ADDR = new BN(102, 10);
   static VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING = new BN(103, 10);
@@ -244,6 +247,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
 
 OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR.toNumber(), DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid);
 OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE.toNumber(), VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS.toNumber(), LOGIN_REQUEST_DETAILS_VDXF_KEY.vdxfid);
 
 export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
   data: Buffer;
@@ -359,6 +363,30 @@ export class VerusPayInvoiceOrdinalVdxfObject extends SerializableEntityOrdinalV
   static fromJson(details: OrdinalVdxfObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceOrdinalVdxfObject {
     return new VerusPayInvoiceOrdinalVdxfObject({
       data: VerusPayInvoiceDetails.fromJson(details.data)
+    })
+  }
+}
+
+export class LoginRequestDetailsOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+  data: LoginRequestDetails;
+
+  constructor(
+    request: OrdinalVdxfObjectInterfaceTemplate<LoginRequestDetails> = {
+      data: new LoginRequestDetails()
+    }
+  ) {
+    super(
+      {
+        type: OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS,
+        data: request.data
+      },
+      LoginRequestDetails
+    );
+  }
+
+  static fromJson(details: OrdinalVdxfObjectJsonTemplate<LoginRequestDetailsJson>): LoginRequestDetailsOrdinalVdxfObject {
+    return new LoginRequestDetailsOrdinalVdxfObject({
+      data: LoginRequestDetails.fromJson(details.data)
     })
   }
 }

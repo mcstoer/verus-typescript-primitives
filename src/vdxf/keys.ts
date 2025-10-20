@@ -614,3 +614,13 @@ export const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface = {
     "name": "vrsc::attestation.view.request.multipleattestations"
   }
 }
+
+export const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "i4FZ64np4rhtEkSF8mUX7xtaoqqWLPh1cf",
+  "indexid": "x95fYsDtvAvYrvKGzT8g6MR7qVrXBnjHhp",
+  "hash160result": "b1fe18b799bd076bfa9afcb206e934468c198408",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::request.loginrequestdetails"
+  }
+}
