@@ -160,11 +160,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
 
     if (this.hasFromAddress()) {
-        writer.writeVarSlice(this.fromAddress.toBuffer());
+        writer.writeSlice(this.fromAddress.toBuffer());
     }
 
     if (this.hasToAddress()) {
-       writer.writeVarSlice(this.toAddress.toBuffer());
+       writer.writeSlice(this.toAddress.toBuffer());
     }
 
     return writer.buffer;

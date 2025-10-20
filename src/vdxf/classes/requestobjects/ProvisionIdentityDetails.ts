@@ -21,7 +21,7 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
-export interface ProvisionIdentityInterfaceJson {
+export interface ProvisionIdentityDetailsJson {
   version?: number;
   flags: number;  
   systemid?: CompactIdAddressObjectJson;
@@ -29,7 +29,7 @@ export interface ProvisionIdentityInterfaceJson {
   identityid?: CompactIdAddressObjectJson;
 }
 
-export class ProvisionIdentity implements SerializableEntity {
+export class ProvisionIdentityDetails implements SerializableEntity {
 
   version: BigNumber;
   flags: BigNumber;  
@@ -49,25 +49,25 @@ export class ProvisionIdentity implements SerializableEntity {
 
 
   constructor(
-    provisionIdentity?: ProvisionIdentity ){
+    data?: ProvisionIdentityDetails ){
 
-    this.version = provisionIdentity?.version || ProvisionIdentity.DEFAULT_VERSION;
-    this.flags = provisionIdentity?.flags || new BN(0, 10);
-    this.systemId = provisionIdentity?.systemId;
-    this.parentId = provisionIdentity?.parentId;
-    this.identityId = provisionIdentity?.identityId;
+    this.version = data?.version || ProvisionIdentityDetails.DEFAULT_VERSION;
+    this.flags = data?.flags || new BN(0, 10);
+    this.systemId = data?.systemId;
+    this.parentId = data?.parentId;
+    this.identityId = data?.identityId;
   }
 
   hasSystemId(): boolean {
-    return this.flags.and(ProvisionIdentity.FLAG_HAS_SYSTEMID).eq(ProvisionIdentity.FLAG_HAS_SYSTEMID);
+    return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID).eq(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
   }
 
   hasParentId(): boolean {
-    return this.flags.and(ProvisionIdentity.FLAG_HAS_PARENTID).eq(ProvisionIdentity.FLAG_HAS_PARENTID);
+    return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_PARENTID).eq(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
   }
 
   hasIdentityId(): boolean {
-    return this.flags.and(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+    return this.flags.and(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
   }
 
   getByteLength(): number {
@@ -101,7 +101,7 @@ export class ProvisionIdentity implements SerializableEntity {
     }
 
     if (this.hasParentId()) {
-      writer.writeVarSlice(this.parentId.toBuffer());
+      writer.writeSlice(this.parentId.toBuffer());
     } 
 
     if (this.hasIdentityId()) {
@@ -138,7 +138,7 @@ export class ProvisionIdentity implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): ProvisionIdentityInterfaceJson {
+  toJson(): ProvisionIdentityDetailsJson {
     this.setFlags();
     return {
       version: this.version.toNumber(),
@@ -149,9 +149,9 @@ export class ProvisionIdentity implements SerializableEntity {
     };
   }
 
-  static fromJson(data: any): ProvisionIdentity {
+  static fromJson(data: any): ProvisionIdentityDetails {
 
-    const provision = new ProvisionIdentity();
+    const provision = new ProvisionIdentityDetails();
     provision.version = new BN(data?.version || 0);
     provision.flags = new BN(data?.flags || 0);
 
@@ -174,15 +174,15 @@ export class ProvisionIdentity implements SerializableEntity {
     this.flags = new BN(0, 10);
     
     if (this.systemId) {
-      this.flags = this.flags.or(ProvisionIdentity.FLAG_HAS_SYSTEMID);
+      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
     }
     
     if (this.parentId) {
-      this.flags = this.flags.or(ProvisionIdentity.FLAG_HAS_PARENTID);
+      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
     }
     
     if (this.identityId) {
-      this.flags = this.flags.or(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
     }
   }   
 

@@ -244,7 +244,7 @@ export class RequestUserData implements SerializableEntity {
     };
   }
 
-  fromJSON(json: RequestUserDataJson) {
+  static fromJson(json: RequestUserDataJson) {
 
     const requestData = new RequestUserData();
     requestData.version = new BN(json.version);

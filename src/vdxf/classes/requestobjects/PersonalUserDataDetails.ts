@@ -23,13 +23,14 @@ import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
+import { SignatureData, SignatureJsonDataInterface } from '../../../pbaas/SignatureData';
 
 export interface PersonalUserDataDetailsJson {
   version: number;
   flags: number;
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
   statements?: Array<string>;
-  signature?: VerifableSignatureDataJson
+  signature?: SignatureJsonDataInterface
 }
 
 export class PersonalUserDataDetails implements SerializableEntity {
@@ -50,7 +51,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
-  signature?: VerifableSignatureData;
+  signature?: SignatureData;
 
   constructor(data?: PersonalUserDataDetails) {
     this.version = data?.version || PersonalUserDataDetails.DEFAULT_VERSION;
@@ -182,7 +183,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     }
 
     if (this.hasSignature()) {
-      const signature = new VerifableSignatureData();
+      const signature = new SignatureData();
       reader.offset = signature.fromBuffer(reader.buffer, reader.offset);
       this.signature = signature;
     }
@@ -216,7 +217,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     
     instance.signableObjects = dataDescriptorObjects;
     instance.statements = json.statements || [];
-    instance.signature = json.signature ? VerifableSignatureData.fromJson(json.signature) : undefined;
+    instance.signature = json.signature ? SignatureData.fromJson(json.signature) : undefined;
     return instance;
   }
 }

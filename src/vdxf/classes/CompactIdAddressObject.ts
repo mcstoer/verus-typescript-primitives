@@ -136,8 +136,8 @@ export class CompactIdAddressObject implements SerializableEntity {
   }
   static fromJson(json: any): CompactIdAddressObject {
     const instance = new CompactIdAddressObject();
-    instance.version = new BN(json.version);
-    instance.flags = new BN(json.flags);
+    instance.version = new BN(json?.version || CompactIdAddressObject.DEFAULT_VERSION);
+    instance.flags = new BN(json?.flags || 0);
     instance.address = json.address;
     instance.rootSystemName = json.rootsystemname;
     return instance;
