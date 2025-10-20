@@ -21,6 +21,14 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
+export interface ProvisionIdentityDetailsInterface {
+  version?: BigNumber;
+  flags: BigNumber;  
+  systemId?: CompactIdAddressObject; // system e.g. VRSC@
+  parentId?: CompactIdAddressObject; // parent e.g. Token@
+  identityId?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
+}
+
 export interface ProvisionIdentityDetailsJson {
   version?: number;
   flags: number;  
@@ -49,7 +57,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
 
 
   constructor(
-    data?: ProvisionIdentityDetails ){
+    data?: ProvisionIdentityDetailsInterface ){
 
     this.version = data?.version || ProvisionIdentityDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0, 10);

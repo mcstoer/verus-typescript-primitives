@@ -25,6 +25,15 @@ import { fromBase58Check, toBase58Check } from "../../../utils/address";
 import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
+export interface LoginRequestDetailsInterface {
+  version?: BigNumber;
+  flags?: BigNumber;  
+  requestId: string;
+  permissions?: Array<LoginPermission>;
+  callbackUri?: Array<CallbackUri>;
+  expiryTime?: BigNumber;
+}
+
 export interface LoginPermissionJson {
   type: number;
   identity: CompactIdAddressObjectJson;
@@ -81,7 +90,7 @@ export class LoginRequestDetails implements SerializableEntity {
   static TYPE_DEEPLINK = new BN(3, 10);
 
   constructor(
-    request?: LoginRequestDetails 
+    request?: LoginRequestDetailsInterface 
   ) {
 
     this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;

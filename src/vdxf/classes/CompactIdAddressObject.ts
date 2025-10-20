@@ -19,6 +19,13 @@ import { fromBase58Check, toBase58Check, toIAddress } from "../../utils/address"
 import varint from '../../utils/varint';
 import { I_ADDR_VERSION } from '../../constants/vdxf';
 
+export interface CompactIdAddressObjectInterface {
+  version?: BigNumber;
+  flags: BigNumber;
+  address: string;
+  rootSystemName: string;
+}
+
 export interface CompactIdAddressObjectJson {
   version: number;
   flags: number;
@@ -41,7 +48,7 @@ export class CompactIdAddressObject implements SerializableEntity {
   address: string;
   rootSystemName: string;
 
-  constructor(data?: CompactIdAddressObject) {
+  constructor(data?: CompactIdAddressObjectInterface) {
     this.version = data?.version || new BN(CompactIdAddressObject.DEFAULT_VERSION);
     this.flags = data?.flags || new BN(0);
     this.address = data?.address || '';

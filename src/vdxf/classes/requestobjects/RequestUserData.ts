@@ -30,6 +30,14 @@ import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 
+export interface RequestUserDataInterface {
+  version?: BigNumber;
+  flags: BigNumber;
+  searchDataKey: Array<{[key: string]: string}>; 
+  signer?: CompactIdAddressObject;
+  requestedKeys?: string[];
+}
+
 export interface RequestUserDataJson {
   version: number;
   flags: number;
@@ -62,7 +70,7 @@ export class RequestUserData implements SerializableEntity {
   signer?: CompactIdAddressObject;
   requestedKeys?: string[];
 
-  constructor(data?: RequestUserData) {
+  constructor(data?: RequestUserDataInterface) {
     this.version = data?.version || RequestUserData.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.searchDataKey = data?.searchDataKey || [];

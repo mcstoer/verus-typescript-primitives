@@ -22,6 +22,16 @@ import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject } from '../CompactIdAddressObject';
 
+export interface AppEncryptionRequestDetailsInterface {
+  version?: BigNumber;
+  flags: BigNumber;
+  encryptToZAddress: string;
+  derivationNumber: BigNumber;
+  secondaryDerivationNumber?: BigNumber;
+  fromAddress?: CompactIdAddressObject;
+  toAddress?: CompactIdAddressObject;
+}
+
 export interface AppEncryptionRequestDetailsJson {
   version: number;
   flags: number;
@@ -68,7 +78,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   fromAddress?: CompactIdAddressObject;
   toAddress?: CompactIdAddressObject;
 
-  constructor(data?: AppEncryptionRequestDetails) {
+  constructor(data?: AppEncryptionRequestDetailsInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.encryptToZAddress = data?.encryptToZAddress || '';

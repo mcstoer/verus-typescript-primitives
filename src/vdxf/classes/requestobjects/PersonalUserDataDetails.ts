@@ -25,6 +25,14 @@ import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import { SignatureData, SignatureJsonDataInterface } from '../../../pbaas/SignatureData';
 
+export interface PersonalUserDataDetailsInterface {
+  version?: BigNumber;
+  flags: BigNumber;
+  signableObjects: Array<DataDescriptor>;
+  statements?: Array<string>;
+  signature?: SignatureData;
+}
+
 export interface PersonalUserDataDetailsJson {
   version: number;
   flags: number;
@@ -53,7 +61,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
   statements?: Array<string>;
   signature?: SignatureData;
 
-  constructor(data?: PersonalUserDataDetails) {
+  constructor(data?: PersonalUserDataDetailsInterface) {
     this.version = data?.version || PersonalUserDataDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.signableObjects = data?.signableObjects || [];
