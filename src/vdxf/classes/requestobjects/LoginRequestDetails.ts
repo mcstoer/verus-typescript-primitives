@@ -1,3 +1,20 @@
+
+/**
+ * LoginRequestDetails - Class for handling application login and authentication requests
+ * 
+ * This class is used when an application is requesting authentication or login from the user,
+ * including specific permissions and callback information. The request includes:
+ * - Request ID for tracking the authentication session
+ * - Permission sets defining what access the application is requesting
+ * - Callback URIs for post-authentication redirects
+ * - Optional expiry time for the authentication session
+ * 
+ * The user's wallet can use these parameters to present a clear authentication request
+ * to the user, showing exactly what permissions are being requested and where they will
+ * be redirected after successful authentication. This enables secure, user-controlled
+ * authentication flows with granular permission management.
+ */
+
 import bufferutils from "../../../utils/bufferutils";
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { BN } from "bn.js";
@@ -6,54 +23,43 @@ import varuint from "../../../utils/varuint";
 import { I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
 import varint from "../../../utils/varint";
-import { createHash } from "crypto";
+import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
-export enum CallbackUriType {
-  TYPE_WEBHOOK = 1,
-  TYPE_REDIRECT = 2,
-  TYPE_DEEPLINK = 3,
-  TYPE_OAUTH2 = 4
+export interface LoginPermissionJson {
+  type: number;
+  identity: CompactIdAddressObjectJson;
 }
 
-export enum LoginPermissionType {
-  REQUIRED_ID = 1,
-  REQUIRED_SYSTEM = 2,
-  REQUIRED_PARENT = 3
+export interface CallbackUriJson {
+  type: number;
+  uri: string;
 }
-
 export interface LoginPermission {
-  type: LoginPermissionType;
-  identityid: string;
+  type: BigNumber;
+  identity: CompactIdAddressObject;
 }
 
 export interface CallbackUri {
-  type: CallbackUriType;
+  type: BigNumber;
   uri: string;
-}
-
-export interface LoginRequestDetailsInterface {
-  version?: BigNumber;
-  challengeId: string;
-  flags?: BigNumber;
-  requestedAccess?: Array<string> | null;
-  permissions?: Array<LoginPermission>; 
-  callbackUri?: CallbackUri;
 }
 
 export interface LoginRequestDetailsJson {
   version: number;
-  challengeid: string;
+  requestid: string;
   flags: number;
-  permissions?: Array<LoginPermission>;
-  callbackuri?: CallbackUri;
+  permissions?: Array<LoginPermissionJson>;
+  callbackuri?: Array<CallbackUriJson>;
+  expirytime?: number;
 }
 
 export class LoginRequestDetails implements SerializableEntity {
-  version: BigNumber = LoginRequestDetails.DEFAULT_VERSION;
-  challengeId: string;
+  version: BigNumber;
   flags?: BigNumber;  
+  requestId: string;
   permissions?: Array<LoginPermission>;
-  callbackUri?: CallbackUri;
+  callbackUri?: Array<CallbackUri>;
+  expiryTime?: BigNumber;
 
   // Version
   static DEFAULT_VERSION = new BN(1, 10)
@@ -62,63 +68,100 @@ export class LoginRequestDetails implements SerializableEntity {
 
   static FLAG_HAS_PERMISSIONS = new BN(1, 10);
   static FLAG_HAS_CALLBACK_URI = new BN(2, 10);
+  static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
+
+  // Permission Types
+  static REQUIRED_ID = new BN(1, 10);
+  static REQUIRED_SYSTEM = new BN(2, 10);
+  static REQUIRED_PARENT = new BN(3, 10);
+
+  // Callback URI Types
+  static TYPE_WEBHOOK = new BN(1, 10);
+  static TYPE_REDIRECT = new BN(2, 10);
+  static TYPE_DEEPLINK = new BN(3, 10);
 
   constructor(
-    challenge: LoginRequestDetailsInterface = { challengeId: ""}
+    request?: LoginRequestDetails 
   ) {
 
-    this.challengeId = challenge.challengeId;
-    this.flags = challenge?.flags || new BN(0, 10);
-    this.permissions = challenge?.permissions || null;
-    this.callbackUri = challenge?.callbackUri || null;
-    this.version = LoginRequestDetails.DEFAULT_VERSION;
+    this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;
+    this.requestId = request?.requestId || '';
+    this.flags = request?.flags || new BN(0, 10);
+    this.permissions = request?.permissions || null;
+    this.callbackUri = request?.callbackUri || null;
+    this.expiryTime = request?.expiryTime || null;
+  }
+
+  hasPermissions(): boolean {   
+      return this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
+  }
+
+  hasCallbackUri(): boolean {
+    return this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
+  }
+
+  hasExpiryTime(): boolean {
+    return this.flags.and(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
   }
 
   getByteLength(): number {
     this.setFlags(); // Ensure flags are set correctly for length calculation
     let length = 0;
 
-    length += 20; // challengeId hash length
     length += varint.encodingLength(this.flags);
+    length += 20; // requestId hash length
 
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS)) {
+    if (this.hasPermissions()) {
 
-      length += varuint.encodingLength(this.permissions.length);
-      if (this.permissions) {
+      length += varuint.encodingLength(this.permissions.length);      
         for (let i = 0; i < this.permissions.length; i++) {
           length += varint.encodingLength(new BN(this.permissions[i].type));
-          length += 20; // identityid as hash
-        }
-      }
+          length += this.permissions[i].identity.getByteLength();
+        }      
     }
 
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI)) {
-      length += varint.encodingLength(new BN(this.callbackUri.type));
-      length += varuint.encodingLength(Buffer.from(this.callbackUri.uri, 'utf8').length);
-      length += Buffer.from(this.callbackUri.uri, 'utf8').length;
+    if (this.hasCallbackUri()) {
+      length += varuint.encodingLength(this.callbackUri.length);
+        for (let i = 0; i < this.callbackUri.length; i++) {
+          length += varint.encodingLength(new BN(this.callbackUri[i].type));
+          length += varuint.encodingLength(Buffer.from(this.callbackUri[i].uri, 'utf8').byteLength);
+          length += Buffer.from(this.callbackUri[i].uri, 'utf8').byteLength;
+        }
+    }
+
+    if (this.hasExpiryTime()) {
+      length += varint.encodingLength(this.expiryTime);
     }
 
     return length;
   }
 
   toBuffer(): Buffer {
-    this.setFlags();
+
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
-    writer.writeSlice(fromBase58Check(this.challengeId).hash);
     writer.writeVarInt(this.flags);
-    
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS)) {
-      writer.writeCompactSize(this.permissions.length);
-      for (let i = 0; i < this.permissions.length; i++) {
-        writer.writeVarInt(new BN(this.permissions[i].type));
-        writer.writeSlice(fromBase58Check(this.permissions[i].identityid).hash);
+    writer.writeSlice(fromBase58Check(this.requestId).hash);
+
+    if (this.hasPermissions()) {
+
+        writer.writeCompactSize(this.permissions.length);   
+        for (let i = 0; i < this.permissions.length; i++) {
+          writer.writeVarInt(new BN(this.permissions[i].type));
+          writer.writeSlice(this.permissions[i].identity.toBuffer());
+        }
+    }
+
+    if (this.hasCallbackUri()) {
+      writer.writeCompactSize(this.callbackUri.length);
+      for (let i = 0; i < this.callbackUri.length; i++) {
+        writer.writeVarInt(new BN(this.callbackUri[i].type));
+        writer.writeVarSlice(Buffer.from(this.callbackUri[i].uri, 'utf8'));
       }
     }
 
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI)) {
-      writer.writeVarInt(new BN(this.callbackUri.type));
-      writer.writeVarSlice(Buffer.from(this.callbackUri.uri, 'utf8'));
+    if (this.hasExpiryTime()) {
+      writer.writeVarInt(this.expiryTime);
     }
 
     return writer.buffer;
@@ -126,27 +169,38 @@ export class LoginRequestDetails implements SerializableEntity {
 
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new bufferutils.BufferReader(buffer, offset);
-    if (buffer.length == 0) throw new Error("Cannot create challenge from empty buffer");
 
-    this.challengeId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION); 
     this.flags = reader.readVarInt();
+    this.requestId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
 
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS)) {
+    if (this.hasPermissions()) {
       this.permissions = [];
       const permissionsLength = reader.readCompactSize();
       for (let i = 0; i < permissionsLength; i++) {
+        const compactId = new CompactIdAddressObject();
+        const type = reader.readVarInt();
+        const identityOffset = reader.offset;
+        reader.offset = compactId.fromBuffer(buffer, identityOffset);
         this.permissions.push({
-          type: reader.readVarInt().toNumber(),
-          identityid: toBase58Check(reader.readSlice(20), I_ADDR_VERSION)
+          type: type,
+          identity: compactId
         });
       }
     } 
 
-    if (this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI)) {
-      this.callbackUri = {
-        type: reader.readVarInt().toNumber(),
-        uri: reader.readVarSlice().toString('utf8')
+    if (this.hasCallbackUri()) {
+      this.callbackUri = [];
+      const callbackUriLength = reader.readCompactSize();
+      for (let i = 0; i < callbackUriLength; i++) {
+        this.callbackUri.push({
+          type: reader.readVarInt(),
+          uri: reader.readVarSlice().toString('utf8')
+        });
       }
+    }
+
+    if (this.hasExpiryTime()) {
+      this.expiryTime = reader.readVarInt();
     }
 
     return reader.offset;
@@ -154,23 +208,43 @@ export class LoginRequestDetails implements SerializableEntity {
 
   toJson() {
     this.setFlags();
-    return {
-      version: this.version ? this.version.toNumber() : 0,
-      challengeid: this.challengeId,
-      flags: this.flags ? this.flags.toNumber() : 0,
-      permissions: this.permissions,
-      callbackuri: this.callbackUri
+
+    const retval = {
+      version: this.version.toNumber(),
+      flags: this.flags.toNumber(),
+      requestid: this.requestId,
+      permissions: this.permissions ? this.permissions.map(p => ({type: p.type.toNumber(),
+          identity: p.identity.toJson()})) : undefined,
+      callbackuri: this.callbackUri ? this.callbackUri : undefined,
+      expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
     };
+
+    return retval;
   }
 
-  static fromJson(data: any): LoginRequestDetails {
-    return new LoginRequestDetails({
-      version: new BN(data?.version || 0),
-      challengeId: data.challengeid,
-      flags: new BN(data?.flags || 0),
-      permissions: data.permissions,
-      callbackUri: data.callbackuri
-    })
+  static fromJson(data: LoginRequestDetailsJson): LoginRequestDetails {
+
+    const loginDetails = new LoginRequestDetails();
+
+    loginDetails.version = new BN(data?.version || 0);
+    loginDetails.flags = new BN(data?.flags || 0);
+    loginDetails.requestId = data.requestid;
+
+    if(loginDetails.hasPermissions() && data.permissions) {      
+      loginDetails.permissions = data.permissions.map(p => ({type: new BN(p.type),
+        identity: CompactIdAddressObject.fromJson(p.identity)}));
+    }
+
+    if(loginDetails.hasCallbackUri() && data.callbackuri) {
+      loginDetails.callbackUri = data.callbackuri.map(c => ({type: new BN(c.type),
+        uri: c.uri}));
+    }
+
+    if(loginDetails.hasExpiryTime() && data.expirytime) {
+      loginDetails.expiryTime = new BN(data.expirytime);
+    }
+
+    return loginDetails;
   }
 
 
@@ -182,23 +256,40 @@ export class LoginRequestDetails implements SerializableEntity {
     if (this.callbackUri) {
       this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
     }
+    if (this.expiryTime) {
+      this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
+    }
   }   
 
   isValid(): boolean {
-    let valid = this.challengeId != null && this.challengeId.length > 0;
+    let valid = this.requestId != null && this.requestId.length > 0;
     valid &&= this.flags != null && this.flags.gte(new BN(0));
     
-    // Validate challengeId is a valid base58 address
+    // Validate requestId is a valid base58 address
     try {
-      fromBase58Check(this.challengeId);
+      fromBase58Check(this.requestId);
     } catch {
       valid = false;
     }
-    
+
+    if (this.hasPermissions()) {
+      if (!this.permissions || this.permissions.length === 0) {
+        return false;
+      }
+    }
+
+    if (this.hasCallbackUri()) {
+      if (!this.callbackUri || this.callbackUri.length === 0) {
+        return false;
+      }
+    }
+
+    if (this.hasExpiryTime()) {
+      if (!this.expiryTime || this.expiryTime.lte(new BN(0))) {
+        return false;
+      }
+    }
+
     return valid;
   }
-
-   toSha256() {
-      return createHash("sha256").update(this.toBuffer()).digest();
-    }
 }

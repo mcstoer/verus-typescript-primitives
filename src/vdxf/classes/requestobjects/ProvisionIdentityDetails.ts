@@ -1,0 +1,198 @@
+/**
+ * ProvisioningIdentity - Class for handling identity provisioning requests
+ * 
+ * This class is used when an application is requesting the provisioning or creation of a new identity
+ * within the Verus blockchain ecosystem. The request includes:
+ * - System ID (e.g., VRSC@) defining the blockchain system
+ * - Parent ID (e.g., Token@) defining the parent namespace 
+ * - Identity ID (e.g., john.VRSC@) defining the full identity to be provisioned
+ * - Flags indicating which components are present and required
+ * 
+ * The user's wallet can use these parameters to understand the complete identity hierarchy
+ * and present a clear provisioning request to the user, showing the system context,
+ * parent namespace, and the specific identity being created. This enables secure,
+ * user-controlled identity provisioning with proper namespace management.
+ */
+
+import bufferutils from "../../../utils/bufferutils";
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { BN } from "bn.js";
+import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import varint from "../../../utils/varint";
+import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
+
+export interface ProvisionIdentityInterfaceJson {
+  version?: number;
+  flags: number;  
+  systemid?: CompactIdAddressObjectJson;
+  parentid?: CompactIdAddressObjectJson;
+  identityid?: CompactIdAddressObjectJson;
+}
+
+export class ProvisionIdentity implements SerializableEntity {
+
+  version: BigNumber;
+  flags: BigNumber;  
+  systemId?: CompactIdAddressObject; // system e.g. VRSC@
+  parentId?: CompactIdAddressObject; // parent e.g. Token@
+  identityId?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
+  
+  // Version
+  static DEFAULT_VERSION = new BN(1, 10)
+  static VERSION_FIRSTVALID = new BN(1, 10)
+  static VERSION_LASTVALID = new BN(1, 10)
+
+  // flags include params // parent same as signer
+  static FLAG_HAS_SYSTEMID = new BN(1, 10);
+  static FLAG_HAS_PARENTID = new BN(2, 10);
+  static FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new BN(4, 10);
+
+
+  constructor(
+    provisionIdentity?: ProvisionIdentity ){
+
+    this.version = provisionIdentity?.version || ProvisionIdentity.DEFAULT_VERSION;
+    this.flags = provisionIdentity?.flags || new BN(0, 10);
+    this.systemId = provisionIdentity?.systemId;
+    this.parentId = provisionIdentity?.parentId;
+    this.identityId = provisionIdentity?.identityId;
+  }
+
+  hasSystemId(): boolean {
+    return this.flags.and(ProvisionIdentity.FLAG_HAS_SYSTEMID).eq(ProvisionIdentity.FLAG_HAS_SYSTEMID);
+  }
+
+  hasParentId(): boolean {
+    return this.flags.and(ProvisionIdentity.FLAG_HAS_PARENTID).eq(ProvisionIdentity.FLAG_HAS_PARENTID);
+  }
+
+  hasIdentityId(): boolean {
+    return this.flags.and(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+  }
+
+  getByteLength(): number {
+    this.setFlags();
+    let length = 0;
+
+    length += varint.encodingLength(this.flags);
+    if (this.hasSystemId()) {
+      length += this.systemId.getByteLength();
+    }
+
+    if (this.hasParentId()) {
+      length += this.parentId.getByteLength();
+    } 
+
+    if (this.hasIdentityId()) {
+      length += this.identityId.getByteLength();
+    } 
+
+    return length;
+  }
+
+  toBuffer(): Buffer {
+
+    const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
+
+    writer.writeVarInt(this.flags);
+
+    if (this.hasSystemId()) {
+      writer.writeSlice(this.systemId.toBuffer());
+    }
+
+    if (this.hasParentId()) {
+      writer.writeVarSlice(this.parentId.toBuffer());
+    } 
+
+    if (this.hasIdentityId()) {
+      writer.writeSlice(this.identityId.toBuffer());
+    }
+
+    return writer.buffer;
+  }
+
+  fromBuffer(buffer: Buffer, offset?: number): number {
+    const reader = new bufferutils.BufferReader(buffer, offset);
+    if (buffer.length == 0) throw new Error("Cannot create provision identity from empty buffer");
+
+    this.flags = reader.readVarInt();
+
+    if (this.hasSystemId()) {
+      const systemId = new CompactIdAddressObject();
+      reader.offset = systemId.fromBuffer(reader.buffer, reader.offset);
+      this.systemId = systemId;
+    }
+
+    if (this.hasParentId()) {
+      const parentId = new CompactIdAddressObject();
+      reader.offset = parentId.fromBuffer(reader.buffer, reader.offset);
+      this.parentId = parentId;
+    }
+
+    if (this.hasIdentityId()) {
+      const identityId = new CompactIdAddressObject();
+      reader.offset = identityId.fromBuffer(reader.buffer, reader.offset);
+      this.identityId = identityId;
+    }
+
+    return reader.offset;
+  }
+
+  toJson(): ProvisionIdentityInterfaceJson {
+    this.setFlags();
+    return {
+      version: this.version.toNumber(),
+      flags: this.flags.toNumber(),
+      systemid: this.systemId ? this.systemId.toJson() : null,
+      parentid: this.parentId ? this.parentId.toJson() : null,
+      identityid: this.identityId ? this.identityId.toJson() : null,
+    };
+  }
+
+  static fromJson(data: any): ProvisionIdentity {
+
+    const provision = new ProvisionIdentity();
+    provision.version = new BN(data?.version || 0);
+    provision.flags = new BN(data?.flags || 0);
+
+    if (provision.hasSystemId()) {
+      provision.systemId = CompactIdAddressObject.fromJson(data.systemid);
+    }
+
+    if (provision.hasParentId()) {
+      provision.parentId = CompactIdAddressObject.fromJson(data.parentid);
+    }
+
+    if (provision.hasIdentityId()) {
+      provision.identityId = CompactIdAddressObject.fromJson(data.identityid);
+    }
+
+    return provision;
+  }
+
+  setFlags() {
+    this.flags = new BN(0, 10);
+    
+    if (this.systemId) {
+      this.flags = this.flags.or(ProvisionIdentity.FLAG_HAS_SYSTEMID);
+    }
+    
+    if (this.parentId) {
+      this.flags = this.flags.or(ProvisionIdentity.FLAG_HAS_PARENTID);
+    }
+    
+    if (this.identityId) {
+      this.flags = this.flags.or(ProvisionIdentity.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+    }
+  }   
+
+  isValid(): boolean {
+
+    let valid = this.flags != null && this.flags.gte(new BN(0));
+
+    valid &&= this.version != null;
+     
+    return valid;
+  }
+
+}
