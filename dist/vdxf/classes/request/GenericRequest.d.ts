@@ -7,6 +7,7 @@ export interface GenericRequestInterface {
     flags?: BigNumber;
     signature?: SignatureData;
     createdAt?: BigNumber;
+    salt?: Buffer;
     details: Array<OrdinalVdxfObject>;
 }
 export type GenericRequestJson = {
@@ -14,6 +15,7 @@ export type GenericRequestJson = {
     flags?: string;
     signature?: SignatureJsonDataInterface;
     createdat?: string;
+    salt?: string;
     details: Array<OrdinalVdxfObjectJson>;
 };
 export declare class GenericRequest implements SerializableEntity {
@@ -21,6 +23,7 @@ export declare class GenericRequest implements SerializableEntity {
     flags: BigNumber;
     signature?: SignatureData;
     createdAt?: BigNumber;
+    salt?: Buffer;
     details: Array<OrdinalVdxfObject>;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
@@ -30,23 +33,27 @@ export declare class GenericRequest implements SerializableEntity {
     static FLAG_HAS_CREATED_AT: import("bn.js");
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
+    static FLAG_HAS_SALT: import("bn.js");
     constructor(request?: GenericRequestInterface);
     isValidVersion(): boolean;
     isSigned(): boolean;
     hasMultiDetails(): boolean;
     hasCreatedAt(): boolean;
+    hasSalt(): boolean;
     isTestnet(): boolean;
     setSigned(): void;
     setHasMultiDetails(): void;
     setHasCreatedAt(): void;
+    setHasSalt(): void;
     setIsTestnet(): void;
     setFlags(): void;
-    private getRawDetailsSha256;
+    private getRawDataSha256;
     getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
     getDetails(index?: number): OrdinalVdxfObject;
     private getDetailsBufferLength;
     private getDetailsBuffer;
     getByteLength(): number;
+    private toBufferOptionalSig;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toString(): string;

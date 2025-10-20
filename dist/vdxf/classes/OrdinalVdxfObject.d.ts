@@ -5,7 +5,7 @@ import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/Ve
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
     version?: BigNumber;
     type?: BigNumber;
-    vdxfKey?: string;
+    key?: string;
     data?: T;
 }
 export type OrdinalVdxfObjectJsonTemplate<T> = {
@@ -26,33 +26,38 @@ export declare const getOrdinalVdxfObjectClassForType: (type: BigNumber) => Ordi
 export declare class OrdinalVdxfObject implements SerializableEntity {
     version: BigNumber;
     type: BigNumber;
-    vdxfKey?: string;
+    key?: string;
     data?: BufferOrOrdinalVdxfObjectReservedData;
     static VERSION_INVALID: import("bn.js");
     static VERSION_FIRST: import("bn.js");
     static VERSION_LAST: import("bn.js");
     static VERSION_CURRENT: import("bn.js");
-    static TYPE_DATA_DESCRIPTOR: import("bn.js");
-    static TYPE_INVOICE: import("bn.js");
-    static VDXF_OBJECT_RESERVED_BYTE: import("bn.js");
+    static ORDINAL_DATA_DESCRIPTOR: import("bn.js");
+    static ORDINAL_VERUSPAY_INVOICE: import("bn.js");
+    static VDXF_OBJECT_RESERVED_BYTE_I_ADDR: import("bn.js");
+    static VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING: import("bn.js");
+    static VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY: import("bn.js");
     constructor(request?: OrdinalVdxfObjectInterfaceTemplate<BufferOrOrdinalVdxfObjectReservedData>);
     isDefinedByVdxfKey(): boolean;
+    isDefinedByTextVdxfKey(): boolean;
+    isDefinedByCurrencyOrId(): boolean;
+    isDefinedByCustomKey(): boolean;
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
     fromDataBuffer(buffer: Buffer): void;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber): number;
+    fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber, key?: string): number;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toJson(): OrdinalVdxfObjectJson;
-    static createFromBuffer(buffer: Buffer, offset?: number): {
+    static createFromBuffer(buffer: Buffer, offset?: number, optimizeWithOrdinal?: boolean, rootSystemName?: string): {
         offset: number;
         obj: OrdinalVdxfObject;
     };
 }
 export declare class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
     data: Buffer;
-    vdxfKey: string;
+    key: string;
     constructor(request?: OrdinalVdxfObjectInterfaceTemplate<Buffer>);
     getDataByteLength(): number;
     toDataBuffer(): Buffer;

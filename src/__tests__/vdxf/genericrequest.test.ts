@@ -22,14 +22,14 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
 
   function rawDetailsSha256(req: GenericRequest): Buffer {
     // replicate the same behavior as getRawDetailsSha256()
-    const buf = req['getDetailsBuffer']();  // call internal method
+    const buf = req['toBufferOptionalSig'](false);  // call internal method
     return createHash("sha256").update(buf).digest();
   }
 
   it('round trips with a single detail (no signature / createdAt)', () => {
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('cafebabe', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [detail] });
 
@@ -44,18 +44,18 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const d2 = round.getDetails(0);
     expect(d2).toBeInstanceOf(GeneralTypeOrdinalVdxfObject);
     expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
-    expect((d2 as GeneralTypeOrdinalVdxfObject).vdxfKey).toEqual(detail.vdxfKey);
+    expect((d2 as GeneralTypeOrdinalVdxfObject).key).toEqual(detail.key);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
   it('round trips with multiple details', () => {
     const d1 = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('aa', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const d2 = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('bb', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [d1, d2] });
     expect(req.hasMultiDetails()).toBe(true);
@@ -82,7 +82,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     });
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('abcd', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const createdAt = new BN(9999);
     const req = new GenericRequest({
@@ -105,7 +105,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   it('toString / fromQrString consistency', () => {
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('feed', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [detail] });
 
@@ -119,7 +119,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   it('deeplink URI round trip', () => {
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('face', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [detail] });
     const uri = req.toWalletDeeplinkUri();
@@ -136,7 +136,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   it('fromQrString should parse correctly', () => {
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('bead', 'hex'),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [detail] });
     const qr = req.toQrString();
@@ -156,7 +156,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   it("returns raw SHA256 when not signed", () => {
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from("abcd", "hex"),
-      vdxfKey: DEFAULT_VERUS_CHAINID
+      key: DEFAULT_VERUS_CHAINID
     });
     const req = new GenericRequest({ details: [detail] });
     expect(req.isSigned()).toBe(false);

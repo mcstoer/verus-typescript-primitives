@@ -11,14 +11,13 @@ import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
-import { fromBase58Check } from "../../../utils/address";
-import { VERUS_DATA_SIGNATURE_PREFIX } from "../../../constants/vdxf";
 
 export interface GenericRequestInterface {
   version?: BigNumber;
   flags?: BigNumber;
   signature?: SignatureData;
   createdAt?: BigNumber;
+  salt?: Buffer;
   details: Array<OrdinalVdxfObject>;
 }
 
@@ -27,6 +26,7 @@ export type GenericRequestJson = {
   flags?: string;
   signature?: SignatureJsonDataInterface;
   createdat?: string;
+  salt?: string;
   details: Array<OrdinalVdxfObjectJson>;
 }
 
@@ -35,6 +35,7 @@ export class GenericRequest implements SerializableEntity {
   flags: BigNumber;
   signature?: SignatureData;
   createdAt?: BigNumber;
+  salt?: Buffer; // var length buffer
   details: Array<OrdinalVdxfObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
@@ -46,6 +47,7 @@ export class GenericRequest implements SerializableEntity {
   static FLAG_HAS_CREATED_AT = new BN(2, 10)
   static FLAG_MULTI_DETAILS = new BN(4, 10)
   static FLAG_IS_TESTNET = new BN(8, 10)
+  static FLAG_HAS_SALT = new BN(16, 10)
 
   constructor(
     request: GenericRequestInterface = {
@@ -56,6 +58,7 @@ export class GenericRequest implements SerializableEntity {
     this.signature = request.signature;
     this.details = request.details;
     this.createdAt = request.createdAt;
+    this.salt = request.salt;
 
     if (request.flags) this.flags = request.flags;
     else this.flags = GenericRequest.BASE_FLAGS;
@@ -82,6 +85,10 @@ export class GenericRequest implements SerializableEntity {
     return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
   }
 
+  hasSalt() {
+    return !!(this.flags.and(GenericRequest.FLAG_HAS_SALT).toNumber());
+  }
+
   isTestnet() {
     return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
   }
@@ -98,6 +105,10 @@ export class GenericRequest implements SerializableEntity {
     this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
   }
 
+  setHasSalt() {
+    this.flags = this.flags.xor(GenericRequest.FLAG_HAS_SALT);
+  }
+
   setIsTestnet() {
     this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
   }
@@ -106,19 +117,20 @@ export class GenericRequest implements SerializableEntity {
     if (this.createdAt) this.setHasCreatedAt();
     if (this.details && this.details.length > 1) this.setHasMultiDetails();
     if (this.signature) this.setSigned();
+    if (this.salt) this.setHasSalt();
   }
 
-  private getRawDetailsSha256() {
-    return createHash("sha256").update(this.getDetailsBuffer()).digest();
+  private getRawDataSha256() {
+    return createHash("sha256").update(this.toBufferOptionalSig(false)).digest();
   }
 
   getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
     if (this.isSigned()) {
-      const sigHash = this.getRawDetailsSha256();
+      const sigHash = this.getRawDataSha256();
       
       this.signature.signature_hash = sigHash;
       return this.signature.getIdentityHash({ version: 2, hash_type: EHashTypes.HASH_SHA256, height: signedBlockheight });
-    } else return this.getRawDetailsSha256()
+    } else return this.getRawDataSha256()
   }
 
   getDetails(index = 0): OrdinalVdxfObject {
@@ -130,6 +142,13 @@ export class GenericRequest implements SerializableEntity {
 
     if (this.hasCreatedAt()) {
       length += varuint.encodingLength(this.createdAt.toNumber());
+    }
+
+    if (this.hasSalt()) {
+      const saltLen = this.salt.length;
+
+      length += varuint.encodingLength(saltLen);
+      length += saltLen;
     }
 
     if (this.hasMultiDetails()) {
@@ -154,9 +173,13 @@ export class GenericRequest implements SerializableEntity {
       writer.writeCompactSize(this.createdAt.toNumber());
     }
 
-     if (this.hasMultiDetails()) {
+    if (this.hasSalt()) {
+      writer.writeVarSlice(this.salt);
+    }
+
+    if (this.hasMultiDetails()) {
       writer.writeCompactSize(this.details.length);
-      
+
       for (const detail of this.details) {
         writer.writeSlice(detail.toBuffer());
       }
@@ -182,7 +205,7 @@ export class GenericRequest implements SerializableEntity {
     return length;
   }
 
-  toBuffer(): Buffer {
+  private toBufferOptionalSig(includeSig = true) {
     const writer = new bufferutils.BufferWriter(
       Buffer.alloc(this.getByteLength())
     );
@@ -190,13 +213,17 @@ export class GenericRequest implements SerializableEntity {
     writer.writeCompactSize(this.version.toNumber());
     writer.writeCompactSize(this.flags.toNumber());
 
-    if (this.isSigned()) {
+    if (this.isSigned() && includeSig) {
       writer.writeSlice(this.signature!.toBuffer());
     }
 
     writer.writeSlice(this.getDetailsBuffer());
 
     return writer.buffer;
+  }
+
+  toBuffer(): Buffer {
+    return this.toBufferOptionalSig(true);
   }
 
   fromBuffer(buffer: Buffer, offset?: number): number {
@@ -215,6 +242,10 @@ export class GenericRequest implements SerializableEntity {
 
     if (this.hasCreatedAt()) {
       this.createdAt = new BN(reader.readCompactSize());
+    }
+
+    if (this.hasSalt()) {
+      this.salt = reader.readVarSlice();
     }
 
     if (this.hasMultiDetails()) {

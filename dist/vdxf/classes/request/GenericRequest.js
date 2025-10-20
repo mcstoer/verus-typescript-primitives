@@ -17,6 +17,7 @@ class GenericRequest {
         this.signature = request.signature;
         this.details = request.details;
         this.createdAt = request.createdAt;
+        this.salt = request.salt;
         if (request.flags)
             this.flags = request.flags;
         else
@@ -39,6 +40,9 @@ class GenericRequest {
     hasCreatedAt() {
         return !!(this.flags.and(GenericRequest.FLAG_HAS_CREATED_AT).toNumber());
     }
+    hasSalt() {
+        return !!(this.flags.and(GenericRequest.FLAG_HAS_SALT).toNumber());
+    }
     isTestnet() {
         return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
     }
@@ -51,6 +55,9 @@ class GenericRequest {
     setHasCreatedAt() {
         this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
     }
+    setHasSalt() {
+        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_SALT);
+    }
     setIsTestnet() {
         this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
     }
@@ -61,18 +68,20 @@ class GenericRequest {
             this.setHasMultiDetails();
         if (this.signature)
             this.setSigned();
+        if (this.salt)
+            this.setHasSalt();
     }
-    getRawDetailsSha256() {
-        return (0, crypto_1.createHash)("sha256").update(this.getDetailsBuffer()).digest();
+    getRawDataSha256() {
+        return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(false)).digest();
     }
     getDetailsHash(signedBlockheight) {
         if (this.isSigned()) {
-            const sigHash = this.getRawDetailsSha256();
+            const sigHash = this.getRawDataSha256();
             this.signature.signature_hash = sigHash;
             return this.signature.getIdentityHash({ version: 2, hash_type: pbaas_1.EHashTypes.HASH_SHA256, height: signedBlockheight });
         }
         else
-            return this.getRawDetailsSha256();
+            return this.getRawDataSha256();
     }
     getDetails(index = 0) {
         return this.details[index];
@@ -81,6 +90,11 @@ class GenericRequest {
         let length = 0;
         if (this.hasCreatedAt()) {
             length += varuint_1.default.encodingLength(this.createdAt.toNumber());
+        }
+        if (this.hasSalt()) {
+            const saltLen = this.salt.length;
+            length += varuint_1.default.encodingLength(saltLen);
+            length += saltLen;
         }
         if (this.hasMultiDetails()) {
             length += varuint_1.default.encodingLength(this.details.length);
@@ -97,6 +111,9 @@ class GenericRequest {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getDetailsBufferLength()));
         if (this.hasCreatedAt()) {
             writer.writeCompactSize(this.createdAt.toNumber());
+        }
+        if (this.hasSalt()) {
+            writer.writeVarSlice(this.salt);
         }
         if (this.hasMultiDetails()) {
             writer.writeCompactSize(this.details.length);
@@ -119,15 +136,18 @@ class GenericRequest {
         length += this.getDetailsBufferLength();
         return length;
     }
-    toBuffer() {
+    toBufferOptionalSig(includeSig = true) {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.version.toNumber());
         writer.writeCompactSize(this.flags.toNumber());
-        if (this.isSigned()) {
+        if (this.isSigned() && includeSig) {
             writer.writeSlice(this.signature.toBuffer());
         }
         writer.writeSlice(this.getDetailsBuffer());
         return writer.buffer;
+    }
+    toBuffer() {
+        return this.toBufferOptionalSig(true);
     }
     fromBuffer(buffer, offset) {
         if (buffer.length == 0)
@@ -142,6 +162,9 @@ class GenericRequest {
         }
         if (this.hasCreatedAt()) {
             this.createdAt = new bn_js_1.BN(reader.readCompactSize());
+        }
+        if (this.hasSalt()) {
+            this.salt = reader.readVarSlice();
         }
         if (this.hasMultiDetails()) {
             this.details = [];
@@ -204,3 +227,4 @@ GenericRequest.FLAG_SIGNED = new bn_js_1.BN(1, 10);
 GenericRequest.FLAG_HAS_CREATED_AT = new bn_js_1.BN(2, 10);
 GenericRequest.FLAG_MULTI_DETAILS = new bn_js_1.BN(4, 10);
 GenericRequest.FLAG_IS_TESTNET = new bn_js_1.BN(8, 10);
+GenericRequest.FLAG_HAS_SALT = new bn_js_1.BN(16, 10);
