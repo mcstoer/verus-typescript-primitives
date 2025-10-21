@@ -287,7 +287,6 @@ class AttestationDetails {
             this.attestations.length > 0;
     }
     toJson() {
-        this.setFlags(); // Ensure flags are set before converting to JSON
         const retval = {
             version: this.version.toNumber(),
             attestations: this.attestations.map((attestation) => attestation.toJson())
