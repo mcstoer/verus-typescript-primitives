@@ -6,16 +6,17 @@ import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { EHashTypes, SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
+import { SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
+import { VerifiableSignatureData } from "../VerifiableSignatureData";
 
 export interface GenericRequestInterface {
   version?: BigNumber;
   flags?: BigNumber;
-  signature?: SignatureData;
+  signature?: VerifiableSignatureData;
   createdAt?: BigNumber;
   salt?: Buffer;
   details: Array<OrdinalVdxfObject>;
@@ -33,7 +34,7 @@ export type GenericRequestJson = {
 export class GenericRequest implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
-  signature?: SignatureData;
+  signature?: VerifiableSignatureData;
   createdAt?: BigNumber;
   salt?: Buffer; // var length buffer
   details: Array<OrdinalVdxfObject>;
@@ -126,10 +127,7 @@ export class GenericRequest implements SerializableEntity {
 
   getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
     if (this.isSigned()) {
-      const sigHash = this.getRawDataSha256();
-      
-      this.signature.signature_hash = sigHash;
-      return this.signature.getIdentityHash({ version: 2, hash_type: EHashTypes.HASH_SHA256, height: signedBlockheight });
+      return this.signature.getIdentityHash(signedBlockheight, this.getRawDataSha256());
     } else return this.getRawDataSha256()
   }
 
@@ -235,7 +233,7 @@ export class GenericRequest implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
 
     if (this.isSigned()) {
-      const _sig = new SignatureData();
+      const _sig = new VerifiableSignatureData();
       reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
       this.signature = _sig;
     }
@@ -309,7 +307,7 @@ export class GenericRequest implements SerializableEntity {
     }
     
     return {
-      signature: this.isSigned() ? this.signature.toJson() : undefined,
+      signature: undefined, //TODO: Add signature toJson function this.isSigned() ? this.signature.toJson() : undefined,
       details: details,
       version: this.version.toString(),
       flags: this.flags.toString(),

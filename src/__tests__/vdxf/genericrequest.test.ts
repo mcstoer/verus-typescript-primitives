@@ -1,16 +1,13 @@
-// __tests__/genericRequest.buffer.test.ts
-
 import { BN } from 'bn.js';
 import base64url from 'base64url';
-import { SignatureData } from '../../pbaas';
 import {
   GeneralTypeOrdinalVdxfObject
 } from '../../vdxf/classes/OrdinalVdxfObject';
-import { DEFAULT_VERUS_CHAINID, TESTNET_VERUS_CHAINID } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericRequest, fromBase58Check } from '../../';
+import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
+import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericRequest } from '../../';
 import { createHash } from 'crypto';
-import { VERUS_DATA_SIGNATURE_PREFIX } from '../../constants/vdxf';
-import { TEST_IDENTITY_ID } from '../constants/fixtures';
+import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
+import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericRequest): GenericRequest {
@@ -68,23 +65,26 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   });
 
   it('round trips with createdAt and signature', () => {
-    const sig = new SignatureData({
+    const sig = new VerifiableSignatureData({
+      flags: new BN(0),
       version: new BN(1),
-      system_ID: DEFAULT_VERUS_CHAINID,
-      hash_type: new BN(5),
-      signature_hash: Buffer.from('010203', 'hex'),
-      identity_ID: DEFAULT_VERUS_CHAINID,
-      sig_type: new BN(1),
-      signature_as_vch: Buffer.from('abcd', 'hex'),
-      vdxf_keys: [],
-      vdxf_key_names: [],
-      bound_hashes: []
+      systemId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      hashType: HASH_TYPE_SHA256,
+      identityId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      signatureAsVch: Buffer.from('abcd', 'hex'),
+      vdxfKeys: [DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINID],
+      vdxfKeyNames: ["VRSC", "VRSC"],
+      boundHashes: [Buffer.from('abcd', 'hex')],
+      statements: [Buffer.from('abcd', 'hex')]
     });
+
     const detail = new GeneralTypeOrdinalVdxfObject({
       data: Buffer.from('abcd', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
+
     const createdAt = new BN(9999);
+
     const req = new GenericRequest({
       details: [detail],
       signature: sig,
