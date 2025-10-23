@@ -47,19 +47,19 @@ class GenericRequest {
         return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
     }
     setSigned() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
+        this.flags = this.flags.or(GenericRequest.FLAG_SIGNED);
     }
     setHasMultiDetails() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_MULTI_DETAILS);
+        this.flags = this.flags.or(GenericRequest.FLAG_MULTI_DETAILS);
     }
     setHasCreatedAt() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+        this.flags = this.flags.or(GenericRequest.FLAG_HAS_CREATED_AT);
     }
     setHasSalt() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_SALT);
+        this.flags = this.flags.or(GenericRequest.FLAG_HAS_SALT);
     }
     setIsTestnet() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
+        this.flags = this.flags.or(GenericRequest.FLAG_IS_TESTNET);
     }
     setFlags() {
         if (this.createdAt)

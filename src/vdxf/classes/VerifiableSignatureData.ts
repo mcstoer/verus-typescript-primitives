@@ -82,7 +82,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   }
 
   private setFlag(flag: BigNumber) {
-    this.flags = this.flags.xor(flag);
+    this.flags = this.flags.or(flag);
   }
 
   hasVdxfKeys() {

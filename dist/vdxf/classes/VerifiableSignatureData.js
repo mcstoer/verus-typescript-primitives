@@ -32,7 +32,7 @@ class VerifiableSignatureData {
         return !!(this.flags.and(flag).toNumber());
     }
     setFlag(flag) {
-        this.flags = this.flags.xor(flag);
+        this.flags = this.flags.or(flag);
     }
     hasVdxfKeys() {
         return this.hasFlag(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
