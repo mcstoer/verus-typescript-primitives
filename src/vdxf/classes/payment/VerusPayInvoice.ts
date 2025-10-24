@@ -82,7 +82,7 @@ export class VerusPayInvoice extends VDXFObject {
   }
 
   setSigned() {
-    this.version = this.version.xor(VERUSPAY_VERSION_SIGNED);
+    this.version = this.version.or(VERUSPAY_VERSION_SIGNED);
   }
 
   getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {

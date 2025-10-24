@@ -5,10 +5,10 @@ const __1 = require("../../");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const base64url_1 = require("base64url");
 const bn_js_1 = require("bn.js");
-const pbaas_1 = require("../../../pbaas");
 const OrdinalVdxfObject_1 = require("../OrdinalVdxfObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
+const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
 class GenericRequest {
     constructor(request = {
         details: [],
@@ -47,19 +47,19 @@ class GenericRequest {
         return !!(this.flags.and(GenericRequest.FLAG_IS_TESTNET).toNumber());
     }
     setSigned() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_SIGNED);
+        this.flags = this.flags.or(GenericRequest.FLAG_SIGNED);
     }
     setHasMultiDetails() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_MULTI_DETAILS);
+        this.flags = this.flags.or(GenericRequest.FLAG_MULTI_DETAILS);
     }
     setHasCreatedAt() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_CREATED_AT);
+        this.flags = this.flags.or(GenericRequest.FLAG_HAS_CREATED_AT);
     }
     setHasSalt() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_HAS_SALT);
+        this.flags = this.flags.or(GenericRequest.FLAG_HAS_SALT);
     }
     setIsTestnet() {
-        this.flags = this.flags.xor(GenericRequest.FLAG_IS_TESTNET);
+        this.flags = this.flags.or(GenericRequest.FLAG_IS_TESTNET);
     }
     setFlags() {
         if (this.createdAt)
@@ -76,9 +76,7 @@ class GenericRequest {
     }
     getDetailsHash(signedBlockheight) {
         if (this.isSigned()) {
-            const sigHash = this.getRawDataSha256();
-            this.signature.signature_hash = sigHash;
-            return this.signature.getIdentityHash({ version: 2, hash_type: pbaas_1.EHashTypes.HASH_SHA256, height: signedBlockheight });
+            return this.signature.getIdentityHash(signedBlockheight, this.getRawDataSha256());
         }
         else
             return this.getRawDataSha256();
@@ -156,7 +154,7 @@ class GenericRequest {
         this.version = new bn_js_1.BN(reader.readCompactSize());
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.isSigned()) {
-            const _sig = new pbaas_1.SignatureData();
+            const _sig = new VerifiableSignatureData_1.VerifiableSignatureData();
             reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
             this.signature = _sig;
         }
@@ -210,7 +208,7 @@ class GenericRequest {
             }
         }
         return {
-            signature: this.isSigned() ? this.signature.toJson() : undefined,
+            signature: undefined, //TODO: Add signature toJson function this.isSigned() ? this.signature.toJson() : undefined,
             details: details,
             version: this.version.toString(),
             flags: this.flags.toString(),

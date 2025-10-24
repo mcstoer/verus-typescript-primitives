@@ -47,19 +47,19 @@ class VerusPayInvoiceDetails {
     }
     setFlags(flags) {
         if (flags.acceptsConversion)
-            this.flags = this.flags.xor(exports.VERUSPAY_ACCEPTS_CONVERSION);
+            this.flags = this.flags.or(exports.VERUSPAY_ACCEPTS_CONVERSION);
         if (flags.acceptsNonVerusSystems)
-            this.flags = this.flags.xor(exports.VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS);
+            this.flags = this.flags.or(exports.VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS);
         if (flags.expires)
-            this.flags = this.flags.xor(exports.VERUSPAY_EXPIRES);
+            this.flags = this.flags.or(exports.VERUSPAY_EXPIRES);
         if (flags.acceptsAnyAmount)
-            this.flags = this.flags.xor(exports.VERUSPAY_ACCEPTS_ANY_AMOUNT);
+            this.flags = this.flags.or(exports.VERUSPAY_ACCEPTS_ANY_AMOUNT);
         if (flags.acceptsAnyDestination)
-            this.flags = this.flags.xor(exports.VERUSPAY_ACCEPTS_ANY_DESTINATION);
+            this.flags = this.flags.or(exports.VERUSPAY_ACCEPTS_ANY_DESTINATION);
         if (flags.excludesVerusBlockchain)
-            this.flags = this.flags.xor(exports.VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN);
+            this.flags = this.flags.or(exports.VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN);
         if (flags.isTestnet)
-            this.flags = this.flags.xor(exports.VERUSPAY_IS_TESTNET);
+            this.flags = this.flags.or(exports.VERUSPAY_IS_TESTNET);
     }
     getFlagsJson() {
         return {

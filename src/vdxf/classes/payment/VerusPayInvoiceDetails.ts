@@ -76,13 +76,13 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     excludesVerusBlockchain?: boolean,
     isTestnet?: boolean
   }) {
-    if (flags.acceptsConversion) this.flags = this.flags.xor(VERUSPAY_ACCEPTS_CONVERSION);
-    if (flags.acceptsNonVerusSystems) this.flags = this.flags.xor(VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS);
-    if (flags.expires) this.flags = this.flags.xor(VERUSPAY_EXPIRES);
-    if (flags.acceptsAnyAmount) this.flags = this.flags.xor(VERUSPAY_ACCEPTS_ANY_AMOUNT);
-    if (flags.acceptsAnyDestination) this.flags = this.flags.xor(VERUSPAY_ACCEPTS_ANY_DESTINATION);
-    if (flags.excludesVerusBlockchain) this.flags = this.flags.xor(VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN);
-    if (flags.isTestnet) this.flags = this.flags.xor(VERUSPAY_IS_TESTNET);
+    if (flags.acceptsConversion) this.flags = this.flags.or(VERUSPAY_ACCEPTS_CONVERSION);
+    if (flags.acceptsNonVerusSystems) this.flags = this.flags.or(VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS);
+    if (flags.expires) this.flags = this.flags.or(VERUSPAY_EXPIRES);
+    if (flags.acceptsAnyAmount) this.flags = this.flags.or(VERUSPAY_ACCEPTS_ANY_AMOUNT);
+    if (flags.acceptsAnyDestination) this.flags = this.flags.or(VERUSPAY_ACCEPTS_ANY_DESTINATION);
+    if (flags.excludesVerusBlockchain) this.flags = this.flags.or(VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN);
+    if (flags.isTestnet) this.flags = this.flags.or(VERUSPAY_IS_TESTNET);
   }
 
   getFlagsJson(): { [key: string]: boolean } {

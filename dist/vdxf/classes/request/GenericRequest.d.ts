@@ -1,11 +1,12 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { SignatureData, SignatureJsonDataInterface } from "../../../pbaas";
+import { SignatureJsonDataInterface } from "../../../pbaas";
 import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import { VerifiableSignatureData } from "../VerifiableSignatureData";
 export interface GenericRequestInterface {
     version?: BigNumber;
     flags?: BigNumber;
-    signature?: SignatureData;
+    signature?: VerifiableSignatureData;
     createdAt?: BigNumber;
     salt?: Buffer;
     details: Array<OrdinalVdxfObject>;
@@ -21,7 +22,7 @@ export type GenericRequestJson = {
 export declare class GenericRequest implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
-    signature?: SignatureData;
+    signature?: VerifiableSignatureData;
     createdAt?: BigNumber;
     salt?: Buffer;
     details: Array<OrdinalVdxfObject>;

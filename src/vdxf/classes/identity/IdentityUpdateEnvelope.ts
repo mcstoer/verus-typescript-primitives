@@ -98,7 +98,7 @@ export class IdentityUpdateEnvelope extends VDXFObject {
   }
 
   setSigned() {
-    this.version = this.version.xor(IDENTITY_UPDATE_VERSION_SIGNED);
+    this.version = this.version.or(IDENTITY_UPDATE_VERSION_SIGNED);
   }
 
   getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
