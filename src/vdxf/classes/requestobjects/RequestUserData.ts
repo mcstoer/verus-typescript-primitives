@@ -239,7 +239,7 @@ export class RequestUserData implements SerializableEntity {
     return reader.offset;
   }
 
-  toJSON(): RequestUserDataJson {
+  toJson(): RequestUserDataJson {
     // Set flags before serialization
     this.setFlags();
 

@@ -23,14 +23,15 @@ import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
-import { SignatureData, SignatureJsonDataInterface } from '../../../pbaas/SignatureData';
+import { VerifiableSignatureData, SignatureJsonDataInterface } from '../../../vdxf/classes/VerifiableSignatureData';
+
 
 export interface PersonalUserDataDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
-  signature?: SignatureData;
+  signature?: VerifiableSignatureData;
 }
 
 export interface PersonalUserDataDetailsJson {
@@ -59,7 +60,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
-  signature?: SignatureData;
+  signature?: VerifiableSignatureData;
 
   constructor(data?: PersonalUserDataDetailsInterface) {
     this.version = data?.version || PersonalUserDataDetails.DEFAULT_VERSION;
@@ -191,7 +192,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     }
 
     if (this.hasSignature()) {
-      const signature = new SignatureData();
+      const signature = new VerifiableSignatureData();
       reader.offset = signature.fromBuffer(reader.buffer, reader.offset);
       this.signature = signature;
     }
@@ -199,7 +200,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJSON(): PersonalUserDataDetailsJson {
+  toJson(): PersonalUserDataDetailsJson {
     this.setFlags();
 
     return {
@@ -211,7 +212,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     };
   }
 
-  static fromJSON(json: PersonalUserDataDetailsJson): PersonalUserDataDetails {
+  static fromJson(json: PersonalUserDataDetailsJson): PersonalUserDataDetails {
     const instance = new PersonalUserDataDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
@@ -225,7 +226,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     
     instance.signableObjects = dataDescriptorObjects;
     instance.statements = json.statements || [];
-    instance.signature = json.signature ? SignatureData.fromJson(json.signature) : undefined;
+    instance.signature = json.signature ? VerifiableSignatureData.fromJson(json.signature) : undefined;
     return instance;
   }
 }

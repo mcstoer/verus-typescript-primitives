@@ -30,8 +30,8 @@ export interface LoginRequestDetailsInterface {
   flags?: BigNumber;  
   requestId: string;
   permissions?: Array<LoginPermission>;
-  callbackUri?: Array<CallbackUri>;
-  expiryTime?: BigNumber;
+  callbackUris?: Array<callbackUris>;
+  expiryTime?: number; // UNIX Timestamp
 }
 
 export interface LoginPermissionJson {
@@ -39,17 +39,17 @@ export interface LoginPermissionJson {
   identity: CompactIdAddressObjectJson;
 }
 
-export interface CallbackUriJson {
+export interface callbackUrisJson {
   type: number;
   uri: string;
 }
 export interface LoginPermission {
-  type: BigNumber;
+  type: number;
   identity: CompactIdAddressObject;
 }
 
-export interface CallbackUri {
-  type: BigNumber;
+export interface callbackUris {
+  type: number;
   uri: string;
 }
 
@@ -58,7 +58,7 @@ export interface LoginRequestDetailsJson {
   requestid: string;
   flags: number;
   permissions?: Array<LoginPermissionJson>;
-  callbackuri?: Array<CallbackUriJson>;
+  callbackUris?: Array<callbackUrisJson>;
   expirytime?: number;
 }
 
@@ -67,8 +67,8 @@ export class LoginRequestDetails implements SerializableEntity {
   flags?: BigNumber;  
   requestId: string;
   permissions?: Array<LoginPermission>;
-  callbackUri?: Array<CallbackUri>;
-  expiryTime?: BigNumber;
+  callbackUris?: Array<callbackUris>;
+  expiryTime?: number; // UNIX Timestamp
 
   // Version
   static DEFAULT_VERSION = new BN(1, 10)
@@ -80,14 +80,14 @@ export class LoginRequestDetails implements SerializableEntity {
   static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
 
   // Permission Types
-  static REQUIRED_ID = new BN(1, 10);
-  static REQUIRED_SYSTEM = new BN(2, 10);
-  static REQUIRED_PARENT = new BN(3, 10);
+  static REQUIRED_ID = 1;
+  static REQUIRED_SYSTEM = 2;
+  static REQUIRED_PARENT = 3;
 
   // Callback URI Types
-  static TYPE_WEBHOOK = new BN(1, 10);
-  static TYPE_REDIRECT = new BN(2, 10);
-  static TYPE_DEEPLINK = new BN(3, 10);
+  static TYPE_WEBHOOK = 1;
+  static TYPE_REDIRECT = 2;
+  static TYPE_DEEPLINK = 3;
 
   constructor(
     request?: LoginRequestDetailsInterface 
@@ -97,7 +97,7 @@ export class LoginRequestDetails implements SerializableEntity {
     this.requestId = request?.requestId || '';
     this.flags = request?.flags || new BN(0, 10);
     this.permissions = request?.permissions || null;
-    this.callbackUri = request?.callbackUri || null;
+    this.callbackUris = request?.callbackUris || null;
     this.expiryTime = request?.expiryTime || null;
   }
 
@@ -105,7 +105,7 @@ export class LoginRequestDetails implements SerializableEntity {
       return this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
   }
 
-  hasCallbackUri(): boolean {
+  hascallbackUris(): boolean {
     return this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
   }
 
@@ -124,22 +124,22 @@ export class LoginRequestDetails implements SerializableEntity {
 
       length += varuint.encodingLength(this.permissions.length);      
         for (let i = 0; i < this.permissions.length; i++) {
-          length += varint.encodingLength(new BN(this.permissions[i].type));
+          length += varuint.encodingLength(this.permissions[i].type);
           length += this.permissions[i].identity.getByteLength();
         }      
     }
 
-    if (this.hasCallbackUri()) {
-      length += varuint.encodingLength(this.callbackUri.length);
-        for (let i = 0; i < this.callbackUri.length; i++) {
-          length += varint.encodingLength(new BN(this.callbackUri[i].type));
-          length += varuint.encodingLength(Buffer.from(this.callbackUri[i].uri, 'utf8').byteLength);
-          length += Buffer.from(this.callbackUri[i].uri, 'utf8').byteLength;
+    if (this.hascallbackUris()) {
+      length += varuint.encodingLength(this.callbackUris.length);
+        for (let i = 0; i < this.callbackUris.length; i++) {
+          length += varuint.encodingLength(this.callbackUris[i].type);
+          length += varuint.encodingLength(Buffer.from(this.callbackUris[i].uri, 'utf8').byteLength);
+          length += Buffer.from(this.callbackUris[i].uri, 'utf8').byteLength;
         }
     }
 
     if (this.hasExpiryTime()) {
-      length += varint.encodingLength(this.expiryTime);
+      length += varuint.encodingLength(this.expiryTime);
     }
 
     return length;
@@ -156,21 +156,21 @@ export class LoginRequestDetails implements SerializableEntity {
 
         writer.writeCompactSize(this.permissions.length);   
         for (let i = 0; i < this.permissions.length; i++) {
-          writer.writeVarInt(new BN(this.permissions[i].type));
+          writer.writeCompactSize(this.permissions[i].type);
           writer.writeSlice(this.permissions[i].identity.toBuffer());
         }
     }
 
-    if (this.hasCallbackUri()) {
-      writer.writeCompactSize(this.callbackUri.length);
-      for (let i = 0; i < this.callbackUri.length; i++) {
-        writer.writeVarInt(new BN(this.callbackUri[i].type));
-        writer.writeVarSlice(Buffer.from(this.callbackUri[i].uri, 'utf8'));
+    if (this.hascallbackUris()) {
+      writer.writeCompactSize(this.callbackUris.length);
+      for (let i = 0; i < this.callbackUris.length; i++) {
+        writer.writeCompactSize(this.callbackUris[i].type);
+        writer.writeVarSlice(Buffer.from(this.callbackUris[i].uri, 'utf8'));
       }
     }
 
     if (this.hasExpiryTime()) {
-      writer.writeVarInt(this.expiryTime);
+      writer.writeCompactSize(this.expiryTime);
     }
 
     return writer.buffer;
@@ -187,7 +187,7 @@ export class LoginRequestDetails implements SerializableEntity {
       const permissionsLength = reader.readCompactSize();
       for (let i = 0; i < permissionsLength; i++) {
         const compactId = new CompactIdAddressObject();
-        const type = reader.readVarInt();
+        const type = reader.readCompactSize();
         const identityOffset = reader.offset;
         reader.offset = compactId.fromBuffer(buffer, identityOffset);
         this.permissions.push({
@@ -197,19 +197,19 @@ export class LoginRequestDetails implements SerializableEntity {
       }
     } 
 
-    if (this.hasCallbackUri()) {
-      this.callbackUri = [];
-      const callbackUriLength = reader.readCompactSize();
-      for (let i = 0; i < callbackUriLength; i++) {
-        this.callbackUri.push({
-          type: reader.readVarInt(),
+    if (this.hascallbackUris()) {
+      this.callbackUris = [];
+      const callbackUrisLength = reader.readCompactSize();
+      for (let i = 0; i < callbackUrisLength; i++) {
+        this.callbackUris.push({
+          type: reader.readCompactSize(),
           uri: reader.readVarSlice().toString('utf8')
         });
       }
     }
 
     if (this.hasExpiryTime()) {
-      this.expiryTime = reader.readVarInt();
+      this.expiryTime = reader.readCompactSize();
     }
 
     return reader.offset;
@@ -222,10 +222,10 @@ export class LoginRequestDetails implements SerializableEntity {
       version: this.version.toNumber(),
       flags: this.flags.toNumber(),
       requestid: this.requestId,
-      permissions: this.permissions ? this.permissions.map(p => ({type: p.type.toNumber(),
+      permissions: this.permissions ? this.permissions.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
-      callbackuri: this.callbackUri ? this.callbackUri : undefined,
-      expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
+      callbackUris: this.callbackUris ? this.callbackUris : undefined,
+      expirytime: this.expiryTime ? this.expiryTime : undefined
     };
 
     return retval;
@@ -240,17 +240,17 @@ export class LoginRequestDetails implements SerializableEntity {
     loginDetails.requestId = data.requestid;
 
     if(loginDetails.hasPermissions() && data.permissions) {      
-      loginDetails.permissions = data.permissions.map(p => ({type: new BN(p.type),
+      loginDetails.permissions = data.permissions.map(p => ({type: p.type,
         identity: CompactIdAddressObject.fromJson(p.identity)}));
     }
 
-    if(loginDetails.hasCallbackUri() && data.callbackuri) {
-      loginDetails.callbackUri = data.callbackuri.map(c => ({type: new BN(c.type),
+    if(loginDetails.hascallbackUris() && data.callbackUris) {
+      loginDetails.callbackUris = data.callbackUris.map(c => ({type: c.type,
         uri: c.uri}));
     }
 
     if(loginDetails.hasExpiryTime() && data.expirytime) {
-      loginDetails.expiryTime = new BN(data.expirytime);
+      loginDetails.expiryTime = data.expirytime;
     }
 
     return loginDetails;
@@ -262,7 +262,7 @@ export class LoginRequestDetails implements SerializableEntity {
     if (this.permissions) {
       this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
     }
-    if (this.callbackUri) {
+    if (this.callbackUris) {
       this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
     }
     if (this.expiryTime) {
@@ -287,14 +287,14 @@ export class LoginRequestDetails implements SerializableEntity {
       }
     }
 
-    if (this.hasCallbackUri()) {
-      if (!this.callbackUri || this.callbackUri.length === 0) {
+    if (this.hascallbackUris()) {
+      if (!this.callbackUris || this.callbackUris.length === 0) {
         return false;
       }
     }
 
     if (this.hasExpiryTime()) {
-      if (!this.expiryTime || this.expiryTime.lte(new BN(0))) {
+      if (!this.expiryTime || this.expiryTime === 0) {
         return false;
       }
     }

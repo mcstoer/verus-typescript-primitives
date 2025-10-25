@@ -9,7 +9,7 @@ describe("CompactIdAddressObject", () => {
     test("creates instance with iaddress", () => {
       const item = new CompactIdAddressObject({
         version: new BN(CompactIdAddressObject.DEFAULT_VERSION),
-        flags: CompactIdAddressObject.IS_IDENTITYID,
+        type: CompactIdAddressObject.IS_IDENTITYID,
         address: "iB5PRXMHLYcNtM8dfLB6KwfJrHU2mKDYuU",
         rootSystemName: "VRSC"
       });
@@ -19,7 +19,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.flags.toString()).toBe(CompactIdAddressObject.IS_IDENTITYID.toString());
+      expect(newDetails.type).toBe(CompactIdAddressObject.IS_IDENTITYID);
       expect(newDetails.address).toBe("iB5PRXMHLYcNtM8dfLB6KwfJrHU2mKDYuU");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
@@ -28,7 +28,7 @@ describe("CompactIdAddressObject", () => {
         test("creates instance with fqn", () => {
       const item = new CompactIdAddressObject({
         version: new BN(CompactIdAddressObject.DEFAULT_VERSION),
-        flags: CompactIdAddressObject.IS_FQN,
+        type: CompactIdAddressObject.IS_FQN,
         address: "bob.chips@",
         rootSystemName: "VRSC"
       });
@@ -38,7 +38,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.flags.toString()).toBe(CompactIdAddressObject.IS_FQN.toString());
+      expect(newDetails.type).toBe(CompactIdAddressObject.IS_FQN);
       expect(newDetails.address).toBe("bob.chips@");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
@@ -47,7 +47,7 @@ describe("CompactIdAddressObject", () => {
       test("creates instance with fqn that reduces to iaddress for space saving", () => {
       const item = new CompactIdAddressObject({
         version: new BN(CompactIdAddressObject.DEFAULT_VERSION),
-        flags: CompactIdAddressObject.IS_FQN,
+        type: CompactIdAddressObject.IS_FQN,
         address: "bob91283472394872349824728934789234.token823984279847293847239487239847324.chips@",
         rootSystemName: "VRSC"
       });
@@ -57,7 +57,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.flags.toString()).toBe(CompactIdAddressObject.IS_IDENTITYID.toString());
+      expect(newDetails.type).toBe(CompactIdAddressObject.IS_IDENTITYID);
       expect(newDetails.address).toBe("i67xSVGnGC3PVuGk5crPfkVJptiLB4zNjb");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));

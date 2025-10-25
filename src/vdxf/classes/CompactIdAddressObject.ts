@@ -19,14 +19,14 @@ import { I_ADDR_VERSION } from '../../constants/vdxf';
 
 export interface CompactIdAddressObjectJson {
   version: number;
-  flags: number;
+  type: number;
   address: string;
   rootsystemname: string;
 }
 
 export interface CompactIdAddressObjectInterface {
   version?: BigNumber;
-  flags?: BigNumber;
+  type?: number;
   address: string;
   rootSystemName?: string;
 }
@@ -37,27 +37,27 @@ export class CompactIdAddressObject implements SerializableEntity {
   static LAST_VERSION = new BN(1);
   static DEFAULT_VERSION = new BN(1);
 
-  static IS_FQN = new BN(1);
-  static IS_IDENTITYID = new BN(2);
+  static IS_FQN = 1;
+  static IS_IDENTITYID = 2;
 
   version: BigNumber;
-  flags: BigNumber;
+  type: number;
   address: string;
   rootSystemName: string;
 
   constructor(data?: CompactIdAddressObjectInterface) {
     this.version = data?.version || new BN(CompactIdAddressObject.DEFAULT_VERSION);
-    this.flags = data?.flags || new BN(0);
+    this.type = data?.type || 0;
     this.address = data?.address || '';
     this.rootSystemName = data?.rootSystemName || 'VRSC';
   }
 
   isFQN(): boolean {
-    return (this.flags.and(CompactIdAddressObject.IS_FQN).eq(CompactIdAddressObject.IS_FQN));
+    return (this.type === CompactIdAddressObject.IS_FQN);
   }
 
   isIaddress(): boolean {
-    return (this.flags.and(CompactIdAddressObject.IS_IDENTITYID).eq(CompactIdAddressObject.IS_IDENTITYID));
+    return (this.type === CompactIdAddressObject.IS_IDENTITYID);
   }
 
   isValid(): boolean {
@@ -74,7 +74,7 @@ export class CompactIdAddressObject implements SerializableEntity {
   static fromIAddress(iaddr: string): CompactIdAddressObject {
     return new CompactIdAddressObject({
       address: iaddr,
-      flags: CompactIdAddressObject.IS_IDENTITYID
+      type: CompactIdAddressObject.IS_IDENTITYID
     })
   }
 
@@ -89,10 +89,10 @@ export class CompactIdAddressObject implements SerializableEntity {
 
     if (this.isFQN()) {
       if (this.address.length > 20) {
-        this.flags = CompactIdAddressObject.IS_IDENTITYID;
+        this.type = CompactIdAddressObject.IS_IDENTITYID;
         this.address = toIAddress(this.address, this.rootSystemName);
       } else {
-        this.flags = CompactIdAddressObject.IS_FQN;
+        this.type = CompactIdAddressObject.IS_FQN;
       }
     }
   }
@@ -101,7 +101,8 @@ export class CompactIdAddressObject implements SerializableEntity {
     this.setAddressTransferType();
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varint.encodingLength(this.version);
+    length += varuint.encodingLength(this.type);
 
     if (this.isIaddress()) {
       length += 20; // identityuint160
@@ -117,7 +118,8 @@ export class CompactIdAddressObject implements SerializableEntity {
   toBuffer(): Buffer {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
-    writer.writeVarInt(this.flags);
+    writer.writeVarInt(this.version);
+    writer.writeCompactSize(this.type);
 
     if (this.isIaddress()) {
       writer.writeSlice(fromBase58Check(this.address).hash);
@@ -131,7 +133,8 @@ export class CompactIdAddressObject implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.flags = reader.readVarInt();
+    this.version = reader.readVarInt();
+    this.type = reader.readCompactSize();
 
     if (this.isIaddress()) {
       this.address = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
@@ -147,7 +150,7 @@ export class CompactIdAddressObject implements SerializableEntity {
 
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: this.type,
       address: this.address,
       rootsystemname: this.rootSystemName,
     };
@@ -156,7 +159,7 @@ export class CompactIdAddressObject implements SerializableEntity {
   static fromJson(json: any): CompactIdAddressObject {
     const instance = new CompactIdAddressObject();
     instance.version = new BN(json.version);
-    instance.flags = new BN(json.flags);
+    instance.type = json.type;
     instance.address = json.address;
     instance.rootSystemName = json.rootsystemname;
     return instance;

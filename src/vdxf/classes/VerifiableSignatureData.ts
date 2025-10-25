@@ -65,7 +65,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.flags ? data.flags : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
-    this.systemId = data && data.systemId ? data.systemId : new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
+    this.systemId = data && data.systemId ? data.systemId : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
     this.identityId = data ? data.identityId : undefined;
     this.vdxfKeys = data ? data.vdxfKeys : undefined;

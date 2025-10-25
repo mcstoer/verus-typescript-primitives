@@ -30,7 +30,7 @@ describe("LoginRequestDetails", () => {
       expect(details.version.toString()).toBe("1");
       expect(details.flags?.toString()).toBe("0");
       expect(details.permissions).toBeNull();
-      expect(details.callbackUri).toBeNull();
+      expect(details.callbackUris).toBeNull();
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
     });
 
@@ -38,11 +38,11 @@ describe("LoginRequestDetails", () => {
       const details = new LoginRequestDetails({
         requestId: TEST_CHALLENGE_ID,
         permissions: [
-          { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
-          { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
-          { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+          { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+          { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+          { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
         ],
-        callbackUri: [{
+        callbackUris: [{
           type: LoginRequestDetails.TYPE_WEBHOOK,
           uri: "https://example.com/callback"
         }],
@@ -56,7 +56,7 @@ describe("LoginRequestDetails", () => {
 
       expect(newDetails.requestId).toBe(TEST_CHALLENGE_ID);
       expect(newDetails.permissions?.length).toBe(3);
-      expect(newDetails.callbackUri?.length).toBe(1);
+      expect(newDetails.callbackUris?.length).toBe(1);
       expect(newDetails.expiryTime?.toString()).toBe("2938475938457");
 
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
@@ -72,7 +72,7 @@ describe("LoginRequestDetails", () => {
       expect(details.version.toString()).toBe("1");
       expect(details.flags?.toString()).toBe("0");
       expect(details.permissions).toBeNull();
-      expect(details.callbackUri).toBeNull();
+      expect(details.callbackUris).toBeNull();
     });
   }); 
 });

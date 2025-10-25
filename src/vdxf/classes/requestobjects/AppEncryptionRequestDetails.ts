@@ -214,7 +214,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJSON(): AppEncryptionRequestDetailsJson {
+  toJson(): AppEncryptionRequestDetailsJson {
     // Set flags before serialization
     this.setFlags();
 
@@ -229,7 +229,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     };
   }
 
-  static fromJSON(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails {
+  static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails {
     const instance = new AppEncryptionRequestDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);

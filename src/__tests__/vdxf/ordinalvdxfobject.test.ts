@@ -4,11 +4,12 @@ import {
   DataDescriptorOrdinalVdxfObject,
   VerusPayInvoiceOrdinalVdxfObject,
   GeneralTypeOrdinalVdxfObject,
-  getOrdinalVdxfObjectClassForType
+  getOrdinalVdxfObjectClassForType,
+  LoginRequestDetailsOrdinalVdxfObject
 } from '../../vdxf/classes/OrdinalVdxfObject';
 
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { VerusPayInvoiceDetails } from '../../vdxf/classes';
+import { CompactIdAddressObject, LoginRequestDetails, VerusPayInvoiceDetails } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
 
@@ -31,6 +32,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = VerusPayInvoiceOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof GeneralTypeOrdinalVdxfObject) {
       newObj = GeneralTypeOrdinalVdxfObject.fromJson(json);
+    } else if (obj instanceof LoginRequestDetailsOrdinalVdxfObject) {
+      newObj = LoginRequestDetailsOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -165,4 +168,34 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     // data is undefined or empty
     expect(parsed.data).toBeUndefined();
   });
+
+  it('should serialize / deserialize a LoginRequestDetailsOrdinalVdxfObject via buffer', () => {
+    const obj = new LoginRequestDetails({
+          requestId: "iBJqQMRzpCW1WVYoU2Ty2VbCJnvyTEsE1C",
+          flags: new BN(LoginRequestDetails.FLAG_HAS_PERMISSIONS)
+            .or(new BN(LoginRequestDetails.FLAG_HAS_CALLBACK_URI))
+            .or(new BN(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME)),
+          permissions: [{type: new BN(1), identity: new CompactIdAddressObject({
+              version: new BN(1),
+              type: CompactIdAddressObject.IS_IDENTITYID,
+              address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
+              rootSystemName: "VRSC"
+          })}],
+          callbackUris: [{type: new BN(LoginRequestDetails.TYPE_WEBHOOK), uri: "https://example.com/callback"}],
+          expiryTime: new BN(345353453),
+    });
+
+    const objOrdinal = new LoginRequestDetailsOrdinalVdxfObject({ data: obj });
+
+    const round = roundTripBuffer(objOrdinal);
+    expect(round).toBeInstanceOf(LoginRequestDetailsOrdinalVdxfObject);
+    const d2 = (round as LoginRequestDetailsOrdinalVdxfObject).data;
+    expect(d2.requestId).toEqual(objOrdinal.data.requestId);
+    const json = objOrdinal.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(objOrdinal);
+    expect(roundJ).toBeInstanceOf(LoginRequestDetailsOrdinalVdxfObject);
+    const d3 = (roundJ as LoginRequestDetailsOrdinalVdxfObject).data;
+    expect(d3.requestId).toEqual(objOrdinal.data.requestId);
+    }); 
 });
