@@ -51,3 +51,7 @@ export * from './requestobjects/ProvisionIdentityDetails'
 export * from './requestobjects/AppEncryptionRequestDetails'
 export * from './requestobjects/PersonalUserDataDetails'
 export * from './CompactIdAddressObject'
+export {
+  VerifiableSignatureData,
+  SignatureJsonDataInterface as VerifiableSignatureDataInterface
+} from './VerifiableSignatureData'
