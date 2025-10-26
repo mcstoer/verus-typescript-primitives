@@ -14,17 +14,25 @@ function createCompactIdAddressObject(type: number, address: string): CompactIdA
 
 describe("AppEncryptionRequestDetails serialization tests", () => {
   test("creates valid AppEncryptionRequestDetails with zaddress", () => {
-    const details = new AppEncryptionRequestDetails();
-    details.version = AppEncryptionRequestDetails.DEFAULT_VERSION;
-    details.flags = AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-      .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-      .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
-    details.encryptToZAddress = "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4";
-    details.derivationNumber = new BN(42);
-    details.secondaryDerivationNumber = new BN(234);
-    
-    details.fromAddress = createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW");
-    details.toAddress = createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
+    const details = new AppEncryptionRequestDetails({
+      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
+        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      derivationNumber: new BN(42),
+      secondaryDerivationNumber: new BN(234),      
+      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+    });
+
+    const newDetails = new AppEncryptionRequestDetails();
+    const buffer = details.toBuffer();
+    newDetails.fromBuffer(buffer);
+    const originalBuffer = details.toBuffer();
+    const deserializedBuffer = newDetails.toBuffer();
+    expect(originalBuffer.toString('hex')).toBe(deserializedBuffer.toString('hex'));
+
 
     expect(details.isValid()).toBe(true);
     expect(details.encryptToZAddress).toBe("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4");
@@ -37,17 +45,17 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
 
   test("serializes and deserializes AppEncryptionRequestDetails correctly", () => {
     // Create the first AppEncryptionRequestDetails
-    const originalDetails = new AppEncryptionRequestDetails();
-    originalDetails.version = AppEncryptionRequestDetails.DEFAULT_VERSION;
-    originalDetails.flags = AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+    const originalDetails = new AppEncryptionRequestDetails({
+      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
       .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-      .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
-    originalDetails.encryptToZAddress = "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4";
-    originalDetails.derivationNumber = new BN(42);
-    originalDetails.secondaryDerivationNumber = new BN(234);
-    
-    originalDetails.fromAddress = createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW");
-    originalDetails.toAddress = createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
+      .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      derivationNumber: new BN(42),
+      secondaryDerivationNumber: new BN(234),      
+      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+  });
 
     // Serialize to buffer
     const buffer = originalDetails.toBuffer();
@@ -74,7 +82,38 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     // Verify that serializing both instances produces the same buffer
     const originalBuffer = originalDetails.toBuffer();
     const deserializedBuffer = deserializedDetails.toBuffer();
-    expect(originalBuffer.equals(deserializedBuffer)).toBe(true);
+    expect(originalBuffer.toString('hex')).toBe(deserializedBuffer.toString('hex'));
   });
 
+  test("fromIAddress creates valid CompactIdAddressObject", () => {
+    const iaddr = "iDZvpsGCfX6vMJxi3F7m26qCX2Ns6QtQYk";
+    const compactObj = CompactIdAddressObject.fromIAddress(iaddr);
+
+    expect(compactObj).toBeInstanceOf(CompactIdAddressObject);
+    expect(compactObj.address).toBe(iaddr);
+    expect(compactObj.type).toBe(CompactIdAddressObject.IS_IDENTITYID);
+
+    const item = new CompactIdAddressObject();
+    item.fromBuffer(compactObj.toBuffer());
+
+    expect(compactObj.toBuffer().toString('hex')).toBe(item.toBuffer().toString('hex'));
+
+  });
+
+  test("toIAddress converts FQN to IAddress correctly", () => {
+    const fqn = "myidentity.VRSC@";
+    const compactObj = new CompactIdAddressObject({
+      type: CompactIdAddressObject.IS_FQN,
+      address: fqn,
+      rootSystemName: "VRSC"
+    });
+    const iaddr = compactObj.toIAddress();
+
+    expect(iaddr).toBe("iDZvpsGCfX6vMJxi3F7m26qCX2Ns6QtQYk");
+    const item = new CompactIdAddressObject();
+    item.fromBuffer(compactObj.toBuffer());
+
+    expect(compactObj.toBuffer().toString('hex')).toBe(item.toBuffer().toString('hex'));
+
+  });
 });

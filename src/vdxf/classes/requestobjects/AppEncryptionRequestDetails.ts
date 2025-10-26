@@ -21,6 +21,7 @@ const { BufferReader, BufferWriter } = bufferutils;
 import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject } from '../CompactIdAddressObject';
+import varuint from '../../../utils/varuint';
 
 export interface AppEncryptionRequestDetailsInterface {
   version?: BigNumber;
@@ -127,12 +128,12 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   getByteLength(): number {
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varuint.encodingLength(this.flags.toNumber());
 
     // encryptToKey - zaddress encoding (43 bytes for sapling address data)
     length += 43; // Sapling address decoded data (11 + 32 bytes)
 
-    length += varint.encodingLength(this.derivationNumber);
+    length += varuint.encodingLength(this.derivationNumber.toNumber());
 
     if (this.hasSecondarySeedDerivation()) {
       length += varint.encodingLength(this.secondaryDerivationNumber);
@@ -156,7 +157,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     // Write flags
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
 
     // Write encryptToAddress as decoded sapling address data
     const saplingData = decodeSaplingAddress(this.encryptToZAddress);
@@ -184,7 +185,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     const reader = new BufferReader(buffer, offset);
 
     // Read flags
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
 
     // Read encryptToAddress as 43-byte sapling data and encode as sapling address
     const saplingData = reader.readSlice(43);

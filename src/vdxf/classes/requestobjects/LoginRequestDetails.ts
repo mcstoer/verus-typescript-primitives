@@ -31,7 +31,7 @@ export interface LoginRequestDetailsInterface {
   requestId: string;
   permissions?: Array<LoginPermission>;
   callbackUris?: Array<callbackUris>;
-  expiryTime?: number; // UNIX Timestamp
+  expiryTime?: BigNumber; // UNIX Timestamp
 }
 
 export interface LoginPermissionJson {
@@ -68,7 +68,7 @@ export class LoginRequestDetails implements SerializableEntity {
   requestId: string;
   permissions?: Array<LoginPermission>;
   callbackUris?: Array<callbackUris>;
-  expiryTime?: number; // UNIX Timestamp
+  expiryTime?: BigNumber; // UNIX Timestamp
 
   // Version
   static DEFAULT_VERSION = new BN(1, 10)
@@ -117,7 +117,7 @@ export class LoginRequestDetails implements SerializableEntity {
     this.setFlags(); // Ensure flags are set correctly for length calculation
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varuint.encodingLength(this.flags.toNumber());
     length += 20; // requestId hash length
 
     if (this.hasPermissions()) {
@@ -139,7 +139,7 @@ export class LoginRequestDetails implements SerializableEntity {
     }
 
     if (this.hasExpiryTime()) {
-      length += varuint.encodingLength(this.expiryTime);
+      length += varuint.encodingLength(this.expiryTime.toNumber());
     }
 
     return length;
@@ -149,7 +149,7 @@ export class LoginRequestDetails implements SerializableEntity {
 
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
     writer.writeSlice(fromBase58Check(this.requestId).hash);
 
     if (this.hasPermissions()) {
@@ -170,7 +170,7 @@ export class LoginRequestDetails implements SerializableEntity {
     }
 
     if (this.hasExpiryTime()) {
-      writer.writeCompactSize(this.expiryTime);
+      writer.writeCompactSize(this.expiryTime.toNumber());
     }
 
     return writer.buffer;
@@ -179,7 +179,7 @@ export class LoginRequestDetails implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new bufferutils.BufferReader(buffer, offset);
 
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
     this.requestId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
 
     if (this.hasPermissions()) {
@@ -209,7 +209,7 @@ export class LoginRequestDetails implements SerializableEntity {
     }
 
     if (this.hasExpiryTime()) {
-      this.expiryTime = reader.readCompactSize();
+      this.expiryTime = new BN(reader.readCompactSize());
     }
 
     return reader.offset;
@@ -225,7 +225,7 @@ export class LoginRequestDetails implements SerializableEntity {
       permissions: this.permissions ? this.permissions.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
       callbackUris: this.callbackUris ? this.callbackUris : undefined,
-      expirytime: this.expiryTime ? this.expiryTime : undefined
+      expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
     };
 
     return retval;
@@ -250,7 +250,7 @@ export class LoginRequestDetails implements SerializableEntity {
     }
 
     if(loginDetails.hasExpiryTime() && data.expirytime) {
-      loginDetails.expiryTime = data.expirytime;
+      loginDetails.expiryTime = new BN(data.expirytime);
     }
 
     return loginDetails;
@@ -294,7 +294,7 @@ export class LoginRequestDetails implements SerializableEntity {
     }
 
     if (this.hasExpiryTime()) {
-      if (!this.expiryTime || this.expiryTime === 0) {
+      if (!this.expiryTime || this.expiryTime.isZero()) {
         return false;
       }
     }

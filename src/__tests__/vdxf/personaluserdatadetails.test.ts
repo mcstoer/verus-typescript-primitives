@@ -1,8 +1,10 @@
 import { BN } from "bn.js";
 import { 
+  CompactIdAddressObject,
  PersonalUserDataDetails, PersonalUserDataDetailsJson
 } from "../../vdxf/classes";
 import { DataDescriptor } from "../../pbaas";
+import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureData";
 
 
 describe("PersonalUserDataDetails", () => {
@@ -12,20 +14,36 @@ describe("PersonalUserDataDetails", () => {
       const item = new PersonalUserDataDetails({
         version: new BN(PersonalUserDataDetails.DEFAULT_VERSION),
         flags: PersonalUserDataDetails.HAS_STATEMENTS.or(PersonalUserDataDetails.HAS_SIGNATURE),
-        signableobjects: [DataDescriptor.fromJson({ label: "123", objectdata : Buffer.from([1,2,3]), flags: DataDescriptor.FLAG_LABEL_PRESENT})],
+        signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata : "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT})],
         statements: ["Statement 1", "Statement 2"],
-        signature: ["key1", "key2"] //TODO
+        signature: new VerifiableSignatureData({version: new BN(1), 
+          signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
+          hashType: new BN(1),
+          flags: new BN(0),
+          identityId: new CompactIdAddressObject({version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC"}),
+          systemId: new CompactIdAddressObject({version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC"}),
+      })
       });
 
-      expect(item.version.toString()).toBe("1");
-      expect(item.flags.toNumber()).toBe(PersonalUserDataDetails.HAS_STATEMENTS.toNumber());
-      expect(item.signableObjects).toEqual([{ label: "123", objectdata: Buffer.from([1, 2, 3]), flags: DataDescriptor.FLAG_LABEL_PRESENT }]);
-      expect(item.statements).toEqual(["Statement 1", "Statement 2"]);
-      expect(item.signature).toEqual(["key1", "key2"]); //TODO
+      const detailsBuffer = item.toBuffer();
+
+      const newDetails = new PersonalUserDataDetails();
+      newDetails.fromBuffer(detailsBuffer);
+
+      expect(newDetails.toJson()).toEqual(item.toJson());
+
+      expect(newDetails.version.toString()).toBe(item.version.toString());
+      expect(newDetails.flags.toString()).toBe(item.flags.toString());
+      expect(newDetails.signableObjects.length).toBe(1);
+      expect(newDetails.signableObjects[0].toJson().label).toBe("123");
+      expect(newDetails.statements?.length).toBe(2);
+      expect(newDetails.statements?.[0]).toBe("Statement 1");
+      expect(newDetails.signature?.signatureAsVch.toString('hex')).toBe("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf");
+      
 
 
     });
   });
-//TODO when verifiable signature data comes add tests
+
 
 });

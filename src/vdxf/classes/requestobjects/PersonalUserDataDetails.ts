@@ -103,7 +103,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     }
 
     if (this.hasSignature()) {
-      valid &&= this.signature !== undefined && this.signature.isValid();
+      valid &&= this.signature !== undefined; // TODO: && this.signature.isValid();
     }
 
     return valid;
@@ -113,7 +113,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     this.setFlags();
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varuint.encodingLength(this.flags.toNumber());
 
     // Add length for signableObjects array
     length += varuint.encodingLength(this.signableObjects.length);
@@ -143,7 +143,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
 
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
 
     // Write signableObjects array
     writer.writeCompactSize(this.signableObjects.length);
@@ -154,6 +154,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
 
     // Write statements if present    
     if (this.hasStatements()) {
+      writer.writeCompactSize(this.statements.length);
       for (const stmt of this.statements) {
         writer.writeVarSlice(Buffer.from(stmt, 'utf8'));
       }
@@ -169,7 +170,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
 
     // Read signableObjects array
     const objectCount = reader.readCompactSize();

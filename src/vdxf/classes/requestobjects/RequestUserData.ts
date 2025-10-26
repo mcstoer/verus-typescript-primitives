@@ -145,8 +145,8 @@ export class RequestUserData implements SerializableEntity {
     
     this.setFlags();
     let length = 0;
-    
-    length += varint.encodingLength(this.flags);
+
+    length += varuint.encodingLength(this.flags.toNumber());
     length += varuint.encodingLength(this.searchDataKey.length);
 
     for (const item of this.searchDataKey) {
@@ -178,7 +178,7 @@ export class RequestUserData implements SerializableEntity {
     this.setFlags();
     
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
 
     writer.writeCompactSize(this.searchDataKey.length);
 
@@ -206,7 +206,7 @@ export class RequestUserData implements SerializableEntity {
 
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
     
     const searchDataKeyLength = reader.readCompactSize();    
     this.searchDataKey = [];

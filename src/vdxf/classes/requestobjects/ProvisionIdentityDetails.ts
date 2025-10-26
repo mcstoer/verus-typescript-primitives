@@ -20,6 +20,7 @@ import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
+import varuint from "../../../utils/varuint";
 
 export interface ProvisionIdentityDetailsInterface {
   version?: BigNumber;
@@ -82,7 +83,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     this.setFlags();
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varuint.encodingLength(this.flags.toNumber());
     if (this.hasSystemId()) {
       length += this.systemId.getByteLength();
     }
@@ -102,7 +103,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
 
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
 
     if (this.hasSystemId()) {
       writer.writeSlice(this.systemId.toBuffer());
@@ -123,7 +124,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     const reader = new bufferutils.BufferReader(buffer, offset);
     if (buffer.length == 0) throw new Error("Cannot create provision identity from empty buffer");
 
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
 
     if (this.hasSystemId()) {
       const systemId = new CompactIdAddressObject();

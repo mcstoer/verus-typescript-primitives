@@ -175,13 +175,13 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
           flags: new BN(LoginRequestDetails.FLAG_HAS_PERMISSIONS)
             .or(new BN(LoginRequestDetails.FLAG_HAS_CALLBACK_URI))
             .or(new BN(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME)),
-          permissions: [{type: new BN(1), identity: new CompactIdAddressObject({
+          permissions: [{type: 1, identity: new CompactIdAddressObject({
               version: new BN(1),
               type: CompactIdAddressObject.IS_IDENTITYID,
               address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
               rootSystemName: "VRSC"
           })}],
-          callbackUris: [{type: new BN(LoginRequestDetails.TYPE_WEBHOOK), uri: "https://example.com/callback"}],
+          callbackUris: [{type: 2, uri: "https://example.com/callback"}],
           expiryTime: new BN(345353453),
     });
 

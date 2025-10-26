@@ -23,6 +23,7 @@ export interface SignatureJsonDataInterface {
   vdxfkeys?: Array<string>;
   vdxfkeynames?: Array<string>;
   boundhashes?: Array<string>;
+  statements?: Array<string>;
   signature: string
 }
 
@@ -292,6 +293,34 @@ export class VerifiableSignatureData implements SerializableEntity {
   }
 
   toJson() {
-    return {}
+
+    this.setFlags();
+    return {
+      version: this.version.toNumber(),
+      flags: this.flags.toNumber(),
+      hashtype: this.hashType.toNumber(),
+      systemid: this.systemId.toJson(),
+      identityid: this.identityId.toJson(),
+      vdxfkeys: this.vdxfKeys,
+      vdxfkeynames: this.vdxfKeyNames,
+      boundhashes: this.boundHashes?.map(x => x.toString('hex')),
+      statements: this.statements?.map(x => x.toString('hex')),
+      signature: this.signatureAsVch.toString('hex')
+    };
+  }
+
+  static fromJson(json: SignatureJsonDataInterface): VerifiableSignatureData {
+    const instance = new VerifiableSignatureData();
+    instance.version = new BN(json.version);
+    instance.flags = new BN(json.flags);
+    instance.hashType = new BN(json.hashtype);
+    instance.systemId = CompactIdAddressObject.fromJson(json.systemid);
+    instance.identityId = CompactIdAddressObject.fromJson(json.identityid);
+    instance.vdxfKeys = json?.vdxfkeys;
+    instance.vdxfKeyNames = json?.vdxfkeynames;
+    instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
+    instance.statements = json.statements?.map(x => Buffer.from(x, 'hex'));
+    instance.signatureAsVch = Buffer.from(json.signature, 'hex');
+    return instance;
   }
 }
