@@ -19,7 +19,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.type).toBe(CompactIdAddressObject.IS_IDENTITYID);
+      expect(newDetails.type.toNumber()).toBe(CompactIdAddressObject.IS_IDENTITYID.toNumber());
       expect(newDetails.address).toBe("iB5PRXMHLYcNtM8dfLB6KwfJrHU2mKDYuU");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
@@ -38,7 +38,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.type).toBe(CompactIdAddressObject.IS_FQN);
+      expect(newDetails.type.toNumber()).toBe(CompactIdAddressObject.IS_FQN.toNumber());
       expect(newDetails.address).toBe("bob.chips@");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
@@ -57,7 +57,7 @@ describe("CompactIdAddressObject", () => {
       const newDetails = new CompactIdAddressObject();
       newDetails.fromBuffer(detailsBuffer);
       expect(newDetails.version.toString()).toBe("1");
-      expect(newDetails.type).toBe(CompactIdAddressObject.IS_IDENTITYID);
+      expect(newDetails.type.toNumber()).toBe(CompactIdAddressObject.IS_IDENTITYID.toNumber());
       expect(newDetails.address).toBe("i67xSVGnGC3PVuGk5crPfkVJptiLB4zNjb");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));

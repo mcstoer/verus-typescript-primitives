@@ -9,7 +9,7 @@ import { EHashTypes } from '../../pbaas/DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
 const createHash = require("create-hash");
 import { VERUS_DATA_SIGNATURE_PREFIX } from "../../constants/vdxf";
-import { CompactIdAddressObject } from './CompactIdAddressObject';
+import { CompactIdAddressObject, CompactIdAddressObjectJson } from './CompactIdAddressObject';
 import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import varint from '../../utils/varint';
 import { SignatureData } from '../../pbaas';
@@ -18,8 +18,8 @@ export interface SignatureJsonDataInterface {
   version: number;
   flags: number;
   hashtype: number;
-  systemid: string;
-  identityid: string;
+  systemid: CompactIdAddressObjectJson;
+  identityid: CompactIdAddressObjectJson;
   vdxfkeys?: Array<string>;
   vdxfkeynames?: Array<string>;
   boundhashes?: Array<string>;
@@ -292,7 +292,7 @@ export class VerifiableSignatureData implements SerializableEntity {
     })
   }
 
-  toJson() {
+  toJson(): SignatureJsonDataInterface {
 
     this.setFlags();
     return {

@@ -79,7 +79,7 @@ export class LoginRequestDetails implements SerializableEntity {
   static FLAG_HAS_CALLBACK_URI = new BN(2, 10);
   static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
 
-  // Permission Types
+  // Permission Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
   static REQUIRED_ID = 1;
   static REQUIRED_SYSTEM = 2;
   static REQUIRED_PARENT = 3;
@@ -87,7 +87,6 @@ export class LoginRequestDetails implements SerializableEntity {
   // Callback URI Types
   static TYPE_WEBHOOK = 1;
   static TYPE_REDIRECT = 2;
-  static TYPE_DEEPLINK = 3;
 
   constructor(
     request?: LoginRequestDetailsInterface 
@@ -99,6 +98,8 @@ export class LoginRequestDetails implements SerializableEntity {
     this.permissions = request?.permissions || null;
     this.callbackUris = request?.callbackUris || null;
     this.expiryTime = request?.expiryTime || null;
+
+    this.setFlags();
   }
 
   hasPermissions(): boolean {   
@@ -113,8 +114,22 @@ export class LoginRequestDetails implements SerializableEntity {
     return this.flags.and(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
   }
 
+  calcFlags(): BigNumber {
+    let flags = new BN(0, 10);
+    if (this.permissions) {
+      flags = flags.or(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
+    }
+    if (this.callbackUris) {
+      flags = flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
+    }
+    if (this.expiryTime) {
+      flags = flags.or(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
+    } 
+    return flags;
+  }
+
   getByteLength(): number {
-    this.setFlags(); // Ensure flags are set correctly for length calculation
+
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -216,11 +231,11 @@ export class LoginRequestDetails implements SerializableEntity {
   }
 
   toJson() {
-    this.setFlags();
+    const flags = this.calcFlags();
 
     const retval = {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       requestid: this.requestId,
       permissions: this.permissions ? this.permissions.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
@@ -256,18 +271,8 @@ export class LoginRequestDetails implements SerializableEntity {
     return loginDetails;
   }
 
-
   setFlags() {
-    this.flags = new BN(0, 10);
-    if (this.permissions) {
-      this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
-    }
-    if (this.callbackUris) {
-      this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
-    }
-    if (this.expiryTime) {
-      this.flags = this.flags.or(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
-    }
+    this.flags = this.calcFlags();
   }   
 
   isValid(): boolean {

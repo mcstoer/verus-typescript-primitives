@@ -4,7 +4,7 @@ import { TransferDestination } from "../../pbaas/TransferDestination";
 import { BigNumber } from "../../utils/types/BigNumber";
 
 // Helper function to create TransferDestination from address string
-function createCompactIdAddressObject(type: number, address: string): CompactIdAddressObject {
+function createCompactIdAddressObject(type: BigNumber, address: string): CompactIdAddressObject {
   const obj = new CompactIdAddressObject();
   obj.type = type;
   obj.address = address;
@@ -74,9 +74,9 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     expect(deserializedDetails.encryptToZAddress).toBe(originalDetails.encryptToZAddress);
     expect(deserializedDetails.derivationNumber.toNumber()).toBe(originalDetails.derivationNumber.toNumber());
     expect(deserializedDetails.secondaryDerivationNumber?.toNumber()).toBe(originalDetails.secondaryDerivationNumber?.toNumber());
-    expect(deserializedDetails.fromAddress?.type).toBe(originalDetails.fromAddress?.type);
+    expect(deserializedDetails.fromAddress?.type.toNumber()).toBe(originalDetails.fromAddress?.type.toNumber());
     expect(deserializedDetails.fromAddress?.address).toBe(originalDetails.fromAddress?.address);
-    expect(deserializedDetails.toAddress?.type).toBe(originalDetails.toAddress?.type);
+    expect(deserializedDetails.toAddress?.type.toNumber()).toBe(originalDetails.toAddress?.type.toNumber());
     expect(deserializedDetails.toAddress?.address).toBe(originalDetails.toAddress?.address);
 
     // Verify that serializing both instances produces the same buffer

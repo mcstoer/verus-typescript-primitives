@@ -65,6 +65,8 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     this.systemId = data?.systemId;
     this.parentId = data?.parentId;
     this.identityId = data?.identityId;
+
+    this.setFlags();
   }
 
   hasSystemId(): boolean {
@@ -80,7 +82,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   }
 
   getByteLength(): number {
-    this.setFlags();
+
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -148,10 +150,10 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   }
 
   toJson(): ProvisionIdentityDetailsJson {
-    this.setFlags();
+    const flags = this.calcFlags();
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       systemid: this.systemId ? this.systemId.toJson() : null,
       parentid: this.parentId ? this.parentId.toJson() : null,
       identityid: this.identityId ? this.identityId.toJson() : null,
@@ -179,21 +181,28 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     return provision;
   }
 
-  setFlags() {
-    this.flags = new BN(0, 10);
-    
+  calcFlags(): BigNumber {
+    let flags = new BN(0, 10);
+
     if (this.systemId) {
-      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
+      flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
     }
-    
+
     if (this.parentId) {
-      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
+      flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
     }
-    
+
     if (this.identityId) {
-      this.flags = this.flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+      flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
     }
-  }   
+
+    return flags;
+  }
+
+  setFlags() {
+    this.flags = this.calcFlags();
+  }
+
 
   isValid(): boolean {
 

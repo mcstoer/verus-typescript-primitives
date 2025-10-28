@@ -68,20 +68,26 @@ export class PersonalUserDataDetails implements SerializableEntity {
     this.signableObjects = data?.signableObjects || [];
     this.statements = data?.statements || [];
     this.signature = data?.signature || undefined;
+
+    this.setFlags();
   }
 
-  setFlags(): void {
-    // Initialize flags if not already a BigNumber
-    if (!BN.isBN(this.flags)) {
-      this.flags = new BN(0);
-    }
+  setFlags(): void {  
+    this.flags = this.calcFlags();
+  }
+
+  calcFlags(): BigNumber {
+    let flags = new BN(0);
+    
     if (this.statements && this.statements.length > 0) {
-      this.flags = this.flags.or(PersonalUserDataDetails.HAS_STATEMENTS);
+      flags = flags.or(PersonalUserDataDetails.HAS_STATEMENTS);
     }
 
     if (this.signature ) {
-      this.flags = this.flags.or(PersonalUserDataDetails.HAS_SIGNATURE);
+      flags = flags.or(PersonalUserDataDetails.HAS_SIGNATURE);
     }
+
+    return flags;
   }
 
   hasStatements(): boolean {
@@ -110,7 +116,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
   }
 
   getByteLength(): number {
-    this.setFlags();
+
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -139,7 +145,6 @@ export class PersonalUserDataDetails implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-    this.setFlags();
 
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
@@ -202,11 +207,11 @@ export class PersonalUserDataDetails implements SerializableEntity {
   }
 
   toJson(): PersonalUserDataDetailsJson {
-    this.setFlags();
+    const flags = this.calcFlags();
 
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       signableobjects: this.signableObjects.map(obj => obj.toJson()),
       statements: this.statements,
       signature: this.signature ? this.signature.toJson() : undefined

@@ -77,21 +77,25 @@ export class RequestUserData implements SerializableEntity {
     this.signer = data?.signer;
     this.requestedKeys = data?.requestedKeys;
 
+    this.setFlags();
+
+  }
+
+  calcFlags(): BigNumber {
+    let flags = new BN(0);
+    if (this.requestedKeys && this.requestedKeys.length > 0) {
+      flags = flags.or(RequestUserData.HAS_REQUESTED_KEYS);
+    }
+    if (this.signer) {
+      flags = flags.or(RequestUserData.HAS_SIGNER);
+    }
+
+    return flags;
   }
 
   setFlags(): void {
-    // Initialize flags if not already a BigNumber
-    if (!BN.isBN(this.flags)) {
-      this.flags = new BN(0);
-    }
-
-    if (this.requestedKeys && this.requestedKeys.length > 0) {
-      this.flags = this.flags.or(RequestUserData.HAS_REQUESTED_KEYS);
-    }
-
-    if (this.signer) {
-      this.flags = this.flags.or(RequestUserData.HAS_SIGNER);
-    }
+    
+    this.flags = this.calcFlags();
   }
 
   hasSigner(): boolean {
@@ -143,7 +147,6 @@ export class RequestUserData implements SerializableEntity {
 
   getByteLength(): number {
     
-    this.setFlags();
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -174,8 +177,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-    // Set flags before serialization
-    this.setFlags();
     
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
     writer.writeCompactSize(this.flags.toNumber());
@@ -198,8 +199,7 @@ export class RequestUserData implements SerializableEntity {
         for (const key of this.requestedKeys) {
           writer.writeSlice(fromBase58Check(key).hash); // 20-byte VDXF key
         }    
-    }
-    
+    }    
       
     return writer.buffer;
   }
@@ -240,12 +240,12 @@ export class RequestUserData implements SerializableEntity {
   }
 
   toJson(): RequestUserDataJson {
-    // Set flags before serialization
-    this.setFlags();
+    
+    const flags = this.calcFlags();
 
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       searchdatakey: this.searchDataKey,
       signer: this.signer.toJson(),
       requestedkeys: this.requestedKeys

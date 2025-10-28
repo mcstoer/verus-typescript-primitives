@@ -26,7 +26,7 @@ export interface CompactIdAddressObjectJson {
 
 export interface CompactIdAddressObjectInterface {
   version?: BigNumber;
-  type?: number;
+  type: BigNumber;
   address: string;
   rootSystemName?: string;
 }
@@ -37,27 +37,28 @@ export class CompactIdAddressObject implements SerializableEntity {
   static LAST_VERSION = new BN(1);
   static DEFAULT_VERSION = new BN(1);
 
-  static IS_FQN = 1;
-  static IS_IDENTITYID = 2;
+  static IS_FQN = new BN(1);
+  static IS_IDENTITYID = new BN(2);
 
   version: BigNumber;
-  type: number;
+  type: BigNumber;
   address: string;
   rootSystemName: string;
 
   constructor(data?: CompactIdAddressObjectInterface) {
     this.version = data?.version || new BN(CompactIdAddressObject.DEFAULT_VERSION);
-    this.type = data?.type || 0;
+    this.type = data?.type || new BN(0);
     this.address = data?.address || '';
     this.rootSystemName = data?.rootSystemName || 'VRSC';
+    this.setAddressTransferType();
   }
 
   isFQN(): boolean {
-    return (this.type === CompactIdAddressObject.IS_FQN);
+    return (this.type.eq(CompactIdAddressObject.IS_FQN));
   }
 
   isIaddress(): boolean {
-    return (this.type === CompactIdAddressObject.IS_IDENTITYID);
+    return (this.type.eq(CompactIdAddressObject.IS_IDENTITYID));
   }
 
   isValid(): boolean {
@@ -79,9 +80,6 @@ export class CompactIdAddressObject implements SerializableEntity {
   }
 
   setAddressTransferType(): void {
-    if (!this.isValid()) {
-      throw new Error('CompactIdAddressObject: invalid address or flags not set');
-    }
 
     if (this.isIaddress()) {
       return;
@@ -98,11 +96,11 @@ export class CompactIdAddressObject implements SerializableEntity {
   }
 
   getByteLength(): number {
-    this.setAddressTransferType();
+
     let length = 0;
 
-    length += varint.encodingLength(this.version);
-    length += varuint.encodingLength(this.type);
+    length += varuint.encodingLength(this.version.toNumber());
+    length += varuint.encodingLength(this.type.toNumber());
 
     if (this.isIaddress()) {
       length += 20; // identityuint160
@@ -118,8 +116,8 @@ export class CompactIdAddressObject implements SerializableEntity {
   toBuffer(): Buffer {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
-    writer.writeVarInt(this.version);
-    writer.writeCompactSize(this.type);
+    writer.writeCompactSize(this.version.toNumber());
+    writer.writeCompactSize(this.type.toNumber());
 
     if (this.isIaddress()) {
       writer.writeSlice(fromBase58Check(this.address).hash);
@@ -133,8 +131,8 @@ export class CompactIdAddressObject implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.version = reader.readVarInt();
-    this.type = reader.readCompactSize();
+    this.version = new BN(reader.readCompactSize());
+    this.type = new BN(reader.readCompactSize());
 
     if (this.isIaddress()) {
       this.address = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
@@ -145,12 +143,11 @@ export class CompactIdAddressObject implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): any {
-    this.setAddressTransferType();
+  toJson(): CompactIdAddressObjectJson {
 
     return {
       version: this.version.toNumber(),
-      flags: this.type,
+      type: this.type.toNumber(),
       address: this.address,
       rootsystemname: this.rootSystemName,
     };
@@ -159,7 +156,7 @@ export class CompactIdAddressObject implements SerializableEntity {
   static fromJson(json: any): CompactIdAddressObject {
     const instance = new CompactIdAddressObject();
     instance.version = new BN(json.version);
-    instance.type = json.type;
+    instance.type = new BN(json.type);
     instance.address = json.address;
     instance.rootSystemName = json.rootsystemname;
     return instance;

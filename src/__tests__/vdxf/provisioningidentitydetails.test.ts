@@ -8,8 +8,8 @@ describe('Serializes and deserializes ProvisionIdentityDetails', () => {
         const provisionJson: ProvisionIdentityDetailsJson = {
             version: 1,
             flags: ProvisionIdentityDetails.FLAG_HAS_SYSTEMID.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID).toNumber(),
-            systemid: {version: 1, type: CompactIdAddressObject.IS_IDENTITYID, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC"},
-            parentid: {version: 1, type: CompactIdAddressObject.IS_IDENTITYID, address: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB", rootsystemname: "VRSC"}
+            systemid: {version: 1, type: CompactIdAddressObject.IS_IDENTITYID.toNumber(), address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC"},
+            parentid: {version: 1, type: CompactIdAddressObject.IS_IDENTITYID.toNumber(), address: "iKjrTCwoPFRk44fAi2nYNbPG16ZUQjv1NB", rootsystemname: "VRSC"}
         }
 
         const e = ProvisionIdentityDetails.fromJson(provisionJson);

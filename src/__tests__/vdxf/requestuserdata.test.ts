@@ -8,7 +8,7 @@ describe('Serializes and deserializes RequestUserData', () => {
       version: 1,
       flags: RequestUserData.FULL_DATA.or(RequestUserData.ATTESTATION).or(RequestUserData.HAS_SIGNER).toNumber(),
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
-      signer: { version: 1, type: CompactIdAddressObject.IS_IDENTITYID, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC" }
+      signer: { version: 1, type: CompactIdAddressObject.IS_IDENTITYID.toNumber(), address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC" }
     }
 
     const e = RequestUserData.fromJson(provisionJson);
@@ -24,7 +24,7 @@ describe('Serializes and deserializes RequestUserData', () => {
       version: 1,
       flags: RequestUserData.PARTIAL_DATA.or(RequestUserData.ATTESTATION).or(RequestUserData.HAS_SIGNER).toNumber(),
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
-      signer: { version: 1, type: CompactIdAddressObject.IS_FQN, address: "bob@", rootsystemname: "VRSC" },
+      signer: { version: 1, type: CompactIdAddressObject.IS_FQN.toNumber(), address: "bob@", rootsystemname: "VRSC" },
       requestedkeys: ["iLB8SG7ErJtTYcG1f4w9RLuMJPpAsjFkiL"]
     }
 

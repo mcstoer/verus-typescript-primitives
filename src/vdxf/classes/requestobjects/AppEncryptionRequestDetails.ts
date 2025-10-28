@@ -20,7 +20,7 @@ import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactIdAddressObject } from '../CompactIdAddressObject';
+import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
 import varuint from '../../../utils/varuint';
 
 export interface AppEncryptionRequestDetailsInterface {
@@ -39,8 +39,8 @@ export interface AppEncryptionRequestDetailsJson {
   encrypttozaddress: string;
   derivationnumber: number;
   secondaryderivationnumber?: number;
-  fromaddress?: string;
-  toaddress?: string;
+  fromaddress?: CompactIdAddressObjectJson;
+  toaddress?: CompactIdAddressObjectJson;
 }
 
 /**
@@ -87,22 +87,30 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     this.secondaryDerivationNumber = data?.secondaryDerivationNumber;
     this.fromAddress = data?.fromAddress;
     this.toAddress = data?.toAddress;
+
+    this.setFlags();
   }
 
   setFlags(): void {
-    this.flags = new BN(0);
+    this.flags = this.calcFlags();
+  }
+
+  calcFlags(): BigNumber {
+    let flags = new BN(0);
 
     if (this.secondaryDerivationNumber != null) {
-      this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER);
+      flags = flags.or(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER);
     }
 
     if (this.fromAddress != null) {
-      this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS);
+      flags = flags.or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS);
     }
 
     if (this.toAddress != null) {
-      this.flags = this.flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
+      flags = flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
     }
+
+    return flags;
   }
 
   isValid(): boolean {
@@ -151,8 +159,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-    // Set flags before serialization
-    this.setFlags();
 
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
@@ -217,11 +223,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
   toJson(): AppEncryptionRequestDetailsJson {
     // Set flags before serialization
-    this.setFlags();
+    const flags = this.calcFlags();
 
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       encrypttozaddress: this.encryptToZAddress,
       derivationnumber: this.derivationNumber.toNumber(),
       secondaryderivationnumber: this.secondaryDerivationNumber?.toNumber(),
