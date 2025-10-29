@@ -11,6 +11,7 @@ import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
 import { VerusPayInvoiceDetails } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
+import { VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals';
 
 describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   function roundTripBuffer<T extends OrdinalVdxfObject>(obj: T): T {
@@ -141,9 +142,9 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   });
 
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_VERUSPAY_INVOICE))
       .toBe(VerusPayInvoiceOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
@@ -154,7 +155,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
   it('base OrdinalVdxfObject buffer round trip (no key path)', () => {
     // This tests the fallback when no key is provided
-    const base = new OrdinalVdxfObject({ type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR });
+    const base = new OrdinalVdxfObject({ type: VDXF_ORDINAL_DATA_DESCRIPTOR });
     const buf = base.toBuffer();
     const parsed = new OrdinalVdxfObject();
     parsed.fromBuffer(buf);
