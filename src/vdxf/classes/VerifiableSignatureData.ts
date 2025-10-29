@@ -14,7 +14,7 @@ import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas
 import varint from '../../utils/varint';
 import { SignatureData } from '../../pbaas';
 
-export interface SignatureJsonDataInterface {
+export interface VerifiableSignatureDataJson {
   version: number;
   flags: number;
   hashtype: number;

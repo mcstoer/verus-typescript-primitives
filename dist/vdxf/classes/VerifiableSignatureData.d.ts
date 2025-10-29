@@ -2,7 +2,7 @@ import { BigNumber } from '../../utils/types/BigNumber';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import { CompactIdAddressObject } from './CompactIdAddressObject';
 import { SignatureData } from '../../pbaas';
-export interface SignatureJsonDataInterface {
+export interface VerifiableSignatureDataJson {
     version: number;
     flags: number;
     hashtype: number;

@@ -4,20 +4,20 @@ import {
   GeneralTypeOrdinalVdxfObject
 } from '../../vdxf/classes/OrdinalVdxfObject';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericRequest, SaplingPaymentAddress } from '../../';
+import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericResponse, SaplingPaymentAddress } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
 
-describe('GenericRequest — buffer / URI / QR operations', () => {
-  function roundTripBuffer(req: GenericRequest): GenericRequest {
+describe('GenericResponse — buffer / URI / QR operations', () => {
+  function roundTripBuffer(req: GenericResponse): GenericResponse {
     const buf = req.toBuffer();
-    const clone = new GenericRequest();
+    const clone = new GenericResponse();
     clone.fromBuffer(buf, 0);
     return clone;
   }
 
-  function rawDetailsSha256(req: GenericRequest): Buffer {
+  function rawDetailsSha256(req: GenericResponse): Buffer {
     // replicate the same behavior as getRawDetailsSha256()
     const buf = req['toBufferOptionalSig'](false);  // call internal method
     return createHash("sha256").update(buf).digest();
@@ -28,7 +28,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from('cafebabe', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [detail] });
+    const req = new GenericResponse({ details: [detail] });
 
     expect(req.hasMultiDetails()).toBe(false);
     expect(req.hasCreatedAt()).toBe(false);
@@ -54,7 +54,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from('bb', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [d1, d2] });
+    const req = new GenericResponse({ details: [d1, d2] });
     expect(req.hasMultiDetails()).toBe(true);
 
     const round = roundTripBuffer(req);
@@ -64,7 +64,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt, signature, and encryptResponseToAddress', () => {
+  it('round trips with createdAt, signature, and requestHash/requestHashType', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
@@ -84,13 +84,15 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     });
 
     const createdAt = new BN(9999);
-    const saplingAddr = "zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa"
+    const requestHash = Buffer.from('abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd', 'hex');
+    const requestHashType = HASH_TYPE_SHA256;
 
-    const req = new GenericRequest({
+    const req = new GenericResponse({
       details: [detail],
       signature: sig,
       createdAt,
-      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr)
+      requestHash: requestHash,
+      requestHashType: requestHashType
     });
 
     expect(req.isSigned()).toBe(true);
@@ -99,8 +101,9 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const round = roundTripBuffer(req);
     expect(round.signature).toBeDefined();
     expect(round.createdAt?.toString()).toEqual(createdAt.toString());
-    expect(round.hasEncryptResponseToAddress()).toBe(true)
-    expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
+    expect(round.hasRequestHash()).toBe(true)
+    expect(round.requestHash?.toString('hex')).toBe(requestHash.toString('hex'))
+    expect(round.requestHashType?.toNumber()).toBe(requestHashType.toNumber())
     const d2 = round.getDetails(0);
     expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
@@ -111,11 +114,11 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from('feed', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [detail] });
+    const req = new GenericResponse({ details: [detail] });
 
     const str = req.toString();
     const buf = base64url.toBuffer(str);
-    const parsed = new GenericRequest();
+    const parsed = new GenericResponse();
     parsed.fromBuffer(buf, 0);
     expect(parsed.details[0].toJson()).toEqual(detail.toJson());
   });
@@ -125,13 +128,13 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from('face', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [detail] });
+    const req = new GenericResponse({ details: [detail] });
     const uri = req.toWalletDeeplinkUri();
 
     expect(uri).toContain(WALLET_VDXF_KEY.vdxfid.toLowerCase());
     expect(uri).toContain(`${GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
 
-    const parsed = GenericRequest.fromWalletDeeplinkUri(uri);
+    const parsed = GenericResponse.fromWalletDeeplinkUri(uri);
     expect(parsed.version.toString()).toEqual(req.version.toString());
     expect(parsed.details[0].toJson()).toEqual(detail.toJson());
     expect(parsed.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
@@ -142,19 +145,19 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from('bead', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [detail] });
+    const req = new GenericResponse({ details: [detail] });
     const qr = req.toQrString();
-    const parsed = GenericRequest.fromQrString(qr);
+    const parsed = GenericResponse.fromQrString(qr);
     expect(parsed.details[0].toJson()).toEqual(detail.toJson());
     expect(parsed.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
   it('fromBuffer with empty buffer should throw', () => {
     const empty = Buffer.alloc(0);
-    const req = new GenericRequest();
+    const req = new GenericResponse();
     expect(() => {
       req.fromBuffer(empty, 0);
-    }).toThrow("Cannot create request from empty buffer");
+    }).toThrow("Cannot create response from empty buffer");
   });
 
   it("returns raw SHA256 when not signed", () => {
@@ -162,7 +165,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       data: Buffer.from("abcd", "hex"),
       key: DEFAULT_VERUS_CHAINID
     });
-    const req = new GenericRequest({ details: [detail] });
+    const req = new GenericResponse({ details: [detail] });
     expect(req.isSigned()).toBe(false);
 
     const hash = req.getDetailsHash(123456);

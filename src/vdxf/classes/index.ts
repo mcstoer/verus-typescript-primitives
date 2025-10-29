@@ -29,6 +29,7 @@ export * from "./identity/IdentityUpdateRequestDetails";
 export * from "./identity/IdentityUpdateResponseDetails";
 export * from './ResponseUri';
 export * from './request/GenericRequest';
+export * from './response/GenericResponse';
 
 export { Hash160 } from './Hash160'
 export {

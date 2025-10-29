@@ -1,14 +1,17 @@
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { GenericEnvelope, GenericEnvelopeInterface, GenericEnvelopeJson } from "../envelope/GenericEnvelope";
-import { SaplingPaymentAddress } from '../../../pbaas/SaplingPaymentAddress';
-export type GenericRequestJson = GenericEnvelopeJson & {
-    encryptresponsetoaddress?: string;
+import { BigNumber } from '../../../utils/types/BigNumber';
+export type GenericResponseJson = GenericEnvelopeJson & {
+    requesthash?: string;
+    requesthashtype?: number;
 };
-export type GenericRequestInterface = GenericEnvelopeInterface & {
-    encryptResponseToAddress?: SaplingPaymentAddress;
+export type GenericResponseInterface = GenericEnvelopeInterface & {
+    requestHash?: Buffer;
+    requestHashType?: BigNumber;
 };
-export declare class GenericRequest extends GenericEnvelope implements SerializableEntity {
-    encryptResponseToAddress?: SaplingPaymentAddress;
+export declare class GenericResponse extends GenericEnvelope implements SerializableEntity {
+    requestHash?: Buffer;
+    requestHashType?: BigNumber;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");
@@ -18,13 +21,13 @@ export declare class GenericRequest extends GenericEnvelope implements Serializa
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
     static FLAG_HAS_SALT: import("bn.js");
-    static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS: import("bn.js");
-    constructor(envelope?: GenericRequestInterface);
-    hasEncryptResponseToAddress(): boolean;
-    setHasEncryptResponseToAddress(): void;
+    static FLAG_HAS_REQUEST_HASH: import("bn.js");
+    constructor(envelope?: GenericResponseInterface);
+    hasRequestHash(): boolean;
+    setHasRequestHash(): void;
     setFlags(): void;
     getByteLength(): number;
     protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): GenericRequestJson;
+    toJson(): GenericResponseJson;
 }

@@ -82,11 +82,11 @@ export declare class VDXFDataDescriptor extends BufferDataVdxfObject {
     SetFlags(): void;
 }
 export declare enum EHashTypes {
-    HASH_INVALID = 0,
-    HASH_BLAKE2BMMR = 1,
-    HASH_BLAKE2BMMR2 = 2,
-    HASH_KECCAK = 3,
-    HASH_SHA256D = 4,
-    HASH_SHA256 = 5,
-    HASH_LASTTYPE = 5
+    HASH_INVALID,
+    HASH_BLAKE2BMMR,
+    HASH_BLAKE2BMMR2,
+    HASH_KECCAK,
+    HASH_SHA256D,
+    HASH_SHA256,
+    HASH_LASTTYPE
 }
