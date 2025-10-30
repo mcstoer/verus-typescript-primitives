@@ -11,13 +11,13 @@ const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateResponseDetails {
     constructor(data) {
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN("0", 10);
-        if (data === null || data === void 0 ? void 0 : data.requestid) {
-            this.requestid = data.requestid;
+        if (data === null || data === void 0 ? void 0 : data.requestID) {
+            this.requestID = data.requestID;
         }
         else
-            this.requestid = new bn_js_1.BN("0", 10);
-        if (data === null || data === void 0 ? void 0 : data.createdat) {
-            this.createdat = data.createdat;
+            this.requestID = new bn_js_1.BN("0", 10);
+        if (data === null || data === void 0 ? void 0 : data.createdAt) {
+            this.createdAt = data.createdAt;
         }
         if (data === null || data === void 0 ? void 0 : data.txid) {
             if (!this.containsTxid())
@@ -48,8 +48,8 @@ class IdentityUpdateResponseDetails {
     getByteLength() {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
-        length += varint_1.default.encodingLength(this.requestid);
-        length += varint_1.default.encodingLength(this.createdat);
+        length += varint_1.default.encodingLength(this.requestID);
+        length += varint_1.default.encodingLength(this.createdAt);
         if (this.containsTxid()) {
             length += pbaas_1.UINT_256_LENGTH;
         }
@@ -63,8 +63,8 @@ class IdentityUpdateResponseDetails {
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
-        writer.writeVarInt(this.requestid);
-        writer.writeVarInt(this.createdat);
+        writer.writeVarInt(this.requestID);
+        writer.writeVarInt(this.createdAt);
         if (this.containsTxid()) {
             if (this.txid.length !== pbaas_1.UINT_256_LENGTH)
                 throw new Error("invalid txid length");
@@ -78,8 +78,8 @@ class IdentityUpdateResponseDetails {
     fromBuffer(buffer, offset = 0) {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
-        this.requestid = reader.readVarInt();
-        this.createdat = reader.readVarInt();
+        this.requestID = reader.readVarInt();
+        this.createdAt = reader.readVarInt();
         if (this.containsTxid()) {
             this.txid = reader.readSlice(pbaas_1.UINT_256_LENGTH);
         }
@@ -91,8 +91,8 @@ class IdentityUpdateResponseDetails {
     toJson() {
         return {
             flags: this.flags.toString(10),
-            requestid: this.requestid.toString(10),
-            createdat: this.createdat.toString(10),
+            requestid: this.requestID.toString(10),
+            createdat: this.createdAt.toString(10),
             txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
             salt: this.containsSalt() ? this.salt.toString('hex') : undefined
         };
@@ -100,8 +100,8 @@ class IdentityUpdateResponseDetails {
     static fromJson(json) {
         return new IdentityUpdateResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestid: new bn_js_1.BN(json.requestid, 10),
-            createdat: new bn_js_1.BN(json.createdat, 10),
+            requestID: new bn_js_1.BN(json.requestid, 10),
+            createdAt: new bn_js_1.BN(json.createdat, 10),
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
             salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined
         });

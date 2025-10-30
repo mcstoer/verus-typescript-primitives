@@ -431,17 +431,17 @@ export const TEST_MMR_DATA = new PartialMMRData({
 export const TEST_BASE_SIGN_DATA_WITH_MMR_DATA: PartialSignDataInitData = {
   flags: new BN('0', 10),
   address: IdentityID.fromAddress('iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq'),
-  prefixstring: Buffer.from('example prefix', 'utf8'),
-  vdxfkeys: [IdentityID.fromAddress('i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz')],
-  vdxfkeynames: [Buffer.from('VDXFNAME', 'utf8')],
-  boundhashes: [Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex'), Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex')],
-  hashtype: new BN('1', 10),
-  encrypttoaddress: SaplingPaymentAddress.fromAddressString(
+  prefixString: Buffer.from('example prefix', 'utf8'),
+  vdxfKeys: [IdentityID.fromAddress('i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz')],
+  vdxfKeyNames: [Buffer.from('VDXFNAME', 'utf8')],
+  boundHashes: [Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex'), Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex')],
+  hashType: new BN('1', 10),
+  encryptToAddress: SaplingPaymentAddress.fromAddressString(
     'zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa'
   ),
-  createmmr: true,
+  createMMR: true,
   signature: Buffer.from('AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp', 'base64'),
-  datatype: DATA_TYPE_MMRDATA,
+  dataType: DATA_TYPE_MMRDATA,
   data: TEST_MMR_DATA, // This is the PartialMMRData object
 }
 

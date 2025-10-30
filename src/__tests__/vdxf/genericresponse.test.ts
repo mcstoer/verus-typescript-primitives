@@ -66,9 +66,9 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
-      systemId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      systemID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       hashType: HASH_TYPE_SHA256,
-      identityId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      identityID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       signatureAsVch: Buffer.from('abcd', 'hex'),
       vdxfKeys: [DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINID],
       vdxfKeyNames: ["VRSC", "VRSC"],

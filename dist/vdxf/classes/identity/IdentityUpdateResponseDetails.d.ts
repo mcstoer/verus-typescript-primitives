@@ -9,8 +9,8 @@ export type IdentityUpdateResponseDetailsJson = {
 };
 export declare class IdentityUpdateResponseDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestid?: BigNumber;
-    createdat?: BigNumber;
+    requestID?: BigNumber;
+    createdAt?: BigNumber;
     txid?: Buffer;
     salt?: Buffer;
     static IDENTITY_UPDATE_RESPONSE_VALID: import("bn.js");
@@ -18,8 +18,8 @@ export declare class IdentityUpdateResponseDetails implements SerializableEntity
     static IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestid?: BigNumber;
-        createdat?: BigNumber;
+        requestID?: BigNumber;
+        createdAt?: BigNumber;
         txid?: Buffer;
         salt?: Buffer;
     });

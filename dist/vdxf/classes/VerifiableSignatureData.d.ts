@@ -17,8 +17,8 @@ export interface VerifiableSignatureDataInterface {
     version: BigNumber;
     flags: BigNumber;
     hashType: BigNumber;
-    systemId: CompactIdAddressObject;
-    identityId: CompactIdAddressObject;
+    systemID: CompactIdAddressObject;
+    identityID: CompactIdAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;
@@ -29,8 +29,8 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
     hashType: BigNumber;
-    identityId: CompactIdAddressObject;
-    systemId: CompactIdAddressObject;
+    identityID: CompactIdAddressObject;
+    systemID: CompactIdAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;

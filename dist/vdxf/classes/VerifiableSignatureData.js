@@ -18,9 +18,9 @@ class VerifiableSignatureData {
     constructor(data) {
         this.version = data && data.flags ? data.flags : new bn_js_1.BN(0);
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN(0);
-        this.systemId = data && data.systemId ? data.systemId : new CompactIdAddressObject_1.CompactIdAddressObject({ flags: CompactIdAddressObject_1.CompactIdAddressObject.IS_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
+        this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject_1.CompactIdAddressObject({ flags: CompactIdAddressObject_1.CompactIdAddressObject.IS_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
         this.hashType = data && data.hashType ? data.hashType : pbaas_1.HASH_TYPE_SHA256;
-        this.identityId = data ? data.identityId : undefined;
+        this.identityID = data ? data.identityID : undefined;
         this.vdxfKeys = data ? data.vdxfKeys : undefined;
         this.vdxfKeyNames = data ? data.vdxfKeyNames : undefined;
         this.boundHashes = data ? data.boundHashes : undefined;
@@ -77,8 +77,8 @@ class VerifiableSignatureData {
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varuint_1.default.encodingLength(this.flags.toNumber());
         byteLength += varuint_1.default.encodingLength(this.hashType.toNumber());
-        byteLength += this.systemId.getByteLength();
-        byteLength += this.identityId.getByteLength();
+        byteLength += this.systemID.getByteLength();
+        byteLength += this.identityID.getByteLength();
         if (this.hasVdxfKeys()) {
             byteLength += varuint_1.default.encodingLength(this.vdxfKeys.length);
             for (const key of this.vdxfKeys) {
@@ -111,8 +111,8 @@ class VerifiableSignatureData {
         bufferWriter.writeVarInt(this.version);
         bufferWriter.writeCompactSize(this.flags.toNumber());
         bufferWriter.writeCompactSize(this.hashType.toNumber());
-        bufferWriter.writeSlice(this.systemId.toBuffer());
-        bufferWriter.writeSlice(this.identityId.toBuffer());
+        bufferWriter.writeSlice(this.systemID.toBuffer());
+        bufferWriter.writeSlice(this.identityID.toBuffer());
         if (this.hasVdxfKeys()) {
             bufferWriter.writeArray(this.vdxfKeys.map(x => (0, address_1.fromBase58Check)(x).hash));
         }
@@ -133,10 +133,10 @@ class VerifiableSignatureData {
         this.version = bufferReader.readVarInt();
         this.flags = new bn_js_1.BN(bufferReader.readCompactSize());
         this.hashType = new bn_js_1.BN(bufferReader.readCompactSize());
-        this.systemId = new CompactIdAddressObject_1.CompactIdAddressObject();
-        this.identityId = new CompactIdAddressObject_1.CompactIdAddressObject();
-        bufferReader.offset = this.systemId.fromBuffer(bufferReader.buffer, bufferReader.offset);
-        bufferReader.offset = this.identityId.fromBuffer(bufferReader.buffer, bufferReader.offset);
+        this.systemID = new CompactIdAddressObject_1.CompactIdAddressObject();
+        this.identityID = new CompactIdAddressObject_1.CompactIdAddressObject();
+        bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
+        bufferReader.offset = this.identityID.fromBuffer(bufferReader.buffer, bufferReader.offset);
         if (this.hasVdxfKeys()) {
             this.vdxfKeys = bufferReader.readArray(vdxf_1.HASH160_BYTE_LENGTH).map(x => (0, address_1.toBase58Check)(x, vdxf_1.I_ADDR_VERSION));
         }
@@ -162,17 +162,17 @@ class VerifiableSignatureData {
         if (this.version.eq(new bn_js_1.BN(1))) {
             return createHash("sha256")
                 .update(vdxf_2.VERUS_DATA_SIGNATURE_PREFIX)
-                .update((0, address_1.fromBase58Check)(this.systemId.toIAddress()).hash)
+                .update((0, address_1.fromBase58Check)(this.systemID.toIAddress()).hash)
                 .update(heightBuffer)
-                .update((0, address_1.fromBase58Check)(this.identityId.toIAddress()).hash)
+                .update((0, address_1.fromBase58Check)(this.identityID.toIAddress()).hash)
                 .update(sigHash)
                 .digest();
         }
         else {
             return createHash("sha256")
-                .update((0, address_1.fromBase58Check)(this.systemId.toIAddress()).hash)
+                .update((0, address_1.fromBase58Check)(this.systemID.toIAddress()).hash)
                 .update(heightBuffer)
-                .update((0, address_1.fromBase58Check)(this.identityId.toIAddress()).hash)
+                .update((0, address_1.fromBase58Check)(this.identityID.toIAddress()).hash)
                 .update(vdxf_2.VERUS_DATA_SIGNATURE_PREFIX)
                 .update(sigHash)
                 .digest();
@@ -181,10 +181,10 @@ class VerifiableSignatureData {
     toSignatureData(sigHash) {
         return new pbaas_2.SignatureData({
             version: this.version,
-            system_ID: this.systemId.toIAddress(),
+            system_ID: this.systemID.toIAddress(),
             hash_type: this.hashType,
             signature_hash: sigHash,
-            identity_ID: this.identityId.toIAddress(),
+            identity_ID: this.identityID.toIAddress(),
             sig_type: pbaas_2.SignatureData.TYPE_VERUSID_DEFAULT,
             vdxf_keys: this.vdxfKeys,
             vdxf_key_names: this.vdxfKeyNames,

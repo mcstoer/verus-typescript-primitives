@@ -34,13 +34,13 @@ export type IdentityUpdateRequestDetailsJson = {
 
 export class IdentityUpdateRequestDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestid?: BigNumber;              // ID of request, to be referenced in response
-  createdat?: BigNumber;              // Unix timestamp of request creation
+  requestID?: BigNumber;              // ID of request, to be referenced in response
+  createdAt?: BigNumber;              // Unix timestamp of request creation
   identity?: PartialIdentity;         // Parts of the identity to update
-  expiryheight?: BigNumber;           // Time after which update request will no longer be accepted
-  systemid?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
-  responseuris?: Array<ResponseUri>;  // Array of uris + type to send response to (type can be post, redirect, etc. depending on how response is expected to be received)
-  signdatamap?: SignDataMap;          // Map of data to pass to signdata
+  expiryHeight?: BigNumber;           // Time after which update request will no longer be accepted
+  systemID?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
+  responseURIs?: Array<ResponseUri>;  // Array of uris + type to send response to (type can be post, redirect, etc. depending on how response is expected to be received)
+  signDataMap?: SignDataMap;          // Map of data to pass to signdata
   salt?: Buffer;                      // Optional salt
   txid?: Buffer;                      // 32 byte transaction ID of transaction that must be spent to update identity, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
@@ -56,38 +56,38 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
   constructor (data?: {
     flags?: BigNumber,
-    requestid?: BigNumber,
-    createdat?: BigNumber,
+    requestID?: BigNumber,
+    createdAt?: BigNumber,
     identity?: PartialIdentity,
-    expiryheight?: BigNumber,
-    systemid?: IdentityID,
+    expiryHeight?: BigNumber,
+    systemID?: IdentityID,
     txid?: Buffer,
-    responseuris?: Array<ResponseUri>,
-    signdatamap?: SignDataMap,
+    responseURIs?: Array<ResponseUri>,
+    signDataMap?: SignDataMap,
     salt?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
-    if (data?.requestid) {
-      this.requestid = data.requestid;
-    } else this.requestid = new BN("0", 10);
+    if (data?.requestID) {
+      this.requestID = data.requestID;
+    } else this.requestID = new BN("0", 10);
 
-    if (data?.createdat) {
-      this.createdat = data.createdat;
-    } else this.createdat = new BN("0", 10);
+    if (data?.createdAt) {
+      this.createdAt = data.createdAt;
+    } else this.createdAt = new BN("0", 10);
 
     if (data?.identity) {
       this.identity = data.identity;
     }
 
-    if (data?.expiryheight) {
+    if (data?.expiryHeight) {
       if (!this.expires()) this.toggleExpires();
-      this.expiryheight = data.expiryheight;
+      this.expiryHeight = data.expiryHeight;
     }
 
-    if (data?.systemid) {
+    if (data?.systemID) {
       if (!this.containsSystem()) this.toggleContainsSystem();
-      this.systemid = data.systemid;
+      this.systemID = data.systemID;
     }
 
     if (data?.txid) {
@@ -95,14 +95,14 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       this.txid = data.txid;
     }
 
-    if (data?.responseuris) {
+    if (data?.responseURIs) {
       if (!this.containsResponseUris()) this.toggleContainsResponseUris();
-      this.responseuris = data.responseuris;
+      this.responseURIs = data.responseURIs;
     }
 
-    if (data?.signdatamap) {
+    if (data?.signDataMap) {
       if (!this.containsSignData()) this.toggleContainsSignData();
-      this.signdatamap = data.signdatamap;
+      this.signDataMap = data.signDataMap;
     }
 
     if (data?.salt) {
@@ -188,31 +188,31 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     length += varint.encodingLength(this.flags);
 
-    length += varint.encodingLength(this.requestid);
+    length += varint.encodingLength(this.requestID);
 
-    length += varint.encodingLength(this.createdat);
+    length += varint.encodingLength(this.createdAt);
 
     length += this.identity.getByteLength();
 
-    if (this.expires()) length += varint.encodingLength(this.expiryheight);
+    if (this.expires()) length += varint.encodingLength(this.expiryHeight);
 
-    if (this.containsSystem()) length += this.systemid.getByteLength();
+    if (this.containsSystem()) length += this.systemID.getByteLength();
 
     if (this.containsTxid()) {
       length += UINT_256_LENGTH;
     }
 
     if (this.containsResponseUris()) {
-      length += varuint.encodingLength(this.responseuris.length);
-      length += this.responseuris.reduce(
+      length += varuint.encodingLength(this.responseURIs.length);
+      length += this.responseURIs.reduce(
         (sum: number, current: ResponseUri) => sum + current.getByteLength(),
         0
       );
     }
 
     if (this.containsSignData()) {
-      length += varuint.encodingLength(this.signdatamap.size);
-      for (const [key, value] of this.signdatamap.entries()) {
+      length += varuint.encodingLength(this.signDataMap.size);
+      for (const [key, value] of this.signDataMap.entries()) {
         length += fromBase58Check(key).hash.length;
         length += value.getByteLength();
       }
@@ -231,15 +231,15 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     writer.writeVarInt(this.flags);
 
-    writer.writeVarInt(this.requestid);
+    writer.writeVarInt(this.requestID);
 
-    writer.writeVarInt(this.createdat);
+    writer.writeVarInt(this.createdAt);
     
     writer.writeSlice(this.identity.toBuffer());
 
-    if (this.expires()) writer.writeVarInt(this.expiryheight);
+    if (this.expires()) writer.writeVarInt(this.expiryHeight);
 
-    if (this.containsSystem()) writer.writeSlice(this.systemid.toBuffer());
+    if (this.containsSystem()) writer.writeSlice(this.systemID.toBuffer());
 
     if (this.containsTxid()) {
       if (this.txid.length !== UINT_256_LENGTH) throw new Error("invalid txid length");
@@ -248,12 +248,12 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     }
 
     if (this.containsResponseUris()) {
-      writer.writeArray(this.responseuris.map((x) => x.toBuffer()));
+      writer.writeArray(this.responseURIs.map((x) => x.toBuffer()));
     }
 
     if (this.containsSignData()) {
-      writer.writeCompactSize(this.signdatamap.size);
-      for (const [key, value] of this.signdatamap.entries()) {
+      writer.writeCompactSize(this.signDataMap.size);
+      for (const [key, value] of this.signDataMap.entries()) {
         writer.writeSlice(fromBase58Check(key).hash);
         writer.writeSlice(value.toBuffer());
       }
@@ -271,20 +271,20 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     this.flags = reader.readVarInt();
 
-    this.requestid = reader.readVarInt();
+    this.requestID = reader.readVarInt();
 
-    this.createdat = reader.readVarInt();
+    this.createdAt = reader.readVarInt();
 
     this.identity = new PartialIdentity();
     reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
     
     if (this.expires()) {
-      this.expiryheight = reader.readVarInt();
+      this.expiryHeight = reader.readVarInt();
     }
 
     if (this.containsSystem()) {
-      this.systemid = new IdentityID();
-      reader.offset = this.systemid.fromBuffer(reader.buffer, reader.offset);
+      this.systemID = new IdentityID();
+      reader.offset = this.systemID.fromBuffer(reader.buffer, reader.offset);
     }
 
     if (this.containsTxid()) {
@@ -292,7 +292,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     }
 
     if (this.containsResponseUris()) {
-      this.responseuris = [];
+      this.responseURIs = [];
       const urisLength = reader.readCompactSize();
 
       for (let i = 0; i < urisLength; i++) {
@@ -301,12 +301,12 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
           reader.buffer,
           reader.offset
         );
-        this.responseuris.push(uri);
+        this.responseURIs.push(uri);
       }
     }
 
     if (this.containsSignData()) {
-      this.signdatamap = new Map();
+      this.signDataMap = new Map();
 
       const size = reader.readCompactSize();
 
@@ -316,7 +316,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
         reader.offset = value.fromBuffer(reader.buffer, reader.offset);
         
-        this.signdatamap.set(key, value);
+        this.signDataMap.set(key, value);
       }
     }
 
@@ -330,48 +330,48 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   toJson(): IdentityUpdateRequestDetailsJson {
     let signDataJson: { [key: string]: PartialSignDataJson };
     
-    if (this.signdatamap) {
+    if (this.signDataMap) {
       signDataJson = {};
       
-      for (const [key, psd] of this.signdatamap.entries()) {
+      for (const [key, psd] of this.signDataMap.entries()) {
         signDataJson[key] = psd.toJson();
       }
     }
 
     return {
       flags: this.flags ? this.flags.toString(10) : undefined,
-      requestid: this.requestid ? this.requestid.toString(10) : undefined,
-      createdat: this.createdat ? this.createdat.toString(10) : undefined,
+      requestid: this.requestID ? this.requestID.toString(10) : undefined,
+      createdat: this.createdAt ? this.createdAt.toString(10) : undefined,
       identity: this.identity ? this.identity.toJson() : undefined,
-      expiryheight: this.expiryheight ? this.expiryheight.toString(10) : undefined,
-      systemid: this.systemid ? this.systemid.toAddress() : undefined,
+      expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
+      systemid: this.systemID ? this.systemID.toAddress() : undefined,
       txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
-      responseuris: this.responseuris ? this.responseuris.map(x => x.toJson()) : undefined,
+      responseuris: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
       signdatamap: signDataJson,
       salt: this.salt ? this.salt.toString('hex') : undefined
     }
   }
 
   static fromJson(json: IdentityUpdateRequestDetailsJson): IdentityUpdateRequestDetails {
-    let signdatamap: SignDataMap;
+    let signDataMap: SignDataMap;
 
     if (json.signdatamap) {
-      signdatamap = new Map();
+      signDataMap = new Map();
 
       for (const key in json.signdatamap) {
-        signdatamap.set(key, PartialSignData.fromJson(json.signdatamap[key]))
+        signDataMap.set(key, PartialSignData.fromJson(json.signdatamap[key]))
       }
     }
 
     return new IdentityUpdateRequestDetails({
       flags: json.flags ? new BN(json.flags, 10) : undefined,
-      requestid: json.requestid ? new BN(json.requestid, 10) : undefined,
-      createdat: json.createdat ? new BN(json.createdat, 10) : undefined,
+      requestID: json.requestid ? new BN(json.requestid, 10) : undefined,
+      createdAt: json.createdat ? new BN(json.createdat, 10) : undefined,
       identity: json.identity ? PartialIdentity.fromJson(json.identity) : undefined,
-      expiryheight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
-      systemid: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
-      responseuris: json.responseuris ? json.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
-      signdatamap,
+      expiryHeight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
+      systemID: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
+      responseURIs: json.responseuris ? json.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
+      signDataMap,
       salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined,
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
     })
@@ -383,7 +383,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     const idJson = (this.identity.toJson() as VerusCLIVerusIDJsonWithData);
 
     if (this.containsSignData()) {
-      for (const [key, psd] of this.signdatamap.entries()) {
+      for (const [key, psd] of this.signDataMap.entries()) {
         idJson.contentmultimap[key] = {
           "data": psd.toCLIJson()
         }
@@ -398,17 +398,17 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     details?: IdentityUpdateRequestDetailsJson
   ): IdentityUpdateRequestDetails {
     let identity: PartialIdentity;
-    let signdatamap: SignDataMap;
+    let signDataMap: SignDataMap;
 
     if (json.contentmultimap) {
       const cmm = { ...json.contentmultimap };
 
       for (const key in cmm) {
         if (cmm[key]['data']) {
-          if (!signdatamap) signdatamap = new Map();
+          if (!signDataMap) signDataMap = new Map();
 
           const psd = PartialSignData.fromCLIJson(cmm[key]['data']);
-          signdatamap.set(key, psd);
+          signDataMap.set(key, psd);
 
           delete cmm[key];
         }
@@ -421,12 +421,12 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     return new IdentityUpdateRequestDetails({
       identity,
-      signdatamap,
-      systemid: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
-      requestid: details?.requestid ? new BN(details.requestid, 10) : undefined,
-      createdat: details?.createdat ? new BN(details.createdat, 10) : undefined,
-      expiryheight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
-      responseuris: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
+      signDataMap,
+      systemID: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
+      requestID: details?.requestid ? new BN(details.requestid, 10) : undefined,
+      createdAt: details?.createdat ? new BN(details.createdat, 10) : undefined,
+      expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
+      responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
       salt: details?.salt ? Buffer.from(details.salt, 'hex') : undefined,
       txid: details?.txid ? Buffer.from(details.txid, 'hex').reverse() : undefined,
     })

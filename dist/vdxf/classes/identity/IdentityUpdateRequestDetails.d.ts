@@ -26,13 +26,13 @@ export type IdentityUpdateRequestDetailsJson = {
 };
 export declare class IdentityUpdateRequestDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestid?: BigNumber;
-    createdat?: BigNumber;
+    requestID?: BigNumber;
+    createdAt?: BigNumber;
     identity?: PartialIdentity;
-    expiryheight?: BigNumber;
-    systemid?: IdentityID;
-    responseuris?: Array<ResponseUri>;
-    signdatamap?: SignDataMap;
+    expiryHeight?: BigNumber;
+    systemID?: IdentityID;
+    responseURIs?: Array<ResponseUri>;
+    signDataMap?: SignDataMap;
     salt?: Buffer;
     txid?: Buffer;
     static IDENTITY_UPDATE_REQUEST_VALID: import("bn.js");
@@ -45,14 +45,14 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     static IDENTITY_UPDATE_REQUEST_IS_TESTNET: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestid?: BigNumber;
-        createdat?: BigNumber;
+        requestID?: BigNumber;
+        createdAt?: BigNumber;
         identity?: PartialIdentity;
-        expiryheight?: BigNumber;
-        systemid?: IdentityID;
+        expiryHeight?: BigNumber;
+        systemID?: IdentityID;
         txid?: Buffer;
-        responseuris?: Array<ResponseUri>;
-        signdatamap?: SignDataMap;
+        responseURIs?: Array<ResponseUri>;
+        signDataMap?: SignDataMap;
         salt?: Buffer;
     });
     expires(): boolean;

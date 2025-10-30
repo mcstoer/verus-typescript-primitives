@@ -1,23 +1,31 @@
-import { BN } from "bn.js";
-import { IdentityUpdateRequest, IdentityUpdateResponse, IdentityUpdateEnvelope } from "../../vdxf/classes/identity/IdentityUpdateEnvelope";
 import { IdentityUpdateRequestDetails } from "../../vdxf/classes/identity/IdentityUpdateRequestDetails";
 import { IdentityUpdateResponseDetails } from "../../vdxf/classes/identity/IdentityUpdateResponseDetails";
-import { ContentMultiMap, IDENTITY_VERSION_PBAAS, IdentityID, KeyID, SaplingPaymentAddress } from "../../pbaas";
-import { PartialIdentity } from "../../pbaas/PartialIdentity";
+import { ContentMultiMap } from "../../pbaas";
 import { ResponseUri } from "../../vdxf/classes/ResponseUri";
-import { PartialMMRData } from "../../pbaas/PartialMMRData";
-import { PartialSignData, PartialSignDataInitData } from "../../pbaas/PartialSignData";
-import { DATA_TYPE_MMRDATA } from "../../constants/pbaas";
-import { TEST_BASE_SIGN_DATA_WITH_MMR_DATA, TEST_CLI_ID_UPDATE_REQUEST_JSON, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_MMR_DATA, TEST_PARTIAL_IDENTITY, TEST_REQUESTID, TEST_SALT, TEST_SIGNDATA_MAP, TEST_SIGNINGID, TEST_SYSTEMID, TEST_TXID } from "../constants/fixtures";
+import { PartialSignData } from "../../pbaas/PartialSignData";
+import { 
+  TEST_BASE_SIGN_DATA_WITH_MMR_DATA, 
+  TEST_CLI_ID_UPDATE_REQUEST_JSON, 
+  TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, 
+  TEST_CREATEDAT, 
+  TEST_EXPIRYHEIGHT, 
+  TEST_MMR_DATA, 
+  TEST_PARTIAL_IDENTITY, 
+  TEST_REQUESTID, 
+  TEST_SALT, 
+  TEST_SIGNDATA_MAP,
+  TEST_SYSTEMID, 
+  TEST_TXID 
+} from "../constants/fixtures";
 
 describe("IdentityUpdateEnvelope Serialization", () => {
-  function testSerialization(instance) {
+  function testSerialization(instance: any) {
     const fromBufferInstance = new instance.constructor();
     fromBufferInstance.fromBuffer(instance.toBuffer());
     expect(fromBufferInstance.toBuffer().toString("hex")).toBe(instance.toBuffer().toString("hex"));
   }
 
-  function testJsonSerialization(instance) {
+  function testJsonSerialization(instance: any) {
     const json = instance.toJson();
     const fromJsonInstance = instance.constructor.fromJson(json);
     const newJson = fromJsonInstance.toJson();
@@ -33,79 +41,46 @@ describe("IdentityUpdateEnvelope Serialization", () => {
     expect(fromCLIJsonInstance.toCLIJson()).toEqual(cliJson);
   }
 
-  test("Serialize/Deserialize unsigned IdentityUpdateRequest", () => {
+  test("Serialize/Deserialize basic IdentityUpdateRequestDetails", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
+      requestID: TEST_REQUESTID, 
+      createdAt: TEST_CREATEDAT, 
+      systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryheight: TEST_EXPIRYHEIGHT, 
+      expiryHeight: TEST_EXPIRYHEIGHT, 
       salt: TEST_SALT, 
-      signdatamap: TEST_SIGNDATA_MAP
-    });
-    const request = new IdentityUpdateRequest({ details: requestDetails });
-    testSerialization(request);
-    testCLIJsonSerialization(request.details as IdentityUpdateRequestDetails);
-  });
-
-  test("Serialize/Deserialize signed IdentityUpdateRequest", () => {
-    const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
-      identity: TEST_PARTIAL_IDENTITY, 
-      expiryheight: TEST_EXPIRYHEIGHT, 
-      salt: TEST_SALT, 
-      signdatamap: TEST_SIGNDATA_MAP
-    });
-    const request = new IdentityUpdateRequest({ 
-      details: requestDetails, 
-      systemid: TEST_SYSTEMID, 
-      signingid: TEST_SIGNINGID, 
-      signature: "AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp" 
+      signDataMap: TEST_SIGNDATA_MAP
     });
 
-    testSerialization(request);
-    testCLIJsonSerialization(request.details as IdentityUpdateRequestDetails);
+    testSerialization(requestDetails);
+    testCLIJsonSerialization(requestDetails);
   });
 
-  test("Serialize/Deserialize unsigned IdentityUpdateResponse", () => {
-    const responseDetails = new IdentityUpdateResponseDetails({ requestid: TEST_REQUESTID, createdat: TEST_CREATEDAT });
-    const response = new IdentityUpdateResponse({ details: responseDetails });
-    testSerialization(response);
+  test("Serialize/Deserialize basic IdentityUpdateResponseDetails", () => {
+    const responseDetails = new IdentityUpdateResponseDetails({ requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT });
+
+    testSerialization(responseDetails);
   });
 
-  test("Serialize/Deserialize signed IdentityUpdateResponse", () => {
-    const responseDetails = new IdentityUpdateResponseDetails({ requestid: TEST_REQUESTID, createdat: TEST_CREATEDAT });
-    const response = new IdentityUpdateResponse({ 
-      details: responseDetails, 
-      systemid: TEST_SYSTEMID, 
-      signingid: TEST_SIGNINGID, 
-      signature: "AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp" 
-    });
-    testSerialization(response);
-  });
-
-  test("Remove optional fields from unsigned IdentityUpdateRequest", () => {
+  test("Remove optional fields from IdentityUpdateRequestDetails", () => {
     let baseRequestDetailsConfig = { 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
+      requestID: TEST_REQUESTID, 
+      createdAt: TEST_CREATEDAT, 
+      systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY,
-      expiryheight: TEST_EXPIRYHEIGHT,
-      responseuris: [ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT), ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST)],
-      signdatamap: TEST_SIGNDATA_MAP,
+      expiryHeight: TEST_EXPIRYHEIGHT,
+      responseURIs: [ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT), ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST)],
+      signDataMap: TEST_SIGNDATA_MAP,
       salt: TEST_SALT
     };
 
-    const toRemove = ["expiryheight", "responseuris", "signdatamap", "salt", "systemid"];
+    const toRemove = ["expiryHeight", "responseURIs", "signDataMap", "salt", "systemID"];
 
     for (let i = 0; i < toRemove.length + 1; i++) {
       const newRequestDetails = new IdentityUpdateRequestDetails({ ...baseRequestDetailsConfig });
-      const request = new IdentityUpdateRequest({ details: newRequestDetails });
 
-      testSerialization(request);
-      testCLIJsonSerialization(request.details as IdentityUpdateRequestDetails);
+      testSerialization(newRequestDetails);
+      testCLIJsonSerialization(newRequestDetails as IdentityUpdateRequestDetails);
 
       if (i < toRemove.length) {
         delete baseRequestDetailsConfig[toRemove[i]]
@@ -113,17 +88,16 @@ describe("IdentityUpdateEnvelope Serialization", () => {
     }
   });
 
-  test("Remove optional fields from IdentityUpdateResponse", () => {
+  test("Remove optional fields from IdentityUpdateResponseDetails", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
-    let baseResponseDetailsConfig = { requestid: TEST_REQUESTID, createdat: TEST_CREATEDAT, txid: txidbuf, TEST_SALT };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf, TEST_SALT };
    
     const toRemove = ["txid", "salt"];
 
     for (let i = 0; i < toRemove.length + 1; i++) {
       const newResponseDetails = new IdentityUpdateResponseDetails({ ...baseResponseDetailsConfig });
-      const response = new IdentityUpdateResponse({ details: newResponseDetails });
 
-      testSerialization(response);
+      testSerialization(newResponseDetails);
 
       if (i < toRemove.length) {
         delete baseResponseDetailsConfig[toRemove[i]]
@@ -131,78 +105,40 @@ describe("IdentityUpdateEnvelope Serialization", () => {
     }
   });
 
-  test("Serialize/Deserialize IdentityUpdateRequest to/from JSON", () => {
+  test("Serialize/Deserialize IdentityUpdateRequestDetails to/from JSON", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
+      requestID: TEST_REQUESTID, 
+      createdAt: TEST_CREATEDAT, 
+      systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryheight: TEST_EXPIRYHEIGHT, 
+      expiryHeight: TEST_EXPIRYHEIGHT, 
       salt: TEST_SALT, 
-      signdatamap: TEST_SIGNDATA_MAP
+      signDataMap: TEST_SIGNDATA_MAP
     });
 
-    const request = new IdentityUpdateRequest({ details: requestDetails });
-    testJsonSerialization(request);
-    testCLIJsonSerialization(request.details as IdentityUpdateRequestDetails);
+    testJsonSerialization(requestDetails);
+    testCLIJsonSerialization(requestDetails);
   });
 
-  test("Serialize/Deserialize signed IdentityUpdateRequest to/from JSON", () => {
-    const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
-      identity: TEST_PARTIAL_IDENTITY, 
-      expiryheight: TEST_EXPIRYHEIGHT, 
-      salt: TEST_SALT, 
-      signdatamap: TEST_SIGNDATA_MAP
-    });
-
-    const request = new IdentityUpdateRequest({ 
-      details: requestDetails, 
-      systemid: TEST_SYSTEMID, 
-      signingid: TEST_SIGNINGID, 
-      signature: "AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp" 
-    });
-
-    testJsonSerialization(request);
-    testCLIJsonSerialization(request.details as IdentityUpdateRequestDetails);
-  });
-
-  test("Serialize/Deserialize IdentityUpdateResponse to/from JSON", () => {
+  test("Serialize/Deserialize IdentityUpdateResponseDetails to/from JSON", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
-    let baseResponseDetailsConfig = { requestid: TEST_REQUESTID, createdat: TEST_CREATEDAT, txid: txidbuf, salt: TEST_SALT };
 
-    const responseDetails = new IdentityUpdateResponseDetails(baseResponseDetailsConfig);
-    const response = new IdentityUpdateResponse({ details: responseDetails });
-    testJsonSerialization(response);
-  });
-
-  test("Serialize/Deserialize signed IdentityUpdateResponse to/from JSON", () => {
-    const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
-    let baseResponseDetailsConfig = { requestid: TEST_REQUESTID, createdat: TEST_CREATEDAT, txid: txidbuf, salt: TEST_SALT };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf, salt: TEST_SALT };
 
     const responseDetails = new IdentityUpdateResponseDetails(baseResponseDetailsConfig);
 
-    const response = new IdentityUpdateResponse({ 
-      details: responseDetails, 
-      systemid: TEST_SYSTEMID, 
-      signingid: TEST_SIGNINGID, 
-      signature: "AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp" 
-    });
-
-    testJsonSerialization(response);
+    testJsonSerialization(responseDetails);
   });
 
   test("Serialize/Deserialize IdentityUpdateRequestDetails to/from JSON", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
-      systemid: TEST_SYSTEMID, 
+      requestID: TEST_REQUESTID, 
+      createdAt: TEST_CREATEDAT, 
+      systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryheight: TEST_EXPIRYHEIGHT, 
+      expiryHeight: TEST_EXPIRYHEIGHT, 
       salt: TEST_SALT, 
-      signdatamap: TEST_SIGNDATA_MAP
+      signDataMap: TEST_SIGNDATA_MAP
     });
 
     testJsonSerialization(requestDetails);
@@ -211,8 +147,8 @@ describe("IdentityUpdateEnvelope Serialization", () => {
 
   test("Serialize/Deserialize IdentityUpdateResponseDetails to/from JSON", () => {
     const responseDetails = new IdentityUpdateResponseDetails({ 
-      requestid: TEST_REQUESTID, 
-      createdat: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID, 
+      createdAt: TEST_CREATEDAT, 
       txid: Buffer.from(TEST_TXID, 'hex').reverse(), 
       salt: TEST_SALT
     });
@@ -271,29 +207,16 @@ describe("IdentityUpdateEnvelope Serialization", () => {
       }
     );
 
-    const env = new IdentityUpdateRequest({ 
-      details: req, 
-      signingid: TEST_SIGNINGID, 
-      systemid: TEST_SYSTEMID,
-      signature: "AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp"
-    });
-
-    const envBuf = env.toBuffer();
-
-    const envFromBuf = new IdentityUpdateRequest();
-    envFromBuf.fromBuffer(envBuf);
-
-    expect(JSON.stringify(env.toJson())).toEqual(JSON.stringify(IdentityUpdateRequest.fromWalletDeeplinkUri(env.toWalletDeeplinkUri()).toJson()));
     testCLIJsonSerialization(req);
-    testJsonSerialization(env);
-    testSerialization(env);
+    testJsonSerialization(req);
+    testSerialization(req);
   })
 
   test("Deserialize cli identity update details", () => {
     const detailsProps = {
-      requestid: TEST_REQUESTID.toString(), 
-      createdat: TEST_CREATEDAT.toString(), 
-      expiryheight: TEST_EXPIRYHEIGHT.toString(), 
+      requestID: TEST_REQUESTID.toString(), 
+      createdAt: TEST_CREATEDAT.toString(), 
+      expiryHeight: TEST_EXPIRYHEIGHT.toString(), 
       responseuris: [
         ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
         ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()

@@ -9,15 +9,15 @@ import { VdxfUniValue, VdxfUniValueJson } from './VdxfUniValue';
 export type PartialSignDataInitData = {
     flags?: BigNumber;
     address?: IdentityID | KeyID;
-    prefixstring?: Buffer;
-    vdxfkeys?: Array<IdentityID>;
-    vdxfkeynames?: Array<Buffer>;
-    boundhashes?: Array<Buffer>;
-    hashtype?: BigNumber;
-    encrypttoaddress?: SaplingPaymentAddress;
-    createmmr?: boolean;
+    prefixString?: Buffer;
+    vdxfKeys?: Array<IdentityID>;
+    vdxfKeyNames?: Array<Buffer>;
+    boundHashes?: Array<Buffer>;
+    hashType?: BigNumber;
+    encryptToAddress?: SaplingPaymentAddress;
+    createMMR?: boolean;
     signature?: Buffer;
-    datatype?: BigNumber;
+    dataType?: BigNumber;
     data?: Buffer | PartialMMRData | VdxfUniValue;
 };
 export type PartialSignDataJson = {
@@ -51,15 +51,15 @@ type SignDataKeys = {
 };
 type BaseFields = {
     address?: string;
-    prefixstring?: string;
-    vdxfkeys?: Array<string>;
-    vdxfkeynames?: Array<string>;
-    boundhashes?: Array<string>;
-    hashtype?: string;
-    encrypttoaddress?: string;
-    createmmr?: boolean;
+    prefixString?: string;
+    vdxfKeys?: Array<string>;
+    vdxfKeyNames?: Array<string>;
+    boundHashes?: Array<string>;
+    hashType?: string;
+    encryptToAddress?: string;
+    createMMR?: boolean;
     signature?: string;
-    datatype?: string;
+    dataType?: string;
     data?: string;
 };
 type MMRFields = {
@@ -71,15 +71,15 @@ export type PartialSignDataCLIJson = ((AtLeastOne<Omit<SignDataKeys, 'mmrdata'>>
 export declare class PartialSignData implements SerializableEntity {
     flags: BigNumber;
     address?: IdentityID | KeyID;
-    prefixstring?: Buffer;
-    vdxfkeys?: Array<IdentityID>;
-    vdxfkeynames?: Array<Buffer>;
-    boundhashes?: Array<Buffer>;
-    hashtype?: BigNumber;
-    encrypttoaddress?: SaplingPaymentAddress;
-    createmmr?: boolean;
+    prefixString?: Buffer;
+    vdxfKeys?: Array<IdentityID>;
+    vdxfKeyNames?: Array<Buffer>;
+    boundHashes?: Array<Buffer>;
+    hashType?: BigNumber;
+    encryptToAddress?: SaplingPaymentAddress;
+    createMMR?: boolean;
     signature?: Buffer;
-    datatype?: BigNumber;
+    dataType?: BigNumber;
     data?: Buffer | PartialMMRData | VdxfUniValue;
     static CONTAINS_DATA: import("bn.js");
     static CONTAINS_ADDRESS: import("bn.js");
