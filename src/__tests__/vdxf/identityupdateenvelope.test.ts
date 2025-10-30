@@ -18,7 +18,7 @@ import {
   TEST_TXID 
 } from "../constants/fixtures";
 
-describe("IdentityUpdateEnvelope Serialization", () => {
+describe("IdentityUpdate request/response details Serialization", () => {
   function testSerialization(instance: any) {
     const fromBufferInstance = new instance.constructor();
     fromBufferInstance.fromBuffer(instance.toBuffer());

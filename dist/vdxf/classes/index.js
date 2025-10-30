@@ -41,7 +41,6 @@ var ProvisioningDecision_1 = require("./provisioning/ProvisioningDecision");
 Object.defineProperty(exports, "LoginConsentProvisioningDecision", { enumerable: true, get: function () { return ProvisioningDecision_1.ProvisioningDecision; } });
 var ProvisioningResult_1 = require("./provisioning/ProvisioningResult");
 Object.defineProperty(exports, "LoginConsentProvisioningResult", { enumerable: true, get: function () { return ProvisioningResult_1.ProvisioningResult; } });
-__exportStar(require("./identity/IdentityUpdateEnvelope"), exports);
 __exportStar(require("./identity/IdentityUpdateRequestDetails"), exports);
 __exportStar(require("./identity/IdentityUpdateResponseDetails"), exports);
 __exportStar(require("./ResponseUri"), exports);
