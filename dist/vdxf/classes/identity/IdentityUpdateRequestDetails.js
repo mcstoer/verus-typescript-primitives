@@ -55,11 +55,6 @@ class IdentityUpdateRequestDetails {
                 this.toggleContainsSignData();
             this.signDataMap = data.signDataMap;
         }
-        if (data === null || data === void 0 ? void 0 : data.salt) {
-            if (!this.containsSalt())
-                this.toggleContainsSalt();
-            this.salt = data.salt;
-        }
     }
     expires() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES).toNumber());
@@ -75,9 +70,6 @@ class IdentityUpdateRequestDetails {
     }
     containsResponseUris() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS).toNumber());
-    }
-    containsSalt() {
-        return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SALT).toNumber());
     }
     isTestnet() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET).toNumber());
@@ -96,9 +88,6 @@ class IdentityUpdateRequestDetails {
     }
     toggleContainsResponseUris() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS);
-    }
-    toggleContainsSalt() {
-        this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SALT);
     }
     toggleIsTestnet() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET);
@@ -144,10 +133,6 @@ class IdentityUpdateRequestDetails {
                 length += value.getByteLength();
             }
         }
-        if (this.containsSalt()) {
-            length += varuint_1.default.encodingLength(this.salt.length);
-            length += this.salt.length;
-        }
         return length;
     }
     toBuffer() {
@@ -174,9 +159,6 @@ class IdentityUpdateRequestDetails {
                 writer.writeSlice((0, address_1.fromBase58Check)(key).hash);
                 writer.writeSlice(value.toBuffer());
             }
-        }
-        if (this.containsSalt()) {
-            writer.writeVarSlice(this.salt);
         }
         return writer.buffer;
     }
@@ -216,9 +198,6 @@ class IdentityUpdateRequestDetails {
                 this.signDataMap.set(key, value);
             }
         }
-        if (this.containsSalt()) {
-            this.salt = reader.readVarSlice();
-        }
         return reader.offset;
     }
     toJson() {
@@ -238,8 +217,7 @@ class IdentityUpdateRequestDetails {
             systemid: this.systemID ? this.systemID.toAddress() : undefined,
             txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
             responseuris: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
-            signdatamap: signDataJson,
-            salt: this.salt ? this.salt.toString('hex') : undefined
+            signdatamap: signDataJson
         };
     }
     static fromJson(json) {
@@ -259,7 +237,6 @@ class IdentityUpdateRequestDetails {
             systemID: json.systemid ? pbaas_1.IdentityID.fromAddress(json.systemid) : undefined,
             responseURIs: json.responseuris ? json.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
             signDataMap,
-            salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined,
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
         });
     }
@@ -301,7 +278,6 @@ class IdentityUpdateRequestDetails {
             createdAt: (details === null || details === void 0 ? void 0 : details.createdat) ? new bn_js_1.BN(details.createdat, 10) : undefined,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
             responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
-            salt: (details === null || details === void 0 ? void 0 : details.salt) ? Buffer.from(details.salt, 'hex') : undefined,
             txid: (details === null || details === void 0 ? void 0 : details.txid) ? Buffer.from(details.txid, 'hex').reverse() : undefined,
         });
     }
@@ -314,5 +290,4 @@ IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES = new bn_js_1.BN(2,
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS = new bn_js_1.BN(4, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(8, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(16, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SALT = new bn_js_1.BN(32, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(64, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(32, 10);

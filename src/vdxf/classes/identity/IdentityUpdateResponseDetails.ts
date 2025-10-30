@@ -4,7 +4,6 @@ import createHash = require('create-hash');
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
-import varuint from '../../../utils/varuint';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 const { BufferReader, BufferWriter } = bufferutils;
 
@@ -12,8 +11,7 @@ export type IdentityUpdateResponseDetailsJson = {
   flags: string,
   requestid: string,
   createdat: string,
-  txid?: string,
-  salt?: string
+  txid?: string
 }
 
 export class IdentityUpdateResponseDetails implements SerializableEntity {
@@ -22,18 +20,15 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   createdAt?: BigNumber;              // Unix timestamp of request creation
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
-  salt?: Buffer;                      // Optional salt
 
   static IDENTITY_UPDATE_RESPONSE_VALID = new BN(0, 10);
   static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new BN(1, 10);
-  static IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT = new BN(2, 10);
 
   constructor (data?: {
     flags?: BigNumber,
     requestID?: BigNumber,
     createdAt?: BigNumber,
-    txid?: Buffer,
-    salt?: Buffer
+    txid?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
@@ -49,27 +44,14 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       if (!this.containsTxid()) this.toggleContainsTxid();
       this.txid = data.txid;
     }
-
-    if (data?.salt) {
-      if (!this.containsSalt()) this.toggleContainsSalt();
-      this.salt = data.salt;
-    }
   }
 
   containsTxid() {
     return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID).toNumber());
   }
 
-  containsSalt() {
-    return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT).toNumber());
-  }
-
   toggleContainsTxid() {
     this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID);
-  }
-
-  toggleContainsSalt() {
-    this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT);
   }
 
   toSha256() {
@@ -87,13 +69,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     if (this.containsTxid()) {
       length += UINT_256_LENGTH;
-    }
-
-    if (this.containsSalt()) {
-      const saltLen = this.salt.length;
-
-      length += varuint.encodingLength(saltLen);
-      length += saltLen;
     }
 
     return length;
@@ -114,10 +89,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       writer.writeSlice(this.txid);
     }
 
-    if (this.containsSalt()) {
-      writer.writeVarSlice(this.salt);
-    }
-
     return writer.buffer;
   }
 
@@ -134,10 +105,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       this.txid = reader.readSlice(UINT_256_LENGTH);
     }
 
-    if (this.containsSalt()) {
-      this.salt = reader.readVarSlice();
-    }
-
     return reader.offset;
   }
 
@@ -146,8 +113,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       flags: this.flags.toString(10),
       requestid: this.requestID.toString(10),
       createdat: this.createdAt.toString(10),
-      txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
-      salt: this.containsSalt() ? this.salt.toString('hex') : undefined
+      txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
     }
   }
 
@@ -156,8 +122,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       flags: new BN(json.flags, 10),
       requestID: new BN(json.requestid, 10),
       createdAt: new BN(json.createdat, 10),
-      txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
-      salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined
+      txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
     });
   }
 }

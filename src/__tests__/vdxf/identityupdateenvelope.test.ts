@@ -11,8 +11,7 @@ import {
   TEST_EXPIRYHEIGHT, 
   TEST_MMR_DATA, 
   TEST_PARTIAL_IDENTITY, 
-  TEST_REQUESTID, 
-  TEST_SALT, 
+  TEST_REQUESTID,
   TEST_SIGNDATA_MAP,
   TEST_SYSTEMID, 
   TEST_TXID 
@@ -47,8 +46,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       createdAt: TEST_CREATEDAT, 
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryHeight: TEST_EXPIRYHEIGHT, 
-      salt: TEST_SALT, 
+      expiryHeight: TEST_EXPIRYHEIGHT,
       signDataMap: TEST_SIGNDATA_MAP
     });
 
@@ -70,11 +68,10 @@ describe("IdentityUpdate request/response details Serialization", () => {
       identity: TEST_PARTIAL_IDENTITY,
       expiryHeight: TEST_EXPIRYHEIGHT,
       responseURIs: [ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT), ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST)],
-      signDataMap: TEST_SIGNDATA_MAP,
-      salt: TEST_SALT
+      signDataMap: TEST_SIGNDATA_MAP
     };
 
-    const toRemove = ["expiryHeight", "responseURIs", "signDataMap", "salt", "systemID"];
+    const toRemove = ["expiryHeight", "responseURIs", "signDataMap", "systemID"];
 
     for (let i = 0; i < toRemove.length + 1; i++) {
       const newRequestDetails = new IdentityUpdateRequestDetails({ ...baseRequestDetailsConfig });
@@ -90,9 +87,9 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Remove optional fields from IdentityUpdateResponseDetails", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
-    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf, TEST_SALT };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf };
    
-    const toRemove = ["txid", "salt"];
+    const toRemove = ["txid"];
 
     for (let i = 0; i < toRemove.length + 1; i++) {
       const newResponseDetails = new IdentityUpdateResponseDetails({ ...baseResponseDetailsConfig });
@@ -111,8 +108,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       createdAt: TEST_CREATEDAT, 
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryHeight: TEST_EXPIRYHEIGHT, 
-      salt: TEST_SALT, 
+      expiryHeight: TEST_EXPIRYHEIGHT,
       signDataMap: TEST_SIGNDATA_MAP
     });
 
@@ -123,7 +119,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
   test("Serialize/Deserialize IdentityUpdateResponseDetails to/from JSON", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
 
-    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf, salt: TEST_SALT };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf };
 
     const responseDetails = new IdentityUpdateResponseDetails(baseResponseDetailsConfig);
 
@@ -136,8 +132,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       createdAt: TEST_CREATEDAT, 
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
-      expiryHeight: TEST_EXPIRYHEIGHT, 
-      salt: TEST_SALT, 
+      expiryHeight: TEST_EXPIRYHEIGHT,
       signDataMap: TEST_SIGNDATA_MAP
     });
 
@@ -149,8 +144,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
     const responseDetails = new IdentityUpdateResponseDetails({ 
       requestID: TEST_REQUESTID, 
       createdAt: TEST_CREATEDAT, 
-      txid: Buffer.from(TEST_TXID, 'hex').reverse(), 
-      salt: TEST_SALT
+      txid: Buffer.from(TEST_TXID, 'hex').reverse()
     });
 
     testJsonSerialization(responseDetails);
@@ -202,7 +196,6 @@ describe("IdentityUpdate request/response details Serialization", () => {
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
         ],
-        salt: TEST_SALT.toString('hex'),
         txid: TEST_TXID
       }
     );
@@ -221,7 +214,6 @@ describe("IdentityUpdate request/response details Serialization", () => {
         ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
         ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
       ],
-      salt: TEST_SALT.toString('hex'),
       txid: TEST_TXID
     };
 

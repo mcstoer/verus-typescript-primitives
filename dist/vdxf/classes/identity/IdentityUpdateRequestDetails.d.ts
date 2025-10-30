@@ -21,7 +21,6 @@ export type IdentityUpdateRequestDetailsJson = {
     signdatamap?: {
         [key: string]: PartialSignDataJson;
     };
-    salt?: string;
     txid?: string;
 };
 export declare class IdentityUpdateRequestDetails implements SerializableEntity {
@@ -33,7 +32,6 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     systemID?: IdentityID;
     responseURIs?: Array<ResponseUri>;
     signDataMap?: SignDataMap;
-    salt?: Buffer;
     txid?: Buffer;
     static IDENTITY_UPDATE_REQUEST_VALID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA: import("bn.js");
@@ -41,7 +39,6 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     static IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID: import("bn.js");
-    static IDENTITY_UPDATE_REQUEST_CONTAINS_SALT: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_IS_TESTNET: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
@@ -53,21 +50,18 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
         txid?: Buffer;
         responseURIs?: Array<ResponseUri>;
         signDataMap?: SignDataMap;
-        salt?: Buffer;
     });
     expires(): boolean;
     containsSignData(): boolean;
     containsSystem(): boolean;
     containsTxid(): boolean;
     containsResponseUris(): boolean;
-    containsSalt(): boolean;
     isTestnet(): boolean;
     toggleExpires(): void;
     toggleContainsSignData(): void;
     toggleContainsSystem(): void;
     toggleContainsTxid(): void;
     toggleContainsResponseUris(): void;
-    toggleContainsSalt(): void;
     toggleIsTestnet(): void;
     toSha256(): Buffer<ArrayBufferLike>;
     getIdentityAddress(): string;

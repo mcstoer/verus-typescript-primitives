@@ -28,7 +28,6 @@ export type IdentityUpdateRequestDetailsJson = {
   systemid?: string;
   responseuris?: Array<ResponseUriJson>;
   signdatamap?: { [key: string]: PartialSignDataJson };
-  salt?: string;
   txid?: string;
 }
 
@@ -41,7 +40,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   systemID?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
   responseURIs?: Array<ResponseUri>;  // Array of uris + type to send response to (type can be post, redirect, etc. depending on how response is expected to be received)
   signDataMap?: SignDataMap;          // Map of data to pass to signdata
-  salt?: Buffer;                      // Optional salt
   txid?: Buffer;                      // 32 byte transaction ID of transaction that must be spent to update identity, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
 
@@ -51,8 +49,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   static IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS = new BN(4, 10);
   static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new BN(8, 10);
   static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new BN(16, 10);
-  static IDENTITY_UPDATE_REQUEST_CONTAINS_SALT = new BN(32, 10);
-  static IDENTITY_UPDATE_REQUEST_IS_TESTNET = new BN(64, 10);
+  static IDENTITY_UPDATE_REQUEST_IS_TESTNET = new BN(32, 10);
 
   constructor (data?: {
     flags?: BigNumber,
@@ -63,8 +60,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     systemID?: IdentityID,
     txid?: Buffer,
     responseURIs?: Array<ResponseUri>,
-    signDataMap?: SignDataMap,
-    salt?: Buffer
+    signDataMap?: SignDataMap
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
@@ -104,11 +100,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       if (!this.containsSignData()) this.toggleContainsSignData();
       this.signDataMap = data.signDataMap;
     }
-
-    if (data?.salt) {
-      if (!this.containsSalt()) this.toggleContainsSalt();
-      this.salt = data.salt;
-    }
   }
 
   expires() {
@@ -129,10 +120,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
   containsResponseUris() {
     return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS).toNumber());
-  }
-
-  containsSalt() {
-    return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SALT).toNumber());
   }
 
   isTestnet() {
@@ -157,10 +144,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
   toggleContainsResponseUris() {
     this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS);
-  }
-
-  toggleContainsSalt() {
-    this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SALT);
   }
 
   toggleIsTestnet() {
@@ -218,11 +201,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       }
     }
 
-    if (this.containsSalt()) {
-      length += varuint.encodingLength(this.salt.length);
-      length += this.salt.length;
-    }
-
     return length;
   }
 
@@ -257,10 +235,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
         writer.writeSlice(fromBase58Check(key).hash);
         writer.writeSlice(value.toBuffer());
       }
-    }
-
-    if (this.containsSalt()) {
-      writer.writeVarSlice(this.salt);
     }
 
     return writer.buffer;
@@ -320,10 +294,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       }
     }
 
-    if (this.containsSalt()) {
-      this.salt = reader.readVarSlice()
-    }
-
     return reader.offset;
   }
 
@@ -347,8 +317,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       systemid: this.systemID ? this.systemID.toAddress() : undefined,
       txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
       responseuris: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
-      signdatamap: signDataJson,
-      salt: this.salt ? this.salt.toString('hex') : undefined
+      signdatamap: signDataJson
     }
   }
 
@@ -372,7 +341,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       systemID: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
       responseURIs: json.responseuris ? json.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
       signDataMap,
-      salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined,
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
     })
   }
@@ -427,7 +395,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       createdAt: details?.createdat ? new BN(details.createdat, 10) : undefined,
       expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
       responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
-      salt: details?.salt ? Buffer.from(details.salt, 'hex') : undefined,
       txid: details?.txid ? Buffer.from(details.txid, 'hex').reverse() : undefined,
     })
   }

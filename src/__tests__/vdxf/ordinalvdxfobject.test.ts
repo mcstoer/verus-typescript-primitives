@@ -166,7 +166,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(),
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
         ],
-        salt: TEST_SALT.toString('hex'),
         txid: TEST_TXID
       }
     );
@@ -181,7 +180,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d2.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
-    expect(d2.salt!.toString('hex')).toEqual(details.salt!.toString('hex'));
     expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
 
     const json = obj.toJson();
@@ -194,7 +192,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d3.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
-    expect(d3.salt!.toString('hex')).toEqual(details.salt!.toString('hex'));
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
 
@@ -202,8 +199,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const details = new IdentityUpdateResponseDetails({
       requestID: TEST_REQUESTID,
       createdAt: TEST_CREATEDAT,
-      txid: Buffer.from(TEST_TXID, 'hex').reverse(),
-      salt: TEST_SALT
+      txid: Buffer.from(TEST_TXID, 'hex').reverse()
     });
 
     const obj = new IdentityUpdateResponseOrdinalVdxfObject({ data: details });
@@ -214,7 +210,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const d2 = (round as IdentityUpdateResponseOrdinalVdxfObject).data;
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
-    expect(d2.salt!.toString('hex')).toEqual(details.salt!.toString('hex'));
     expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
 
     const json = obj.toJson();
@@ -225,7 +220,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const d3 = (roundJ as IdentityUpdateResponseOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
-    expect(d3.salt!.toString('hex')).toEqual(details.salt!.toString('hex'));
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
 
