@@ -26,6 +26,7 @@ export * from "./identity/IdentityUpdateResponseDetails";
 export * from './ResponseUri';
 export * from './request/GenericRequest';
 export * from './response/GenericResponse';
+export * from './ordinals';
 export { Hash160 } from './Hash160';
 export { RedirectUri, Subject, ProvisioningInfo, RequestedPermission, Audience, AltAuthFactor, Attestation, } from "./Challenge";
 export { ProvisioningTxid } from './provisioning/ProvisioningResult';

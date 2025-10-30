@@ -50,6 +50,16 @@ export const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iQJAPr53wZnjLyGpGdjiNZhSwSTXSfyoYy"
 };
 
+export const IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "4cedf62ce2a66dbb228ba8abe7a10bbffe35db93",
+  "indexid": "xMnRq7oBMqxzdJqzFniFTtfKyf6qh3BVPs",
+  "qualifiedname": {
+    "name": "vrsc::identity.update.request.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iGxKNKN6WXkL18xxQ746VW8nx15prPMP7L"
+}
+
 export const IDENTITY_UPDATE_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "667802c74fbf3dd3a9693bb9aec9bef1250b2b14",
   "indexid": "xA9GyS1bt1WGERamNVqVrhuGvGJeYuWyNk",
@@ -59,6 +69,16 @@ export const IDENTITY_UPDATE_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
   },
   "vdxfid": "i5KAWdaX2hHbcFhjWpBLtKNjtcHdeQFjuX"
 };
+
+export const IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "4f9a304beccceaa5692247c0d5789814a24f66be",
+  "indexid": "xRfNr2GNGNEnckSRSPZe4TgbZRKqZfLxqk",
+  "qualifiedname": {
+    "name": "vrsc::identity.update.response.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iLqGPDqHR427zaZPahuV65A4XmJpiqb9eF"
+}
 
 export const IDENTITY_AUTH_SIG_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "iPi1DPgDDu7hP1mAp5xJ8rHBWwXSzc6yA8",

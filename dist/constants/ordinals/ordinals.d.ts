@@ -1,0 +1,7 @@
+export declare const VDXF_OBJECT_RESERVED_BYTE_I_ADDR: import("bn.js");
+export declare const VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING: import("bn.js");
+export declare const VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY: import("bn.js");
+export declare const VDXF_ORDINAL_DATA_DESCRIPTOR: import("bn.js");
+export declare const VDXF_ORDINAL_VERUSPAY_INVOICE: import("bn.js");
+export declare const VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST: import("bn.js");
+export declare const VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE: import("bn.js");

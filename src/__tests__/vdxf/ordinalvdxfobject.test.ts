@@ -1,17 +1,21 @@
 import { BN } from 'bn.js';
 import {
-  OrdinalVdxfObject,
-  DataDescriptorOrdinalVdxfObject,
-  VerusPayInvoiceOrdinalVdxfObject,
   GeneralTypeOrdinalVdxfObject,
-  getOrdinalVdxfObjectClassForType
-} from '../../vdxf/classes/OrdinalVdxfObject';
-
+  getOrdinalVdxfObjectClassForType,
+  IdentityUpdateRequestOrdinalVdxfObject,
+  IdentityUpdateResponseOrdinalVdxfObject,
+  OrdinalVdxfObject,
+} from '../../vdxf/classes/ordinals';
+import {
+  DataDescriptorOrdinalVdxfObject
+} from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { VerusPayInvoiceDetails } from '../../vdxf/classes';
+import { IdentityUpdateRequestDetails, ResponseUri, VerusPayInvoiceDetails } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
+import { TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 
 describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   function roundTripBuffer<T extends OrdinalVdxfObject>(obj: T): T {
@@ -32,6 +36,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = VerusPayInvoiceOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof GeneralTypeOrdinalVdxfObject) {
       newObj = GeneralTypeOrdinalVdxfObject.fromJson(json);
+    } else if (obj instanceof IdentityUpdateRequestOrdinalVdxfObject) {
+      newObj = IdentityUpdateRequestOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -141,12 +147,56 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.amount.toString()).toEqual(details.amount.toString());
   });
 
+  it('should serialize / deserialize a IdentityUpdateRequestOrdinalVdxfObject via buffer', () => {
+    const details = IdentityUpdateRequestDetails.fromCLIJson(
+      TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX,
+      {
+        systemid: TEST_SYSTEMID.toAddress() as string,
+        requestid: TEST_REQUESTID.toString(),
+        createdat: TEST_CREATEDAT.toString(),
+        expiryheight: TEST_EXPIRYHEIGHT.toString(),
+        responseuris: [
+          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(),
+          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
+        ],
+        salt: TEST_SALT.toString('hex'),
+        txid: TEST_TXID
+      }
+    );
+
+    const obj = new IdentityUpdateRequestOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(IdentityUpdateRequestOrdinalVdxfObject);
+
+    const d2 = (round as IdentityUpdateRequestOrdinalVdxfObject).data;
+    expect(d2.systemid!.toAddress()).toEqual(details.systemid!.toAddress());
+    expect(d2.requestid!.toString()).toEqual(details.requestid!.toString());
+    expect(d2.createdat!.toNumber()).toEqual(details.createdat!.toNumber());
+    expect(d2.expiryheight!.toString()).toEqual(details.expiryheight!.toString());
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(IdentityUpdateRequestOrdinalVdxfObject);
+
+    const d3 = (roundJ as IdentityUpdateRequestOrdinalVdxfObject).data;
+    expect(d3.systemid!.toAddress()).toEqual(details.systemid!.toAddress());
+    expect(d3.requestid!.toString()).toEqual(details.requestid!.toString());
+    expect(d3.createdat!.toNumber()).toEqual(details.createdat!.toNumber());
+    expect(d3.expiryheight!.toString()).toEqual(details.expiryheight!.toString());
+  });
+
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_VERUSPAY_INVOICE))
       .toBe(VerusPayInvoiceOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST))
+      .toBe(IdentityUpdateRequestOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE))
+      .toBe(IdentityUpdateResponseOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
 
     // unrecognized

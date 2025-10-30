@@ -1,13 +1,11 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
-import {
-  GeneralTypeOrdinalVdxfObject
-} from '../../vdxf/classes/OrdinalVdxfObject';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericResponse, SaplingPaymentAddress } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
+import { GeneralTypeOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
 
 describe('GenericResponse — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericResponse): GenericResponse {

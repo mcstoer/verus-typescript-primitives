@@ -1,5 +1,5 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
+import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../ordinals/OrdinalVdxfObject";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
 export interface GenericEnvelopeInterface {

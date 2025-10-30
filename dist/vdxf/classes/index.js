@@ -47,6 +47,7 @@ __exportStar(require("./identity/IdentityUpdateResponseDetails"), exports);
 __exportStar(require("./ResponseUri"), exports);
 __exportStar(require("./request/GenericRequest"), exports);
 __exportStar(require("./response/GenericResponse"), exports);
+__exportStar(require("./ordinals"), exports);
 var Hash160_1 = require("./Hash160");
 Object.defineProperty(exports, "Hash160", { enumerable: true, get: function () { return Hash160_1.Hash160; } });
 var Challenge_2 = require("./Challenge");
