@@ -169,15 +169,13 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   getByteLength(): number {
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
-
-    length += varint.encodingLength(this.requestID);
-
-    length += varint.encodingLength(this.createdAt);
+    length += varuint.encodingLength(this.flags.toNumber());
+    length += varuint.encodingLength(this.requestID.toNumber());
+    length += varuint.encodingLength(this.createdAt.toNumber());
 
     length += this.identity.getByteLength();
 
-    if (this.expires()) length += varint.encodingLength(this.expiryHeight);
+    if (this.expires()) length += varuint.encodingLength(this.expiryHeight.toNumber());
 
     if (this.containsSystem()) length += this.systemID.getByteLength();
 
@@ -207,15 +205,13 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   toBuffer() {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
-    writer.writeVarInt(this.flags);
-
-    writer.writeVarInt(this.requestID);
-
-    writer.writeVarInt(this.createdAt);
+    writer.writeCompactSize(this.flags.toNumber());
+    writer.writeCompactSize(this.requestID.toNumber());
+    writer.writeCompactSize(this.createdAt.toNumber());
     
     writer.writeSlice(this.identity.toBuffer());
 
-    if (this.expires()) writer.writeVarInt(this.expiryHeight);
+    if (this.expires()) writer.writeCompactSize(this.expiryHeight.toNumber());
 
     if (this.containsSystem()) writer.writeSlice(this.systemID.toBuffer());
 
@@ -243,17 +239,15 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset: number = 0, parseVdxfObjects: boolean = true) {
     const reader = new BufferReader(buffer, offset);
 
-    this.flags = reader.readVarInt();
-
-    this.requestID = reader.readVarInt();
-
-    this.createdAt = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
+    this.requestID = new BN(reader.readCompactSize());
+    this.createdAt = new BN(reader.readCompactSize());
 
     this.identity = new PartialIdentity();
     reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
     
     if (this.expires()) {
-      this.expiryHeight = reader.readVarInt();
+      this.expiryHeight = new BN(reader.readCompactSize());
     }
 
     if (this.containsSystem()) {

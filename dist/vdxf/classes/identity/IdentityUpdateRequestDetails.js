@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IdentityUpdateRequestDetails = void 0;
-const varint_1 = require("../../../utils/varint");
 const varuint_1 = require("../../../utils/varuint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const address_1 = require("../../../utils/address");
@@ -111,12 +110,12 @@ class IdentityUpdateRequestDetails {
     }
     getByteLength() {
         let length = 0;
-        length += varint_1.default.encodingLength(this.flags);
-        length += varint_1.default.encodingLength(this.requestID);
-        length += varint_1.default.encodingLength(this.createdAt);
+        length += varuint_1.default.encodingLength(this.flags.toNumber());
+        length += varuint_1.default.encodingLength(this.requestID.toNumber());
+        length += varuint_1.default.encodingLength(this.createdAt.toNumber());
         length += this.identity.getByteLength();
         if (this.expires())
-            length += varint_1.default.encodingLength(this.expiryHeight);
+            length += varuint_1.default.encodingLength(this.expiryHeight.toNumber());
         if (this.containsSystem())
             length += this.systemID.getByteLength();
         if (this.containsTxid()) {
@@ -137,12 +136,12 @@ class IdentityUpdateRequestDetails {
     }
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
-        writer.writeVarInt(this.flags);
-        writer.writeVarInt(this.requestID);
-        writer.writeVarInt(this.createdAt);
+        writer.writeCompactSize(this.flags.toNumber());
+        writer.writeCompactSize(this.requestID.toNumber());
+        writer.writeCompactSize(this.createdAt.toNumber());
         writer.writeSlice(this.identity.toBuffer());
         if (this.expires())
-            writer.writeVarInt(this.expiryHeight);
+            writer.writeCompactSize(this.expiryHeight.toNumber());
         if (this.containsSystem())
             writer.writeSlice(this.systemID.toBuffer());
         if (this.containsTxid()) {
@@ -164,13 +163,13 @@ class IdentityUpdateRequestDetails {
     }
     fromBuffer(buffer, offset = 0, parseVdxfObjects = true) {
         const reader = new BufferReader(buffer, offset);
-        this.flags = reader.readVarInt();
-        this.requestID = reader.readVarInt();
-        this.createdAt = reader.readVarInt();
+        this.flags = new bn_js_1.BN(reader.readCompactSize());
+        this.requestID = new bn_js_1.BN(reader.readCompactSize());
+        this.createdAt = new bn_js_1.BN(reader.readCompactSize());
         this.identity = new PartialIdentity_1.PartialIdentity();
         reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
         if (this.expires()) {
-            this.expiryHeight = reader.readVarInt();
+            this.expiryHeight = new bn_js_1.BN(reader.readCompactSize());
         }
         if (this.containsSystem()) {
             this.systemID = new pbaas_1.IdentityID();

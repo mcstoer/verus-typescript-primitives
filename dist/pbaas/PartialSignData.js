@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartialSignData = void 0;
 const bn_js_1 = require("bn.js");
-const varint_1 = require("../utils/varint");
 const bufferutils_1 = require("../utils/bufferutils");
 const IdentityID_1 = require("./IdentityID");
 const KeyID_1 = require("./KeyID");
@@ -133,7 +132,7 @@ class PartialSignData {
             return totalLength;
         }
         let length = 0;
-        length += varint_1.default.encodingLength(this.flags);
+        length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.containsAddress())
             length += this.address.getByteLength();
         if (this.containsPrefixString()) {
@@ -147,7 +146,7 @@ class PartialSignData {
         if (this.containsVdxfKeyNames()) {
             length += calculateVectorLength(this.vdxfKeyNames, (vdxfname) => vdxfname.length);
         }
-        length += varint_1.default.encodingLength(this.hashType);
+        length += varuint_1.default.encodingLength(this.hashType.toNumber());
         if (this.containsBoundhashes()) {
             length += calculateVectorLength(this.boundHashes, (hash) => hash.length);
         }
@@ -156,7 +155,7 @@ class PartialSignData {
         }
         length += 1; // Createmmr boolean value
         if (this.containsData()) {
-            length += varint_1.default.encodingLength(this.dataType);
+            length += varuint_1.default.encodingLength(this.dataType.toNumber());
             if (this.isMMRData()) {
                 length += this.data.getByteLength();
             }
@@ -178,7 +177,7 @@ class PartialSignData {
     }
     fromBuffer(buffer, offset = 0) {
         const reader = new BufferReader(buffer, offset);
-        this.flags = reader.readVarInt();
+        this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.containsAddress()) {
             const hash160 = new Hash160_1.Hash160SerEnt();
             hash160.fromBuffer(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH));
@@ -207,7 +206,7 @@ class PartialSignData {
         if (this.containsVdxfKeyNames()) {
             this.vdxfKeyNames = reader.readVector();
         }
-        this.hashType = reader.readVarInt();
+        this.hashType = new bn_js_1.BN(reader.readCompactSize());
         if (this.containsBoundhashes()) {
             this.boundHashes = reader.readVector();
         }
@@ -218,7 +217,7 @@ class PartialSignData {
         }
         this.createMMR = !!reader.readUInt8();
         if (this.containsData()) {
-            this.dataType = reader.readVarInt();
+            this.dataType = new bn_js_1.BN(reader.readCompactSize());
             if (this.isMMRData()) {
                 const partialMMRData = new PartialMMRData_1.PartialMMRData();
                 reader.offset = partialMMRData.fromBuffer(reader.buffer, reader.offset);
@@ -241,7 +240,7 @@ class PartialSignData {
         // Make sure getPartialSignDataByteLength() accounts for all fields in your updated model.
         const writer = new BufferWriter(Buffer.alloc(this.getPartialSignDataByteLength()));
         // Serialize flags
-        writer.writeVarInt(this.flags);
+        writer.writeCompactSize(this.flags.toNumber());
         // Address
         if (this.containsAddress()) {
             if (!this.address) {
@@ -273,7 +272,7 @@ class PartialSignData {
             }
             writer.writeVector(this.vdxfKeyNames);
         }
-        writer.writeVarInt(this.hashType);
+        writer.writeCompactSize(this.hashType.toNumber());
         // Bound hashes
         if (this.containsBoundhashes()) {
             if (!this.boundHashes) {
@@ -295,7 +294,7 @@ class PartialSignData {
             if (!this.data || !this.dataType) {
                 throw new Error("Data is required but not provided");
             }
-            writer.writeVarInt(this.dataType);
+            writer.writeCompactSize(this.dataType.toNumber());
             if (this.isMMRData()) {
                 const mmrData = this.data;
                 writer.writeSlice(mmrData.toBuffer());

@@ -263,7 +263,7 @@ export class PartialSignData implements SerializableEntity {
 
     let length = 0;
 
-    length += varint.encodingLength(this.flags);
+    length += varuint.encodingLength(this.flags.toNumber());
 
     if (this.containsAddress()) length += this.address!.getByteLength();
 
@@ -282,7 +282,7 @@ export class PartialSignData implements SerializableEntity {
       length += calculateVectorLength(this.vdxfKeyNames!, (vdxfname) => vdxfname.length);
     }
 
-    length += varint.encodingLength(this.hashType);
+    length += varuint.encodingLength(this.hashType.toNumber());
     
     if (this.containsBoundhashes()) {
       length += calculateVectorLength(this.boundHashes!, (hash) => hash.length);
@@ -295,7 +295,7 @@ export class PartialSignData implements SerializableEntity {
     length += 1; // Createmmr boolean value
 
     if (this.containsData()) {
-      length += varint.encodingLength(this.dataType!);
+      length += varuint.encodingLength(this.dataType!.toNumber());
 
       if (this.isMMRData()) {
         length += (this.data as PartialMMRData).getByteLength();
@@ -322,7 +322,7 @@ export class PartialSignData implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset: number = 0): number {
     const reader = new BufferReader(buffer, offset);
 
-    this.flags = reader.readVarInt();
+    this.flags = new BN(reader.readCompactSize());
 
     if (this.containsAddress()) {
       const hash160 = new Hash160SerEnt();
@@ -358,7 +358,7 @@ export class PartialSignData implements SerializableEntity {
       this.vdxfKeyNames = reader.readVector();
     }
 
-    this.hashType = reader.readVarInt();
+    this.hashType = new BN(reader.readCompactSize());
     
     if (this.containsBoundhashes()) {
       this.boundHashes = reader.readVector();
@@ -375,7 +375,7 @@ export class PartialSignData implements SerializableEntity {
     this.createMMR = !!reader.readUInt8();
 
     if (this.containsData()) {
-      this.dataType = reader.readVarInt();
+      this.dataType = new BN(reader.readCompactSize());
 
       if (this.isMMRData()) {
         const partialMMRData = new PartialMMRData();
@@ -403,7 +403,7 @@ export class PartialSignData implements SerializableEntity {
     const writer = new BufferWriter(Buffer.alloc(this.getPartialSignDataByteLength()));
   
     // Serialize flags
-    writer.writeVarInt(this.flags);
+    writer.writeCompactSize(this.flags.toNumber());
   
     // Address
     if (this.containsAddress()) {
@@ -441,7 +441,7 @@ export class PartialSignData implements SerializableEntity {
       writer.writeVector(this.vdxfKeyNames);
     }
 
-    writer.writeVarInt(this.hashType);
+    writer.writeCompactSize(this.hashType.toNumber());
   
     // Bound hashes
     if (this.containsBoundhashes()) {
@@ -468,7 +468,7 @@ export class PartialSignData implements SerializableEntity {
       if (!this.data || !this.dataType) {
         throw new Error("Data is required but not provided");
       }
-      writer.writeVarInt(this.dataType);
+      writer.writeCompactSize(this.dataType.toNumber());
 
       if (this.isMMRData()) {
         const mmrData = this.data as PartialMMRData;
