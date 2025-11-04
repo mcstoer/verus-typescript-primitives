@@ -584,3 +584,67 @@ export const IDENTITY_CREDENTIAL_USERNAME: VDXFKeyInterface = {
     name: "vrsc::identity.credential.username"
   },
 };
+
+export const PROOFS_CONTROLLER: VDXFKeyInterface = {
+  vdxfid: "i9TbCypmPKRpKPZDjk3YcCEZXK6wmPTXjw",
+  hash160result: "aa3bd2020b6347500c1831665345a2ed417da341",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller"
+  }
+};
+
+export const PROOFS_CONTROLLER_DISCORD: VDXFKeyInterface = {
+  vdxfid: "i6mezdUSNyPq6fsze4cN6U4SAtsHHu1Tn7",
+  hash160result: "5bc38e3dc0a8d3681c4a685ea8f6658ab1c22524",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.discord"
+  }
+};
+
+export const PROOFS_CONTROLLER_FACEBOOK: VDXFKeyInterface = {
+  vdxfid: "iHm7TCzTyRFkRrNGTcGhJsLsVwmi4P7SCr",
+  hash160result: "ad714f6d836cecc6394d09b686db01017dd0b49c",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.facebook"
+  }
+};
+
+export const PROOFS_CONTROLLER_GITHUB: VDXFKeyInterface = {
+  vdxfid: "i5cjUDhRPEBQctXQYr3gNq8ZZakdBZwDKw",
+  hash160result: "b627bd17208e8a1d956e202fa688423190a07d17",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.github"
+  }
+};
+
+export const PROOFS_CONTROLLER_LINKEDIN: VDXFKeyInterface = {
+  vdxfid: "iLWNwRnEujoenFaYvQ3ShkSXhcduw8j8R5",
+  hash160result: "aceb990c8981b13773f9763d4b3d8e9a3ee1d3ba",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.linkedin"
+  }
+};
+
+export const PROOFS_CONTROLLER_REDDIT: VDXFKeyInterface = {
+  vdxfid: "i4eJshMkii8ML6FCMEFUqj5GgVUchRvQca",
+  hash160result: "c778b90896928a8806109ba751d79d3162cdd10c",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.reddit"
+  }
+};
+
+export const PROOFS_CONTROLLER_BLUESKY: VDXFKeyInterface = {
+  vdxfid: "iBnLtVL69rXXZtjEVndYahV5EgKeWi4GS4",
+  indexid: "xGcTMHmB1AkCC4cGMUHhZ61cGLLfM1kPwm",
+  hash160result: "d60b5cfbf4408e338c491ca2994ee186feb01f5b",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.bluesky"
+  }
+};
