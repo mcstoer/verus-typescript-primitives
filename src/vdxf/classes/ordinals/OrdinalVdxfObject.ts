@@ -7,9 +7,9 @@ import { fromBase58Check, getDataKey, toBase58Check, toIAddress } from "../../..
 import varint from "../../../utils/varint";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../../constants/vdxf";
 import { OrdinalVdxfObjectOrdinalMap } from "./OrdinalVdxfObjectOrdinalMap";
-import { DATA_TYPE_OBJECT_DATADESCRIPTOR, VERUSPAY_INVOICE_DETAILS_VDXF_KEY, LOGIN_REQUEST_DETAILS_VDXF_KEY } from "../keys";
-import { DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINNAME } from "../../constants/pbaas";
-import { LoginRequestDetails, LoginRequestDetailsJson } from "../..";
+import { DEFAULT_VERUS_CHAINNAME } from "../../../constants/pbaas";
+import { OrdinalVdxfObjectReservedData, OrdinalVdxfObjectReservedDataJson } from "../../../constants/ordinals/types";
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY, VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, VDXF_ORDINAL_DATA_DESCRIPTOR } from "../../../constants/ordinals/ordinals";
 
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
   version?: BigNumber;
@@ -25,8 +25,6 @@ export type OrdinalVdxfObjectJsonTemplate<T> = {
   data?: T;
 }
 
-export type OrdinalVdxfObjectReservedData = DataDescriptor | VerusPayInvoiceDetails | LoginRequestDetails;
-export type OrdinalVdxfObjectReservedDataJson = DataDescriptorJson | VerusPayInvoiceDetailsJson | LoginRequestDetailsJson ;
 export type BufferOrOrdinalVdxfObjectReservedData = Buffer | OrdinalVdxfObjectReservedData;
 export type StringOrOrdinalVdxfObjectReservedDataJson = string | OrdinalVdxfObjectReservedDataJson;
 
@@ -37,13 +35,18 @@ export type OrdinalVdxfObjectDataClass = new (...args: any[]) => OrdinalVdxfObje
 export type OrdinalVdxfObjectClass = new (...args: any[]) => OrdinalVdxfObject; 
 
 export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfObjectClass => {
-  if (type.eq(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR)) return DataDescriptorOrdinalVdxfObject;
-  else if (type.eq(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE)) return VerusPayInvoiceOrdinalVdxfObject;
-  else if (type.eq(OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS)) return LoginRequestDetailsOrdinalVdxfObject;
-  else if (
-    type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR) || 
-    type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) || 
-    type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY)
+  if (OrdinalVdxfObjectOrdinalMap.isRecognizedOrdinal(type.toNumber())) {
+    const key = OrdinalVdxfObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber());
+
+    if (OrdinalVdxfObjectOrdinalMap.hasClassForVdxfKey(key)) {      
+      return OrdinalVdxfObjectOrdinalMap.getClassForVdxfKey(OrdinalVdxfObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber()));
+    } else {
+      throw new Error("No class found for " + key)
+    }
+  } else if (
+    type.eq(VDXF_OBJECT_RESERVED_BYTE_I_ADDR) || 
+    type.eq(VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) || 
+    type.eq(VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY)
   ) return GeneralTypeOrdinalVdxfObject;
   else throw new Error("Unrecognized vdxf ordinal object type " + type.toNumber());
 }
@@ -58,14 +61,6 @@ export class OrdinalVdxfObject implements SerializableEntity {
   static VERSION_FIRST = new BN(1, 10)
   static VERSION_LAST = new BN(1, 10)
   static VERSION_CURRENT = new BN(1, 10)
-
-  static ORDINAL_DATA_DESCRIPTOR = new BN(0, 10);
-  static ORDINAL_VERUSPAY_INVOICE = new BN(1, 10);
-  static ORDINAL_LOGIN_REQUEST_DETAILS = new BN(2, 10);
-
-  static VDXF_OBJECT_RESERVED_BYTE_I_ADDR = new BN(102, 10);
-  static VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING = new BN(103, 10);
-  static VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY = new BN(104, 10);
 
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<BufferOrOrdinalVdxfObjectReservedData> = {
@@ -243,10 +238,6 @@ export class OrdinalVdxfObject implements SerializableEntity {
   }
 }
 
-OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR.toNumber(), DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid);
-OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE.toNumber(), VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
-OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS.toNumber(), LOGIN_REQUEST_DETAILS_VDXF_KEY.vdxfid);
-
 export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
   data: Buffer;
   key: string;
@@ -282,109 +273,5 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
       key: details.vdxfkey,
       data: details.data ? Buffer.from(details.data as string, 'hex') : undefined
     });
-  }
-}
-
-export class SerializableEntityOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
-  data: OrdinalVdxfObjectReservedData;
-  entity: OrdinalVdxfObjectDataClass;
-
-  constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<OrdinalVdxfObjectReservedData>,
-    entity: OrdinalVdxfObjectDataClass
-  ) {
-    if (!request || !request.type) throw new Error("Expected request with data and type")
-
-    super({
-      type: request.type
-    });
-
-    this.entity = entity;
-    this.data = request.data ? request.data : new entity();
-  }
-
-  getDataByteLength(): number {
-    return this.data.getByteLength()
-  }
-
-  toDataBuffer(): Buffer {
-    return this.data.toBuffer();
-  }
-
-  fromDataBuffer(buffer: Buffer): void {
-    this.data = new this.entity();
-    this.data.fromBuffer(buffer);
-  }
-}
-
-export class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
-  data: DataDescriptor;
-
-  constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<DataDescriptor> = {
-      data: new DataDescriptor()
-    }
-  ) {
-    super(
-      {
-        type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR,
-        data: request.data
-      },
-      DataDescriptor
-    );
-  }
-
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<DataDescriptorJson>): DataDescriptorOrdinalVdxfObject {
-    return new DataDescriptorOrdinalVdxfObject({
-      data: DataDescriptor.fromJson(details.data)
-    })
-  }
-}
-
-export class VerusPayInvoiceOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
-  data: VerusPayInvoiceDetails;
-
-  constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<VerusPayInvoiceDetails> = {
-      data: new VerusPayInvoiceDetails()
-    }
-  ) {
-    super(
-      {
-        type: OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE,
-        data: request.data
-      },
-      VerusPayInvoiceDetails
-    );
-  }
-
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceOrdinalVdxfObject {
-    return new VerusPayInvoiceOrdinalVdxfObject({
-      data: VerusPayInvoiceDetails.fromJson(details.data)
-    })
-  }
-}
-
-export class LoginRequestDetailsOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
-  data: LoginRequestDetails;
-
-  constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<LoginRequestDetails> = {
-      data: new LoginRequestDetails()
-    }
-  ) {
-    super(
-      {
-        type: OrdinalVdxfObject.ORDINAL_LOGIN_REQUEST_DETAILS,
-        data: request.data
-      },
-      LoginRequestDetails
-    );
-  }
-
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<LoginRequestDetailsJson>): LoginRequestDetailsOrdinalVdxfObject {
-    return new LoginRequestDetailsOrdinalVdxfObject({
-      data: LoginRequestDetails.fromJson(details.data)
-    })
   }
 }
