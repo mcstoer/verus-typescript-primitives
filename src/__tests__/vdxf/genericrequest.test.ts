@@ -1,13 +1,11 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
-import {
-  GeneralTypeOrdinalVdxfObject
-} from '../../vdxf/classes/OrdinalVdxfObject';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericRequest } from '../../';
+import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericRequest, SaplingPaymentAddress } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
+import { GeneralTypeOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericRequest): GenericRequest {
@@ -64,13 +62,13 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt and signature', () => {
+  it('round trips with createdAt, signature, and encryptResponseToAddress', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
-      systemId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      systemID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       hashType: HASH_TYPE_SHA256,
-      identityId: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      identityID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       signatureAsVch: Buffer.from('abcd', 'hex'),
       vdxfKeys: [DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINID],
       vdxfKeyNames: ["VRSC", "VRSC"],
@@ -84,11 +82,13 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     });
 
     const createdAt = new BN(9999);
+    const saplingAddr = "zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa"
 
     const req = new GenericRequest({
       details: [detail],
       signature: sig,
-      createdAt
+      createdAt,
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr)
     });
 
     expect(req.isSigned()).toBe(true);
@@ -97,6 +97,8 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const round = roundTripBuffer(req);
     expect(round.signature).toBeDefined();
     expect(round.createdAt?.toString()).toEqual(createdAt.toString());
+    expect(round.hasEncryptResponseToAddress()).toBe(true)
+    expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
     expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));

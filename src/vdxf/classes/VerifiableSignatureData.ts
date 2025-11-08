@@ -14,7 +14,7 @@ import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas
 import varint from '../../utils/varint';
 import { SignatureData } from '../../pbaas';
 
-export interface SignatureJsonDataInterface {
+export interface VerifiableSignatureDataJson {
   version: number;
   flags: number;
   hashtype: number;
@@ -31,8 +31,8 @@ export interface VerifiableSignatureDataInterface {
   version: BigNumber;
   flags: BigNumber;
   hashType: BigNumber;
-  systemId: CompactIdAddressObject;
-  identityId: CompactIdAddressObject;
+  systemID: CompactIdAddressObject;
+  identityID: CompactIdAddressObject;
   vdxfKeys?: Array<string>;
   vdxfKeyNames?: Array<string>;
   boundHashes?: Array<Buffer>;
@@ -44,8 +44,8 @@ export class VerifiableSignatureData implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
   hashType: BigNumber;
-  identityId: CompactIdAddressObject;
-  systemId: CompactIdAddressObject;
+  identityID: CompactIdAddressObject;
+  systemID: CompactIdAddressObject;
   vdxfKeys?: Array<string>;
   vdxfKeyNames?: Array<string>;
   boundHashes?: Array<Buffer>;
@@ -66,9 +66,9 @@ export class VerifiableSignatureData implements SerializableEntity {
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.flags ? data.flags : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
-    this.systemId = data && data.systemId ? data.systemId : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
+    this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
-    this.identityId = data ? data.identityId : undefined;
+    this.identityID = data ? data.identityID : undefined;
     this.vdxfKeys = data ? data.vdxfKeys : undefined;
     this.vdxfKeyNames = data ? data.vdxfKeyNames : undefined;
     this.boundHashes = data ? data.boundHashes : undefined;
@@ -149,8 +149,8 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     byteLength += varuint.encodingLength(this.hashType.toNumber());
 
-    byteLength += this.systemId.getByteLength();
-    byteLength += this.identityId.getByteLength();
+    byteLength += this.systemID.getByteLength();
+    byteLength += this.identityID.getByteLength();
 
     if (this.hasVdxfKeys()) {
       byteLength += varuint.encodingLength(this.vdxfKeys.length);
@@ -198,8 +198,8 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     bufferWriter.writeCompactSize(this.hashType.toNumber());
 
-    bufferWriter.writeSlice(this.systemId.toBuffer());
-    bufferWriter.writeSlice(this.identityId.toBuffer());
+    bufferWriter.writeSlice(this.systemID.toBuffer());
+    bufferWriter.writeSlice(this.identityID.toBuffer());
 
     if (this.hasVdxfKeys()) {
       bufferWriter.writeArray(this.vdxfKeys!.map(x => fromBase58Check(x).hash));
@@ -231,11 +231,11 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     this.hashType = new BN(bufferReader.readCompactSize());
 
-    this.systemId = new CompactIdAddressObject();
-    this.identityId = new CompactIdAddressObject();
+    this.systemID = new CompactIdAddressObject();
+    this.identityID = new CompactIdAddressObject();
 
-    bufferReader.offset = this.systemId.fromBuffer(bufferReader.buffer, bufferReader.offset);
-    bufferReader.offset = this.identityId.fromBuffer(bufferReader.buffer, bufferReader.offset);
+    bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
+    bufferReader.offset = this.identityID.fromBuffer(bufferReader.buffer, bufferReader.offset);
 
     if (this.hasVdxfKeys()) {
       this.vdxfKeys = bufferReader.readArray(HASH160_BYTE_LENGTH).map(x => toBase58Check(x, I_ADDR_VERSION));
@@ -270,16 +270,16 @@ export class VerifiableSignatureData implements SerializableEntity {
     if (this.version.eq(new BN(1))) {
       return createHash("sha256")
         .update(VERUS_DATA_SIGNATURE_PREFIX)
-        .update(fromBase58Check(this.systemId.toIAddress()).hash)
+        .update(fromBase58Check(this.systemID.toIAddress()).hash)
         .update(heightBuffer)
-        .update(fromBase58Check(this.identityId.toIAddress()).hash)
+        .update(fromBase58Check(this.identityID.toIAddress()).hash)
         .update(sigHash)
         .digest();
     } else {
       return createHash("sha256")
-        .update(fromBase58Check(this.systemId.toIAddress()).hash)
+        .update(fromBase58Check(this.systemID.toIAddress()).hash)
         .update(heightBuffer)
-        .update(fromBase58Check(this.identityId.toIAddress()).hash)
+        .update(fromBase58Check(this.identityID.toIAddress()).hash)
         .update(VERUS_DATA_SIGNATURE_PREFIX)
         .update(sigHash)
         .digest();
@@ -289,10 +289,10 @@ export class VerifiableSignatureData implements SerializableEntity {
   toSignatureData(sigHash: Buffer): SignatureData {
     return new SignatureData({
       version: this.version,
-      system_ID: this.systemId.toIAddress(),
+      system_ID: this.systemID.toIAddress(),
       hash_type: this.hashType,
       signature_hash: sigHash,
-      identity_ID: this.identityId.toIAddress(),
+      identity_ID: this.identityID.toIAddress(),
       sig_type: SignatureData.TYPE_VERUSID_DEFAULT,
       vdxf_keys: this.vdxfKeys,
       vdxf_key_names: this.vdxfKeyNames,

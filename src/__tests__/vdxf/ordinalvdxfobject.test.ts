@@ -1,25 +1,34 @@
 import { BN } from 'bn.js';
 import {
-  OrdinalVdxfObject,
-  DataDescriptorOrdinalVdxfObject,
-  VerusPayInvoiceOrdinalVdxfObject,
   GeneralTypeOrdinalVdxfObject,
   getOrdinalVdxfObjectClassForType,
-  LoginRequestDetailsOrdinalVdxfObject
-} from '../../vdxf/classes/OrdinalVdxfObject';
-
+  IdentityUpdateRequestOrdinalVdxfObject,
+  IdentityUpdateResponseOrdinalVdxfObject,
+  OrdinalVdxfObject,
+} from '../../vdxf/classes/ordinals';
+import {
+  DataDescriptorOrdinalVdxfObject
+} from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { CompactIdAddressObject, LoginRequestDetails, VerusPayInvoiceDetails } from '../../vdxf/classes';
+import { IdentityUpdateRequestDetails, IdentityUpdateResponseDetails, ResponseUri, VerusPayInvoiceDetails } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
+import { TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 
 describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   function roundTripBuffer<T extends OrdinalVdxfObject>(obj: T): T {
     const buf = obj.toBuffer();
     // Use the factory createFromBuffer so the correct subclass is used
     const { obj: parsed } = OrdinalVdxfObject.createFromBuffer(buf);
+
     // Type assertion
-    return parsed as T;
+    const parsedTyped = parsed as T;
+
+    expect(parsedTyped.toBuffer().toString('hex')).toBe(buf.toString('hex'));
+
+    return parsedTyped;
   }
 
   function roundTripJson<T extends OrdinalVdxfObject>(obj: T): T {
@@ -32,8 +41,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = VerusPayInvoiceOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof GeneralTypeOrdinalVdxfObject) {
       newObj = GeneralTypeOrdinalVdxfObject.fromJson(json);
-    } else if (obj instanceof LoginRequestDetailsOrdinalVdxfObject) {
-      newObj = LoginRequestDetailsOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof IdentityUpdateRequestOrdinalVdxfObject) {
+      newObj = IdentityUpdateRequestOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof IdentityUpdateResponseOrdinalVdxfObject) {
+      newObj = IdentityUpdateResponseOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -143,12 +154,85 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.amount.toString()).toEqual(details.amount.toString());
   });
 
+  it('should serialize / deserialize a IdentityUpdateRequestOrdinalVdxfObject via buffer', () => {
+    const details = IdentityUpdateRequestDetails.fromCLIJson(
+      TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX,
+      {
+        systemid: TEST_SYSTEMID.toAddress() as string,
+        requestid: TEST_REQUESTID.toString(),
+        createdat: TEST_CREATEDAT.toString(),
+        expiryheight: TEST_EXPIRYHEIGHT.toString(),
+        responseuris: [
+          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(),
+          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
+        ],
+        txid: TEST_TXID
+      }
+    );
+
+    const obj = new IdentityUpdateRequestOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(IdentityUpdateRequestOrdinalVdxfObject);
+
+    const d2 = (round as IdentityUpdateRequestOrdinalVdxfObject).data;
+    expect(d2.systemID!.toAddress()).toEqual(details.systemID!.toAddress());
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
+    expect(d2.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
+    expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(IdentityUpdateRequestOrdinalVdxfObject);
+
+    const d3 = (roundJ as IdentityUpdateRequestOrdinalVdxfObject).data;
+    expect(d3.systemID!.toAddress()).toEqual(details.systemID!.toAddress());
+    expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
+    expect(d3.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
+    expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
+  });
+
+  it('should serialize / deserialize a IdentityUpdateResponseOrdinalVdxfObject via buffer', () => {
+    const details = new IdentityUpdateResponseDetails({
+      requestID: TEST_REQUESTID,
+      createdAt: TEST_CREATEDAT,
+      txid: Buffer.from(TEST_TXID, 'hex').reverse()
+    });
+
+    const obj = new IdentityUpdateResponseOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(IdentityUpdateResponseOrdinalVdxfObject);
+
+    const d2 = (round as IdentityUpdateResponseOrdinalVdxfObject).data;
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
+    expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(IdentityUpdateResponseOrdinalVdxfObject);
+
+    const d3 = (roundJ as IdentityUpdateResponseOrdinalVdxfObject).data;
+    expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
+    expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
+  });
+
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_VERUSPAY_INVOICE))
       .toBe(VerusPayInvoiceOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST))
+      .toBe(IdentityUpdateRequestOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE))
+      .toBe(IdentityUpdateResponseOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
 
     // unrecognized
@@ -157,7 +241,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
   it('base OrdinalVdxfObject buffer round trip (no key path)', () => {
     // This tests the fallback when no key is provided
-    const base = new OrdinalVdxfObject({ type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR });
+    const base = new OrdinalVdxfObject({ type: VDXF_ORDINAL_DATA_DESCRIPTOR });
     const buf = base.toBuffer();
     const parsed = new OrdinalVdxfObject();
     parsed.fromBuffer(buf);

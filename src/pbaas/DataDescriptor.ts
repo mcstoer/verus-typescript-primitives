@@ -8,6 +8,7 @@ import { VdxfUniValue } from '.';
 import { BufferDataVdxfObject } from '../vdxf/index';
 import * as VDXF_Data from '../vdxf/vdxfdatakeys';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
+import { HASH_TYPE_BLAKE2B, HASH_TYPE_BLAKE2BMMR2, HASH_TYPE_INVALID, HASH_TYPE_KECCAK256, HASH_TYPE_SHA256, HASH_TYPE_SHA256D } from '../constants/pbaas';
 
 export interface DataDescriptorJson {
   version: number;
@@ -428,12 +429,12 @@ export class VDXFDataDescriptor extends BufferDataVdxfObject {
 };
 
 export enum EHashTypes {
-  HASH_INVALID = 0,
-  HASH_BLAKE2BMMR = 1,
-  HASH_BLAKE2BMMR2 = 2,
-  HASH_KECCAK = 3,
-  HASH_SHA256D = 4,
-  HASH_SHA256 = 5,
-  HASH_LASTTYPE = 5
+  HASH_INVALID = HASH_TYPE_INVALID.toNumber(),
+  HASH_BLAKE2BMMR = HASH_TYPE_BLAKE2B.toNumber(),
+  HASH_BLAKE2BMMR2 = HASH_TYPE_BLAKE2BMMR2.toNumber(),
+  HASH_KECCAK = HASH_TYPE_KECCAK256.toNumber(),
+  HASH_SHA256D = HASH_TYPE_SHA256D.toNumber(),
+  HASH_SHA256 = HASH_TYPE_SHA256.toNumber(),
+  HASH_LASTTYPE = HASH_TYPE_SHA256.toNumber()
 };
 

@@ -10,7 +10,6 @@ import { SaplingPaymentAddress } from './SaplingPaymentAddress';
 import { ContentMultiMap, ContentMultiMapJson } from './ContentMultiMap';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import { KeyID } from './KeyID';
-import { PartialSignDataCLIJson } from './PartialSignData';
 
 export const IDENTITY_VERSION_VAULT = new BN(2, 10);
 export const IDENTITY_VERSION_PBAAS = new BN(3, 10);

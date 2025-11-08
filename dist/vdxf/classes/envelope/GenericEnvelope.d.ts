@@ -1,0 +1,66 @@
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../ordinals/OrdinalVdxfObject";
+import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
+export interface GenericEnvelopeInterface {
+    version?: BigNumber;
+    flags?: BigNumber;
+    signature?: VerifiableSignatureData;
+    createdAt?: BigNumber;
+    salt?: Buffer;
+    details: Array<OrdinalVdxfObject>;
+}
+export type GenericEnvelopeJson = {
+    version: string;
+    flags?: string;
+    signature?: VerifiableSignatureDataJson;
+    createdat?: string;
+    salt?: string;
+    details: Array<OrdinalVdxfObjectJson>;
+};
+export declare class GenericEnvelope implements SerializableEntity {
+    version: BigNumber;
+    flags: BigNumber;
+    signature?: VerifiableSignatureData;
+    createdAt?: BigNumber;
+    salt?: Buffer;
+    details: Array<OrdinalVdxfObject>;
+    static VERSION_CURRENT: import("bn.js");
+    static VERSION_FIRSTVALID: import("bn.js");
+    static VERSION_LASTVALID: import("bn.js");
+    static BASE_FLAGS: import("bn.js");
+    static FLAG_SIGNED: import("bn.js");
+    static FLAG_HAS_CREATED_AT: import("bn.js");
+    static FLAG_MULTI_DETAILS: import("bn.js");
+    static FLAG_IS_TESTNET: import("bn.js");
+    static FLAG_HAS_SALT: import("bn.js");
+    constructor(envelope?: GenericEnvelopeInterface);
+    isValidVersion(): boolean;
+    isSigned(): boolean;
+    hasMultiDetails(): boolean;
+    hasCreatedAt(): boolean;
+    hasSalt(): boolean;
+    isTestnet(): boolean;
+    setSigned(): void;
+    setHasMultiDetails(): void;
+    setHasCreatedAt(): void;
+    setHasSalt(): void;
+    setIsTestnet(): void;
+    setFlags(): void;
+    protected getRawDataSha256(): Buffer<ArrayBufferLike>;
+    getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
+    getDetails(index?: number): OrdinalVdxfObject;
+    protected getDetailsBufferLength(): number;
+    protected getDetailsBuffer(): Buffer;
+    private internalGetByteLength;
+    getByteLength(): number;
+    protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
+    toBuffer(): Buffer;
+    fromBuffer(buffer: Buffer, offset?: number): number;
+    toString(): string;
+    toWalletDeeplinkUri(): string;
+    static fromWalletDeeplinkUri(uri: string): GenericEnvelope;
+    toQrString(): string;
+    static fromQrString(qrstring: string): GenericEnvelope;
+    toJson(): GenericEnvelopeJson;
+}

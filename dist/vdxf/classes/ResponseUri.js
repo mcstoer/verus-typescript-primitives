@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResponseUri = void 0;
 const bn_js_1 = require("bn.js");
-const varint_1 = require("../../utils/varint");
 const varuint_1 = require("../../utils/varuint");
 const bufferutils_1 = require("../../utils/bufferutils");
 class ResponseUri {
@@ -24,7 +23,7 @@ class ResponseUri {
     }
     getByteLength() {
         let length = 0;
-        length += varint_1.default.encodingLength(this.type);
+        length += varuint_1.default.encodingLength(this.type.toNumber());
         let uriBufLen = this.uri.length;
         length += varuint_1.default.encodingLength(uriBufLen);
         length += uriBufLen;
@@ -32,13 +31,13 @@ class ResponseUri {
     }
     toBuffer() {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
-        writer.writeVarInt(this.type);
+        writer.writeCompactSize(this.type.toNumber());
         writer.writeVarSlice(this.uri);
         return writer.buffer;
     }
     fromBuffer(buffer, offset) {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
-        this.type = reader.readVarInt();
+        this.type = new bn_js_1.BN(reader.readCompactSize());
         this.uri = reader.readVarSlice();
         return reader.offset;
     }

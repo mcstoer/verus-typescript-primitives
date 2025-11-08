@@ -1,13 +1,11 @@
-import bufferutils from "../../utils/bufferutils";
+import bufferutils from "../../../utils/bufferutils";
 import { BN } from 'bn.js';
-import { BigNumber } from "../../utils/types/BigNumber";
-import { SerializableDataEntity, SerializableEntity } from "../../utils/types/SerializableEntity";
-import varuint from "../../utils/varuint";
-import { fromBase58Check, getDataKey, toBase58Check, toIAddress } from "../../utils/address";
-import varint from "../../utils/varint";
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../constants/vdxf";
-import { DataDescriptor, DataDescriptorJson } from "../../pbaas";
-import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./payment/VerusPayInvoiceDetails";
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { SerializableDataEntity, SerializableEntity } from "../../../utils/types/SerializableEntity";
+import varuint from "../../../utils/varuint";
+import { fromBase58Check, getDataKey, toBase58Check, toIAddress } from "../../../utils/address";
+import varint from "../../../utils/varint";
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../../constants/vdxf";
 import { OrdinalVdxfObjectOrdinalMap } from "./OrdinalVdxfObjectOrdinalMap";
 import { DATA_TYPE_OBJECT_DATADESCRIPTOR, VERUSPAY_INVOICE_DETAILS_VDXF_KEY, LOGIN_REQUEST_DETAILS_VDXF_KEY } from "../keys";
 import { DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINNAME } from "../../constants/pbaas";
@@ -47,7 +45,7 @@ export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfOb
     type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) || 
     type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY)
   ) return GeneralTypeOrdinalVdxfObject;
-  else throw new Error("Unrecognized vdxf ordinal object type");
+  else throw new Error("Unrecognized vdxf ordinal object type " + type.toNumber());
 }
 
 export class OrdinalVdxfObject implements SerializableEntity {
@@ -71,18 +69,18 @@ export class OrdinalVdxfObject implements SerializableEntity {
 
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<BufferOrOrdinalVdxfObjectReservedData> = {
-      type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR
+      type: VDXF_ORDINAL_DATA_DESCRIPTOR
     }
   ) {
     if (request.key) {
-      this.type = OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
+      this.type = VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
       this.key = request.key;
 
       if (request.data) {
         this.data = request.data;
       } else this.data = Buffer.alloc(0);
     } else if (request.type == null) {
-      this.type = OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR;
+      this.type = VDXF_ORDINAL_DATA_DESCRIPTOR;
     } else {
       this.type = request.type;
     }
@@ -92,15 +90,15 @@ export class OrdinalVdxfObject implements SerializableEntity {
   }
 
   isDefinedByVdxfKey() {
-    return this.type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR);
+    return this.type.eq(VDXF_OBJECT_RESERVED_BYTE_I_ADDR);
   }
 
   isDefinedByTextVdxfKey() {
-    return this.type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING);
+    return this.type.eq(VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING);
   }
 
   isDefinedByCurrencyOrId() {
-    return this.type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY);
+    return this.type.eq(VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY);
   }
 
   isDefinedByCustomKey() {
@@ -255,7 +253,7 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
 
   constructor(
     request: OrdinalVdxfObjectInterfaceTemplate<Buffer> = {
-      type: OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR,
+      type: VDXF_OBJECT_RESERVED_BYTE_I_ADDR,
       data: Buffer.alloc(0),
       key: NULL_ADDRESS
     }

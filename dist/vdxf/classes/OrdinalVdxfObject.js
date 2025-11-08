@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerusPayInvoiceOrdinalVdxfObject = exports.DataDescriptorOrdinalVdxfObject = exports.SerializableEntityOrdinalVdxfObject = exports.GeneralTypeOrdinalVdxfObject = exports.OrdinalVdxfObject = exports.getOrdinalVdxfObjectClassForType = void 0;
+exports.VerusPayInvoiceOrdinalVdxfObject = exports.DataDescriptorOrdinalVdxfObject = exports.SerializableEntityOrdinalVdxfObject = exports.GeneralTypeOrdinalVdxfObject = exports.OrdinalVdxfObject = void 0;
 const bufferutils_1 = require("../../utils/bufferutils");
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../utils/varuint");
@@ -10,24 +10,12 @@ const vdxf_1 = require("../../constants/vdxf");
 const pbaas_1 = require("../../pbaas");
 const VerusPayInvoiceDetails_1 = require("./payment/VerusPayInvoiceDetails");
 const OrdinalVdxfObjectOrdinalMap_1 = require("./OrdinalVdxfObjectOrdinalMap");
-const keys_1 = require("../keys");
 const pbaas_2 = require("../../constants/pbaas");
-const getOrdinalVdxfObjectClassForType = (type) => {
-    if (type.eq(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR))
-        return DataDescriptorOrdinalVdxfObject;
-    else if (type.eq(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE))
-        return VerusPayInvoiceOrdinalVdxfObject;
-    else if (type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR) ||
-        type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) ||
-        type.eq(OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY))
-        return GeneralTypeOrdinalVdxfObject;
-    else
-        throw new Error("Unrecognized vdxf ordinal object type");
-};
-exports.getOrdinalVdxfObjectClassForType = getOrdinalVdxfObjectClassForType;
+const helpers_1 = require("../../constants/ordinals/helpers");
+const ordinals_1 = require("../../constants/ordinals/ordinals");
 class OrdinalVdxfObject {
     constructor(request = {
-        type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR
+        type: ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR
     }) {
         if (request.key) {
             this.type = OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
@@ -39,7 +27,7 @@ class OrdinalVdxfObject {
                 this.data = Buffer.alloc(0);
         }
         else if (request.type == null) {
-            this.type = OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR;
+            this.type = ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR;
         }
         else {
             this.type = request.type;
@@ -135,12 +123,13 @@ class OrdinalVdxfObject {
         };
     }
     static createFromBuffer(buffer, offset, optimizeWithOrdinal = false, rootSystemName = pbaas_2.DEFAULT_VERUS_CHAINNAME) {
+        (0, helpers_1.registerOrdinals)();
         if (buffer.length == 0)
             throw new Error("Cannot create request from empty buffer");
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         let type = new bn_js_1.BN(reader.readCompactSize());
         const rootSystemId = (0, address_1.toIAddress)(rootSystemName);
-        const Entity = (0, exports.getOrdinalVdxfObjectClassForType)(type);
+        const Entity = (0, helpers_1.getOrdinalVdxfObjectClassForType)(type);
         const ord = new Entity({ type });
         let key;
         if (optimizeWithOrdinal) {
@@ -171,13 +160,9 @@ OrdinalVdxfObject.VERSION_INVALID = new bn_js_1.BN(0, 10);
 OrdinalVdxfObject.VERSION_FIRST = new bn_js_1.BN(1, 10);
 OrdinalVdxfObject.VERSION_LAST = new bn_js_1.BN(1, 10);
 OrdinalVdxfObject.VERSION_CURRENT = new bn_js_1.BN(1, 10);
-OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR = new bn_js_1.BN(0, 10);
-OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE = new bn_js_1.BN(1, 10);
 OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR = new bn_js_1.BN(102, 10);
 OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING = new bn_js_1.BN(103, 10);
 OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY = new bn_js_1.BN(104, 10);
-OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR.toNumber(), keys_1.DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid);
-OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE.toNumber(), keys_1.VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
 class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject {
     constructor(request = {
         type: OrdinalVdxfObject.VDXF_OBJECT_RESERVED_BYTE_I_ADDR,
@@ -234,7 +219,7 @@ class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObjec
         data: new pbaas_1.DataDescriptor()
     }) {
         super({
-            type: OrdinalVdxfObject.ORDINAL_DATA_DESCRIPTOR,
+            type: ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR,
             data: request.data
         }, pbaas_1.DataDescriptor);
     }
@@ -250,7 +235,7 @@ class VerusPayInvoiceOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObje
         data: new VerusPayInvoiceDetails_1.VerusPayInvoiceDetails()
     }) {
         super({
-            type: OrdinalVdxfObject.ORDINAL_VERUSPAY_INVOICE,
+            type: ordinals_1.VDXF_ORDINAL_VERUSPAY_INVOICE,
             data: request.data
         }, VerusPayInvoiceDetails_1.VerusPayInvoiceDetails);
     }

@@ -1,5 +1,6 @@
 import { BigNumber } from '../utils/types/BigNumber';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
+import { EHashTypes } from './DataDescriptor';
 export interface SignatureJsonDataInterface {
     version: number;
     systemid: string;
@@ -55,7 +56,7 @@ export declare class SignatureData implements SerializableEntity {
      * introduces a new hash type. For all other versions, the default hash type
      * is `EHashTypes.HASH_SHA256`.
      */
-    static getSignatureHashType(input: Buffer): number;
+    static getSignatureHashType(input: Buffer): number | EHashTypes.HASH_SHA256;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;

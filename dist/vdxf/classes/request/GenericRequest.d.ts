@@ -1,31 +1,14 @@
-import { BigNumber } from "../../../utils/types/BigNumber";
-import { SignatureJsonDataInterface } from "../../../pbaas";
-import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../OrdinalVdxfObject";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import { VerifiableSignatureData } from "../VerifiableSignatureData";
-export interface GenericRequestInterface {
-    version?: BigNumber;
-    flags?: BigNumber;
-    signature?: VerifiableSignatureData;
-    createdAt?: BigNumber;
-    salt?: Buffer;
-    details: Array<OrdinalVdxfObject>;
-}
-export type GenericRequestJson = {
-    version: string;
-    flags?: string;
-    signature?: SignatureJsonDataInterface;
-    createdat?: string;
-    salt?: string;
-    details: Array<OrdinalVdxfObjectJson>;
+import { GenericEnvelope, GenericEnvelopeInterface, GenericEnvelopeJson } from "../envelope/GenericEnvelope";
+import { SaplingPaymentAddress } from '../../../pbaas/SaplingPaymentAddress';
+export type GenericRequestJson = GenericEnvelopeJson & {
+    encryptresponsetoaddress?: string;
 };
-export declare class GenericRequest implements SerializableEntity {
-    version: BigNumber;
-    flags: BigNumber;
-    signature?: VerifiableSignatureData;
-    createdAt?: BigNumber;
-    salt?: Buffer;
-    details: Array<OrdinalVdxfObject>;
+export type GenericRequestInterface = GenericEnvelopeInterface & {
+    encryptResponseToAddress?: SaplingPaymentAddress;
+};
+export declare class GenericRequest extends GenericEnvelope implements SerializableEntity {
+    encryptResponseToAddress?: SaplingPaymentAddress;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");
@@ -35,32 +18,13 @@ export declare class GenericRequest implements SerializableEntity {
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
     static FLAG_HAS_SALT: import("bn.js");
-    constructor(request?: GenericRequestInterface);
-    isValidVersion(): boolean;
-    isSigned(): boolean;
-    hasMultiDetails(): boolean;
-    hasCreatedAt(): boolean;
-    hasSalt(): boolean;
-    isTestnet(): boolean;
-    setSigned(): void;
-    setHasMultiDetails(): void;
-    setHasCreatedAt(): void;
-    setHasSalt(): void;
-    setIsTestnet(): void;
+    static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS: import("bn.js");
+    constructor(envelope?: GenericRequestInterface);
+    hasEncryptResponseToAddress(): boolean;
+    setHasEncryptResponseToAddress(): void;
     setFlags(): void;
-    private getRawDataSha256;
-    getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
-    getDetails(index?: number): OrdinalVdxfObject;
-    private getDetailsBufferLength;
-    private getDetailsBuffer;
     getByteLength(): number;
-    private toBufferOptionalSig;
-    toBuffer(): Buffer;
+    protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toString(): string;
-    toWalletDeeplinkUri(): string;
-    static fromWalletDeeplinkUri(uri: string): GenericRequest;
-    toQrString(): string;
-    static fromQrString(qrstring: string): GenericRequest;
     toJson(): GenericRequestJson;
 }
