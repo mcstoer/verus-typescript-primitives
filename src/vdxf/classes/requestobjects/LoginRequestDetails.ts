@@ -3,14 +3,14 @@
  * LoginRequestDetails - Class for handling application login and authentication requests
  * 
  * This class is used when an application is requesting authentication or login from the user,
- * including specific permissions and callback information. The request includes:
+ * including specific recipientContraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
  * - Callback URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  * 
  * The user's wallet can use these parameters to present a clear authentication request
- * to the user, showing exactly what permissions are being requested and where they will
+ * to the user, showing exactly what recipientContraints are being requested and where they will
  * be redirected after successful authentication. This enables secure, user-controlled
  * authentication flows with granular permission management.
  */
@@ -29,7 +29,7 @@ export interface LoginRequestDetailsInterface {
   version?: BigNumber;
   flags?: BigNumber;  
   requestId: string;
-  permissions?: Array<LoginPermission>;
+  recipientContraints?: Array<LoginPermission>;
   callbackUris?: Array<callbackUris>;
   expiryTime?: BigNumber; // UNIX Timestamp
 }
@@ -57,7 +57,7 @@ export interface LoginRequestDetailsJson {
   version: number;
   requestid: string;
   flags: number;
-  permissions?: Array<LoginPermissionJson>;
+  recipientcontraints?: Array<LoginPermissionJson>;
   callbackUris?: Array<callbackUrisJson>;
   expirytime?: number;
 }
@@ -66,7 +66,7 @@ export class LoginRequestDetails implements SerializableEntity {
   version: BigNumber;
   flags?: BigNumber;  
   requestId: string;
-  permissions?: Array<LoginPermission>;
+  recipientContraints?: Array<LoginPermission>;
   callbackUris?: Array<callbackUris>;
   expiryTime?: BigNumber; // UNIX Timestamp
 
@@ -75,11 +75,11 @@ export class LoginRequestDetails implements SerializableEntity {
   static VERSION_FIRSTVALID = new BN(1, 10)
   static VERSION_LASTVALID = new BN(1, 10)
 
-  static FLAG_HAS_PERMISSIONS = new BN(1, 10);
+  static FLAG_HAS_RECIPIENT_CONSTRAINTS = new BN(1, 10);
   static FLAG_HAS_CALLBACK_URI = new BN(2, 10);
   static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
 
-  // Permission Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
+  // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
   static REQUIRED_ID = 1;
   static REQUIRED_SYSTEM = 2;
   static REQUIRED_PARENT = 3;
@@ -95,15 +95,15 @@ export class LoginRequestDetails implements SerializableEntity {
     this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;
     this.requestId = request?.requestId || '';
     this.flags = request?.flags || new BN(0, 10);
-    this.permissions = request?.permissions || null;
+    this.recipientContraints = request?.recipientContraints || null;
     this.callbackUris = request?.callbackUris || null;
     this.expiryTime = request?.expiryTime || null;
 
     this.setFlags();
   }
 
-  hasPermissions(): boolean {   
-      return this.flags.and(LoginRequestDetails.FLAG_HAS_PERMISSIONS).eq(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
+  hasRecipentConstraints(): boolean {   
+      return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
   }
 
   hascallbackUris(): boolean {
@@ -114,10 +114,10 @@ export class LoginRequestDetails implements SerializableEntity {
     return this.flags.and(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
   }
 
-  calcFlags(): BigNumber {
-    let flags = new BN(0, 10);
-    if (this.permissions) {
-      flags = flags.or(LoginRequestDetails.FLAG_HAS_PERMISSIONS);
+  calcFlags(flags: BigNumber = this.flags): BigNumber {
+
+    if (this.recipientContraints) {
+      flags = flags.or(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
     }
     if (this.callbackUris) {
       flags = flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
@@ -135,12 +135,12 @@ export class LoginRequestDetails implements SerializableEntity {
     length += varuint.encodingLength(this.flags.toNumber());
     length += 20; // requestId hash length
 
-    if (this.hasPermissions()) {
+    if (this.hasRecipentConstraints()) {
 
-      length += varuint.encodingLength(this.permissions.length);      
-        for (let i = 0; i < this.permissions.length; i++) {
-          length += varuint.encodingLength(this.permissions[i].type);
-          length += this.permissions[i].identity.getByteLength();
+      length += varuint.encodingLength(this.recipientContraints.length);      
+        for (let i = 0; i < this.recipientContraints.length; i++) {
+          length += varuint.encodingLength(this.recipientContraints[i].type);
+          length += this.recipientContraints[i].identity.getByteLength();
         }      
     }
 
@@ -167,12 +167,12 @@ export class LoginRequestDetails implements SerializableEntity {
     writer.writeCompactSize(this.flags.toNumber());
     writer.writeSlice(fromBase58Check(this.requestId).hash);
 
-    if (this.hasPermissions()) {
+    if (this.hasRecipentConstraints()) {
 
-        writer.writeCompactSize(this.permissions.length);   
-        for (let i = 0; i < this.permissions.length; i++) {
-          writer.writeCompactSize(this.permissions[i].type);
-          writer.writeSlice(this.permissions[i].identity.toBuffer());
+        writer.writeCompactSize(this.recipientContraints.length);   
+        for (let i = 0; i < this.recipientContraints.length; i++) {
+          writer.writeCompactSize(this.recipientContraints[i].type);
+          writer.writeSlice(this.recipientContraints[i].identity.toBuffer());
         }
     }
 
@@ -197,15 +197,15 @@ export class LoginRequestDetails implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
     this.requestId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
 
-    if (this.hasPermissions()) {
-      this.permissions = [];
-      const permissionsLength = reader.readCompactSize();
-      for (let i = 0; i < permissionsLength; i++) {
+    if (this.hasRecipentConstraints()) {
+      this.recipientContraints = [];
+      const recipientContraintsLength = reader.readCompactSize();
+      for (let i = 0; i < recipientContraintsLength; i++) {
         const compactId = new CompactIdAddressObject();
         const type = reader.readCompactSize();
         const identityOffset = reader.offset;
         reader.offset = compactId.fromBuffer(buffer, identityOffset);
-        this.permissions.push({
+        this.recipientContraints.push({
           type: type,
           identity: compactId
         });
@@ -230,14 +230,14 @@ export class LoginRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson() {
+  toJson(): LoginRequestDetailsJson {
     const flags = this.calcFlags();
 
     const retval = {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
       requestid: this.requestId,
-      permissions: this.permissions ? this.permissions.map(p => ({type: p.type,
+      recipientcontraints: this.recipientContraints ? this.recipientContraints.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
       callbackUris: this.callbackUris ? this.callbackUris : undefined,
       expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
@@ -254,8 +254,8 @@ export class LoginRequestDetails implements SerializableEntity {
     loginDetails.flags = new BN(data?.flags || 0);
     loginDetails.requestId = data.requestid;
 
-    if(loginDetails.hasPermissions() && data.permissions) {      
-      loginDetails.permissions = data.permissions.map(p => ({type: p.type,
+    if(loginDetails.hasRecipentConstraints() && data.recipientcontraints) {
+      loginDetails.recipientContraints = data.recipientcontraints.map(p => ({type: p.type,
         identity: CompactIdAddressObject.fromJson(p.identity)}));
     }
 
@@ -286,8 +286,8 @@ export class LoginRequestDetails implements SerializableEntity {
       valid = false;
     }
 
-    if (this.hasPermissions()) {
-      if (!this.permissions || this.permissions.length === 0) {
+    if (this.hasRecipentConstraints()) {
+      if (!this.recipientContraints || this.recipientContraints.length === 0) {
         return false;
       }
     }

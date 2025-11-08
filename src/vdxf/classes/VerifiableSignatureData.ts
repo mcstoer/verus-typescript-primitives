@@ -118,6 +118,15 @@ export class VerifiableSignatureData implements SerializableEntity {
     this.setFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
   }
 
+  calcFlags(): BigNumber {
+    let flags = new BN(0);
+    if (this.hasVdxfKeys()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
+    if (this.hasVdxfKeyNames()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEY_NAMES);
+    if (this.hasBoundHashes()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_BOUND_HASHES);
+    if (this.hasStatements()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
+    return flags;
+  }
+
   setFlags() {
     if (this.vdxfKeys) this.setHasVdxfKeys();
     if (this.vdxfKeyNames) this.setHasVdxfKeyNames();
@@ -294,10 +303,10 @@ export class VerifiableSignatureData implements SerializableEntity {
 
   toJson(): SignatureJsonDataInterface {
 
-    this.setFlags();
+    const flags = this.calcFlags();
     return {
       version: this.version.toNumber(),
-      flags: this.flags.toNumber(),
+      flags: flags.toNumber(),
       hashtype: this.hashType.toNumber(),
       systemid: this.systemId.toJson(),
       identityid: this.identityId.toJson(),

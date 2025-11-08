@@ -172,10 +172,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a LoginRequestDetailsOrdinalVdxfObject via buffer', () => {
     const obj = new LoginRequestDetails({
           requestId: "iBJqQMRzpCW1WVYoU2Ty2VbCJnvyTEsE1C",
-          flags: new BN(LoginRequestDetails.FLAG_HAS_PERMISSIONS)
+          flags: new BN(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS)
             .or(new BN(LoginRequestDetails.FLAG_HAS_CALLBACK_URI))
             .or(new BN(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME)),
-          permissions: [{type: 1, identity: new CompactIdAddressObject({
+          recipientContraints: [{type: 1, identity: new CompactIdAddressObject({
               version: new BN(1),
               type: CompactIdAddressObject.IS_IDENTITYID,
               address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",

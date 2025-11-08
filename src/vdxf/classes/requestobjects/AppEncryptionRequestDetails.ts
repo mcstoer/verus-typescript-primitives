@@ -121,37 +121,40 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return valid;
   }
 
-  hasSecondarySeedDerivation(): boolean {
-    return this.flags.and(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER).gt(new BN(0));
+  hasSecondarySeedDerivation(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER).gt(new BN(0));
   }
 
-  hasFromAddress(): boolean {
-    return this.flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0));
+  hasFromAddress(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0));
   }
 
-  hasToAddress(): boolean {
-    return this.flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0));
+  hasToAddress(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0));
   }
 
   getByteLength(): number {
+
+    const flags = this.calcFlags();
+
     let length = 0;
 
-    length += varuint.encodingLength(this.flags.toNumber());
+    length += varuint.encodingLength(flags.toNumber());
 
     // encryptToKey - zaddress encoding (43 bytes for sapling address data)
     length += 43; // Sapling address decoded data (11 + 32 bytes)
 
     length += varuint.encodingLength(this.derivationNumber.toNumber());
 
-    if (this.hasSecondarySeedDerivation()) {
+    if (this.hasSecondarySeedDerivation(flags)) {
       length += varint.encodingLength(this.secondaryDerivationNumber);
     }
 
-    if (this.hasFromAddress()) {
+    if (this.hasFromAddress(flags)) {
         length += this.fromAddress.getByteLength();
     }
 
-    if (this.hasToAddress()) {
+    if (this.hasToAddress(flags)) {
        length += this.toAddress.getByteLength();
     }
 
@@ -159,11 +162,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-
+    const flags = this.calcFlags();
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     // Write flags
-    writer.writeCompactSize(this.flags.toNumber());
+    writer.writeCompactSize(flags.toNumber());
 
     // Write encryptToAddress as decoded sapling address data
     const saplingData = decodeSaplingAddress(this.encryptToZAddress);
@@ -172,15 +175,15 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     // Write mandatory derivation number
     writer.writeVarInt(this.derivationNumber);
 
-    if (this.hasSecondarySeedDerivation()) {
+    if (this.hasSecondarySeedDerivation(flags)) {
       writer.writeVarInt(this.secondaryDerivationNumber);
     }
 
-    if (this.hasFromAddress()) {
+    if (this.hasFromAddress(flags)) {
         writer.writeSlice(this.fromAddress.toBuffer());
     }
 
-    if (this.hasToAddress()) {
+    if (this.hasToAddress(flags)) {
        writer.writeSlice(this.toAddress.toBuffer());
     }
 
