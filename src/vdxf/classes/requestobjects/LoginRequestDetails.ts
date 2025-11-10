@@ -30,7 +30,7 @@ export interface LoginRequestDetailsInterface {
   flags?: BigNumber;  
   requestId: string;
   recipientConstraints?: Array<RecipientConstraint>;
-  callbackUris?: Array<callbackUris>;
+  callbackURIs?: Array<callbackURIs>;
   expiryTime?: BigNumber; // UNIX Timestamp
 }
 
@@ -39,7 +39,7 @@ export interface RecipientConstraintJson {
   identity: CompactIdAddressObjectJson;
 }
 
-export interface callbackUrisJson {
+export interface callbackURIsJson {
   type: number;
   uri: string;
 }
@@ -48,7 +48,7 @@ export interface RecipientConstraint {
   identity: CompactIdAddressObject;
 }
 
-export interface callbackUris {
+export interface callbackURIs {
   type: number;
   uri: string;
 }
@@ -58,7 +58,7 @@ export interface LoginRequestDetailsJson {
   requestid: string;
   flags: number;
   recipientConstraints?: Array<RecipientConstraintJson>;
-  callbackUris?: Array<callbackUrisJson>;
+  callbackURIs?: Array<callbackURIsJson>;
   expirytime?: number;
 }
 
@@ -67,7 +67,7 @@ export class LoginRequestDetails implements SerializableEntity {
   flags?: BigNumber;  
   requestId: string;
   recipientConstraints?: Array<RecipientConstraint>;
-  callbackUris?: Array<callbackUris>;
+  callbackURIs?: Array<callbackURIs>;
   expiryTime?: BigNumber; // UNIX Timestamp
 
   // Version
@@ -96,7 +96,7 @@ export class LoginRequestDetails implements SerializableEntity {
     this.requestId = request?.requestId || '';
     this.flags = request?.flags || new BN(0, 10);
     this.recipientConstraints = request?.recipientConstraints || null;
-    this.callbackUris = request?.callbackUris || null;
+    this.callbackURIs = request?.callbackURIs || null;
     this.expiryTime = request?.expiryTime || null;
 
     this.setFlags();
@@ -106,7 +106,7 @@ export class LoginRequestDetails implements SerializableEntity {
       return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
   }
 
-  hascallbackUris(): boolean {
+  hascallbackURIs(): boolean {
     return this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
   }
 
@@ -119,7 +119,7 @@ export class LoginRequestDetails implements SerializableEntity {
     if (this.recipientConstraints) {
       flags = flags.or(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
     }
-    if (this.callbackUris) {
+    if (this.callbackURIs) {
       flags = flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
     }
     if (this.expiryTime) {
@@ -144,12 +144,12 @@ export class LoginRequestDetails implements SerializableEntity {
         }      
     }
 
-    if (this.hascallbackUris()) {
-      length += varuint.encodingLength(this.callbackUris.length);
-        for (let i = 0; i < this.callbackUris.length; i++) {
-          length += varuint.encodingLength(this.callbackUris[i].type);
-          length += varuint.encodingLength(Buffer.from(this.callbackUris[i].uri, 'utf8').byteLength);
-          length += Buffer.from(this.callbackUris[i].uri, 'utf8').byteLength;
+    if (this.hascallbackURIs()) {
+      length += varuint.encodingLength(this.callbackURIs.length);
+        for (let i = 0; i < this.callbackURIs.length; i++) {
+          length += varuint.encodingLength(this.callbackURIs[i].type);
+          length += varuint.encodingLength(Buffer.from(this.callbackURIs[i].uri, 'utf8').byteLength);
+          length += Buffer.from(this.callbackURIs[i].uri, 'utf8').byteLength;
         }
     }
 
@@ -176,11 +176,11 @@ export class LoginRequestDetails implements SerializableEntity {
         }
     }
 
-    if (this.hascallbackUris()) {
-      writer.writeCompactSize(this.callbackUris.length);
-      for (let i = 0; i < this.callbackUris.length; i++) {
-        writer.writeCompactSize(this.callbackUris[i].type);
-        writer.writeVarSlice(Buffer.from(this.callbackUris[i].uri, 'utf8'));
+    if (this.hascallbackURIs()) {
+      writer.writeCompactSize(this.callbackURIs.length);
+      for (let i = 0; i < this.callbackURIs.length; i++) {
+        writer.writeCompactSize(this.callbackURIs[i].type);
+        writer.writeVarSlice(Buffer.from(this.callbackURIs[i].uri, 'utf8'));
       }
     }
 
@@ -212,11 +212,11 @@ export class LoginRequestDetails implements SerializableEntity {
       }
     } 
 
-    if (this.hascallbackUris()) {
-      this.callbackUris = [];
-      const callbackUrisLength = reader.readCompactSize();
-      for (let i = 0; i < callbackUrisLength; i++) {
-        this.callbackUris.push({
+    if (this.hascallbackURIs()) {
+      this.callbackURIs = [];
+      const callbackURIsLength = reader.readCompactSize();
+      for (let i = 0; i < callbackURIsLength; i++) {
+        this.callbackURIs.push({
           type: reader.readCompactSize(),
           uri: reader.readVarSlice().toString('utf8')
         });
@@ -239,7 +239,7 @@ export class LoginRequestDetails implements SerializableEntity {
       requestid: this.requestId,
       recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
-      callbackUris: this.callbackUris ? this.callbackUris : undefined,
+      callbackURIs: this.callbackURIs ? this.callbackURIs : undefined,
       expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
     };
 
@@ -259,8 +259,8 @@ export class LoginRequestDetails implements SerializableEntity {
         identity: CompactIdAddressObject.fromJson(p.identity)}));
     }
 
-    if(loginDetails.hascallbackUris() && data.callbackUris) {
-      loginDetails.callbackUris = data.callbackUris.map(c => ({type: c.type,
+    if(loginDetails.hascallbackURIs() && data.callbackURIs) {
+      loginDetails.callbackURIs = data.callbackURIs.map(c => ({type: c.type,
         uri: c.uri}));
     }
 
@@ -292,8 +292,8 @@ export class LoginRequestDetails implements SerializableEntity {
       }
     }
 
-    if (this.hascallbackUris()) {
-      if (!this.callbackUris || this.callbackUris.length === 0) {
+    if (this.hascallbackURIs()) {
+      if (!this.callbackURIs || this.callbackURIs.length === 0) {
         return false;
       }
     }

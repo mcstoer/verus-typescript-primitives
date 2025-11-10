@@ -265,7 +265,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
               address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
               rootSystemName: "VRSC"
           })}],
-          callbackUris: [{type: 2, uri: "https://example.com/callback"}],
+          callbackURIs: [{type: 2, uri: "https://example.com/callback"}],
           expiryTime: new BN(345353453),
     });
 
