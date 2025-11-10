@@ -259,7 +259,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
           flags: new BN(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS)
             .or(new BN(LoginRequestDetails.FLAG_HAS_CALLBACK_URI))
             .or(new BN(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME)),
-          recipientContraints: [{type: 1, identity: new CompactIdAddressObject({
+          recipientConstraints: [{type: 1, identity: new CompactIdAddressObject({
               version: new BN(1),
               type: CompactIdAddressObject.IS_IDENTITYID,
               address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",

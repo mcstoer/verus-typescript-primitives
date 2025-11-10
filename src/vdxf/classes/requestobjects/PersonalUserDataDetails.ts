@@ -23,7 +23,7 @@ import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
-import { VerifiableSignatureData, SignatureJsonDataInterface } from '../../../vdxf/classes/VerifiableSignatureData';
+import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../../../vdxf/classes/VerifiableSignatureData';
 
 
 export interface PersonalUserDataDetailsInterface {
@@ -39,7 +39,7 @@ export interface PersonalUserDataDetailsJson {
   flags: number;
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
   statements?: Array<string>;
-  signature?: SignatureJsonDataInterface
+  signature?: VerifiableSignatureDataJson
 }
 
 export class PersonalUserDataDetails implements SerializableEntity {

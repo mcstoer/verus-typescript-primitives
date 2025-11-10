@@ -29,7 +29,7 @@ describe("LoginRequestDetails", () => {
       expect(details.requestId).toBe(TEST_CHALLENGE_ID);
       expect(details.version.toString()).toBe("1");
       expect(details.flags?.toString()).toBe("0");
-      expect(details.recipientContraints).toBeNull();
+      expect(details.recipientConstraints).toBeNull();
       expect(details.callbackUris).toBeNull();
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
     });
@@ -37,7 +37,7 @@ describe("LoginRequestDetails", () => {
     test("creates instance with all optional data", () => {
       const details = new LoginRequestDetails({
         requestId: TEST_CHALLENGE_ID,
-        recipientContraints: [
+        recipientConstraints: [
           { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
           { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
           { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
@@ -55,7 +55,7 @@ describe("LoginRequestDetails", () => {
       newDetails.fromBuffer(detailsBuffer);
 
       expect(newDetails.requestId).toBe(TEST_CHALLENGE_ID);
-      expect(newDetails.recipientContraints?.length).toBe(3);
+      expect(newDetails.recipientConstraints?.length).toBe(3);
       expect(newDetails.callbackUris?.length).toBe(1);
       expect(newDetails.expiryTime?.toString()).toBe("2938475938457");
 
@@ -71,7 +71,7 @@ describe("LoginRequestDetails", () => {
       expect(details.requestId).toBe("");
       expect(details.version.toString()).toBe("1");
       expect(details.flags?.toString()).toBe("0");
-      expect(details.recipientContraints).toBeNull();
+      expect(details.recipientConstraints).toBeNull();
       expect(details.callbackUris).toBeNull();
     });
   }); 
