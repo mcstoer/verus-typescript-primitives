@@ -66,7 +66,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.flags ? data.flags : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
-    this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
+    this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
     this.identityID = data ? data.identityID : undefined;
     this.vdxfKeys = data ? data.vdxfKeys : undefined;
@@ -301,15 +301,15 @@ export class VerifiableSignatureData implements SerializableEntity {
     })
   }
 
-  toJson(): SignatureJsonDataInterface {
+  toJson(): VerifiableSignatureDataJson {
 
     const flags = this.calcFlags();
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
       hashtype: this.hashType.toNumber(),
-      systemid: this.systemId.toJson(),
-      identityid: this.identityId.toJson(),
+      systemid: this.systemID.toJson(),
+      identityid: this.identityID.toJson(),
       vdxfkeys: this.vdxfKeys,
       vdxfkeynames: this.vdxfKeyNames,
       boundhashes: this.boundHashes?.map(x => x.toString('hex')),
@@ -318,13 +318,13 @@ export class VerifiableSignatureData implements SerializableEntity {
     };
   }
 
-  static fromJson(json: SignatureJsonDataInterface): VerifiableSignatureData {
+  static fromJson(json: VerifiableSignatureDataJson): VerifiableSignatureData {
     const instance = new VerifiableSignatureData();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
     instance.hashType = new BN(json.hashtype);
-    instance.systemId = CompactIdAddressObject.fromJson(json.systemid);
-    instance.identityId = CompactIdAddressObject.fromJson(json.identityid);
+    instance.systemID = CompactIdAddressObject.fromJson(json.systemid);
+    instance.identityID = CompactIdAddressObject.fromJson(json.identityid);
     instance.vdxfKeys = json?.vdxfkeys;
     instance.vdxfKeyNames = json?.vdxfkeynames;
     instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));

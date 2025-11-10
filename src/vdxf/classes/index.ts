@@ -55,5 +55,5 @@ export * from './requestobjects/PersonalUserDataDetails'
 export * from './CompactIdAddressObject'
 export {
   VerifiableSignatureData,
-  SignatureJsonDataInterface as VerifiableSignatureDataInterface
+  VerifiableSignatureDataJson
 } from './VerifiableSignatureData'
