@@ -20,6 +20,7 @@ export * from './constants/pbaas';
 export * from './constants/ordinals/register';
 export * from './constants/ordinals/ordinals';
 export * from './constants/ordinals/types';
+export * from './constants/vdxf/veruspay';
 export * from './identity/IdentityDefinition';
 export * from './currency/CurrencyDefinition';
 export { BN as BigNumber } from 'bn.js';
