@@ -9,7 +9,7 @@ import { EHashTypes } from '../../pbaas/DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
 const createHash = require("create-hash");
 import { VERUS_DATA_SIGNATURE_PREFIX } from "../../constants/vdxf";
-import { CompactIdAddressObject } from './CompactIdAddressObject';
+import { CompactIdAddressObject, CompactIdAddressObjectJson } from './CompactIdAddressObject';
 import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import varint from '../../utils/varint';
 import { SignatureData } from '../../pbaas';
@@ -18,11 +18,12 @@ export interface VerifiableSignatureDataJson {
   version: number;
   flags: number;
   hashtype: number;
-  systemid: string;
-  identityid: string;
+  systemid: CompactIdAddressObjectJson;
+  identityid: CompactIdAddressObjectJson;
   vdxfkeys?: Array<string>;
   vdxfkeynames?: Array<string>;
   boundhashes?: Array<string>;
+  statements?: Array<string>;
   signature: string
 }
 
@@ -65,7 +66,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.flags ? data.flags : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
-    this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ flags: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
+    this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
     this.identityID = data ? data.identityID : undefined;
     this.vdxfKeys = data ? data.vdxfKeys : undefined;
@@ -115,6 +116,15 @@ export class VerifiableSignatureData implements SerializableEntity {
 
   setHasStatements() {
     this.setFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
+  }
+
+  calcFlags(): BigNumber {
+    let flags = new BN(0);
+    if (this.hasVdxfKeys()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
+    if (this.hasVdxfKeyNames()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEY_NAMES);
+    if (this.hasBoundHashes()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_BOUND_HASHES);
+    if (this.hasStatements()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
+    return flags;
   }
 
   setFlags() {
@@ -291,7 +301,35 @@ export class VerifiableSignatureData implements SerializableEntity {
     })
   }
 
-  toJson() {
-    return {}
+  toJson(): VerifiableSignatureDataJson {
+
+    const flags = this.calcFlags();
+    return {
+      version: this.version.toNumber(),
+      flags: flags.toNumber(),
+      hashtype: this.hashType.toNumber(),
+      systemid: this.systemID.toJson(),
+      identityid: this.identityID.toJson(),
+      vdxfkeys: this.vdxfKeys,
+      vdxfkeynames: this.vdxfKeyNames,
+      boundhashes: this.boundHashes?.map(x => x.toString('hex')),
+      statements: this.statements?.map(x => x.toString('hex')),
+      signature: this.signatureAsVch.toString('hex')
+    };
+  }
+
+  static fromJson(json: VerifiableSignatureDataJson): VerifiableSignatureData {
+    const instance = new VerifiableSignatureData();
+    instance.version = new BN(json.version);
+    instance.flags = new BN(json.flags);
+    instance.hashType = new BN(json.hashtype);
+    instance.systemID = CompactIdAddressObject.fromJson(json.systemid);
+    instance.identityID = CompactIdAddressObject.fromJson(json.identityid);
+    instance.vdxfKeys = json?.vdxfkeys;
+    instance.vdxfKeyNames = json?.vdxfkeynames;
+    instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
+    instance.statements = json.statements?.map(x => Buffer.from(x, 'hex'));
+    instance.signatureAsVch = Buffer.from(json.signature, 'hex');
+    return instance;
   }
 }

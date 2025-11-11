@@ -252,4 +252,5 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     // data is undefined or empty
     expect(parsed.data).toBeUndefined();
   });
+
 });

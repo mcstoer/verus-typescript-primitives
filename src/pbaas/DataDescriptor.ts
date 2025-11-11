@@ -67,6 +67,7 @@ export class DataDescriptor implements SerializableEntity {
   }) {
     this.flags = new BN(0);
     this.version = DataDescriptor.DEFAULT_VERSION;
+    this.objectdata = Buffer.from([]);
 
     if (data != null) {
       if (data.flags != null) this.flags = data.flags
@@ -315,7 +316,7 @@ export class DataDescriptor implements SerializableEntity {
 
     processedObject.fromBuffer(this.objectdata);
 
-    if (processedObject.values[0][""]) {
+    if (processedObject.values[0]?.[""]) {
 
       const keys = Object.keys(processedObject.values[0]);
       const values = Object.values(processedObject.values[0]);

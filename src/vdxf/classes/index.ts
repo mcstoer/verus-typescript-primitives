@@ -47,3 +47,13 @@ export {
 } from './provisioning/ProvisioningResult'
 export { Context } from './Context'
 export { DataCategory } from './PersonalProfile'
+export * from './requestobjects/RequestUserData'
+export * from './requestobjects/LoginRequestDetails'
+export * from './requestobjects/ProvisionIdentityDetails'
+export * from './requestobjects/AppEncryptionRequestDetails'
+export * from './requestobjects/PersonalUserDataDetails'
+export * from './CompactIdAddressObject'
+export {
+  VerifiableSignatureData,
+  VerifiableSignatureDataJson
+} from './VerifiableSignatureData'
