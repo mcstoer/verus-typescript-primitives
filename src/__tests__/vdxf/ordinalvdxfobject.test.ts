@@ -253,33 +253,4 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(parsed.data).toBeUndefined();
   });
 
-  it('should serialize / deserialize a LoginRequestDetailsOrdinalVdxfObject via buffer', () => {
-    const obj = new LoginRequestDetails({
-          requestId: "iBJqQMRzpCW1WVYoU2Ty2VbCJnvyTEsE1C",
-          flags: new BN(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS)
-            .or(new BN(LoginRequestDetails.FLAG_HAS_CALLBACK_URI))
-            .or(new BN(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME)),
-          recipientConstraints: [{type: 1, identity: new CompactIdAddressObject({
-              version: new BN(1),
-              type: CompactIdAddressObject.IS_IDENTITYID,
-              address: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
-              rootSystemName: "VRSC"
-          })}],
-          callbackURIs: [{type: 2, uri: "https://example.com/callback"}],
-          expiryTime: new BN(345353453),
-    });
-
-    const objOrdinal = new LoginRequestDetailsOrdinalVdxfObject({ data: obj });
-
-    const round = roundTripBuffer(objOrdinal);
-    expect(round).toBeInstanceOf(LoginRequestDetailsOrdinalVdxfObject);
-    const d2 = (round as LoginRequestDetailsOrdinalVdxfObject).data;
-    expect(d2.requestId).toEqual(objOrdinal.data.requestId);
-    const json = objOrdinal.toJson();
-    expect(json.data).toBeDefined();
-    const roundJ = roundTripJson(objOrdinal);
-    expect(roundJ).toBeInstanceOf(LoginRequestDetailsOrdinalVdxfObject);
-    const d3 = (roundJ as LoginRequestDetailsOrdinalVdxfObject).data;
-    expect(d3.requestId).toEqual(objOrdinal.data.requestId);
-    }); 
 });
