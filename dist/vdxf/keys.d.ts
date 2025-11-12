@@ -75,3 +75,5 @@ export declare const DATA_TYPE_OBJECT_CREDENTIAL: VDXFKeyInterface;
 export declare const IDENTITY_CREDENTIALS: VDXFKeyInterface;
 export declare const IDENTITY_CREDENTIAL_PLAINLOGIN: VDXFKeyInterface;
 export declare const IDENTITY_CREDENTIAL_USERNAME: VDXFKeyInterface;
+export declare const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface;
+export declare const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface;
