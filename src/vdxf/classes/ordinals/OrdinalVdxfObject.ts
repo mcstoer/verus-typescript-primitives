@@ -9,7 +9,12 @@ import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../../cons
 import { OrdinalVdxfObjectOrdinalMap } from "./OrdinalVdxfObjectOrdinalMap";
 import { DEFAULT_VERUS_CHAINNAME } from "../../../constants/pbaas";
 import { OrdinalVdxfObjectReservedData, OrdinalVdxfObjectReservedDataJson } from "../../../constants/ordinals/types";
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY, VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, VDXF_ORDINAL_DATA_DESCRIPTOR } from "../../../constants/ordinals/ordinals";
+import { 
+  VDXF_OBJECT_RESERVED_BYTE_I_ADDR, 
+  VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY, 
+  VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, 
+  VDXF_ORDINAL_DATA_DESCRIPTOR 
+} from "../../../constants/ordinals/ordinals";
 
 export interface OrdinalVdxfObjectInterfaceTemplate<T> {
   version?: BigNumber;

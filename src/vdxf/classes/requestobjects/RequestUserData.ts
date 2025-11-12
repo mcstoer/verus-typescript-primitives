@@ -22,7 +22,6 @@
 
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
-import varint from '../../../utils/varint';
 import varuint from '../../../utils/varuint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
@@ -47,7 +46,6 @@ export interface RequestUserDataJson {
 }
 
 export class RequestUserData implements SerializableEntity {
-
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -78,7 +76,6 @@ export class RequestUserData implements SerializableEntity {
     this.requestedKeys = data?.requestedKeys;
 
     this.setFlags();
-
   }
 
   calcFlags(): BigNumber {
@@ -94,7 +91,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   setFlags(): void {
-    
     this.flags = this.calcFlags();
   }
 
@@ -146,7 +142,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   getByteLength(): number {
-    
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -177,7 +172,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-    
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
     writer.writeCompactSize(this.flags.toNumber());
 
@@ -240,7 +234,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   toJson(): RequestUserDataJson {
-    
     const flags = this.calcFlags();
 
     return {
@@ -253,7 +246,6 @@ export class RequestUserData implements SerializableEntity {
   }
 
   static fromJson(json: RequestUserDataJson) {
-
     const requestData = new RequestUserData();
     requestData.version = new BN(json.version);
     requestData.flags = new BN(json.flags);
@@ -263,5 +255,4 @@ export class RequestUserData implements SerializableEntity {
 
     return requestData;
   }
-
 }

@@ -17,14 +17,12 @@
 
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
-import varint from '../../../utils/varint';
 import varuint from '../../../utils/varuint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../../../vdxf/classes/VerifiableSignatureData';
-
 
 export interface PersonalUserDataDetailsInterface {
   version?: BigNumber;
@@ -43,7 +41,6 @@ export interface PersonalUserDataDetailsJson {
 }
 
 export class PersonalUserDataDetails implements SerializableEntity {
-
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -116,7 +113,6 @@ export class PersonalUserDataDetails implements SerializableEntity {
   }
 
   getByteLength(): number {
-
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
@@ -145,7 +141,6 @@ export class PersonalUserDataDetails implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     writer.writeCompactSize(this.flags.toNumber());

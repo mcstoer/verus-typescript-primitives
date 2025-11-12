@@ -78,3 +78,4 @@ export declare const IDENTITY_CREDENTIAL_USERNAME: VDXFKeyInterface;
 export declare const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface;
 export declare const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface;
 export declare const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface;
+export declare const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface;

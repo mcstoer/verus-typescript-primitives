@@ -1,6 +1,5 @@
 import { BN } from "bn.js";
-import { AppEncryptionRequestDetails, AppEncryptionRequestDetailsJson, CompactIdAddressObject } from "../../vdxf/classes";
-import { TransferDestination } from "../../pbaas/TransferDestination";
+import { AppEncryptionRequestDetails, CompactIdAddressObject } from "../../vdxf/classes";
 import { BigNumber } from "../../utils/types/BigNumber";
 
 // Helper function to create TransferDestination from address string
@@ -10,7 +9,6 @@ function createCompactIdAddressObject(type: BigNumber, address: string): Compact
   obj.address = address;
   return obj;
 }
-
 
 describe("AppEncryptionRequestDetails serialization tests", () => {
   test("creates valid AppEncryptionRequestDetails with zaddress", () => {

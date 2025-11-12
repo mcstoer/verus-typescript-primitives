@@ -18,7 +18,6 @@ import bufferutils from "../../../utils/bufferutils";
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 import varuint from "../../../utils/varuint";
 
@@ -39,7 +38,6 @@ export interface ProvisionIdentityDetailsJson {
 }
 
 export class ProvisionIdentityDetails implements SerializableEntity {
-
   version: BigNumber;
   flags: BigNumber;  
   systemID?: CompactIdAddressObject; // system e.g. VRSC@
@@ -55,7 +53,6 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   static FLAG_HAS_SYSTEMID = new BN(1, 10);
   static FLAG_HAS_PARENTID = new BN(2, 10);
   static FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new BN(4, 10);
-
 
   constructor(data?: ProvisionIdentityDetailsInterface) {
     this.version = data?.version || ProvisionIdentityDetails.DEFAULT_VERSION;

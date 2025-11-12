@@ -1,5 +1,6 @@
 import { BN } from 'bn.js';
 import {
+  AppEncryptionRequestDetailsOrdinalVdxfObject,
   GeneralTypeOrdinalVdxfObject,
   getOrdinalVdxfObjectClassForType,
   IdentityUpdateRequestOrdinalVdxfObject,
@@ -11,13 +12,31 @@ import {
   DataDescriptorOrdinalVdxfObject
 } from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { CompactIdAddressObject, IdentityUpdateRequestDetails, IdentityUpdateResponseDetails, LoginRequestDetails, ProvisionIdentityDetails, ResponseUri, VerusPayInvoiceDetails } from '../../vdxf/classes';
+import { 
+  AppEncryptionRequestDetails, 
+  CompactIdAddressObject, 
+  IdentityUpdateRequestDetails, 
+  IdentityUpdateResponseDetails, 
+  LoginRequestDetails, 
+  ProvisionIdentityDetails, 
+  ResponseUri, 
+  VerusPayInvoiceDetails 
+} from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST_DETAILS, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
 import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVdxfObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject';
+import { BigNumber } from '../../utils/types/BigNumber';
+
+// Helper function to create TransferDestination from address string
+function createCompactIdAddressObject(type: BigNumber, address: string): CompactIdAddressObject {
+  const obj = new CompactIdAddressObject();
+  obj.type = type;
+  obj.address = address;
+  return obj;
+}
 
 describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   function roundTripBuffer<T extends OrdinalVdxfObject>(obj: T): T {
@@ -51,6 +70,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = LoginRequestOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof ProvisionIdentityDetailsOrdinalVdxfObject) {
       newObj = ProvisionIdentityDetailsOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof AppEncryptionRequestDetailsOrdinalVdxfObject) {
+      newObj = AppEncryptionRequestDetailsOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -263,7 +284,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
   });
 
-  it('should serialize / deserialize a ProvisionIdentityDetailsOrdinalVdxfObject via buffer', () => {
+  it('should serialize / deserialize a ProvisionIdentityDetailsOrdinalVdxfObject', () => {
     const details = new ProvisionIdentityDetails({
       version: new BN(1, 10),
       flags: ProvisionIdentityDetails.FLAG_HAS_SYSTEMID.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID),
@@ -290,6 +311,44 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.parentID!.toIAddress()).toEqual(details.parentID!.toIAddress());
   });
 
+  it('should serialize / deserialize an AppEncryptionRequestOrdinalVdxfObject', () => {
+    const details = new AppEncryptionRequestDetails({
+      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
+        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      derivationNumber: new BN(42),
+      secondaryDerivationNumber: new BN(234),
+      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+    });
+
+    const obj = new AppEncryptionRequestDetailsOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(AppEncryptionRequestDetailsOrdinalVdxfObject);
+
+    const d2 = (round as AppEncryptionRequestDetailsOrdinalVdxfObject).data;
+    expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
+    expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
+    expect(d2.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
+    expect(d2.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
+    expect(d2.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(AppEncryptionRequestDetailsOrdinalVdxfObject);
+
+    const d3 = (roundJ as AppEncryptionRequestDetailsOrdinalVdxfObject).data;
+    expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
+    expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
+    expect(d3.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
+    expect(d3.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
+    expect(d3.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+  });
+
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
@@ -305,6 +364,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       .toBe(LoginRequestOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS))
       .toBe(ProvisionIdentityDetailsOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST_DETAILS))
+      .toBe(AppEncryptionRequestDetailsOrdinalVdxfObject);
 
     // unrecognized
     expect(() => getOrdinalVdxfObjectClassForType(new BN(999))).toThrow();

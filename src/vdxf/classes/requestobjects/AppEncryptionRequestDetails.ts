@@ -61,7 +61,6 @@ export interface AppEncryptionRequestDetailsJson {
  */
 
 export class AppEncryptionRequestDetails implements SerializableEntity {
-
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -257,5 +256,4 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     
     return instance;
   }
-
 }

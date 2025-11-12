@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_LOGIN_REQUEST } from "../../../constants/ordinals/ordinals";
+import { VDXF_ORDINAL_LOGIN_REQUEST } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
 import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";

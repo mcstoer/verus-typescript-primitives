@@ -654,3 +654,13 @@ export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   },
   "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
 }
+
+export const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "f178871fedb335cf6659f8527a6c9652bc8e1d79",
+  "indexid": "xKM34nS3HiFvf3WDKL8DBrhpj2GqVWEaH4",
+  "qualifiedname": {
+    "name": "vrsc::application.encryption.request.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iEWvbyzxSQ3G2sdBTeU4DUBHhNFpd6rUFx"
+}
