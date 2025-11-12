@@ -636,11 +636,21 @@ export const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface = {
 }
 
 export const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "i4FZ64np4rhtEkSF8mUX7xtaoqqWLPh1cf",
-  "indexid": "x95fYsDtvAvYrvKGzT8g6MR7qVrXBnjHhp",
-  "hash160result": "b1fe18b799bd076bfa9afcb206e934468c198408",
+  "hash160result": "bf65d30f52d523170e8422ed7204342607d44229",
+  "indexid": "xC4of3pbeRqveks6kRNYdV9FQ1L5x5wXRE",
   "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::request.loginrequestdetails"
-  }
+    "name": "vrsc::identity.login.request.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "i7EhCFPWo7dG2az4tjiPf6ciNMK5671Z5A"
+}
+
+export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "1ed843dce0f4d9a2bbb839994e3927807eb1878c",
+  "indexid": "xM7h3sXBovFXuwGQ3wvK2ibtUmMHn3mYkM",
+  "qualifiedname": {
+    "name": "vrsc::identity.provision.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
 }

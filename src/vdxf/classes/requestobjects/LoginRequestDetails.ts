@@ -22,13 +22,12 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varuint from "../../../utils/varuint";
 import { I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
-import varint from "../../../utils/varint";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
 export interface LoginRequestDetailsInterface {
   version?: BigNumber;
   flags?: BigNumber;  
-  requestId: string;
+  requestID: string;
   recipientConstraints?: Array<RecipientConstraint>;
   callbackURIs?: Array<callbackURIs>;
   expiryTime?: BigNumber; // UNIX Timestamp
@@ -43,6 +42,7 @@ export interface callbackURIsJson {
   type: number;
   uri: string;
 }
+
 export interface RecipientConstraint {
   type: number;
   identity: CompactIdAddressObject;
@@ -65,7 +65,7 @@ export interface LoginRequestDetailsJson {
 export class LoginRequestDetails implements SerializableEntity {
   version: BigNumber;
   flags?: BigNumber;  
-  requestId: string;
+  requestID: string;
   recipientConstraints?: Array<RecipientConstraint>;
   callbackURIs?: Array<callbackURIs>;
   expiryTime?: BigNumber; // UNIX Timestamp
@@ -93,7 +93,7 @@ export class LoginRequestDetails implements SerializableEntity {
   ) {
 
     this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;
-    this.requestId = request?.requestId || '';
+    this.requestID = request?.requestID || '';
     this.flags = request?.flags || new BN(0, 10);
     this.recipientConstraints = request?.recipientConstraints || null;
     this.callbackURIs = request?.callbackURIs || null;
@@ -133,7 +133,7 @@ export class LoginRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
-    length += 20; // requestId hash length
+    length += 20; // requestID hash length
 
     if (this.hasRecipentConstraints()) {
 
@@ -165,7 +165,7 @@ export class LoginRequestDetails implements SerializableEntity {
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
     writer.writeCompactSize(this.flags.toNumber());
-    writer.writeSlice(fromBase58Check(this.requestId).hash);
+    writer.writeSlice(fromBase58Check(this.requestID).hash);
 
     if (this.hasRecipentConstraints()) {
 
@@ -195,7 +195,7 @@ export class LoginRequestDetails implements SerializableEntity {
     const reader = new bufferutils.BufferReader(buffer, offset);
 
     this.flags = new BN(reader.readCompactSize());
-    this.requestId = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+    this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
 
     if (this.hasRecipentConstraints()) {
       this.recipientConstraints = [];
@@ -236,7 +236,7 @@ export class LoginRequestDetails implements SerializableEntity {
     const retval = {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
-      requestid: this.requestId,
+      requestid: this.requestID,
       recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
       callbackURIs: this.callbackURIs ? this.callbackURIs : undefined,
@@ -252,7 +252,7 @@ export class LoginRequestDetails implements SerializableEntity {
 
     loginDetails.version = new BN(data?.version || 0);
     loginDetails.flags = new BN(data?.flags || 0);
-    loginDetails.requestId = data.requestid;
+    loginDetails.requestID = data.requestid;
 
     if(loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
       loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({type: p.type,
@@ -276,12 +276,12 @@ export class LoginRequestDetails implements SerializableEntity {
   }   
 
   isValid(): boolean {
-    let valid = this.requestId != null && this.requestId.length > 0;
+    let valid = this.requestID != null && this.requestID.length > 0;
     valid &&= this.flags != null && this.flags.gte(new BN(0));
     
-    // Validate requestId is a valid base58 address
+    // Validate requestID is a valid base58 address
     try {
-      fromBase58Check(this.requestId);
+      fromBase58Check(this.requestID);
     } catch {
       valid = false;
     }

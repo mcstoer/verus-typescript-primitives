@@ -25,9 +25,9 @@ import varuint from "../../../utils/varuint";
 export interface ProvisionIdentityDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;  
-  systemId?: CompactIdAddressObject; // system e.g. VRSC@
-  parentId?: CompactIdAddressObject; // parent e.g. Token@
-  identityId?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
+  systemID?: CompactIdAddressObject; // system e.g. VRSC@
+  parentID?: CompactIdAddressObject; // parent e.g. Token@
+  identityID?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
 }
 
 export interface ProvisionIdentityDetailsJson {
@@ -42,9 +42,9 @@ export class ProvisionIdentityDetails implements SerializableEntity {
 
   version: BigNumber;
   flags: BigNumber;  
-  systemId?: CompactIdAddressObject; // system e.g. VRSC@
-  parentId?: CompactIdAddressObject; // parent e.g. Token@
-  identityId?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
+  systemID?: CompactIdAddressObject; // system e.g. VRSC@
+  parentID?: CompactIdAddressObject; // parent e.g. Token@
+  identityID?: CompactIdAddressObject; // Full identity e.g. john.VRSC@
   
   // Version
   static DEFAULT_VERSION = new BN(1, 10)
@@ -57,14 +57,12 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   static FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new BN(4, 10);
 
 
-  constructor(
-    data?: ProvisionIdentityDetailsInterface ){
-
+  constructor(data?: ProvisionIdentityDetailsInterface) {
     this.version = data?.version || ProvisionIdentityDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0, 10);
-    this.systemId = data?.systemId;
-    this.parentId = data?.parentId;
-    this.identityId = data?.identityId;
+    this.systemID = data?.systemID;
+    this.parentID = data?.parentID;
+    this.identityID = data?.identityID;
 
     this.setFlags();
   }
@@ -82,41 +80,39 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   }
 
   getByteLength(): number {
-
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
     if (this.hasSystemId()) {
-      length += this.systemId.getByteLength();
+      length += this.systemID.getByteLength();
     }
 
     if (this.hasParentId()) {
-      length += this.parentId.getByteLength();
+      length += this.parentID.getByteLength();
     } 
 
     if (this.hasIdentityId()) {
-      length += this.identityId.getByteLength();
+      length += this.identityID.getByteLength();
     } 
 
     return length;
   }
 
   toBuffer(): Buffer {
-
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
     writer.writeCompactSize(this.flags.toNumber());
 
     if (this.hasSystemId()) {
-      writer.writeSlice(this.systemId.toBuffer());
+      writer.writeSlice(this.systemID.toBuffer());
     }
 
     if (this.hasParentId()) {
-      writer.writeSlice(this.parentId.toBuffer());
+      writer.writeSlice(this.parentID.toBuffer());
     } 
 
     if (this.hasIdentityId()) {
-      writer.writeSlice(this.identityId.toBuffer());
+      writer.writeSlice(this.identityID.toBuffer());
     }
 
     return writer.buffer;
@@ -129,21 +125,21 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
 
     if (this.hasSystemId()) {
-      const systemId = new CompactIdAddressObject();
-      reader.offset = systemId.fromBuffer(reader.buffer, reader.offset);
-      this.systemId = systemId;
+      const systemID = new CompactIdAddressObject();
+      reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
+      this.systemID = systemID;
     }
 
     if (this.hasParentId()) {
-      const parentId = new CompactIdAddressObject();
-      reader.offset = parentId.fromBuffer(reader.buffer, reader.offset);
-      this.parentId = parentId;
+      const parentID = new CompactIdAddressObject();
+      reader.offset = parentID.fromBuffer(reader.buffer, reader.offset);
+      this.parentID = parentID;
     }
 
     if (this.hasIdentityId()) {
-      const identityId = new CompactIdAddressObject();
-      reader.offset = identityId.fromBuffer(reader.buffer, reader.offset);
-      this.identityId = identityId;
+      const identityID = new CompactIdAddressObject();
+      reader.offset = identityID.fromBuffer(reader.buffer, reader.offset);
+      this.identityID = identityID;
     }
 
     return reader.offset;
@@ -154,9 +150,9 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
-      systemid: this.systemId ? this.systemId.toJson() : null,
-      parentid: this.parentId ? this.parentId.toJson() : null,
-      identityid: this.identityId ? this.identityId.toJson() : null,
+      systemid: this.systemID ? this.systemID.toJson() : null,
+      parentid: this.parentID ? this.parentID.toJson() : null,
+      identityid: this.identityID ? this.identityID.toJson() : null,
     };
   }
 
@@ -167,15 +163,15 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     provision.flags = new BN(data?.flags || 0);
 
     if (provision.hasSystemId()) {
-      provision.systemId = CompactIdAddressObject.fromJson(data.systemid);
+      provision.systemID = CompactIdAddressObject.fromJson(data.systemid);
     }
 
     if (provision.hasParentId()) {
-      provision.parentId = CompactIdAddressObject.fromJson(data.parentid);
+      provision.parentID = CompactIdAddressObject.fromJson(data.parentid);
     }
 
     if (provision.hasIdentityId()) {
-      provision.identityId = CompactIdAddressObject.fromJson(data.identityid);
+      provision.identityID = CompactIdAddressObject.fromJson(data.identityid);
     }
 
     return provision;
@@ -184,15 +180,15 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   calcFlags(): BigNumber {
     let flags = new BN(0, 10);
 
-    if (this.systemId) {
+    if (this.systemID) {
       flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
     }
 
-    if (this.parentId) {
+    if (this.parentID) {
       flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
     }
 
-    if (this.identityId) {
+    if (this.identityID) {
       flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
     }
 
@@ -205,7 +201,6 @@ export class ProvisionIdentityDetails implements SerializableEntity {
 
 
   isValid(): boolean {
-
     let valid = this.flags != null && this.flags.gte(new BN(0));
 
     valid &&= this.version != null;

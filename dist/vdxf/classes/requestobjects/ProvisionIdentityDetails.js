@@ -24,9 +24,9 @@ class ProvisionIdentityDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || ProvisionIdentityDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0, 10);
-        this.systemId = data === null || data === void 0 ? void 0 : data.systemId;
-        this.parentId = data === null || data === void 0 ? void 0 : data.parentId;
-        this.identityId = data === null || data === void 0 ? void 0 : data.identityId;
+        this.systemID = data === null || data === void 0 ? void 0 : data.systemID;
+        this.parentID = data === null || data === void 0 ? void 0 : data.parentID;
+        this.identityID = data === null || data === void 0 ? void 0 : data.identityID;
         this.setFlags();
     }
     hasSystemId() {
@@ -42,13 +42,13 @@ class ProvisionIdentityDetails {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.hasSystemId()) {
-            length += this.systemId.getByteLength();
+            length += this.systemID.getByteLength();
         }
         if (this.hasParentId()) {
-            length += this.parentId.getByteLength();
+            length += this.parentID.getByteLength();
         }
         if (this.hasIdentityId()) {
-            length += this.identityId.getByteLength();
+            length += this.identityID.getByteLength();
         }
         return length;
     }
@@ -56,13 +56,13 @@ class ProvisionIdentityDetails {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
         if (this.hasSystemId()) {
-            writer.writeSlice(this.systemId.toBuffer());
+            writer.writeSlice(this.systemID.toBuffer());
         }
         if (this.hasParentId()) {
-            writer.writeSlice(this.parentId.toBuffer());
+            writer.writeSlice(this.parentID.toBuffer());
         }
         if (this.hasIdentityId()) {
-            writer.writeSlice(this.identityId.toBuffer());
+            writer.writeSlice(this.identityID.toBuffer());
         }
         return writer.buffer;
     }
@@ -72,19 +72,19 @@ class ProvisionIdentityDetails {
             throw new Error("Cannot create provision identity from empty buffer");
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.hasSystemId()) {
-            const systemId = new CompactIdAddressObject_1.CompactIdAddressObject();
-            reader.offset = systemId.fromBuffer(reader.buffer, reader.offset);
-            this.systemId = systemId;
+            const systemID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
+            this.systemID = systemID;
         }
         if (this.hasParentId()) {
-            const parentId = new CompactIdAddressObject_1.CompactIdAddressObject();
-            reader.offset = parentId.fromBuffer(reader.buffer, reader.offset);
-            this.parentId = parentId;
+            const parentID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            reader.offset = parentID.fromBuffer(reader.buffer, reader.offset);
+            this.parentID = parentID;
         }
         if (this.hasIdentityId()) {
-            const identityId = new CompactIdAddressObject_1.CompactIdAddressObject();
-            reader.offset = identityId.fromBuffer(reader.buffer, reader.offset);
-            this.identityId = identityId;
+            const identityID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            reader.offset = identityID.fromBuffer(reader.buffer, reader.offset);
+            this.identityID = identityID;
         }
         return reader.offset;
     }
@@ -93,9 +93,9 @@ class ProvisionIdentityDetails {
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
-            systemid: this.systemId ? this.systemId.toJson() : null,
-            parentid: this.parentId ? this.parentId.toJson() : null,
-            identityid: this.identityId ? this.identityId.toJson() : null,
+            systemid: this.systemID ? this.systemID.toJson() : null,
+            parentid: this.parentID ? this.parentID.toJson() : null,
+            identityid: this.identityID ? this.identityID.toJson() : null,
         };
     }
     static fromJson(data) {
@@ -103,25 +103,25 @@ class ProvisionIdentityDetails {
         provision.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         provision.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
         if (provision.hasSystemId()) {
-            provision.systemId = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.systemid);
+            provision.systemID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.systemid);
         }
         if (provision.hasParentId()) {
-            provision.parentId = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.parentid);
+            provision.parentID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.parentid);
         }
         if (provision.hasIdentityId()) {
-            provision.identityId = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.identityid);
+            provision.identityID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.identityid);
         }
         return provision;
     }
     calcFlags() {
         let flags = new bn_js_1.BN(0, 10);
-        if (this.systemId) {
+        if (this.systemID) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
         }
-        if (this.parentId) {
+        if (this.parentID) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
         }
-        if (this.identityId) {
+        if (this.identityID) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
         }
         return flags;

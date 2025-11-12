@@ -25,7 +25,7 @@ const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
 class LoginRequestDetails {
     constructor(request) {
         this.version = (request === null || request === void 0 ? void 0 : request.version) || LoginRequestDetails.DEFAULT_VERSION;
-        this.requestId = (request === null || request === void 0 ? void 0 : request.requestId) || '';
+        this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || '';
         this.flags = (request === null || request === void 0 ? void 0 : request.flags) || new bn_js_1.BN(0, 10);
         this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) || null;
         this.callbackURIs = (request === null || request === void 0 ? void 0 : request.callbackURIs) || null;
@@ -56,7 +56,7 @@ class LoginRequestDetails {
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
-        length += 20; // requestId hash length
+        length += 20; // requestID hash length
         if (this.hasRecipentConstraints()) {
             length += varuint_1.default.encodingLength(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
@@ -80,7 +80,7 @@ class LoginRequestDetails {
     toBuffer() {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
-        writer.writeSlice((0, address_1.fromBase58Check)(this.requestId).hash);
+        writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
         if (this.hasRecipentConstraints()) {
             writer.writeCompactSize(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
@@ -103,7 +103,7 @@ class LoginRequestDetails {
     fromBuffer(buffer, offset) {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
-        this.requestId = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+        this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
         if (this.hasRecipentConstraints()) {
             this.recipientConstraints = [];
             const recipientConstraintsLength = reader.readCompactSize();
@@ -138,7 +138,7 @@ class LoginRequestDetails {
         const retval = {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
-            requestid: this.requestId,
+            requestid: this.requestID,
             recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({ type: p.type,
                 identity: p.identity.toJson() })) : undefined,
             callbackURIs: this.callbackURIs ? this.callbackURIs : undefined,
@@ -150,7 +150,7 @@ class LoginRequestDetails {
         const loginDetails = new LoginRequestDetails();
         loginDetails.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         loginDetails.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
-        loginDetails.requestId = data.requestid;
+        loginDetails.requestID = data.requestid;
         if (loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
             loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({ type: p.type,
                 identity: CompactIdAddressObject_1.CompactIdAddressObject.fromJson(p.identity) }));
@@ -168,11 +168,11 @@ class LoginRequestDetails {
         this.flags = this.calcFlags();
     }
     isValid() {
-        let valid = this.requestId != null && this.requestId.length > 0;
+        let valid = this.requestID != null && this.requestID.length > 0;
         valid && (valid = this.flags != null && this.flags.gte(new bn_js_1.BN(0)));
-        // Validate requestId is a valid base58 address
+        // Validate requestID is a valid base58 address
         try {
-            (0, address_1.fromBase58Check)(this.requestId);
+            (0, address_1.fromBase58Check)(this.requestID);
         }
         catch (_a) {
             valid = false;

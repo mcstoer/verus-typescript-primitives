@@ -19,7 +19,7 @@ import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactId
 export interface LoginRequestDetailsInterface {
     version?: BigNumber;
     flags?: BigNumber;
-    requestId: string;
+    requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
     callbackURIs?: Array<callbackURIs>;
     expiryTime?: BigNumber;
@@ -51,7 +51,7 @@ export interface LoginRequestDetailsJson {
 export declare class LoginRequestDetails implements SerializableEntity {
     version: BigNumber;
     flags?: BigNumber;
-    requestId: string;
+    requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
     callbackURIs?: Array<callbackURIs>;
     expiryTime?: BigNumber;

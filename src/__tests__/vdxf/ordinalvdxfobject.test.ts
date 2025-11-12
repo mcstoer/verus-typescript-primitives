@@ -4,18 +4,20 @@ import {
   getOrdinalVdxfObjectClassForType,
   IdentityUpdateRequestOrdinalVdxfObject,
   IdentityUpdateResponseOrdinalVdxfObject,
+  LoginRequestOrdinalVdxfObject,
   OrdinalVdxfObject,
 } from '../../vdxf/classes/ordinals';
 import {
   DataDescriptorOrdinalVdxfObject
 } from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { IdentityUpdateRequestDetails, IdentityUpdateResponseDetails, ResponseUri, VerusPayInvoiceDetails } from '../../vdxf/classes';
+import { CompactIdAddressObject, IdentityUpdateRequestDetails, IdentityUpdateResponseDetails, LoginRequestDetails, ProvisionIdentityDetails, ResponseUri, VerusPayInvoiceDetails } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
-import { TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
+import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
+import { ProvisionIdentityDetailsOrdinalVdxfObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject';
 
 describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   function roundTripBuffer<T extends OrdinalVdxfObject>(obj: T): T {
@@ -45,6 +47,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = IdentityUpdateRequestOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof IdentityUpdateResponseOrdinalVdxfObject) {
       newObj = IdentityUpdateResponseOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof LoginRequestOrdinalVdxfObject) {
+      newObj = LoginRequestOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof ProvisionIdentityDetailsOrdinalVdxfObject) {
+      newObj = ProvisionIdentityDetailsOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -223,6 +229,67 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
 
+  it('should serialize / deserialize a LoginRequestOrdinalVdxfObject via buffer', () => {
+    const details = new LoginRequestDetails({
+      requestID: TEST_CHALLENGE_ID,
+      recipientConstraints: [
+        { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+        { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+        { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+      ],
+      callbackURIs: [{
+        type: LoginRequestDetails.TYPE_WEBHOOK,
+        uri: "https://example.com/callback"
+      }],
+      expiryTime: new BN(2938475938457)
+    });
+
+    const obj = new LoginRequestOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(LoginRequestOrdinalVdxfObject);
+
+    const d2 = (round as LoginRequestOrdinalVdxfObject).data;
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d2.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(LoginRequestOrdinalVdxfObject);
+
+    const d3 = (roundJ as LoginRequestOrdinalVdxfObject).data;
+    expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d3.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
+  });
+
+  it('should serialize / deserialize a ProvisionIdentityDetailsOrdinalVdxfObject via buffer', () => {
+    const details = new ProvisionIdentityDetails({
+      version: new BN(1, 10),
+      flags: ProvisionIdentityDetails.FLAG_HAS_SYSTEMID.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID),
+      systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }),
+      parentID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" })
+    })
+
+    const obj = new ProvisionIdentityDetailsOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(ProvisionIdentityDetailsOrdinalVdxfObject);
+
+    const d2 = (round as ProvisionIdentityDetailsOrdinalVdxfObject).data;
+    expect(d2.systemID!.toIAddress()).toEqual(details.systemID!.toIAddress());
+    expect(d2.parentID!.toIAddress()).toEqual(details.parentID!.toIAddress());
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(ProvisionIdentityDetailsOrdinalVdxfObject);
+
+    const d3 = (roundJ as ProvisionIdentityDetailsOrdinalVdxfObject).data;
+    expect(d3.systemID!.toIAddress()).toEqual(details.systemID!.toIAddress());
+    expect(d3.parentID!.toIAddress()).toEqual(details.parentID!.toIAddress());
+  });
+
   it('getOrdinalVdxfObjectClassForType should map to correct classes', () => {
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_DATA_DESCRIPTOR))
       .toBe(DataDescriptorOrdinalVdxfObject);
@@ -234,6 +301,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       .toBe(IdentityUpdateResponseOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_LOGIN_REQUEST))
+      .toBe(LoginRequestOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS))
+      .toBe(ProvisionIdentityDetailsOrdinalVdxfObject);
 
     // unrecognized
     expect(() => getOrdinalVdxfObjectClassForType(new BN(999))).toThrow();

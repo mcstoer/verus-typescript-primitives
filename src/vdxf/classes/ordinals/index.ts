@@ -7,5 +7,6 @@ export * from './OrdinalVdxfObject'
 export * from './OrdinalVdxfObjectOrdinalMap'
 export * from './SerializableEntityOrdinalVdxfObject'
 export * from './VerusPayInvoiceOrdinalVdxfObject'
+export * from './LoginRequestDetailsOrdinalVdxfObject'
 
 registerOrdinals();

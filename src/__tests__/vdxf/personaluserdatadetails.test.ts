@@ -9,20 +9,20 @@ import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureD
 
 describe("PersonalUserDataDetails", () => {
   describe("constructor and basic properties", () => {
-
     test("creates instance with custom values", () => {
       const item = new PersonalUserDataDetails({
         version: new BN(PersonalUserDataDetails.DEFAULT_VERSION),
         flags: PersonalUserDataDetails.HAS_STATEMENTS.or(PersonalUserDataDetails.HAS_SIGNATURE),
-        signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata : "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT})],
+        signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
         statements: ["Statement 1", "Statement 2"],
-        signature: new VerifiableSignatureData({version: new BN(1), 
+        signature: new VerifiableSignatureData({
+          version: new BN(1),
           signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
           hashType: new BN(1),
           flags: new BN(0),
-          identityID: new CompactIdAddressObject({version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC"}),
-          systemID: new CompactIdAddressObject({version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC"}),
-      })
+          identityID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+          systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+        })
       });
 
       const detailsBuffer = item.toBuffer();
@@ -39,11 +39,7 @@ describe("PersonalUserDataDetails", () => {
       expect(newDetails.statements?.length).toBe(2);
       expect(newDetails.statements?.[0]).toBe("Statement 1");
       expect(newDetails.signature?.signatureAsVch.toString('hex')).toBe("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf");
-      
-
-
+      expect(newDetails.toBuffer().toString('hex')).toBe(detailsBuffer.toString('hex'));
     });
   });
-
-
 });

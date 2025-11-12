@@ -19,9 +19,9 @@ import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactId
 export interface ProvisionIdentityDetailsInterface {
     version?: BigNumber;
     flags: BigNumber;
-    systemId?: CompactIdAddressObject;
-    parentId?: CompactIdAddressObject;
-    identityId?: CompactIdAddressObject;
+    systemID?: CompactIdAddressObject;
+    parentID?: CompactIdAddressObject;
+    identityID?: CompactIdAddressObject;
 }
 export interface ProvisionIdentityDetailsJson {
     version?: number;
@@ -33,9 +33,9 @@ export interface ProvisionIdentityDetailsJson {
 export declare class ProvisionIdentityDetails implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
-    systemId?: CompactIdAddressObject;
-    parentId?: CompactIdAddressObject;
-    identityId?: CompactIdAddressObject;
+    systemID?: CompactIdAddressObject;
+    parentID?: CompactIdAddressObject;
+    identityID?: CompactIdAddressObject;
     static DEFAULT_VERSION: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");
