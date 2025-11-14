@@ -6,15 +6,17 @@ const bufferutils_1 = require("../../../utils/bufferutils");
 const createHash = require("create-hash");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../constants/pbaas");
+const vdxf_1 = require("../../../constants/vdxf");
+const address_1 = require("../../../utils/address");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateResponseDetails {
     constructor(data) {
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN("0", 10);
         if (data === null || data === void 0 ? void 0 : data.requestID) {
+            if (!this.containsRequestID())
+                this.toggleContainsRequestID();
             this.requestID = data.requestID;
         }
-        else
-            this.requestID = new bn_js_1.BN("0", 10);
         if (data === null || data === void 0 ? void 0 : data.createdAt) {
             this.createdAt = data.createdAt;
         }
@@ -27,8 +29,14 @@ class IdentityUpdateResponseDetails {
     containsTxid() {
         return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID).toNumber());
     }
+    containsRequestID() {
+        return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    }
     toggleContainsTxid() {
         this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID);
+    }
+    toggleContainsRequestID() {
+        this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID);
     }
     toSha256() {
         return createHash("sha256").update(this.toBuffer()).digest();
@@ -36,7 +44,9 @@ class IdentityUpdateResponseDetails {
     getByteLength() {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
-        length += varint_1.default.encodingLength(this.requestID);
+        if (this.containsRequestID()) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
+        }
         length += varint_1.default.encodingLength(this.createdAt);
         if (this.containsTxid()) {
             length += pbaas_1.UINT_256_LENGTH;
@@ -46,7 +56,9 @@ class IdentityUpdateResponseDetails {
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
-        writer.writeVarInt(this.requestID);
+        if (this.containsRequestID()) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        }
         writer.writeVarInt(this.createdAt);
         if (this.containsTxid()) {
             if (this.txid.length !== pbaas_1.UINT_256_LENGTH)
@@ -58,7 +70,9 @@ class IdentityUpdateResponseDetails {
     fromBuffer(buffer, offset = 0) {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
-        this.requestID = reader.readVarInt();
+        if (this.containsRequestID()) {
+            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+        }
         this.createdAt = reader.readVarInt();
         if (this.containsTxid()) {
             this.txid = reader.readSlice(pbaas_1.UINT_256_LENGTH);
@@ -68,7 +82,7 @@ class IdentityUpdateResponseDetails {
     toJson() {
         return {
             flags: this.flags.toString(10),
-            requestid: this.requestID.toString(10),
+            requestid: this.containsRequestID() ? this.requestID : undefined,
             createdat: this.createdAt.toString(10),
             txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
         };
@@ -76,7 +90,7 @@ class IdentityUpdateResponseDetails {
     static fromJson(json) {
         return new IdentityUpdateResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestID: new bn_js_1.BN(json.requestid, 10),
+            requestID: json.requestid,
             createdAt: new bn_js_1.BN(json.createdat, 10),
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
         });
@@ -86,3 +100,4 @@ exports.IdentityUpdateResponseDetails = IdentityUpdateResponseDetails;
 // stored in natural order, if displayed as text make sure to reverse!
 IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_VALID = new bn_js_1.BN(0, 10);
 IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new bn_js_1.BN(1, 10);
+IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID = new bn_js_1.BN(2, 10);

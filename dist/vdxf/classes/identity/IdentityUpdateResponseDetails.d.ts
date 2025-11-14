@@ -8,19 +8,22 @@ export type IdentityUpdateResponseDetailsJson = {
 };
 export declare class IdentityUpdateResponseDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestID?: BigNumber;
+    requestID?: string;
     createdAt?: BigNumber;
     txid?: Buffer;
     static IDENTITY_UPDATE_RESPONSE_VALID: import("bn.js");
     static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID: import("bn.js");
+    static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestID?: BigNumber;
+        requestID?: string;
         createdAt?: BigNumber;
         txid?: Buffer;
     });
     containsTxid(): boolean;
+    containsRequestID(): boolean;
     toggleContainsTxid(): void;
+    toggleContainsRequestID(): void;
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;

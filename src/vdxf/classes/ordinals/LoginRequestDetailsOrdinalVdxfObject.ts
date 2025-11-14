@@ -2,7 +2,7 @@ import { VDXF_ORDINAL_LOGIN_REQUEST } from "../../../constants/ordinals/ordinals
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
 import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
-import { LoginRequestDetails, LoginRequestDetailsJson } from "../requestobjects/LoginRequestDetails";
+import { LoginRequestDetails, LoginRequestDetailsJson } from "../login/LoginRequestDetails";
 
 export class LoginRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
   data: LoginRequestDetails;

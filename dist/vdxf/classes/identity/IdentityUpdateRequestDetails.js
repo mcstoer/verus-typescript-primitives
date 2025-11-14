@@ -17,10 +17,10 @@ class IdentityUpdateRequestDetails {
     constructor(data) {
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN("0", 10);
         if (data === null || data === void 0 ? void 0 : data.requestID) {
+            if (!this.containsRequestID())
+                this.toggleContainsRequestID();
             this.requestID = data.requestID;
         }
-        else
-            this.requestID = new bn_js_1.BN("0", 10);
         if (data === null || data === void 0 ? void 0 : data.createdAt) {
             this.createdAt = data.createdAt;
         }
@@ -64,6 +64,9 @@ class IdentityUpdateRequestDetails {
     containsSystem() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM).toNumber());
     }
+    containsRequestID() {
+        return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID).toNumber());
+    }
     containsTxid() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID).toNumber());
     }
@@ -81,6 +84,9 @@ class IdentityUpdateRequestDetails {
     }
     toggleContainsSystem() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM);
+    }
+    toggleContainsRequestID() {
+        this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID);
     }
     toggleContainsTxid() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID);
@@ -111,7 +117,9 @@ class IdentityUpdateRequestDetails {
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
-        length += varuint_1.default.encodingLength(this.requestID.toNumber());
+        if (this.containsRequestID()) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
+        }
         length += varuint_1.default.encodingLength(this.createdAt.toNumber());
         length += this.identity.getByteLength();
         if (this.expires())
@@ -137,7 +145,9 @@ class IdentityUpdateRequestDetails {
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
-        writer.writeCompactSize(this.requestID.toNumber());
+        if (this.containsRequestID()) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        }
         writer.writeCompactSize(this.createdAt.toNumber());
         writer.writeSlice(this.identity.toBuffer());
         if (this.expires())
@@ -164,7 +174,9 @@ class IdentityUpdateRequestDetails {
     fromBuffer(buffer, offset = 0, parseVdxfObjects = true) {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
-        this.requestID = new bn_js_1.BN(reader.readCompactSize());
+        if (this.containsRequestID()) {
+            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+        }
         this.createdAt = new bn_js_1.BN(reader.readCompactSize());
         this.identity = new PartialIdentity_1.PartialIdentity();
         reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
@@ -209,7 +221,7 @@ class IdentityUpdateRequestDetails {
         }
         return {
             flags: this.flags ? this.flags.toString(10) : undefined,
-            requestid: this.requestID ? this.requestID.toString(10) : undefined,
+            requestid: this.containsRequestID() ? this.requestID : undefined,
             createdat: this.createdAt ? this.createdAt.toString(10) : undefined,
             identity: this.identity ? this.identity.toJson() : undefined,
             expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
@@ -229,7 +241,7 @@ class IdentityUpdateRequestDetails {
         }
         return new IdentityUpdateRequestDetails({
             flags: json.flags ? new bn_js_1.BN(json.flags, 10) : undefined,
-            requestID: json.requestid ? new bn_js_1.BN(json.requestid, 10) : undefined,
+            requestID: json.requestid,
             createdAt: json.createdat ? new bn_js_1.BN(json.createdat, 10) : undefined,
             identity: json.identity ? PartialIdentity_1.PartialIdentity.fromJson(json.identity) : undefined,
             expiryHeight: json.expiryheight ? new bn_js_1.BN(json.expiryheight, 10) : undefined,
@@ -273,7 +285,7 @@ class IdentityUpdateRequestDetails {
             identity,
             signDataMap,
             systemID: (details === null || details === void 0 ? void 0 : details.systemid) ? pbaas_1.IdentityID.fromAddress(details.systemid) : undefined,
-            requestID: (details === null || details === void 0 ? void 0 : details.requestid) ? new bn_js_1.BN(details.requestid, 10) : undefined,
+            requestID: details === null || details === void 0 ? void 0 : details.requestid,
             createdAt: (details === null || details === void 0 ? void 0 : details.createdat) ? new bn_js_1.BN(details.createdat, 10) : undefined,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
             responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
@@ -287,6 +299,7 @@ IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_VALID = new bn_js_1.BN(0, 1
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA = new bn_js_1.BN(1, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES = new bn_js_1.BN(2, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS = new bn_js_1.BN(4, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(8, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(16, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(32, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new bn_js_1.BN(8, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(16, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(32, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(64, 10);

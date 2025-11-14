@@ -1,4 +1,3 @@
-import varint from '../../../utils/varint'
 import varuint from '../../../utils/varuint'
 import bufferutils from '../../../utils/bufferutils'
 import { fromBase58Check, nameAndParentAddrToIAddr, toBase58Check } from '../../../utils/address';
@@ -33,7 +32,7 @@ export type IdentityUpdateRequestDetailsJson = {
 
 export class IdentityUpdateRequestDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: BigNumber;              // ID of request, to be referenced in response
+  requestID?: string;                 // ID of request, to be referenced in response
   createdAt?: BigNumber;              // Unix timestamp of request creation
   identity?: PartialIdentity;         // Parts of the identity to update
   expiryHeight?: BigNumber;           // Time after which update request will no longer be accepted
@@ -47,13 +46,14 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   static IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA = new BN(1, 10);
   static IDENTITY_UPDATE_REQUEST_EXPIRES = new BN(2, 10);
   static IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS = new BN(4, 10);
-  static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new BN(8, 10);
-  static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new BN(16, 10);
-  static IDENTITY_UPDATE_REQUEST_IS_TESTNET = new BN(32, 10);
+  static IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new BN(8, 10);
+  static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new BN(16, 10);
+  static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new BN(32, 10);
+  static IDENTITY_UPDATE_REQUEST_IS_TESTNET = new BN(64, 10);
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: BigNumber,
+    requestID?: string,
     createdAt?: BigNumber,
     identity?: PartialIdentity,
     expiryHeight?: BigNumber,
@@ -65,8 +65,9 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
     if (data?.requestID) {
+      if (!this.containsRequestID()) this.toggleContainsRequestID();
       this.requestID = data.requestID;
-    } else this.requestID = new BN("0", 10);
+    }
 
     if (data?.createdAt) {
       this.createdAt = data.createdAt;
@@ -114,6 +115,10 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM).toNumber());
   }
 
+  containsRequestID() {
+    return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID).toNumber());
+  }
+
   containsTxid() {
     return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID).toNumber());
   }
@@ -136,6 +141,10 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
   toggleContainsSystem() {
     this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM);
+  }
+
+  toggleContainsRequestID() {
+    this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID);
   }
 
   toggleContainsTxid() {
@@ -170,7 +179,11 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
-    length += varuint.encodingLength(this.requestID.toNumber());
+
+    if (this.containsRequestID()) {
+      length += HASH160_BYTE_LENGTH;
+    }
+    
     length += varuint.encodingLength(this.createdAt.toNumber());
 
     length += this.identity.getByteLength();
@@ -206,7 +219,11 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     writer.writeCompactSize(this.flags.toNumber());
-    writer.writeCompactSize(this.requestID.toNumber());
+
+    if (this.containsRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    }
+
     writer.writeCompactSize(this.createdAt.toNumber());
     
     writer.writeSlice(this.identity.toBuffer());
@@ -240,7 +257,11 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     const reader = new BufferReader(buffer, offset);
 
     this.flags = new BN(reader.readCompactSize());
-    this.requestID = new BN(reader.readCompactSize());
+
+    if (this.containsRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+    }
+
     this.createdAt = new BN(reader.readCompactSize());
 
     this.identity = new PartialIdentity();
@@ -304,7 +325,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     return {
       flags: this.flags ? this.flags.toString(10) : undefined,
-      requestid: this.requestID ? this.requestID.toString(10) : undefined,
+      requestid: this.containsRequestID() ? this.requestID : undefined,
       createdat: this.createdAt ? this.createdAt.toString(10) : undefined,
       identity: this.identity ? this.identity.toJson() : undefined,
       expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
@@ -328,7 +349,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     return new IdentityUpdateRequestDetails({
       flags: json.flags ? new BN(json.flags, 10) : undefined,
-      requestID: json.requestid ? new BN(json.requestid, 10) : undefined,
+      requestID: json.requestid,
       createdAt: json.createdat ? new BN(json.createdat, 10) : undefined,
       identity: json.identity ? PartialIdentity.fromJson(json.identity) : undefined,
       expiryHeight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
@@ -385,7 +406,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       identity,
       signDataMap,
       systemID: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
-      requestID: details?.requestid ? new BN(details.requestid, 10) : undefined,
+      requestID: details?.requestid,
       createdAt: details?.createdat ? new BN(details.createdat, 10) : undefined,
       expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
       responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,

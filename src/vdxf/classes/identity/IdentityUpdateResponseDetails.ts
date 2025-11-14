@@ -5,6 +5,8 @@ import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
+import { fromBase58Check, toBase58Check } from '../../../utils/address';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export type IdentityUpdateResponseDetailsJson = {
@@ -16,25 +18,27 @@ export type IdentityUpdateResponseDetailsJson = {
 
 export class IdentityUpdateResponseDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: BigNumber;              // ID of request, to be referenced in response
-  createdAt?: BigNumber;              // Unix timestamp of request creation
+  requestID?: string;              // ID of request, to be referenced in response
+  createdAt?: BigNumber;              // Unix timestamp of response creation
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
 
   static IDENTITY_UPDATE_RESPONSE_VALID = new BN(0, 10);
   static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new BN(1, 10);
+  static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: BigNumber,
+    requestID?: string,
     createdAt?: BigNumber,
     txid?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
     if (data?.requestID) {
+      if (!this.containsRequestID()) this.toggleContainsRequestID();
       this.requestID = data.requestID;
-    } else this.requestID = new BN("0", 10);
+    }
 
     if (data?.createdAt) {
       this.createdAt = data.createdAt;
@@ -50,8 +54,16 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID).toNumber());
   }
 
+  containsRequestID() {
+    return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+  }
+
   toggleContainsTxid() {
     this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID);
+  }
+
+  toggleContainsRequestID() {
+    this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
@@ -63,7 +75,9 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     length += varint.encodingLength(this.flags);
 
-    length += varint.encodingLength(this.requestID);
+    if (this.containsRequestID()) {
+      length += HASH160_BYTE_LENGTH;
+    }
 
     length += varint.encodingLength(this.createdAt);
 
@@ -79,7 +93,9 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     writer.writeVarInt(this.flags);
 
-    writer.writeVarInt(this.requestID);
+    if (this.containsRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    }
 
     writer.writeVarInt(this.createdAt);
 
@@ -97,7 +113,9 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     this.flags = reader.readVarInt();
 
-    this.requestID = reader.readVarInt();
+    if (this.containsRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+    }
 
     this.createdAt = reader.readVarInt();
 
@@ -111,7 +129,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   toJson(): IdentityUpdateResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
-      requestid: this.requestID.toString(10),
+      requestid: this.containsRequestID() ? this.requestID : undefined,
       createdat: this.createdAt.toString(10),
       txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
     }
@@ -120,7 +138,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   static fromJson(json: IdentityUpdateResponseDetailsJson): IdentityUpdateResponseDetails {
     return new IdentityUpdateResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: new BN(json.requestid, 10),
+      requestID: json.requestid,
       createdAt: new BN(json.createdat, 10),
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
     });

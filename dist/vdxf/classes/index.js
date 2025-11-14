@@ -64,7 +64,8 @@ Object.defineProperty(exports, "Context", { enumerable: true, get: function () {
 var PersonalProfile_1 = require("./PersonalProfile");
 Object.defineProperty(exports, "DataCategory", { enumerable: true, get: function () { return PersonalProfile_1.DataCategory; } });
 __exportStar(require("./requestobjects/RequestUserData"), exports);
-__exportStar(require("./requestobjects/LoginRequestDetails"), exports);
+__exportStar(require("./login/LoginRequestDetails"), exports);
+__exportStar(require("./login/LoginResponseDetails"), exports);
 __exportStar(require("./requestobjects/ProvisionIdentityDetails"), exports);
 __exportStar(require("./requestobjects/AppEncryptionRequestDetails"), exports);
 __exportStar(require("./requestobjects/PersonalUserDataDetails"), exports);

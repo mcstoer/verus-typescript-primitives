@@ -645,6 +645,16 @@ export const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "i7EhCFPWo7dG2az4tjiPf6ciNMK5671Z5A"
 }
 
+export const LOGIN_RESPONSE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "e65d6b3f3b49ec499762e4c9369f1f7f72b251bb",
+  "indexid": "xRP68AHAxF9zbxeFpMFA5y85H2RhLiUJ9U",
+  "qualifiedname": {
+    "name": "vrsc::identity.login.response.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iLYyfMr66vwKynmDxfb17abYFNQgU71i6T"
+}
+
 export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "1ed843dce0f4d9a2bbb839994e3927807eb1878c",
   "indexid": "xM7h3sXBovFXuwGQ3wvK2ibtUmMHn3mYkM",

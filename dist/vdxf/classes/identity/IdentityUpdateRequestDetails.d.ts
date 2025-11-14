@@ -25,7 +25,7 @@ export type IdentityUpdateRequestDetailsJson = {
 };
 export declare class IdentityUpdateRequestDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestID?: BigNumber;
+    requestID?: string;
     createdAt?: BigNumber;
     identity?: PartialIdentity;
     expiryHeight?: BigNumber;
@@ -37,12 +37,13 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_EXPIRES: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS: import("bn.js");
+    static IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_IS_TESTNET: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestID?: BigNumber;
+        requestID?: string;
         createdAt?: BigNumber;
         identity?: PartialIdentity;
         expiryHeight?: BigNumber;
@@ -54,12 +55,14 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     expires(): boolean;
     containsSignData(): boolean;
     containsSystem(): boolean;
+    containsRequestID(): boolean;
     containsTxid(): boolean;
     containsResponseUris(): boolean;
     isTestnet(): boolean;
     toggleExpires(): void;
     toggleContainsSignData(): void;
     toggleContainsSystem(): void;
+    toggleContainsRequestID(): void;
     toggleContainsTxid(): void;
     toggleContainsResponseUris(): void;
     toggleIsTestnet(): void;

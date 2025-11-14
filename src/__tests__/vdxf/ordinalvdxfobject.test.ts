@@ -6,6 +6,7 @@ import {
   IdentityUpdateRequestOrdinalVdxfObject,
   IdentityUpdateResponseOrdinalVdxfObject,
   LoginRequestOrdinalVdxfObject,
+  LoginResponseOrdinalVdxfObject,
   OrdinalVdxfObject,
 } from '../../vdxf/classes/ordinals';
 import {
@@ -18,6 +19,7 @@ import {
   IdentityUpdateRequestDetails, 
   IdentityUpdateResponseDetails, 
   LoginRequestDetails, 
+  LoginResponseDetails, 
   ProvisionIdentityDetails, 
   ResponseUri, 
   VerusPayInvoiceDetails 
@@ -68,6 +70,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = IdentityUpdateResponseOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof LoginRequestOrdinalVdxfObject) {
       newObj = LoginRequestOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof LoginResponseOrdinalVdxfObject) {
+      newObj = LoginResponseOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof ProvisionIdentityDetailsOrdinalVdxfObject) {
       newObj = ProvisionIdentityDetailsOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof AppEncryptionRequestDetailsOrdinalVdxfObject) {
@@ -282,6 +286,31 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const d3 = (roundJ as LoginRequestOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d3.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
+  });
+
+  it('should serialize / deserialize a LoginResponseOrdinalVdxfObject via buffer', () => {
+    const details = new LoginResponseDetails({
+      requestID: TEST_CHALLENGE_ID,
+      createdAt: new BN(2938475938457)
+    });
+
+    const obj = new LoginResponseOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(LoginResponseOrdinalVdxfObject);
+
+    const d2 = (round as LoginResponseOrdinalVdxfObject).data;
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
+
+    const json = obj.toJson();
+    expect(json.data).toBeDefined();
+    const roundJ = roundTripJson(obj);
+    expect(roundJ).toBeInstanceOf(LoginResponseOrdinalVdxfObject);
+
+    const d3 = (roundJ as LoginResponseOrdinalVdxfObject).data;
+    expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
   });
 
   it('should serialize / deserialize a ProvisionIdentityDetailsOrdinalVdxfObject', () => {

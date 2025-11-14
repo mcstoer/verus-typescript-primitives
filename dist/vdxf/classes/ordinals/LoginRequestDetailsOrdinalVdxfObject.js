@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginRequestOrdinalVdxfObject = void 0;
 const ordinals_1 = require("../../../constants/ordinals/ordinals");
 const SerializableEntityOrdinalVdxfObject_1 = require("./SerializableEntityOrdinalVdxfObject");
-const LoginRequestDetails_1 = require("../requestobjects/LoginRequestDetails");
+const LoginRequestDetails_1 = require("../login/LoginRequestDetails");
 class LoginRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject_1.SerializableEntityOrdinalVdxfObject {
     constructor(request = {
         data: new LoginRequestDetails_1.LoginRequestDetails()

@@ -8,6 +8,8 @@ import {
   IdentityUpdateResponseDetailsJson, 
   LoginRequestDetails, 
   LoginRequestDetailsJson, 
+  LoginResponseDetails, 
+  LoginResponseDetailsJson, 
   ProvisionIdentityDetails, 
   ProvisionIdentityDetailsJson, 
   VerusPayInvoiceDetails 
@@ -20,6 +22,7 @@ export type OrdinalVdxfObjectReservedData =
   IdentityUpdateRequestDetails | 
   IdentityUpdateResponseDetails | 
   LoginRequestDetails | 
+  LoginResponseDetails |
   ProvisionIdentityDetails |
   AppEncryptionRequestDetails;
 
@@ -29,6 +32,7 @@ export type OrdinalVdxfObjectReservedDataJson =
   IdentityUpdateRequestDetailsJson | 
   IdentityUpdateResponseDetailsJson | 
   LoginRequestDetailsJson | 
+  LoginResponseDetailsJson |
   ProvisionIdentityDetailsJson |
   AppEncryptionRequestDetailsJson;
 

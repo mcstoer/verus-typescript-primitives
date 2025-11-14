@@ -91,7 +91,6 @@ export class LoginRequestDetails implements SerializableEntity {
   constructor(
     request?: LoginRequestDetailsInterface 
   ) {
-
     this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;
     this.requestID = request?.requestID || '';
     this.flags = request?.flags || new BN(0, 10);
@@ -103,7 +102,7 @@ export class LoginRequestDetails implements SerializableEntity {
   }
 
   hasRecipentConstraints(): boolean {   
-      return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
+    return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
   }
 
   hascallbackURIs(): boolean {
