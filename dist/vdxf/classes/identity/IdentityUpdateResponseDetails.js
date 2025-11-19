@@ -98,6 +98,5 @@ class IdentityUpdateResponseDetails {
 }
 exports.IdentityUpdateResponseDetails = IdentityUpdateResponseDetails;
 // stored in natural order, if displayed as text make sure to reverse!
-IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_VALID = new bn_js_1.BN(0, 10);
 IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new bn_js_1.BN(1, 10);
 IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID = new bn_js_1.BN(2, 10);

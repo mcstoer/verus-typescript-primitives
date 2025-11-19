@@ -47,7 +47,7 @@ export declare class GenericEnvelope implements SerializableEntity {
     setHasSalt(): void;
     setIsTestnet(): void;
     setFlags(): void;
-    protected getRawDataSha256(): Buffer<ArrayBufferLike>;
+    getRawDataSha256(includeSig?: boolean): Buffer<ArrayBufferLike>;
     getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
     getDetails(index?: number): OrdinalVdxfObject;
     protected getDetailsBufferLength(): number;
