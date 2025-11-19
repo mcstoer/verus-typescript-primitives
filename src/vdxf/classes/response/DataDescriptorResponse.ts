@@ -70,8 +70,8 @@ export class DataDescriptorResponse implements SerializableEntity {
   createdAt: BigNumber;              // Unix timestamp of response creation
   data: DataDescriptor;    
 
-  static APP_ENCRYPTION_RESPONSE_VALID = new BN(1, 10);
-  static APP_ENCRYPTION_RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
+
+  static RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
 
   constructor (data?: {
     flags?: BigNumber,
@@ -92,11 +92,11 @@ export class DataDescriptorResponse implements SerializableEntity {
   }
 
   containsRequestID() {
-    return !!(this.flags.and(DataDescriptorResponse.APP_ENCRYPTION_RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    return !!(this.flags.and(DataDescriptorResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
   }
 
   toggleContainsRequestID() {
-    this.flags = this.flags.xor(DataDescriptorResponse.APP_ENCRYPTION_RESPONSE_CONTAINS_REQUEST_ID);
+    this.flags = this.flags.xor(DataDescriptorResponse.RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
