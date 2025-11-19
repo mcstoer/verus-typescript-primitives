@@ -23,7 +23,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
 
-  static IDENTITY_UPDATE_RESPONSE_VALID = new BN(0, 10);
   static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new BN(1, 10);
   static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
 
