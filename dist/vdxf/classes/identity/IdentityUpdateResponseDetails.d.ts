@@ -11,7 +11,6 @@ export declare class IdentityUpdateResponseDetails implements SerializableEntity
     requestID?: string;
     createdAt?: BigNumber;
     txid?: Buffer;
-    static IDENTITY_UPDATE_RESPONSE_VALID: import("bn.js");
     static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID: import("bn.js");
     static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
     constructor(data?: {

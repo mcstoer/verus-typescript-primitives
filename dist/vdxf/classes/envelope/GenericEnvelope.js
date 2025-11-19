@@ -71,8 +71,8 @@ class GenericEnvelope {
         if (this.salt)
             this.setHasSalt();
     }
-    getRawDataSha256() {
-        return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(false)).digest();
+    getRawDataSha256(includeSig = false) {
+        return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
     }
     getDetailsHash(signedBlockheight) {
         if (this.isSigned()) {

@@ -120,8 +120,8 @@ export class GenericEnvelope implements SerializableEntity {
     if (this.salt) this.setHasSalt();
   }
 
-  protected getRawDataSha256() {
-    return createHash("sha256").update(this.toBufferOptionalSig(false)).digest();
+  getRawDataSha256(includeSig = false) {
+    return createHash("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
   }
 
   getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
