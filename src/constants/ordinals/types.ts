@@ -12,9 +12,14 @@ import {
   LoginResponseDetailsJson, 
   ProvisionIdentityDetails, 
   ProvisionIdentityDetailsJson, 
+  UserDataRequestDetails,
+  UserDataRequestDetailsJson,
+  UserSpecificDataPacketDetails,
+  UserSpecificDataPacketDetailsJson,
   VerusPayInvoiceDetails 
 } from "../../vdxf/classes";
 import { VerusPayInvoiceDetailsJson } from "../../vdxf/classes/payment/VerusPayInvoiceDetails";
+import { DataDescriptorResponse, DataDescriptorResponseJson } from "../../vdxf/classes/response/DataDescriptorResponse";
 
 export type OrdinalVdxfObjectReservedData = 
   DataDescriptor | 
@@ -24,7 +29,10 @@ export type OrdinalVdxfObjectReservedData =
   LoginRequestDetails | 
   LoginResponseDetails |
   ProvisionIdentityDetails |
-  AppEncryptionRequestDetails;
+  AppEncryptionRequestDetails |
+  DataDescriptorResponse |
+  UserDataRequestDetails |
+  UserSpecificDataPacketDetails;
 
 export type OrdinalVdxfObjectReservedDataJson = 
   DataDescriptorJson | 
@@ -34,5 +42,8 @@ export type OrdinalVdxfObjectReservedDataJson =
   LoginRequestDetailsJson | 
   LoginResponseDetailsJson |
   ProvisionIdentityDetailsJson |
-  AppEncryptionRequestDetailsJson;
+  AppEncryptionRequestDetailsJson |
+  DataDescriptorResponseJson |
+  UserDataRequestDetailsJson |
+  UserSpecificDataPacketDetailsJson;
 

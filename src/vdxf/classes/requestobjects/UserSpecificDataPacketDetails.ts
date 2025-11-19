@@ -1,5 +1,6 @@
 /**
- * PersonalUserDataDetails - Class for handling personal user data transfer requests
+ * UserSpecificDataPacketDetails - Class for sending personal data to user or requesting the user
+ * signature on personal data
  * 
  * This class is used when an application is requesting to transfer or receive personal
  * user data. The request includes:
@@ -13,6 +14,8 @@
  * statements or conditions, and whether it's for the user's signature or being
  * transmitted to/from the user. This enables secure, user-controlled personal
  * data sharing with clear visibility into what data is being transferred.
+ * 
+
  */
 
 import { BigNumber } from '../../../utils/types/BigNumber';
@@ -22,25 +25,31 @@ import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
-import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../../../vdxf/classes/VerifiableSignatureData';
+import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../VerifiableSignatureData';
+import { fromBase58Check, toBase58Check } from '../../../utils/address';
+import { I_ADDR_VERSION } from '../../../constants/vdxf';
 
-export interface PersonalUserDataDetailsInterface {
+export interface UserSpecificDataPacketDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
+  requestID?: string;
 }
 
-export interface PersonalUserDataDetailsJson {
+export interface UserSpecificDataPacketDetailsJson {
   version: number;
   flags: number;
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
   statements?: Array<string>;
-  signature?: VerifiableSignatureDataJson
+  signature?: VerifiableSignatureDataJson;
+  requestid?: string;
 }
 
-export class PersonalUserDataDetails implements SerializableEntity {
+
+// User_specific_data_packet
+export class UserSpecificDataPacketDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -52,19 +61,22 @@ export class PersonalUserDataDetails implements SerializableEntity {
   static FOR_USERS_SIGNATURE = new BN(4);
   static FOR_TRANSMITTAL_TO_USER = new BN(8);
   static HAS_URL_FOR_DOWNLOAD = new BN(16);
+  static HAS_REQUEST_ID = new BN(32);
 
   version: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
+  requestID?: string;
 
-  constructor(data?: PersonalUserDataDetailsInterface) {
-    this.version = data?.version || PersonalUserDataDetails.DEFAULT_VERSION;
+  constructor(data?: UserSpecificDataPacketDetailsInterface) {
+    this.version = data?.version || UserSpecificDataPacketDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.signableObjects = data?.signableObjects || [];
     this.statements = data?.statements || [];
     this.signature = data?.signature || undefined;
+    this.requestID = data?.requestID;
 
     this.setFlags();
   }
@@ -77,27 +89,35 @@ export class PersonalUserDataDetails implements SerializableEntity {
     let flags = new BN(0);
     
     if (this.statements && this.statements.length > 0) {
-      flags = flags.or(PersonalUserDataDetails.HAS_STATEMENTS);
+      flags = flags.or(UserSpecificDataPacketDetails.HAS_STATEMENTS);
     }
 
     if (this.signature ) {
-      flags = flags.or(PersonalUserDataDetails.HAS_SIGNATURE);
+      flags = flags.or(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+    }
+
+    if (this.requestID) {
+      flags = flags.or(UserSpecificDataPacketDetails.HAS_REQUEST_ID);
     }
 
     return flags;
   }
 
   hasStatements(): boolean {
-    return this.flags.and(PersonalUserDataDetails.HAS_STATEMENTS).eq(PersonalUserDataDetails.HAS_STATEMENTS);
+    return this.flags.and(UserSpecificDataPacketDetails.HAS_STATEMENTS).eq(UserSpecificDataPacketDetails.HAS_STATEMENTS);
   }
 
   hasSignature(): boolean {
-    return this.flags.and(PersonalUserDataDetails.HAS_SIGNATURE).eq(PersonalUserDataDetails.HAS_SIGNATURE);
+    return this.flags.and(UserSpecificDataPacketDetails.HAS_SIGNATURE).eq(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+  }
+
+  hasRequestID(): boolean {
+    return this.flags.and(UserSpecificDataPacketDetails.HAS_REQUEST_ID).eq(UserSpecificDataPacketDetails.HAS_REQUEST_ID);
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(PersonalUserDataDetails.FIRST_VERSION) &&
-      this.version.lte(PersonalUserDataDetails.LAST_VERSION);
+    let valid = this.version.gte(UserSpecificDataPacketDetails.FIRST_VERSION) &&
+      this.version.lte(UserSpecificDataPacketDetails.LAST_VERSION);
 
     // Check that we have signable objects
     valid &&= this.signableObjects.length > 0;
@@ -137,6 +157,10 @@ export class PersonalUserDataDetails implements SerializableEntity {
       length += this.signature.getByteLength();
     }
 
+    if (this.hasRequestID()) {
+      length += 20; // HASH160_BYTE_LENGTH for i-address
+    }
+
     return length;
   }
 
@@ -162,6 +186,10 @@ export class PersonalUserDataDetails implements SerializableEntity {
 
     if (this.hasSignature() && this.signature) {
       writer.writeSlice(this.signature.toBuffer());
+    }
+
+    if (this.hasRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
 
     return writer.buffer;
@@ -198,10 +226,14 @@ export class PersonalUserDataDetails implements SerializableEntity {
       this.signature = signature;
     }
 
+    if (this.hasRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+    }
+
     return reader.offset;
   }
 
-  toJson(): PersonalUserDataDetailsJson {
+  toJson(): UserSpecificDataPacketDetailsJson {
     const flags = this.calcFlags();
 
     return {
@@ -209,12 +241,13 @@ export class PersonalUserDataDetails implements SerializableEntity {
       flags: flags.toNumber(),
       signableobjects: this.signableObjects.map(obj => obj.toJson()),
       statements: this.statements,
-      signature: this.signature ? this.signature.toJson() : undefined
+      signature: this.signature ? this.signature.toJson() : undefined,
+      requestid: this.requestID
     };
   }
 
-  static fromJson(json: PersonalUserDataDetailsJson): PersonalUserDataDetails {
-    const instance = new PersonalUserDataDetails();
+  static fromJson(json: UserSpecificDataPacketDetailsJson): UserSpecificDataPacketDetails {
+    const instance = new UserSpecificDataPacketDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
 
@@ -228,6 +261,7 @@ export class PersonalUserDataDetails implements SerializableEntity {
     instance.signableObjects = dataDescriptorObjects;
     instance.statements = json.statements || [];
     instance.signature = json.signature ? VerifiableSignatureData.fromJson(json.signature) : undefined;
+    instance.requestID = json.requestid;
     return instance;
   }
 }

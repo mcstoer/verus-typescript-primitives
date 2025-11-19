@@ -674,3 +674,32 @@ export const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   },
   "vdxfid": "iEWvbyzxSQ3G2sdBTeU4DUBHhNFpd6rUFx"
 }
+
+export const DATA_DESCRIPTOR_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "2ff523bad4a35bfa3db954295acd192e1d805dd9",
+  "vdxfid": "iPHr5EDp6QGdbAJS8Rqu8293HyQrYjgRap",
+  "indexid": "xU7xY2etwiVJDLBTz7W46QfaKdRsSoos4g",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::response.generic.datadescriptor"
+  }
+}
+export const USER_DATA_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iHFtTBRZufoaL9N8wDotQrvxAZrUfMv82u",
+  "indexid": "xN5zuyrekz2ExKFAnuU3PFTVCDsVSc5NMp",
+  "hash160result": "3f5e59f4434b601a64aaa4de8fd66dc336e62d97",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::request.generic.userdata.details"
+  }
+}
+
+export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iBfMRtzM1ztWZ84RiBsbCNj9U1tpbiF5PS",
+  "indexid": "xGVTthRRsK7BBHwTZsXkAmFgVfuqSM24tK",
+  "hash160result": "dc4dd05e257f6b3ac266c2a6086dc2c54f3bcd59",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::request.generic.user.specificdata"
+  }
+}

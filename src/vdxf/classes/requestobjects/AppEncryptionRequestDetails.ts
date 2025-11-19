@@ -22,6 +22,8 @@ import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
 import varuint from '../../../utils/varuint';
+import { fromBase58Check, toBase58Check } from '../../../utils/address';
+import { I_ADDR_VERSION } from '../../../constants/vdxf';
 
 export interface AppEncryptionRequestDetailsInterface {
   version?: BigNumber;
@@ -31,6 +33,7 @@ export interface AppEncryptionRequestDetailsInterface {
   secondaryDerivationNumber?: BigNumber;
   fromAddress?: CompactIdAddressObject;
   toAddress?: CompactIdAddressObject;
+  requestID?: string;
 }
 
 export interface AppEncryptionRequestDetailsJson {
@@ -41,6 +44,7 @@ export interface AppEncryptionRequestDetailsJson {
   secondaryderivationnumber?: number;
   fromaddress?: CompactIdAddressObjectJson;
   toaddress?: CompactIdAddressObjectJson;
+  requestid?: string;
 }
 
 /**
@@ -69,6 +73,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   static HAS_FROM_ADDRESS = new BN(1);
   static HAS_TO_ADDRESS = new BN(2);
   static HAS_SECONDARY_SEED_DERIVATION_NUMBER = new BN(4);
+  static HAS_REQUEST_ID = new BN(8);
 
   version: BigNumber;
   flags: BigNumber;
@@ -77,6 +82,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   secondaryDerivationNumber?: BigNumber;
   fromAddress?: CompactIdAddressObject;
   toAddress?: CompactIdAddressObject;
+  requestID?: string;
 
   constructor(data?: AppEncryptionRequestDetailsInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
@@ -86,6 +92,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     this.secondaryDerivationNumber = data?.secondaryDerivationNumber;
     this.fromAddress = data?.fromAddress;
     this.toAddress = data?.toAddress;
+    this.requestID = data?.requestID;
 
     this.setFlags();
   }
@@ -107,6 +114,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     if (this.toAddress != null) {
       flags = flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
+    }
+
+    if (this.requestID != null) {
+      flags = flags.or(AppEncryptionRequestDetails.HAS_REQUEST_ID);
     }
 
     return flags;
@@ -132,6 +143,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0));
   }
 
+  hasRequestID(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.HAS_REQUEST_ID).gt(new BN(0));
+  }
+
   getByteLength(): number {
 
     const flags = this.calcFlags();
@@ -155,6 +170,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     if (this.hasToAddress(flags)) {
        length += this.toAddress.getByteLength();
+    }
+
+    if (this.hasRequestID(flags)) {
+      length += 20; // HASH160_BYTE_LENGTH for i-address
     }
 
     return length;
@@ -184,6 +203,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     if (this.hasToAddress(flags)) {
        writer.writeSlice(this.toAddress.toBuffer());
+    }
+
+    if (this.hasRequestID(flags)) {
+
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
 
     return writer.buffer;
@@ -220,6 +244,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
       this.toAddress = CompactId;
     }
 
+    if (this.hasRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+    }
+
     return reader.offset;
   }
 
@@ -233,8 +261,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
       encrypttozaddress: this.encryptToZAddress,
       derivationnumber: this.derivationNumber.toNumber(),
       secondaryderivationnumber: this.secondaryDerivationNumber?.toNumber(),
-      fromaddress: this.fromAddress.toJson(),
-      toaddress: this.toAddress.toJson()
+      fromaddress: this.fromAddress?.toJson(),
+      toaddress: this.toAddress?.toJson(),
+      requestid: this.requestID
     };
   }
 
@@ -252,6 +281,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     if(instance.hasToAddress()) {
       instance.toAddress = CompactIdAddressObject.fromJson(json?.toaddress);
+    }
+
+    if(instance.hasRequestID()) {
+      instance.requestID = json?.requestid;
     }
     
     return instance;
