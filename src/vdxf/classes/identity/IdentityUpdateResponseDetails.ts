@@ -12,14 +12,12 @@ const { BufferReader, BufferWriter } = bufferutils;
 export type IdentityUpdateResponseDetailsJson = {
   flags: string,
   requestid: string,
-  createdat: string,
   txid?: string
 }
 
 export class IdentityUpdateResponseDetails implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
-  createdAt?: BigNumber;              // Unix timestamp of response creation
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
 
@@ -29,7 +27,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   constructor (data?: {
     flags?: BigNumber,
     requestID?: string,
-    createdAt?: BigNumber,
     txid?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
@@ -37,10 +34,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     if (data?.requestID) {
       if (!this.containsRequestID()) this.toggleContainsRequestID();
       this.requestID = data.requestID;
-    }
-
-    if (data?.createdAt) {
-      this.createdAt = data.createdAt;
     }
 
     if (data?.txid) {
@@ -78,8 +71,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       length += HASH160_BYTE_LENGTH;
     }
 
-    length += varint.encodingLength(this.createdAt);
-
     if (this.containsTxid()) {
       length += UINT_256_LENGTH;
     }
@@ -95,8 +86,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     if (this.containsRequestID()) {
       writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
-
-    writer.writeVarInt(this.createdAt);
 
     if (this.containsTxid()) {
       if (this.txid.length !== UINT_256_LENGTH) throw new Error("invalid txid length");
@@ -116,8 +105,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
       this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
 
-    this.createdAt = reader.readVarInt();
-
     if (this.containsTxid()) {
       this.txid = reader.readSlice(UINT_256_LENGTH);
     }
@@ -129,7 +116,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     return {
       flags: this.flags.toString(10),
       requestid: this.containsRequestID() ? this.requestID : undefined,
-      createdat: this.createdAt.toString(10),
       txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
     }
   }
@@ -138,7 +124,6 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     return new IdentityUpdateResponseDetails({
       flags: new BN(json.flags, 10),
       requestID: json.requestid,
-      createdAt: new BN(json.createdat, 10),
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
     });
   }

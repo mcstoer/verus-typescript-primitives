@@ -11,29 +11,22 @@ const { BufferReader, BufferWriter } = bufferutils;
 
 export type LoginResponseDetailsJson = {
   flags: string,
-  requestid: string,
-  createdat: string
+  requestid: string
 }
 
 export class LoginResponseDetails implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
-  createdAt?: BigNumber;           // Unix timestamp of response creation
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: string,
-    createdAt?: BigNumber
+    requestID?: string
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
     if (data?.requestID) {
       this.requestID = data.requestID;
     } else this.requestID = '';
-
-    if (data?.createdAt) {
-      this.createdAt = data.createdAt;
-    }
   }
 
   toSha256() {
@@ -47,8 +40,6 @@ export class LoginResponseDetails implements SerializableEntity {
 
     length += HASH160_BYTE_LENGTH;
 
-    length += varuint.encodingLength(this.createdAt.toNumber());
-
     return length;
   }
 
@@ -58,8 +49,6 @@ export class LoginResponseDetails implements SerializableEntity {
     writer.writeVarInt(this.flags);
 
     writer.writeSlice(fromBase58Check(this.requestID).hash);
-
-    writer.writeCompactSize(this.createdAt.toNumber());
 
     return writer.buffer;
   }
@@ -71,8 +60,6 @@ export class LoginResponseDetails implements SerializableEntity {
 
     this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
 
-    this.createdAt = new BN(reader.readCompactSize());
-
     return reader.offset;
   }
 
@@ -80,15 +67,13 @@ export class LoginResponseDetails implements SerializableEntity {
     return {
       flags: this.flags.toString(10),
       requestid: this.requestID,
-      createdat: this.createdAt.toString(10)
     }
   }
 
   static fromJson(json: LoginResponseDetailsJson): LoginResponseDetails {
     return new LoginResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: json.requestid,
-      createdAt: new BN(json.createdat, 10)
+      requestID: json.requestid
     });
   }
 }

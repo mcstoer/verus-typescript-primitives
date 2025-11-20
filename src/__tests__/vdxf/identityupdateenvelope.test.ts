@@ -6,8 +6,7 @@ import { PartialSignData } from "../../pbaas/PartialSignData";
 import { 
   TEST_BASE_SIGN_DATA_WITH_MMR_DATA, 
   TEST_CLI_ID_UPDATE_REQUEST_JSON, 
-  TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, 
-  TEST_CREATEDAT, 
+  TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX,
   TEST_EXPIRYHEIGHT, 
   TEST_MMR_DATA, 
   TEST_PARTIAL_IDENTITY, 
@@ -42,8 +41,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Serialize/Deserialize basic IdentityUpdateRequestDetails", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestID: TEST_REQUESTID, 
-      createdAt: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID,
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
       expiryHeight: TEST_EXPIRYHEIGHT,
@@ -55,15 +53,14 @@ describe("IdentityUpdate request/response details Serialization", () => {
   });
 
   test("Serialize/Deserialize basic IdentityUpdateResponseDetails", () => {
-    const responseDetails = new IdentityUpdateResponseDetails({ requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT });
+    const responseDetails = new IdentityUpdateResponseDetails({ requestID: TEST_REQUESTID });
 
     testSerialization(responseDetails);
   });
 
   test("Remove optional fields from IdentityUpdateRequestDetails", () => {
     let baseRequestDetailsConfig = { 
-      requestID: TEST_REQUESTID, 
-      createdAt: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID,
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY,
       expiryHeight: TEST_EXPIRYHEIGHT,
@@ -87,7 +84,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Remove optional fields from IdentityUpdateResponseDetails", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
-    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, txid: txidbuf };
    
     const toRemove = ["txid"];
 
@@ -104,8 +101,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Serialize/Deserialize IdentityUpdateRequestDetails to/from JSON", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestID: TEST_REQUESTID, 
-      createdAt: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID,
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
       expiryHeight: TEST_EXPIRYHEIGHT,
@@ -119,7 +115,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
   test("Serialize/Deserialize IdentityUpdateResponseDetails to/from JSON", () => {
     const txidbuf = Buffer.from(TEST_TXID, 'hex').reverse();
 
-    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, createdAt: TEST_CREATEDAT, txid: txidbuf };
+    let baseResponseDetailsConfig = { requestID: TEST_REQUESTID, txid: txidbuf };
 
     const responseDetails = new IdentityUpdateResponseDetails(baseResponseDetailsConfig);
 
@@ -128,8 +124,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Serialize/Deserialize IdentityUpdateRequestDetails to/from JSON", () => {
     const requestDetails = new IdentityUpdateRequestDetails({ 
-      requestID: TEST_REQUESTID, 
-      createdAt: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID,
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY, 
       expiryHeight: TEST_EXPIRYHEIGHT,
@@ -142,8 +137,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Serialize/Deserialize IdentityUpdateResponseDetails to/from JSON", () => {
     const responseDetails = new IdentityUpdateResponseDetails({ 
-      requestID: TEST_REQUESTID, 
-      createdAt: TEST_CREATEDAT, 
+      requestID: TEST_REQUESTID,
       txid: Buffer.from(TEST_TXID, 'hex').reverse()
     });
 
@@ -189,8 +183,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, 
       {
         systemid: TEST_SYSTEMID.toAddress() as string, 
-        requestid: TEST_REQUESTID.toString(), 
-        createdat: TEST_CREATEDAT.toString(), 
+        requestid: TEST_REQUESTID.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(), 
         responseuris: [
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
@@ -207,8 +200,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Deserialize cli identity update details", () => {
     const detailsProps = {
-      requestID: TEST_REQUESTID.toString(), 
-      createdAt: TEST_CREATEDAT.toString(), 
+      requestID: TEST_REQUESTID.toString(),
       expiryHeight: TEST_EXPIRYHEIGHT.toString(), 
       responseuris: [
         ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 

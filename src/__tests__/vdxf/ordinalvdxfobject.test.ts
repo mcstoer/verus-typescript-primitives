@@ -28,7 +28,7 @@ import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
 import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
-import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_CREATEDAT, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
+import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVdxfObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject';
 import { BigNumber } from '../../utils/types/BigNumber';
 
@@ -191,7 +191,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       {
         systemid: TEST_SYSTEMID.toAddress() as string,
         requestid: TEST_REQUESTID.toString(),
-        createdat: TEST_CREATEDAT.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(),
         responseuris: [
           ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(),
@@ -209,7 +208,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const d2 = (round as IdentityUpdateRequestOrdinalVdxfObject).data;
     expect(d2.systemID!.toAddress()).toEqual(details.systemID!.toAddress());
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d2.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
     expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
 
@@ -221,7 +219,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const d3 = (roundJ as IdentityUpdateRequestOrdinalVdxfObject).data;
     expect(d3.systemID!.toAddress()).toEqual(details.systemID!.toAddress());
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d3.expiryHeight!.toString()).toEqual(details.expiryHeight!.toString());
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
@@ -229,7 +226,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a IdentityUpdateResponseOrdinalVdxfObject via buffer', () => {
     const details = new IdentityUpdateResponseDetails({
       requestID: TEST_REQUESTID,
-      createdAt: TEST_CREATEDAT,
       txid: Buffer.from(TEST_TXID, 'hex').reverse()
     });
 
@@ -240,7 +236,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
     const d2 = (round as IdentityUpdateResponseOrdinalVdxfObject).data;
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d2.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
 
     const json = obj.toJson();
@@ -250,7 +245,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
     const d3 = (roundJ as IdentityUpdateResponseOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
 
@@ -290,8 +284,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
   it('should serialize / deserialize a LoginResponseOrdinalVdxfObject via buffer', () => {
     const details = new LoginResponseDetails({
-      requestID: TEST_CHALLENGE_ID,
-      createdAt: new BN(2938475938457)
+      requestID: TEST_CHALLENGE_ID
     });
 
     const obj = new LoginResponseOrdinalVdxfObject({ data: details });
@@ -301,7 +294,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
     const d2 = (round as LoginResponseOrdinalVdxfObject).data;
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d2.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
 
     const json = obj.toJson();
     expect(json.data).toBeDefined();
@@ -310,7 +302,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
 
     const d3 = (roundJ as LoginResponseOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
-    expect(d3.createdAt!.toNumber()).toEqual(details.createdAt!.toNumber());
   });
 
   it('should serialize / deserialize a ProvisionIdentityDetailsOrdinalVdxfObject', () => {
