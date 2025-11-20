@@ -263,6 +263,10 @@ export class VerifiableSignatureData implements SerializableEntity {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(height);
 
+    if (this.hasBoundHashes() || this.hasStatements() || this.hasVdxfKeys() || this.hasVdxfKeyNames()) {
+      throw new Error("Bound hashes, statements, and vdxfkeys in signature not yet supported.");
+    }
+
     if (!this.hashType.eq(new BN(EHashTypes.HASH_SHA256))) {
       throw new Error("Invalid signature type for identity hash");
     }
