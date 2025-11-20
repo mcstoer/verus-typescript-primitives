@@ -23,4 +23,5 @@ export * from './constants/ordinals/types';
 export * from './constants/vdxf/veruspay';
 export * from './identity/IdentityDefinition';
 export * from './currency/CurrencyDefinition';
+export * from './vdxf/classes';
 export { BN as BigNumber } from 'bn.js';
