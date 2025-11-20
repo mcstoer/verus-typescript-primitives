@@ -9,7 +9,7 @@ class AppEncryptionRequestDetailsOrdinalVdxfObject extends SerializableEntityOrd
         data: new AppEncryptionRequestDetails_1.AppEncryptionRequestDetails()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_APP_ENCRYPTION_REQUEST_DETAILS,
+            type: ordinals_1.VDXF_ORDINAL_APP_ENCRYPTION_REQUEST,
             data: request.data
         }, AppEncryptionRequestDetails_1.AppEncryptionRequestDetails);
     }

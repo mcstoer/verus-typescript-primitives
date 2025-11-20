@@ -665,12 +665,12 @@ export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
 }
 
-export const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "f178871fedb335cf6659f8527a6c9652bc8e1d79",
-  "indexid": "xKM34nS3HiFvf3WDKL8DBrhpj2GqVWEaH4",
+export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
+  "indexid": "xQuu8CLZyYyPcB7gMkyP2D3pw8UgHevmcM",
   "qualifiedname": {
-    "name": "vrsc::application.encryption.request.details",
+    "name": "vrsc::application.encryption.request",
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
-  "vdxfid": "iEWvbyzxSQ3G2sdBTeU4DUBHhNFpd6rUFx"
+  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9"
 }
