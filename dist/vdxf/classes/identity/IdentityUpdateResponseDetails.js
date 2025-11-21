@@ -17,9 +17,6 @@ class IdentityUpdateResponseDetails {
                 this.toggleContainsRequestID();
             this.requestID = data.requestID;
         }
-        if (data === null || data === void 0 ? void 0 : data.createdAt) {
-            this.createdAt = data.createdAt;
-        }
         if (data === null || data === void 0 ? void 0 : data.txid) {
             if (!this.containsTxid())
                 this.toggleContainsTxid();
@@ -47,7 +44,6 @@ class IdentityUpdateResponseDetails {
         if (this.containsRequestID()) {
             length += vdxf_1.HASH160_BYTE_LENGTH;
         }
-        length += varint_1.default.encodingLength(this.createdAt);
         if (this.containsTxid()) {
             length += pbaas_1.UINT_256_LENGTH;
         }
@@ -59,7 +55,6 @@ class IdentityUpdateResponseDetails {
         if (this.containsRequestID()) {
             writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
         }
-        writer.writeVarInt(this.createdAt);
         if (this.containsTxid()) {
             if (this.txid.length !== pbaas_1.UINT_256_LENGTH)
                 throw new Error("invalid txid length");
@@ -73,7 +68,6 @@ class IdentityUpdateResponseDetails {
         if (this.containsRequestID()) {
             this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
         }
-        this.createdAt = reader.readVarInt();
         if (this.containsTxid()) {
             this.txid = reader.readSlice(pbaas_1.UINT_256_LENGTH);
         }
@@ -83,7 +77,6 @@ class IdentityUpdateResponseDetails {
         return {
             flags: this.flags.toString(10),
             requestid: this.containsRequestID() ? this.requestID : undefined,
-            createdat: this.createdAt.toString(10),
             txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
         };
     }
@@ -91,7 +84,6 @@ class IdentityUpdateResponseDetails {
         return new IdentityUpdateResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
             requestID: json.requestid,
-            createdAt: new bn_js_1.BN(json.createdat, 10),
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
         });
     }

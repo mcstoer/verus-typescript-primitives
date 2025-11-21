@@ -168,6 +168,9 @@ class VerifiableSignatureData {
     getIdentityHash(height, sigHash) {
         var heightBuffer = Buffer.allocUnsafe(4);
         heightBuffer.writeUInt32LE(height);
+        if (this.hasBoundHashes() || this.hasStatements() || this.hasVdxfKeys() || this.hasVdxfKeyNames()) {
+            throw new Error("Bound hashes, statements, and vdxfkeys in signature not yet supported.");
+        }
         if (!this.hashType.eq(new bn_js_1.BN(DataDescriptor_1.EHashTypes.HASH_SHA256))) {
             throw new Error("Invalid signature type for identity hash");
         }

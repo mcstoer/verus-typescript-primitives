@@ -21,7 +21,6 @@ export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{ [key: string
 export type IdentityUpdateRequestDetailsJson = {
   flags?: string;
   requestid?: string;
-  createdat?: string;
   identity?: VerusCLIVerusIDJson;
   expiryheight?: string;
   systemid?: string;
@@ -33,7 +32,6 @@ export type IdentityUpdateRequestDetailsJson = {
 export class IdentityUpdateRequestDetails implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;                 // ID of request, to be referenced in response
-  createdAt?: BigNumber;              // Unix timestamp of request creation
   identity?: PartialIdentity;         // Parts of the identity to update
   expiryHeight?: BigNumber;           // Time after which update request will no longer be accepted
   systemID?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
@@ -54,7 +52,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   constructor (data?: {
     flags?: BigNumber,
     requestID?: string,
-    createdAt?: BigNumber,
     identity?: PartialIdentity,
     expiryHeight?: BigNumber,
     systemID?: IdentityID,
@@ -68,10 +65,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       if (!this.containsRequestID()) this.toggleContainsRequestID();
       this.requestID = data.requestID;
     }
-
-    if (data?.createdAt) {
-      this.createdAt = data.createdAt;
-    } else this.createdAt = new BN("0", 10);
 
     if (data?.identity) {
       this.identity = data.identity;
@@ -183,8 +176,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     if (this.containsRequestID()) {
       length += HASH160_BYTE_LENGTH;
     }
-    
-    length += varuint.encodingLength(this.createdAt.toNumber());
 
     length += this.identity.getByteLength();
 
@@ -223,8 +214,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     if (this.containsRequestID()) {
       writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
-
-    writer.writeCompactSize(this.createdAt.toNumber());
     
     writer.writeSlice(this.identity.toBuffer());
 
@@ -261,8 +250,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     if (this.containsRequestID()) {
       this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
-
-    this.createdAt = new BN(reader.readCompactSize());
 
     this.identity = new PartialIdentity();
     reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
@@ -326,7 +313,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return {
       flags: this.flags ? this.flags.toString(10) : undefined,
       requestid: this.containsRequestID() ? this.requestID : undefined,
-      createdat: this.createdAt ? this.createdAt.toString(10) : undefined,
       identity: this.identity ? this.identity.toJson() : undefined,
       expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
       systemid: this.systemID ? this.systemID.toAddress() : undefined,
@@ -350,7 +336,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return new IdentityUpdateRequestDetails({
       flags: json.flags ? new BN(json.flags, 10) : undefined,
       requestID: json.requestid,
-      createdAt: json.createdat ? new BN(json.createdat, 10) : undefined,
       identity: json.identity ? PartialIdentity.fromJson(json.identity) : undefined,
       expiryHeight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
       systemID: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
@@ -407,7 +392,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       signDataMap,
       systemID: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
       requestID: details?.requestid,
-      createdAt: details?.createdat ? new BN(details.createdat, 10) : undefined,
       expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
       responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
       txid: details?.txid ? Buffer.from(details.txid, 'hex').reverse() : undefined,

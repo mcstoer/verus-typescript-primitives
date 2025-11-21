@@ -21,11 +21,6 @@ class IdentityUpdateRequestDetails {
                 this.toggleContainsRequestID();
             this.requestID = data.requestID;
         }
-        if (data === null || data === void 0 ? void 0 : data.createdAt) {
-            this.createdAt = data.createdAt;
-        }
-        else
-            this.createdAt = new bn_js_1.BN("0", 10);
         if (data === null || data === void 0 ? void 0 : data.identity) {
             this.identity = data.identity;
         }
@@ -120,7 +115,6 @@ class IdentityUpdateRequestDetails {
         if (this.containsRequestID()) {
             length += vdxf_1.HASH160_BYTE_LENGTH;
         }
-        length += varuint_1.default.encodingLength(this.createdAt.toNumber());
         length += this.identity.getByteLength();
         if (this.expires())
             length += varuint_1.default.encodingLength(this.expiryHeight.toNumber());
@@ -148,7 +142,6 @@ class IdentityUpdateRequestDetails {
         if (this.containsRequestID()) {
             writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
         }
-        writer.writeCompactSize(this.createdAt.toNumber());
         writer.writeSlice(this.identity.toBuffer());
         if (this.expires())
             writer.writeCompactSize(this.expiryHeight.toNumber());
@@ -177,7 +170,6 @@ class IdentityUpdateRequestDetails {
         if (this.containsRequestID()) {
             this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
         }
-        this.createdAt = new bn_js_1.BN(reader.readCompactSize());
         this.identity = new PartialIdentity_1.PartialIdentity();
         reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
         if (this.expires()) {
@@ -222,7 +214,6 @@ class IdentityUpdateRequestDetails {
         return {
             flags: this.flags ? this.flags.toString(10) : undefined,
             requestid: this.containsRequestID() ? this.requestID : undefined,
-            createdat: this.createdAt ? this.createdAt.toString(10) : undefined,
             identity: this.identity ? this.identity.toJson() : undefined,
             expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
             systemid: this.systemID ? this.systemID.toAddress() : undefined,
@@ -242,7 +233,6 @@ class IdentityUpdateRequestDetails {
         return new IdentityUpdateRequestDetails({
             flags: json.flags ? new bn_js_1.BN(json.flags, 10) : undefined,
             requestID: json.requestid,
-            createdAt: json.createdat ? new bn_js_1.BN(json.createdat, 10) : undefined,
             identity: json.identity ? PartialIdentity_1.PartialIdentity.fromJson(json.identity) : undefined,
             expiryHeight: json.expiryheight ? new bn_js_1.BN(json.expiryheight, 10) : undefined,
             systemID: json.systemid ? pbaas_1.IdentityID.fromAddress(json.systemid) : undefined,
@@ -286,7 +276,6 @@ class IdentityUpdateRequestDetails {
             signDataMap,
             systemID: (details === null || details === void 0 ? void 0 : details.systemid) ? pbaas_1.IdentityID.fromAddress(details.systemid) : undefined,
             requestID: details === null || details === void 0 ? void 0 : details.requestid,
-            createdAt: (details === null || details === void 0 ? void 0 : details.createdat) ? new bn_js_1.BN(details.createdat, 10) : undefined,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
             responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
             txid: (details === null || details === void 0 ? void 0 : details.txid) ? Buffer.from(details.txid, 'hex').reverse() : undefined,

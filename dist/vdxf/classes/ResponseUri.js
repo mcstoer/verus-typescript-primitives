@@ -5,6 +5,8 @@ const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../utils/varuint");
 const bufferutils_1 = require("../../utils/bufferutils");
 class ResponseUri {
+    // TODO: Add TYPE_Z_ADDR_REF where response is encrypted and sent to encoded sapling address, 
+    // with optional amount specified
     constructor(data) {
         if (data) {
             if (data.uri != null) {

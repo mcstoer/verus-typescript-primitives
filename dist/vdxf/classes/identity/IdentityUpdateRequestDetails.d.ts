@@ -13,7 +13,6 @@ export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{
 export type IdentityUpdateRequestDetailsJson = {
     flags?: string;
     requestid?: string;
-    createdat?: string;
     identity?: VerusCLIVerusIDJson;
     expiryheight?: string;
     systemid?: string;
@@ -26,7 +25,6 @@ export type IdentityUpdateRequestDetailsJson = {
 export declare class IdentityUpdateRequestDetails implements SerializableEntity {
     flags?: BigNumber;
     requestID?: string;
-    createdAt?: BigNumber;
     identity?: PartialIdentity;
     expiryHeight?: BigNumber;
     systemID?: IdentityID;
@@ -44,7 +42,6 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     constructor(data?: {
         flags?: BigNumber;
         requestID?: string;
-        createdAt?: BigNumber;
         identity?: PartialIdentity;
         expiryHeight?: BigNumber;
         systemID?: IdentityID;

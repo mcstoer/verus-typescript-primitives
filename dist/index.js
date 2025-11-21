@@ -40,5 +40,6 @@ __exportStar(require("./constants/ordinals/types"), exports);
 __exportStar(require("./constants/vdxf/veruspay"), exports);
 __exportStar(require("./identity/IdentityDefinition"), exports);
 __exportStar(require("./currency/CurrencyDefinition"), exports);
+__exportStar(require("./vdxf/classes"), exports);
 var bn_js_1 = require("bn.js");
 Object.defineProperty(exports, "BigNumber", { enumerable: true, get: function () { return bn_js_1.BN; } });
