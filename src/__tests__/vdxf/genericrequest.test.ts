@@ -12,7 +12,8 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const buf = req.toBuffer();
     const clone = new GenericRequest();
     clone.fromBuffer(buf, 0);
-    return clone;
+    
+    return GenericRequest.fromQrString((GenericRequest.fromWalletDeeplinkUri(clone.toWalletDeeplinkUri())).toQrString());
   }
 
   function rawDetailsSha256(req: GenericRequest): Buffer {

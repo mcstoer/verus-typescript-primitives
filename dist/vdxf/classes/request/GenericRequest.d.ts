@@ -27,4 +27,6 @@ export declare class GenericRequest extends GenericEnvelope implements Serializa
     protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toJson(): GenericRequestJson;
+    static fromWalletDeeplinkUri(uri: string): GenericRequest;
+    static fromQrString(qrstring: string): GenericRequest;
 }

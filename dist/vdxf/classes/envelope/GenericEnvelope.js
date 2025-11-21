@@ -189,19 +189,8 @@ class GenericEnvelope {
     toWalletDeeplinkUri() {
         return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
     }
-    static fromWalletDeeplinkUri(uri) {
-        const split = uri.split(`${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
-        const inv = new GenericEnvelope();
-        inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0);
-        return inv;
-    }
     toQrString() {
         return this.toString();
-    }
-    static fromQrString(qrstring) {
-        const inv = new GenericEnvelope();
-        inv.fromBuffer(base64url_1.default.toBuffer(qrstring), 0);
-        return inv;
     }
     toJson() {
         const details = [];

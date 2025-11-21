@@ -6,6 +6,8 @@ const GenericEnvelope_1 = require("../envelope/GenericEnvelope");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const DataDescriptor_1 = require("../../../pbaas/DataDescriptor");
 const varuint_1 = require("../../../utils/varuint");
+const keys_1 = require("../../keys");
+const base64url_1 = require("base64url");
 class GenericResponse extends GenericEnvelope_1.GenericEnvelope {
     constructor(envelope = {
         details: [],
@@ -68,6 +70,17 @@ class GenericResponse extends GenericEnvelope_1.GenericEnvelope {
             parentJson["requesthashtype"] = this.requestHashType.toNumber();
         }
         return parentJson;
+    }
+    static fromWalletDeeplinkUri(uri) {
+        const split = uri.split(`${keys_1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
+        const inv = new GenericResponse();
+        inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0);
+        return inv;
+    }
+    static fromQrString(qrstring) {
+        const inv = new GenericResponse();
+        inv.fromBuffer(base64url_1.default.toBuffer(qrstring), 0);
+        return inv;
     }
 }
 exports.GenericResponse = GenericResponse;

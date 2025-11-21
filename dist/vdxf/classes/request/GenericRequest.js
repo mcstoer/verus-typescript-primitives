@@ -5,6 +5,8 @@ const bn_js_1 = require("bn.js");
 const GenericEnvelope_1 = require("../envelope/GenericEnvelope");
 const SaplingPaymentAddress_1 = require("../../../pbaas/SaplingPaymentAddress");
 const bufferutils_1 = require("../../../utils/bufferutils");
+const keys_1 = require("../../keys");
+const base64url_1 = require("base64url");
 class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
     constructor(envelope = {
         details: [],
@@ -58,6 +60,17 @@ class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
             parentJson["encryptresponsetoaddress"] = this.encryptResponseToAddress.toAddressString();
         }
         return parentJson;
+    }
+    static fromWalletDeeplinkUri(uri) {
+        const split = uri.split(`${keys_1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
+        const inv = new GenericRequest();
+        inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0);
+        return inv;
+    }
+    static fromQrString(qrstring) {
+        const inv = new GenericRequest();
+        inv.fromBuffer(base64url_1.default.toBuffer(qrstring), 0);
+        return inv;
     }
 }
 exports.GenericRequest = GenericRequest;

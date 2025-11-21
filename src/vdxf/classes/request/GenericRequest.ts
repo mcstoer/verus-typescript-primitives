@@ -3,6 +3,8 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { GenericEnvelope, GenericEnvelopeInterface, GenericEnvelopeJson } from "../envelope/GenericEnvelope";
 import { SaplingPaymentAddress } from '../../../pbaas/SaplingPaymentAddress';
 import bufferutils from '../../../utils/bufferutils';
+import { GENERIC_REQUEST_DEEPLINK_VDXF_KEY } from '../../keys';
+import base64url from 'base64url';
 
 export type GenericRequestJson = GenericEnvelopeJson & {
   encryptresponsetoaddress?: string;
@@ -104,5 +106,21 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
     }
 
     return parentJson;
+  }
+
+  static fromWalletDeeplinkUri(uri: string): GenericRequest {
+    const split = uri.split(`${GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
+
+    const inv = new GenericRequest();
+    inv.fromBuffer(base64url.toBuffer(split[1]), 0);
+
+    return inv;
+  }
+
+  static fromQrString(qrstring: string): GenericRequest {
+    const inv = new GenericRequest();
+    inv.fromBuffer(base64url.toBuffer(qrstring), 0);
+
+    return inv;
   }
 }

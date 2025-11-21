@@ -30,4 +30,6 @@ export declare class GenericResponse extends GenericEnvelope implements Serializ
     protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toJson(): GenericResponseJson;
+    static fromWalletDeeplinkUri(uri: string): GenericResponse;
+    static fromQrString(qrstring: string): GenericResponse;
 }

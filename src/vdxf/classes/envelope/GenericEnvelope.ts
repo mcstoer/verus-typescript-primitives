@@ -280,24 +280,8 @@ export class GenericEnvelope implements SerializableEntity {
     }/${this.toString()}`;
   }
 
-  static fromWalletDeeplinkUri(uri: string): GenericEnvelope {
-    const split = uri.split(`${GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
-
-    const inv = new GenericEnvelope();
-    inv.fromBuffer(base64url.toBuffer(split[1]), 0);
-
-    return inv;
-  }
-
   toQrString(): string {
     return this.toString();
-  }
-
-  static fromQrString(qrstring: string): GenericEnvelope {
-    const inv = new GenericEnvelope();
-    inv.fromBuffer(base64url.toBuffer(qrstring), 0);
-
-    return inv;
   }
 
   toJson(): GenericEnvelopeJson {
