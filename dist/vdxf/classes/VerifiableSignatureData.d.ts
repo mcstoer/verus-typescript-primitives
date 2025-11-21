@@ -5,6 +5,7 @@ import { SignatureData } from '../../pbaas';
 export interface VerifiableSignatureDataJson {
     version: number;
     flags: number;
+    signatureversion: number;
     hashtype: number;
     systemid: CompactIdAddressObjectJson;
     identityid: CompactIdAddressObjectJson;
@@ -17,6 +18,7 @@ export interface VerifiableSignatureDataJson {
 export interface VerifiableSignatureDataInterface {
     version?: BigNumber;
     flags?: BigNumber;
+    signatureVersion?: BigNumber;
     hashType?: BigNumber;
     systemID?: CompactIdAddressObject;
     identityID: CompactIdAddressObject;
@@ -29,6 +31,7 @@ export interface VerifiableSignatureDataInterface {
 export declare class VerifiableSignatureData implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
+    signatureVersion: BigNumber;
     hashType: BigNumber;
     identityID: CompactIdAddressObject;
     systemID: CompactIdAddressObject;

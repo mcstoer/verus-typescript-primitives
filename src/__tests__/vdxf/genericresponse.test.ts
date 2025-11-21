@@ -108,6 +108,46 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
+  
+  it('round trips with createdAt, and valid signature that can be hashed', () => {
+    const sig = new VerifiableSignatureData({
+      systemID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      identityID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      signatureAsVch: Buffer.from('AgX3RgAAAUEgHAVIHuui1Sc9oLxLbglKvmrv47JJLiM0/RBQwzYL1dlamI/2o9qBc93d79laLXWMhQomqZ4U3Mlr3ueuwl4JFA==', 'base64'),
+    });
+
+    const detail = new GeneralTypeOrdinalVdxfObject({
+      data: Buffer.from('abcd', 'hex'),
+      key: DEFAULT_VERUS_CHAINID
+    });
+
+    const createdAt = new BN(9999);
+    const requestHash = Buffer.from('abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd', 'hex');
+    const requestHashType = HASH_TYPE_SHA256;
+
+    const req = new GenericResponse({
+      details: [detail],
+      signature: sig,
+      createdAt,
+      requestHash: requestHash,
+      requestHashType: requestHashType
+    });
+
+    expect(req.isSigned()).toBe(true);
+    expect(req.hasCreatedAt()).toBe(true);
+    expect(req.getDetailsHash(1000)).toBeDefined();
+    expect(req.signature?.signatureVersion.toString()).toBe("2");
+
+    const round = roundTripBuffer(req);
+    expect(round.signature).toBeDefined();
+    expect(round.createdAt?.toString()).toEqual(createdAt.toString());
+    expect(round.hasRequestHash()).toBe(true)
+    expect(round.requestHash?.toString('hex')).toBe(requestHash.toString('hex'))
+    expect(round.requestHashType?.toNumber()).toBe(requestHashType.toNumber())
+    const d2 = round.getDetails(0);
+    expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
+    expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
+  });
 
   it('toString / fromQrString consistency', () => {
     const detail = new GeneralTypeOrdinalVdxfObject({

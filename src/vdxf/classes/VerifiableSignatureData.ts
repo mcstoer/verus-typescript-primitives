@@ -17,6 +17,7 @@ import { SignatureData } from '../../pbaas';
 export interface VerifiableSignatureDataJson {
   version: number;
   flags: number;
+  signatureversion: number;
   hashtype: number;
   systemid: CompactIdAddressObjectJson;
   identityid: CompactIdAddressObjectJson;
@@ -30,6 +31,7 @@ export interface VerifiableSignatureDataJson {
 export interface VerifiableSignatureDataInterface {
   version?: BigNumber;
   flags?: BigNumber;
+  signatureVersion?: BigNumber;
   hashType?: BigNumber;
   systemID?: CompactIdAddressObject;
   identityID: CompactIdAddressObject;
@@ -43,6 +45,7 @@ export interface VerifiableSignatureDataInterface {
 export class VerifiableSignatureData implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
+  signatureVersion: BigNumber;
   hashType: BigNumber;
   identityID: CompactIdAddressObject;
   systemID: CompactIdAddressObject;
@@ -66,6 +69,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.version ? data.version : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
+    this.signatureVersion = data && data.signatureVersion ? data.signatureVersion : new BN(2, 10);
     this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
     this.identityID = data ? data.identityID : undefined;
@@ -147,6 +151,8 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     byteLength += varuint.encodingLength(this.flags.toNumber());
 
+    byteLength += varuint.encodingLength(this.signatureVersion.toNumber());
+
     byteLength += varuint.encodingLength(this.hashType.toNumber());
 
     byteLength += this.systemID.getByteLength();
@@ -196,6 +202,8 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     bufferWriter.writeCompactSize(this.flags.toNumber());
 
+    bufferWriter.writeCompactSize(this.signatureVersion.toNumber());
+
     bufferWriter.writeCompactSize(this.hashType.toNumber());
 
     bufferWriter.writeSlice(this.systemID.toBuffer());
@@ -228,6 +236,8 @@ export class VerifiableSignatureData implements SerializableEntity {
     this.version = bufferReader.readVarInt();
 
     this.flags = new BN(bufferReader.readCompactSize());
+
+    this.signatureVersion = new BN(bufferReader.readCompactSize());
 
     this.hashType = new BN(bufferReader.readCompactSize());
 
@@ -271,22 +281,26 @@ export class VerifiableSignatureData implements SerializableEntity {
       throw new Error("Invalid signature type for identity hash");
     }
 
-    if (this.version.eq(new BN(1))) {
+    if (this.signatureVersion.eq(new BN(0))) {
+      throw new Error("Invalid sig data version")
+    } else if (this.signatureVersion.eq(new BN(1))) {
       return createHash("sha256")
         .update(VERUS_DATA_SIGNATURE_PREFIX)
         .update(fromBase58Check(this.systemID.toIAddress()).hash)
         .update(heightBuffer)
         .update(fromBase58Check(this.identityID.toIAddress()).hash)
+        .update(sigHash)
+        .digest();
+    } else if (this.signatureVersion.eq(new BN(2))) {
+      return createHash("sha256")
+        .update(fromBase58Check(this.systemID.toIAddress()).hash)
+        .update(heightBuffer)
+        .update(fromBase58Check(this.identityID.toIAddress()).hash)
+        .update(VERUS_DATA_SIGNATURE_PREFIX)
         .update(sigHash)
         .digest();
     } else {
-      return createHash("sha256")
-        .update(fromBase58Check(this.systemID.toIAddress()).hash)
-        .update(heightBuffer)
-        .update(fromBase58Check(this.identityID.toIAddress()).hash)
-        .update(VERUS_DATA_SIGNATURE_PREFIX)
-        .update(sigHash)
-        .digest();
+      throw new Error("Unrecognized sig data version")
     }
   }
 
@@ -306,11 +320,12 @@ export class VerifiableSignatureData implements SerializableEntity {
   }
 
   toJson(): VerifiableSignatureDataJson {
-
     const flags = this.calcFlags();
+
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
+      signatureversion: this.signatureVersion.toNumber(),
       hashtype: this.hashType.toNumber(),
       systemid: this.systemID.toJson(),
       identityid: this.identityID.toJson(),
@@ -326,6 +341,7 @@ export class VerifiableSignatureData implements SerializableEntity {
     const instance = new VerifiableSignatureData();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
+    instance.signatureVersion = new BN(json.signatureversion);
     instance.hashType = new BN(json.hashtype);
     instance.systemID = CompactIdAddressObject.fromJson(json.systemid);
     instance.identityID = CompactIdAddressObject.fromJson(json.identityid);

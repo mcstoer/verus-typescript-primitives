@@ -18,6 +18,7 @@ class VerifiableSignatureData {
     constructor(data) {
         this.version = data && data.version ? data.version : new bn_js_1.BN(0);
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN(0);
+        this.signatureVersion = data && data.signatureVersion ? data.signatureVersion : new bn_js_1.BN(2, 10);
         this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject_1.CompactIdAddressObject({ type: CompactIdAddressObject_1.CompactIdAddressObject.IS_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
         this.hashType = data && data.hashType ? data.hashType : pbaas_1.HASH_TYPE_SHA256;
         this.identityID = data ? data.identityID : undefined;
@@ -88,6 +89,7 @@ class VerifiableSignatureData {
         let byteLength = 0;
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varuint_1.default.encodingLength(this.flags.toNumber());
+        byteLength += varuint_1.default.encodingLength(this.signatureVersion.toNumber());
         byteLength += varuint_1.default.encodingLength(this.hashType.toNumber());
         byteLength += this.systemID.getByteLength();
         byteLength += this.identityID.getByteLength();
@@ -122,6 +124,7 @@ class VerifiableSignatureData {
         const bufferWriter = new BufferWriter(Buffer.alloc(this.getByteLength()));
         bufferWriter.writeVarInt(this.version);
         bufferWriter.writeCompactSize(this.flags.toNumber());
+        bufferWriter.writeCompactSize(this.signatureVersion.toNumber());
         bufferWriter.writeCompactSize(this.hashType.toNumber());
         bufferWriter.writeSlice(this.systemID.toBuffer());
         bufferWriter.writeSlice(this.identityID.toBuffer());
@@ -144,6 +147,7 @@ class VerifiableSignatureData {
         const bufferReader = new BufferReader(buffer, offset);
         this.version = bufferReader.readVarInt();
         this.flags = new bn_js_1.BN(bufferReader.readCompactSize());
+        this.signatureVersion = new bn_js_1.BN(bufferReader.readCompactSize());
         this.hashType = new bn_js_1.BN(bufferReader.readCompactSize());
         this.systemID = new CompactIdAddressObject_1.CompactIdAddressObject();
         this.identityID = new CompactIdAddressObject_1.CompactIdAddressObject();
@@ -174,7 +178,10 @@ class VerifiableSignatureData {
         if (!this.hashType.eq(new bn_js_1.BN(DataDescriptor_1.EHashTypes.HASH_SHA256))) {
             throw new Error("Invalid signature type for identity hash");
         }
-        if (this.version.eq(new bn_js_1.BN(1))) {
+        if (this.signatureVersion.eq(new bn_js_1.BN(0))) {
+            throw new Error("Invalid sig data version");
+        }
+        else if (this.signatureVersion.eq(new bn_js_1.BN(1))) {
             return createHash("sha256")
                 .update(vdxf_2.VERUS_DATA_SIGNATURE_PREFIX)
                 .update((0, address_1.fromBase58Check)(this.systemID.toIAddress()).hash)
@@ -183,7 +190,7 @@ class VerifiableSignatureData {
                 .update(sigHash)
                 .digest();
         }
-        else {
+        else if (this.signatureVersion.eq(new bn_js_1.BN(2))) {
             return createHash("sha256")
                 .update((0, address_1.fromBase58Check)(this.systemID.toIAddress()).hash)
                 .update(heightBuffer)
@@ -191,6 +198,9 @@ class VerifiableSignatureData {
                 .update(vdxf_2.VERUS_DATA_SIGNATURE_PREFIX)
                 .update(sigHash)
                 .digest();
+        }
+        else {
+            throw new Error("Unrecognized sig data version");
         }
     }
     toSignatureData(sigHash) {
@@ -213,6 +223,7 @@ class VerifiableSignatureData {
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
+            signatureversion: this.signatureVersion.toNumber(),
             hashtype: this.hashType.toNumber(),
             systemid: this.systemID.toJson(),
             identityid: this.identityID.toJson(),
@@ -228,6 +239,7 @@ class VerifiableSignatureData {
         const instance = new VerifiableSignatureData();
         instance.version = new bn_js_1.BN(json.version);
         instance.flags = new bn_js_1.BN(json.flags);
+        instance.signatureVersion = new bn_js_1.BN(json.signatureversion);
         instance.hashType = new bn_js_1.BN(json.hashtype);
         instance.systemID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json.systemid);
         instance.identityID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json.identityid);
