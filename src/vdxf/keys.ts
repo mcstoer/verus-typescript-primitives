@@ -666,13 +666,13 @@ export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
 }
 
 export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "f178871fedb335cf6659f8527a6c9652bc8e1d79",
-  "indexid": "xKM34nS3HiFvf3WDKL8DBrhpj2GqVWEaH4",
+  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9",
+  "indexid": "xQuu8CLZyYyPcB7gMkyP2D3pw8UgHevmcM",
+  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
   "qualifiedname": {
-    "name": "vrsc::application.encryption.request",
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
-  },
-  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9"
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "application.encryption.request"
+  }
 }
 
 export const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
