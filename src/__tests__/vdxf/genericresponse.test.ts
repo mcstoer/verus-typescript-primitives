@@ -135,7 +135,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
 
     expect(req.isSigned()).toBe(true);
     expect(req.hasCreatedAt()).toBe(true);
-    expect(req.getDetailsHash(1000)).toBeDefined();
+    expect(req.getDetailsIdentitySignatureHash(1000)).toBeDefined();
     expect(req.signature?.signatureVersion.toString()).toBe("2");
 
     const round = roundTripBuffer(req);
@@ -169,18 +169,5 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     expect(() => {
       req.fromBuffer(empty, 0);
     }).toThrow("Cannot create response from empty buffer");
-  });
-
-  it("returns raw SHA256 when not signed", () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
-      data: Buffer.from("abcd", "hex"),
-      key: DEFAULT_VERUS_CHAINID
-    });
-    const req = new GenericResponse({ details: [detail] });
-    expect(req.isSigned()).toBe(false);
-
-    const hash = req.getDetailsHash(123456);
-    const expected = rawDetailsSha256(req);
-    expect(hash).toEqual(expected);
   });
 });

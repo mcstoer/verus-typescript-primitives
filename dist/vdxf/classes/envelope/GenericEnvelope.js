@@ -73,12 +73,12 @@ class GenericEnvelope {
     getRawDataSha256(includeSig = false) {
         return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
     }
-    getDetailsHash(signedBlockheight) {
+    getDetailsIdentitySignatureHash(signedBlockheight) {
         if (this.isSigned()) {
             return this.signature.getIdentityHash(signedBlockheight, this.getRawDataSha256());
         }
         else
-            return this.getRawDataSha256();
+            throw new Error("Must contain verifiable signature with at least systemID and identityID to generate details identity signature hash");
     }
     getDetails(index = 0) {
         return this.details[index];

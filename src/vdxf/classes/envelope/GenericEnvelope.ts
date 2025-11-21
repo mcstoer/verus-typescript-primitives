@@ -125,10 +125,10 @@ export class GenericEnvelope implements SerializableEntity {
     return createHash("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
   }
 
-  getDetailsHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
+  getDetailsIdentitySignatureHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
     if (this.isSigned()) {
       return this.signature.getIdentityHash(signedBlockheight, this.getRawDataSha256());
-    } else return this.getRawDataSha256()
+    } else throw new Error("Must contain verifiable signature with at least systemID and identityID to generate details identity signature hash")
   }
 
   getDetails(index = 0): OrdinalVdxfObject {
