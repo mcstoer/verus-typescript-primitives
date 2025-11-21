@@ -3,7 +3,7 @@ import bufferutils from '../utils/bufferutils'
 import { BigNumber } from '../utils/types/BigNumber';
 import { Principal } from './Principal';
 import { fromBase58Check, nameAndParentAddrToIAddr, toBase58Check } from '../utils/address';
-import { I_ADDR_VERSION, R_ADDR_VERSION } from '../constants/vdxf';
+import { I_ADDR_VERSION, R_ADDR_VERSION, HASH160_BYTE_LENGTH, HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { BN } from 'bn.js';
 import { IdentityID } from './IdentityID';
 import { SaplingPaymentAddress } from './SaplingPaymentAddress';
@@ -157,16 +157,16 @@ export class Identity extends Principal implements SerializableEntity {
         length += varuint.encodingLength(this.content_map.size);
   
         for (const m of this.content_map.entries()) {
-          length += 20;   //uint160 key
-          length += 32;   //uint256 hash
+          length += HASH160_BYTE_LENGTH;   //uint160 key
+          length += HASH256_BYTE_LENGTH
         }
       }
   
       length += varuint.encodingLength(this.content_map.size);
   
       for (const m of this.content_map.entries()) {
-        length += 20;   //uint160 key
-        length += 32;   //uint256 hash
+        length += HASH160_BYTE_LENGTH;   //uint160 key
+        length += HASH256_BYTE_LENGTH;   //uint256 hash
       }
     }
 

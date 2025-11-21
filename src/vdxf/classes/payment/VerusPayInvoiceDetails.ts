@@ -5,7 +5,7 @@ import { BN } from 'bn.js';
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { TransferDestination, TransferDestinationJson } from '../../../pbaas/TransferDestination';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { I_ADDR_VERSION } from '../../../constants/vdxf';
+import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 import createHash = require('create-hash');
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { VERUSPAY_VERSION_4, VERUSPAY_VERSION_CURRENT } from '../../../constants/vdxf/veruspay';
@@ -214,7 +214,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       length += varuint.encodingLength(this.acceptedsystems.length);
 
       this.acceptedsystems.forEach(() => {
-        length += 20
+        length += HASH160_BYTE_LENGTH
       })
     }
 

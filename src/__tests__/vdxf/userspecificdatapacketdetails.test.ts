@@ -12,7 +12,7 @@ describe("UserSpecificDataPacketDetails", () => {
     test("creates instance with custom values", () => {
       const item = new UserSpecificDataPacketDetails({
         version: new BN(UserSpecificDataPacketDetails.DEFAULT_VERSION),
-        flags: UserSpecificDataPacketDetails.HAS_STATEMENTS.or(UserSpecificDataPacketDetails.HAS_SIGNATURE),
+        flags: UserSpecificDataPacketDetails.HAS_STATEMENTS.or(UserSpecificDataPacketDetails.HAS_SIGNATURE).or(UserSpecificDataPacketDetails.HAS_DETAILS_ID),
         signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
         statements: ["Statement 1", "Statement 2"],
         signature: new VerifiableSignatureData({
@@ -23,7 +23,7 @@ describe("UserSpecificDataPacketDetails", () => {
           identityID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
           systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC" }),
         }),
-        requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+        detailsID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
       });
 
       const detailsBuffer = item.toBuffer();

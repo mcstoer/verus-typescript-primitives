@@ -47,11 +47,11 @@ export {
 } from './provisioning/ProvisioningResult'
 export { Context } from './Context'
 export { DataCategory } from './PersonalProfile'
-export * from './requestobjects/UserDataRequestDetails'
+export * from './requestobjects/UserDataRequest'
 export * from './login/LoginRequestDetails'
 export * from './login/LoginResponseDetails'
 export * from './requestobjects/ProvisionIdentityDetails'
-export * from './requestobjects/AppEncryptionRequestDetails'
+export * from './requestobjects/AppEncryptionRequest'
 export * from './requestobjects/UserSpecificDataPacketDetails'
 export * from './CompactIdAddressObject'
 export {

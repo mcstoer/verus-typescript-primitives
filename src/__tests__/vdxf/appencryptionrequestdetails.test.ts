@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { AppEncryptionRequestDetails, CompactIdAddressObject } from "../../vdxf/classes";
+import { AppEncryptionRequest, CompactIdAddressObject } from "../../vdxf/classes";
 import { BigNumber } from "../../utils/types/BigNumber";
 
 // Helper function to create TransferDestination from address string
@@ -10,13 +10,13 @@ function createCompactIdAddressObject(type: BigNumber, address: string): Compact
   return obj;
 }
 
-describe("AppEncryptionRequestDetails serialization tests", () => {
-  test("creates valid AppEncryptionRequestDetails with zaddress", () => {
-    const details = new AppEncryptionRequestDetails({
-      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+describe("AppEncryptionRequest serialization tests", () => {
+  test("creates valid AppEncryptionRequest with zaddress", () => {
+    const details = new AppEncryptionRequest({
+      version: AppEncryptionRequest.DEFAULT_VERSION,
+      flags: AppEncryptionRequest.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+        .or(AppEncryptionRequest.HAS_FROM_ADDRESS)
+        .or(AppEncryptionRequest.HAS_TO_ADDRESS),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
       secondaryDerivationNumber: new BN(234),      
@@ -25,7 +25,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
-    const newDetails = new AppEncryptionRequestDetails();
+    const newDetails = new AppEncryptionRequest();
     const buffer = details.toBuffer();
     newDetails.fromBuffer(buffer);
     const originalBuffer = details.toBuffer();
@@ -43,13 +43,13 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     expect(details.requestID).toBe("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ");
   });
 
-  test("serializes and deserializes AppEncryptionRequestDetails correctly", () => {
-    // Create the first AppEncryptionRequestDetails
-    const originalDetails = new AppEncryptionRequestDetails({
-      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-      .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-      .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+  test("serializes and deserializes AppEncryptionRequest correctly", () => {
+    // Create the first AppEncryptionRequest
+    const originalDetails = new AppEncryptionRequest({
+      version: AppEncryptionRequest.DEFAULT_VERSION,
+      flags: AppEncryptionRequest.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+      .or(AppEncryptionRequest.HAS_FROM_ADDRESS)
+      .or(AppEncryptionRequest.HAS_TO_ADDRESS),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
       secondaryDerivationNumber: new BN(234),      
@@ -62,7 +62,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     const buffer = originalDetails.toBuffer();
 
     // Create a new instance and deserialize from buffer
-    const deserializedDetails = new AppEncryptionRequestDetails();
+    const deserializedDetails = new AppEncryptionRequest();
     deserializedDetails.fromBuffer(buffer);
 
     // Verify both instances are valid

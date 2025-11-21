@@ -665,7 +665,7 @@ export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
 }
 
-export const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "f178871fedb335cf6659f8527a6c9652bc8e1d79",
   "indexid": "xKM34nS3HiFvf3WDKL8DBrhpj2GqVWEaH4",
   "qualifiedname": {
@@ -675,31 +675,32 @@ export const APP_ENCRYPTION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iEWvbyzxSQ3G2sdBTeU4DUBHhNFpd6rUFx"
 }
 
-export const DATA_DESCRIPTOR_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "2ff523bad4a35bfa3db954295acd192e1d805dd9",
-  "vdxfid": "iPHr5EDp6QGdbAJS8Rqu8293HyQrYjgRap",
-  "indexid": "xU7xY2etwiVJDLBTz7W46QfaKdRsSoos4g",
+export const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "i5L8SNcCqY68X3KZEPgJEjGxY2zvMPzutN",
+  "indexid": "xAAEuB3HgrJo9DCb65LTD7oVZh1wAjCfTC",
+  "hash160result": "47ecd4c56c93486380a1ec0d06e186ae8cba5914",
   "qualifiedname": {
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::response.generic.datadescriptor"
+    "name": "vrsc::generic.data.packet.response"
   }
 }
-export const USER_DATA_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "iHFtTBRZufoaL9N8wDotQrvxAZrUfMv82u",
-  "indexid": "xN5zuyrekz2ExKFAnuU3PFTVCDsVSc5NMp",
-  "hash160result": "3f5e59f4434b601a64aaa4de8fd66dc336e62d97",
+
+export const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iC7kqU8mfKtqe2gcE2qpuyN4CEcPFTxKGL",
+  "indexid": "xGwsJGZrWe7WGCZe5iVytMtbDtdQCPvmno",
+  "hash160result": "d1fba3d9bf18a5293ff912374fc64725db95cb5e",
   "qualifiedname": {
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::request.generic.userdata.details"
+    "name": "user.data.request"
   }
 }
 
 export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "iBfMRtzM1ztWZ84RiBsbCNj9U1tpbiF5PS",
-  "indexid": "xGVTthRRsK7BBHwTZsXkAmFgVfuqSM24tK",
-  "hash160result": "dc4dd05e257f6b3ac266c2a6086dc2c54f3bcd59",
+  "vdxfid": "i6JYTdVNLz4Sb6515B73BSX6C1Xba63tNQ",
+  "indexid": "xB8evRvTCJH7DFx2vrmC9q3dDfYcXW1F15",
+  "hash160result": "34dfdf234ec37a8451790a19538dbd162913051f",
   "qualifiedname": {
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::request.generic.user.specificdata"
+    "name": "user.data.packet.details"
   }
 }

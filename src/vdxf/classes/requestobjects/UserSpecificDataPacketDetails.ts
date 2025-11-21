@@ -27,7 +27,7 @@ import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../VerifiableSignatureData';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { I_ADDR_VERSION } from '../../../constants/vdxf';
+import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
 export interface UserSpecificDataPacketDetailsInterface {
   version?: BigNumber;
@@ -35,7 +35,7 @@ export interface UserSpecificDataPacketDetailsInterface {
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
-  requestID?: string;
+  detailsID?: string;
 }
 
 export interface UserSpecificDataPacketDetailsJson {
@@ -44,7 +44,7 @@ export interface UserSpecificDataPacketDetailsJson {
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
   statements?: Array<string>;
   signature?: VerifiableSignatureDataJson;
-  requestid?: string;
+  detailsid?: string;
 }
 
 
@@ -61,14 +61,14 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
   static FOR_USERS_SIGNATURE = new BN(4);
   static FOR_TRANSMITTAL_TO_USER = new BN(8);
   static HAS_URL_FOR_DOWNLOAD = new BN(16);
-  static HAS_REQUEST_ID = new BN(32);
+  static HAS_DETAILS_ID = new BN(32);
 
   version: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
-  requestID?: string;
+  detailsID?: string;
 
   constructor(data?: UserSpecificDataPacketDetailsInterface) {
     this.version = data?.version || UserSpecificDataPacketDetails.DEFAULT_VERSION;
@@ -76,7 +76,7 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     this.signableObjects = data?.signableObjects || [];
     this.statements = data?.statements || [];
     this.signature = data?.signature || undefined;
-    this.requestID = data?.requestID;
+    this.detailsID = data?.detailsID;
 
     this.setFlags();
   }
@@ -96,8 +96,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
       flags = flags.or(UserSpecificDataPacketDetails.HAS_SIGNATURE);
     }
 
-    if (this.requestID) {
-      flags = flags.or(UserSpecificDataPacketDetails.HAS_REQUEST_ID);
+    if (this.detailsID) {
+      flags = flags.or(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
     }
 
     return flags;
@@ -111,8 +111,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     return this.flags.and(UserSpecificDataPacketDetails.HAS_SIGNATURE).eq(UserSpecificDataPacketDetails.HAS_SIGNATURE);
   }
 
-  hasRequestID(): boolean {
-    return this.flags.and(UserSpecificDataPacketDetails.HAS_REQUEST_ID).eq(UserSpecificDataPacketDetails.HAS_REQUEST_ID);
+  hasDetailsID(): boolean {
+    return this.flags.and(UserSpecificDataPacketDetails.HAS_DETAILS_ID).eq(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
   }
 
   isValid(): boolean {
@@ -157,8 +157,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
       length += this.signature.getByteLength();
     }
 
-    if (this.hasRequestID()) {
-      length += 20; // HASH160_BYTE_LENGTH for i-address
+    if (this.hasDetailsID()) {
+      length += HASH160_BYTE_LENGTH;
     }
 
     return length;
@@ -188,8 +188,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
       writer.writeSlice(this.signature.toBuffer());
     }
 
-    if (this.hasRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    if (this.hasDetailsID()) {
+      writer.writeSlice(fromBase58Check(this.detailsID).hash);
     }
 
     return writer.buffer;
@@ -226,8 +226,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
       this.signature = signature;
     }
 
-    if (this.hasRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+    if (this.hasDetailsID()) {
+      this.detailsID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
     }
 
     return reader.offset;
@@ -242,7 +242,7 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
       signableobjects: this.signableObjects.map(obj => obj.toJson()),
       statements: this.statements,
       signature: this.signature ? this.signature.toJson() : undefined,
-      requestid: this.requestID
+      detailsid: this.detailsID
     };
   }
 
@@ -261,7 +261,7 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     instance.signableObjects = dataDescriptorObjects;
     instance.statements = json.statements || [];
     instance.signature = json.signature ? VerifiableSignatureData.fromJson(json.signature) : undefined;
-    instance.requestID = json.requestid;
+    instance.detailsID = json.detailsid;
     return instance;
   }
 }

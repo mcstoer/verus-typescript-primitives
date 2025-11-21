@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../../utils/address";
 import bufferutils from '../../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
 import { VDXFData } from '../../';
 import { EHashTypes } from '../../pbaas/DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
@@ -51,7 +51,7 @@ export class SaltedData extends VDXFData {
     getByteLength() {
         let byteLength = 0;
 
-        byteLength += 20; //key
+        byteLength += HASH160_BYTE_LENGTH;
         byteLength += varint.encodingLength(this.version);
         byteLength += varuint.encodingLength(this.data.length + this.salt.length);
         byteLength += this.data.length + this.salt.length;

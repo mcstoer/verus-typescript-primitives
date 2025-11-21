@@ -20,7 +20,7 @@ import { BigNumber } from "../../../utils/types/BigNumber";
 import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varuint from "../../../utils/varuint";
-import { I_ADDR_VERSION } from '../../../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
 
@@ -132,7 +132,7 @@ export class LoginRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
-    length += 20; // requestID hash length
+    length += HASH160_BYTE_LENGTH;
 
     if (this.hasRecipentConstraints()) {
 

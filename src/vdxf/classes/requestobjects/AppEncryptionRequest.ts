@@ -1,6 +1,6 @@
 
 /**
- * AppEncryptionRequestDetails - Class for handling application requests for encrypted derived seeds
+ * AppEncryptionRequest - Class for handling application requests for encrypted derived seeds
  * 
  * This class is used when an application is requesting an encrypted derived seed from the user's master seed,
  * using specific parameters passed by the application. The request includes:
@@ -23,9 +23,9 @@ import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
 import varuint from '../../../utils/varuint';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { I_ADDR_VERSION } from '../../../constants/vdxf';
+import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
-export interface AppEncryptionRequestDetailsInterface {
+export interface AppEncryptionRequestInterface {
   version?: BigNumber;
   flags: BigNumber;
   encryptToZAddress: string;
@@ -36,7 +36,7 @@ export interface AppEncryptionRequestDetailsInterface {
   requestID?: string;
 }
 
-export interface AppEncryptionRequestDetailsJson {
+export interface AppEncryptionRequestJson {
   version: number;
   flags: number;
   encrypttozaddress: string;
@@ -64,7 +64,7 @@ export interface AppEncryptionRequestDetailsJson {
  * john.domain@ or [20-byte hex iaddress][20-byte hex system]
  */
 
-export class AppEncryptionRequestDetails implements SerializableEntity {
+export class AppEncryptionRequest implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -84,8 +84,8 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   toAddress?: CompactIdAddressObject;
   requestID?: string;
 
-  constructor(data?: AppEncryptionRequestDetailsInterface) {
-    this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
+  constructor(data?: AppEncryptionRequestInterface) {
+    this.version = data?.version || AppEncryptionRequest.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.encryptToZAddress = data?.encryptToZAddress || '';
     this.derivationNumber = data?.derivationNumber || new BN(0);
@@ -105,19 +105,19 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     let flags = new BN(0);
 
     if (this.secondaryDerivationNumber != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER);
+      flags = flags.or(AppEncryptionRequest.HAS_SECONDARY_SEED_DERIVATION_NUMBER);
     }
 
     if (this.fromAddress != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS);
+      flags = flags.or(AppEncryptionRequest.HAS_FROM_ADDRESS);
     }
 
     if (this.toAddress != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
+      flags = flags.or(AppEncryptionRequest.HAS_TO_ADDRESS);
     }
 
     if (this.requestID != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_REQUEST_ID);
+      flags = flags.or(AppEncryptionRequest.HAS_REQUEST_ID);
     }
 
     return flags;
@@ -132,19 +132,19 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   hasSecondarySeedDerivation(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER).gt(new BN(0));
+    return flags.and(AppEncryptionRequest.HAS_SECONDARY_SEED_DERIVATION_NUMBER).gt(new BN(0));
   }
 
   hasFromAddress(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_FROM_ADDRESS).gt(new BN(0));
+    return flags.and(AppEncryptionRequest.HAS_FROM_ADDRESS).gt(new BN(0));
   }
 
   hasToAddress(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new BN(0));
+    return flags.and(AppEncryptionRequest.HAS_TO_ADDRESS).gt(new BN(0));
   }
 
   hasRequestID(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_REQUEST_ID).gt(new BN(0));
+    return flags.and(AppEncryptionRequest.HAS_REQUEST_ID).gt(new BN(0));
   }
 
   getByteLength(): number {
@@ -173,7 +173,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID(flags)) {
-      length += 20; // HASH160_BYTE_LENGTH for i-address
+      length += HASH160_BYTE_LENGTH;
     }
 
     return length;
@@ -251,7 +251,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): AppEncryptionRequestDetailsJson {
+  toJson(): AppEncryptionRequestJson {
     // Set flags before serialization
     const flags = this.calcFlags();
 
@@ -267,8 +267,8 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     };
   }
 
-  static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails {
-    const instance = new AppEncryptionRequestDetails();
+  static fromJson(json: AppEncryptionRequestJson): AppEncryptionRequest {
+    const instance = new AppEncryptionRequest();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
     instance.encryptToZAddress = json.encrypttozaddress;

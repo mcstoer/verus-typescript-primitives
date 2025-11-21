@@ -2,7 +2,7 @@
 
 
 /**
- * DataDescriptorResponse - Class for providing structured responses to various request types
+ * DataResponse - Class for providing structured responses to various request types
  * 
  * This class serves as a universal response mechanism that can be used to reply to multiple
  * types of requests. It packages response data within a DataDescriptor along with metadata
@@ -10,14 +10,14 @@
  * 
  * USAGE AS RESPONSE TO DIFFERENT REQUEST TYPES:
  * 
- * 1. AppEncryptionRequestDetails Response:
+ * 1. AppEncryptionRequest Response:
  *    - The DataDescriptor 'data' field contains the encrypted derived seed
- *    - The requestID references the original AppEncryptionRequestDetails.requestID
+ *    - The requestID references the original AppEncryptionRequest.requestID
  *    - Enables secure delivery of application-specific encrypted keys
  * 
- * 2. UserDataRequestDetails Response:
+ * 2. UserDataRequest Response:
  *    - The DataDescriptor 'data' field contains requested user data/attestations
- *    - The requestID references the original UserDataRequestDetails.requestID
+ *    - The requestID references the original UserDataRequest.requestID
  *    - Allows selective disclosure of personal information
  * 
  * 3. UserSpecificDataPacketDetails Response:
@@ -50,37 +50,31 @@ import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import createHash = require("create-hash");
 
-export interface DataDescriptorResponseInterface {
+export interface DataResponseInterface {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
-  createdAt: BigNumber;              // Unix timestamp of response creation
   data: DataDescriptor;   
 }
 
-export interface DataDescriptorResponseJson {
+export interface  DataResponseJson {
   flags?: number;
   requestid?: string;              // ID of request, to be referenced in response
-  createdat: number;              // Unix timestamp of response creation
   data: DataDescriptorJson;   
 }
 
-export class DataDescriptorResponse implements SerializableEntity {
+export class DataResponse implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
-  createdAt: BigNumber;              // Unix timestamp of response creation
   data: DataDescriptor;    
 
-
-  static RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
+  static RESPONSE_CONTAINS_REQUEST_ID = new BN(1, 10);
 
   constructor (data?: {
     flags?: BigNumber,
     requestID?: string,
-    createdAt: BigNumber,
     data: DataDescriptor
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
-    this.createdAt = data?.createdAt;
 
     if (data?.requestID) {
       if (!this.containsRequestID()) this.toggleContainsRequestID();
@@ -92,11 +86,11 @@ export class DataDescriptorResponse implements SerializableEntity {
   }
 
   containsRequestID() {
-    return !!(this.flags.and(DataDescriptorResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    return !!(this.flags.and(DataResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
   }
 
   toggleContainsRequestID() {
-    this.flags = this.flags.xor(DataDescriptorResponse.RESPONSE_CONTAINS_REQUEST_ID);
+    this.flags = this.flags.xor(DataResponse.RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
@@ -112,7 +106,6 @@ export class DataDescriptorResponse implements SerializableEntity {
       length += HASH160_BYTE_LENGTH;
     }
 
-    length += varint.encodingLength(this.createdAt);
     length += this.data.getByteLength();
 
     return length;
@@ -127,7 +120,6 @@ export class DataDescriptorResponse implements SerializableEntity {
       writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
 
-    writer.writeVarInt(this.createdAt);
     writer.writeSlice(this.data.toBuffer());
 
     return writer.buffer;
@@ -142,8 +134,6 @@ export class DataDescriptorResponse implements SerializableEntity {
       this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
 
-    this.createdAt = reader.readVarInt();
-
     this.data = new DataDescriptor();
     this.data.fromBuffer(reader.buffer, reader.offset);
     reader.offset += this.data.getByteLength();
@@ -151,20 +141,18 @@ export class DataDescriptorResponse implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): DataDescriptorResponseJson {
+  toJson(): DataResponseJson {
     return {
       flags: this.flags.toNumber(),
       requestid: this.containsRequestID() ? this.requestID : undefined,
-      createdat: this.createdAt.toNumber(),
       data: this.data.toJson()
     }
   }
 
-  static fromJson(json: DataDescriptorResponseJson): DataDescriptorResponse {
-    return new DataDescriptorResponse({
+  static fromJson(json: DataResponseJson): DataResponse {
+    return new DataResponse({
       flags: new BN(json.flags, 10),
       requestID: json.requestid,
-      createdAt: new BN(json.createdat, 10),
       data: DataDescriptor.fromJson(json.data)
     });
   }

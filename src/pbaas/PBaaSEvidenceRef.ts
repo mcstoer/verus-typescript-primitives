@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import { UTXORef } from './UTXORef';
 import { IdentityMultimapRef } from './IdentityMultimapRef';
@@ -64,7 +64,7 @@ export class PBaaSEvidenceRef implements SerializableEntity {
     byteLength += varint.encodingLength(this.sub_object);
 
     if (this.flags.and(PBaaSEvidenceRef.FLAG_HAS_SYSTEM).gt(new BN(0))) {
-      byteLength += 20;
+      byteLength += HASH160_BYTE_LENGTH;
     }
 
     return byteLength
