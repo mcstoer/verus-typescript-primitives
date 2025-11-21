@@ -1,6 +1,6 @@
 import {
   WALLET_VDXF_KEY,
-  GENERIC_REQUEST_DEEPLINK_VDXF_KEY
+  GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY
 } from "../../";
 import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
@@ -276,7 +276,7 @@ export class GenericEnvelope implements SerializableEntity {
 
   toWalletDeeplinkUri(): string {
     return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${
-      GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid
+      GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid
     }/${this.toString()}`;
   }
 

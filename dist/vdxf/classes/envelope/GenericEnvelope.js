@@ -187,7 +187,7 @@ class GenericEnvelope {
         return base64url_1.default.encode(this.toBuffer());
     }
     toWalletDeeplinkUri() {
-        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${__1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
+        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${__1.GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
     }
     toQrString() {
         return this.toString();

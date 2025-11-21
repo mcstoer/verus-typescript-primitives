@@ -30,11 +30,11 @@ export const VERUSPAY_INVOICE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iJNsPqAhjovi3iVR3hvLGqrQxcCkHq9n9H"
 }
 
-export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+export const GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "bc05c4263031cc791296fa8bd15553ccef3de4ba",
   "indexid": "xRLq15vpenCUGVpmZgqEtoygZW2b32oVgX",
   "qualifiedname": {
-    "name": "vrsc::request.generic",
+    "name": "vrsc::envelope.generic",
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
   "vdxfid": "iLWiYHVjoTyoeKwji1B5vRT9Xr1aA9yyvX"

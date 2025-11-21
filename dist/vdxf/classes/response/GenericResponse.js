@@ -72,7 +72,7 @@ class GenericResponse extends GenericEnvelope_1.GenericEnvelope {
         return parentJson;
     }
     static fromWalletDeeplinkUri(uri) {
-        const split = uri.split(`${keys_1.GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
+        const split = uri.split(`${keys_1.GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/`);
         const inv = new GenericResponse();
         inv.fromBuffer(base64url_1.default.toBuffer(split[1]), 0);
         return inv;

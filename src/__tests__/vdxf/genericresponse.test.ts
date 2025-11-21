@@ -1,7 +1,7 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_REQUEST_DEEPLINK_VDXF_KEY, GenericResponse, SaplingPaymentAddress } from '../../';
+import { WALLET_VDXF_KEY, GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY, GenericResponse, SaplingPaymentAddress } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
@@ -131,7 +131,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     const uri = req.toWalletDeeplinkUri();
 
     expect(uri).toContain(WALLET_VDXF_KEY.vdxfid.toLowerCase());
-    expect(uri).toContain(`${GENERIC_REQUEST_DEEPLINK_VDXF_KEY.vdxfid}/`);
+    expect(uri).toContain(`${GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/`);
 
     const parsed = GenericResponse.fromWalletDeeplinkUri(uri);
     expect(parsed.version.toString()).toEqual(req.version.toString());
