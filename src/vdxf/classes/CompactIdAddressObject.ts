@@ -15,7 +15,7 @@ import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import varuint from '../../utils/varuint';
 import { fromBase58Check, toBase58Check, toIAddress } from "../../utils/address";
 import varint from '../../utils/varint';
-import { I_ADDR_VERSION } from '../../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
 
 export interface CompactIdAddressObjectJson {
   version: number;
@@ -103,7 +103,7 @@ export class CompactIdAddressObject implements SerializableEntity {
     length += varuint.encodingLength(this.type.toNumber());
 
     if (this.isIaddress()) {
-      length += 20; // identityuint160
+      length += HASH160_BYTE_LENGTH; // identityuint160
     } else {
       const addrLen = Buffer.from(this.address, 'utf8').byteLength;
 

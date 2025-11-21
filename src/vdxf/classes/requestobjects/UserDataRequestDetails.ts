@@ -28,24 +28,27 @@ const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
+import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
-export interface RequestUserDataInterface {
+export interface UserDataRequestInterface {
   version?: BigNumber;
   flags: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIdAddressObject;
   requestedKeys?: string[];
+  requestID?: string;
 }
 
-export interface RequestUserDataJson {
+export interface UserDataRequestJson {
   version: number;
   flags: number;
   searchdatakey: Array<{[key: string]: string}>;   // ID object of the specific information requested
   signer?: CompactIdAddressObjectJson;
   requestedkeys?: string[]; // Specific keys within the data object being requested
+  requestid?: string;
 }
 
-export class RequestUserData implements SerializableEntity {
+export class UserDataRequestDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -61,19 +64,22 @@ export class RequestUserData implements SerializableEntity {
 
   static HAS_SIGNER = new BN(64);
   static HAS_REQUESTED_KEYS = new BN(128);
+  static HAS_REQUEST_ID = new BN(256);
 
   version: BigNumber;
   flags: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIdAddressObject;
   requestedKeys?: string[];
+  requestID?: string;
 
-  constructor(data?: RequestUserDataInterface) {
-    this.version = data?.version || RequestUserData.DEFAULT_VERSION;
+  constructor(data?: UserDataRequestInterface) {
+    this.version = data?.version || UserDataRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.searchDataKey = data?.searchDataKey || [];
     this.signer = data?.signer;
     this.requestedKeys = data?.requestedKeys;
+    this.requestID = data?.requestID;
 
     this.setFlags();
   }
@@ -81,10 +87,13 @@ export class RequestUserData implements SerializableEntity {
   calcFlags(): BigNumber {
     let flags = new BN(0);
     if (this.requestedKeys && this.requestedKeys.length > 0) {
-      flags = flags.or(RequestUserData.HAS_REQUESTED_KEYS);
+      flags = flags.or(UserDataRequestDetails.HAS_REQUESTED_KEYS);
     }
     if (this.signer) {
-      flags = flags.or(RequestUserData.HAS_SIGNER);
+      flags = flags.or(UserDataRequestDetails.HAS_SIGNER);
+    }
+    if (this.requestID) {
+      flags = flags.or(UserDataRequestDetails.HAS_REQUEST_ID);
     }
 
     return flags;
@@ -95,11 +104,15 @@ export class RequestUserData implements SerializableEntity {
   }
 
   hasSigner(): boolean {
-    return this.flags.and(RequestUserData.HAS_SIGNER).eq(RequestUserData.HAS_SIGNER);
+    return this.flags.and(UserDataRequestDetails.HAS_SIGNER).eq(UserDataRequestDetails.HAS_SIGNER);
   }
 
   hasRequestedKeys(): boolean {
-    return this.flags.and(RequestUserData.HAS_REQUESTED_KEYS).eq(RequestUserData.HAS_REQUESTED_KEYS);
+    return this.flags.and(UserDataRequestDetails.HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+  }
+
+  hasRequestID(): boolean {
+    return this.flags.and(UserDataRequestDetails.HAS_REQUEST_ID).eq(UserDataRequestDetails.HAS_REQUEST_ID);
   }
 
   /**
@@ -107,7 +120,7 @@ export class RequestUserData implements SerializableEntity {
    * @returns True if exactly one data type flag is set
    */
   hasDataTypeSet(): boolean {
-    const dataTypeFlags = RequestUserData.FULL_DATA.or(RequestUserData.PARTIAL_DATA).or(RequestUserData.COLLECTION);
+    const dataTypeFlags = UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.PARTIAL_DATA).or(UserDataRequestDetails.COLLECTION);
     const setDataFlags = this.flags.and(dataTypeFlags);
     
     // Check if exactly one flag is set by verifying it's a power of 2
@@ -119,7 +132,7 @@ export class RequestUserData implements SerializableEntity {
    * @returns True if exactly one request type flag is set
    */
   hasRequestTypeSet(): boolean {
-    const requestTypeFlags = RequestUserData.ATTESTATION.or(RequestUserData.CLAIM).or(RequestUserData.CREDENTIAL);
+    const requestTypeFlags = UserDataRequestDetails.ATTESTATION.or(UserDataRequestDetails.CLAIM).or(UserDataRequestDetails.CREDENTIAL);
     const setRequestFlags = this.flags.and(requestTypeFlags);
     
     // Check if exactly one flag is set by verifying it's a power of 2
@@ -127,7 +140,7 @@ export class RequestUserData implements SerializableEntity {
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(RequestUserData.FIRST_VERSION) && this.version.lte(RequestUserData.LAST_VERSION);
+    let valid = this.version.gte(UserDataRequestDetails.FIRST_VERSION) && this.version.lte(UserDataRequestDetails.LAST_VERSION);
     
     // Check that exactly one data type flag is set
     valid &&= this.hasDataTypeSet();
@@ -150,7 +163,7 @@ export class RequestUserData implements SerializableEntity {
     for (const item of this.searchDataKey) {
       const key = Object.keys(item)[0];
       const value = item[key];
-      length += 20  // VDXF key length
+      length += HASH160_BYTE_LENGTH;
       length += varuint.encodingLength(Buffer.byteLength(value, 'utf8'));
       length += Buffer.byteLength(value, 'utf8');
     }
@@ -163,9 +176,13 @@ export class RequestUserData implements SerializableEntity {
       length += varuint.encodingLength(this.requestedKeys ? this.requestedKeys.length : 0);
       if (this.requestedKeys) {
         for (const key of this.requestedKeys) {    
-          length += 20  // VDXF key length 
+          length += HASH160_BYTE_LENGTH;
         }
       }
+    }
+
+    if (this.hasRequestID()) {
+      length += HASH160_BYTE_LENGTH; 
     }
     
     return length;
@@ -193,7 +210,11 @@ export class RequestUserData implements SerializableEntity {
         for (const key of this.requestedKeys) {
           writer.writeSlice(fromBase58Check(key).hash); // 20-byte VDXF key
         }    
-    }    
+    }
+
+    if (this.hasRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    }
       
     return writer.buffer;
   }
@@ -206,10 +227,10 @@ export class RequestUserData implements SerializableEntity {
     this.searchDataKey = [];
 
     for (let i = 0; i < searchDataKeyLength; i++) {
-      const keyHash = reader.readSlice(20); // 20-byte VDXF key
+      const keyHash = reader.readSlice(HASH160_BYTE_LENGTH); // 20-byte VDXF key
       const valueBuffer = reader.readVarSlice();
       const value = valueBuffer.toString('utf8');
-      const key = toBase58Check(keyHash, 102);
+      const key = toBase58Check(keyHash, I_ADDR_VERSION);
       this.searchDataKey.push({ [key]: value });
     }
     
@@ -225,33 +246,39 @@ export class RequestUserData implements SerializableEntity {
       this.requestedKeys = [];
       for (let i = 0; i < requestedKeysLength; i++) {
         const keyHash = reader.readSlice(20); // 20-byte VDXF key
-        const key = toBase58Check(keyHash, 102);
+        const key = toBase58Check(keyHash, I_ADDR_VERSION);
         this.requestedKeys.push(key);
       }
+    }
+
+    if (this.hasRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
     }
 
     return reader.offset;
   }
 
-  toJson(): RequestUserDataJson {
+  toJson(): UserDataRequestJson {
     const flags = this.calcFlags();
 
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
       searchdatakey: this.searchDataKey,
-      signer: this.signer.toJson(),
-      requestedkeys: this.requestedKeys
+      signer: this.signer?.toJson(),
+      requestedkeys: this.requestedKeys,
+      requestid: this.requestID
     };
   }
 
-  static fromJson(json: RequestUserDataJson) {
-    const requestData = new RequestUserData();
+  static fromJson(json: UserDataRequestJson) {
+    const requestData = new UserDataRequestDetails();
     requestData.version = new BN(json.version);
     requestData.flags = new BN(json.flags);
     requestData.searchDataKey = json.searchdatakey;
     requestData.signer = json.signer ? CompactIdAddressObject.fromJson(json.signer) : undefined;
     requestData.requestedKeys = json.requestedkeys;
+    requestData.requestID = json.requestid;
 
     return requestData;
   }

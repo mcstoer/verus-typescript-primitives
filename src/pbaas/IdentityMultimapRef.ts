@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 
 const { BufferReader, BufferWriter } = bufferutils
@@ -66,18 +66,18 @@ export class IdentityMultimapRef implements SerializableEntity {
 
     byteLength += varint.encodingLength(this.version);
     byteLength += varint.encodingLength(this.flags);
-    byteLength += 20; // id_ID uint160
-    byteLength += 20; // key uint160
+    byteLength += HASH160_BYTE_LENGTH; // id_ID
+    byteLength += HASH160_BYTE_LENGTH; // vdxfkey 
     byteLength += varint.encodingLength(this.height_start); // height_start uint32
     byteLength += varint.encodingLength(this.height_end); // height_end uint32
 
 
     if (this.flags.and(IdentityMultimapRef.FLAG_HAS_DATAHASH).gt(new BN(0))) {
-      byteLength += 32;
+      byteLength += HASH256_BYTE_LENGTH;
     }
 
     if (this.flags.and(IdentityMultimapRef.FLAG_HAS_SYSTEM).gt(new BN(0))) {
-      byteLength += 20
+      byteLength += HASH160_BYTE_LENGTH
     }
     return byteLength
   }

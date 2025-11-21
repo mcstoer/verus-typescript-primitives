@@ -24,6 +24,6 @@ __exportStar(require("./SerializableEntityOrdinalVdxfObject"), exports);
 __exportStar(require("./VerusPayInvoiceOrdinalVdxfObject"), exports);
 __exportStar(require("./LoginRequestDetailsOrdinalVdxfObject"), exports);
 __exportStar(require("./LoginResponseDetailsOrdinalVdxfObject"), exports);
-__exportStar(require("./AppEncryptionRequestDetailsOrdinalVdxfObject"), exports);
+__exportStar(require("./AppEncryptionRequestOrdinalVdxfObject"), exports);
 __exportStar(require("./ProvisionIdentityDetailsOrdinalVdxfObject"), exports);
 (0, register_1.registerOrdinals)();

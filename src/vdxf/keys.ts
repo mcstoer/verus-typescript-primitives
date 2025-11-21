@@ -666,11 +666,41 @@ export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
 }
 
 export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
+  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9",
   "indexid": "xQuu8CLZyYyPcB7gMkyP2D3pw8UgHevmcM",
+  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
   "qualifiedname": {
-    "name": "vrsc::application.encryption.request",
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
-  },
-  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9"
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "application.encryption.request"
+  }
+}
+
+export const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "i5L8SNcCqY68X3KZEPgJEjGxY2zvMPzutN",
+  "indexid": "xAAEuB3HgrJo9DCb65LTD7oVZh1wAjCfTC",
+  "hash160result": "47ecd4c56c93486380a1ec0d06e186ae8cba5914",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::generic.data.packet.response"
+  }
+}
+
+export const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iC7kqU8mfKtqe2gcE2qpuyN4CEcPFTxKGL",
+  "indexid": "xGwsJGZrWe7WGCZe5iVytMtbDtdQCPvmno",
+  "hash160result": "d1fba3d9bf18a5293ff912374fc64725db95cb5e",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "user.data.request"
+  }
+}
+
+export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "i6JYTdVNLz4Sb6515B73BSX6C1Xba63tNQ",
+  "indexid": "xB8evRvTCJH7DFx2vrmC9q3dDfYcXW1F15",
+  "hash160result": "34dfdf234ec37a8451790a19538dbd162913051f",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "user.data.packet.details"
+  }
 }

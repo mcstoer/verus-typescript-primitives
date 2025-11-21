@@ -1,18 +1,18 @@
 import { BN } from "bn.js";
 import { 
   CompactIdAddressObject,
- PersonalUserDataDetails, PersonalUserDataDetailsJson
+ UserSpecificDataPacketDetails, UserSpecificDataPacketDetailsJson
 } from "../../vdxf/classes";
 import { DataDescriptor } from "../../pbaas";
 import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureData";
 
 
-describe("PersonalUserDataDetails", () => {
+describe("UserSpecificDataPacketDetails", () => {
   describe("constructor and basic properties", () => {
     test("creates instance with custom values", () => {
-      const item = new PersonalUserDataDetails({
-        version: new BN(PersonalUserDataDetails.DEFAULT_VERSION),
-        flags: PersonalUserDataDetails.HAS_STATEMENTS.or(PersonalUserDataDetails.HAS_SIGNATURE),
+      const item = new UserSpecificDataPacketDetails({
+        version: new BN(UserSpecificDataPacketDetails.DEFAULT_VERSION),
+        flags: UserSpecificDataPacketDetails.HAS_STATEMENTS.or(UserSpecificDataPacketDetails.HAS_SIGNATURE).or(UserSpecificDataPacketDetails.HAS_DETAILS_ID),
         signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
         statements: ["Statement 1", "Statement 2"],
         signature: new VerifiableSignatureData({
@@ -22,12 +22,13 @@ describe("PersonalUserDataDetails", () => {
           flags: new BN(0),
           identityID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
           systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC" }),
-        })
+        }),
+        detailsID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
       });
 
       const detailsBuffer = item.toBuffer();
 
-      const newDetails = new PersonalUserDataDetails();
+      const newDetails = new UserSpecificDataPacketDetails();
       newDetails.fromBuffer(detailsBuffer);
 
       expect(newDetails.toJson()).toEqual(item.toJson());

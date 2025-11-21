@@ -1,10 +1,7 @@
-import varint from '../utils/varint'
-import varuint from '../utils/varuint'
-import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 
 const { BufferReader, BufferWriter } = bufferutils
@@ -21,7 +18,7 @@ export class UTXORef implements SerializableEntity {
   getByteLength() {
     let byteLength = 0;
 
-    byteLength += 32; // hash uint256
+    byteLength += HASH256_BYTE_LENGTH; // hash uint256
     byteLength += 4;  // n uint32
 
     return byteLength

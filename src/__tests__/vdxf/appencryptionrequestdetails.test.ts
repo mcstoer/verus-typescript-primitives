@@ -22,6 +22,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
       secondaryDerivationNumber: new BN(234),      
       fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
     const newDetails = new AppEncryptionRequestDetails();
@@ -34,11 +35,12 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
 
     expect(details.isValid()).toBe(true);
     expect(details.encryptToZAddress).toBe("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4");
-    expect(details.flags.toNumber()).toBe(1+2+4);
+    expect(details.flags.toNumber()).toBe(1+2+4+8);
     expect(details.derivationNumber.toNumber()).toBe(42);
     expect(details.secondaryDerivationNumber?.toNumber()).toBe(234);
     expect(details.fromAddress?.address).toBe("i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW");
     expect(details.toAddress?.address).toBe("i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
+    expect(details.requestID).toBe("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ");
   });
 
   test("serializes and deserializes AppEncryptionRequestDetails correctly", () => {
@@ -53,6 +55,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
       secondaryDerivationNumber: new BN(234),      
       fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
   });
 
     // Serialize to buffer
@@ -76,6 +79,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     expect(deserializedDetails.fromAddress?.address).toBe(originalDetails.fromAddress?.address);
     expect(deserializedDetails.toAddress?.type.toNumber()).toBe(originalDetails.toAddress?.type.toNumber());
     expect(deserializedDetails.toAddress?.address).toBe(originalDetails.toAddress?.address);
+    expect(deserializedDetails.requestID).toBe(originalDetails.requestID);
 
     // Verify that serializing both instances produces the same buffer
     const originalBuffer = originalDetails.toBuffer();

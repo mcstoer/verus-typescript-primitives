@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 const { BufferReader, BufferWriter } = bufferutils
 
@@ -45,9 +45,9 @@ export class ContentMultiMapRemove implements SerializableEntity {
     byteLength += varint.encodingLength(this.version);
     byteLength += varint.encodingLength(this.action);
     if (this.action != ContentMultiMapRemove.ACTION_CLEAR_MAP) {
-      byteLength += 20
+      byteLength += HASH160_BYTE_LENGTH
       if (this.action != ContentMultiMapRemove.ACTION_REMOVE_ALL_KEY) {
-        byteLength += 32
+        byteLength += HASH256_BYTE_LENGTH;
       }
     }
     return byteLength

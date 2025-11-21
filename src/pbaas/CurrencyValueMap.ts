@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 const { BufferReader, BufferWriter } = bufferutils
 import { bnToDecimal, decimalToBn } from '../utils/numberConversion';
@@ -29,7 +29,7 @@ export class CurrencyValueMap implements SerializableEntity {
     }
 
     for (const [key, value] of this.value_map) {
-      byteLength += 20
+      byteLength += HASH160_BYTE_LENGTH
       byteLength += this.multivalue ? 8 : varint.encodingLength(value)
     }
 
