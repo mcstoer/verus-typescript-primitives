@@ -95,14 +95,14 @@ class Identity extends Principal_1.Principal {
             if (this.version.lt(exports.IDENTITY_VERSION_PBAAS)) {
                 length += varuint_1.default.encodingLength(this.content_map.size);
                 for (const m of this.content_map.entries()) {
-                    length += 20; //uint160 key
-                    length += 32; //uint256 hash
+                    length += vdxf_1.HASH160_BYTE_LENGTH; //uint160 key
+                    length += vdxf_1.HASH256_BYTE_LENGTH;
                 }
             }
             length += varuint_1.default.encodingLength(this.content_map.size);
             for (const m of this.content_map.entries()) {
-                length += 20; //uint160 key
-                length += 32; //uint256 hash
+                length += vdxf_1.HASH160_BYTE_LENGTH; //uint160 key
+                length += vdxf_1.HASH256_BYTE_LENGTH; //uint256 hash
             }
         }
         if (this.containsRevocation())

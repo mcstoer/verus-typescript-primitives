@@ -21,6 +21,8 @@ const { BufferReader, BufferWriter } = bufferutils_1.default;
 const sapling_1 = require("../../../utils/sapling");
 const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
 const varuint_1 = require("../../../utils/varuint");
+const address_1 = require("../../../utils/address");
+const vdxf_1 = require("../../../constants/vdxf");
 /**
  * Checks if a string is a valid hexadecimal address
  * @param flags - Optional flags for the request
@@ -46,6 +48,7 @@ class AppEncryptionRequestDetails {
         this.secondaryDerivationNumber = data === null || data === void 0 ? void 0 : data.secondaryDerivationNumber;
         this.fromAddress = data === null || data === void 0 ? void 0 : data.fromAddress;
         this.toAddress = data === null || data === void 0 ? void 0 : data.toAddress;
+        this.requestID = data === null || data === void 0 ? void 0 : data.requestID;
         this.setFlags();
     }
     setFlags() {
@@ -61,6 +64,9 @@ class AppEncryptionRequestDetails {
         }
         if (this.toAddress != null) {
             flags = flags.or(AppEncryptionRequestDetails.HAS_TO_ADDRESS);
+        }
+        if (this.requestID != null) {
+            flags = flags.or(AppEncryptionRequestDetails.HAS_REQUEST_ID);
         }
         return flags;
     }
@@ -79,6 +85,9 @@ class AppEncryptionRequestDetails {
     hasToAddress(flags = this.flags) {
         return flags.and(AppEncryptionRequestDetails.HAS_TO_ADDRESS).gt(new bn_js_1.BN(0));
     }
+    hasRequestID(flags = this.flags) {
+        return flags.and(AppEncryptionRequestDetails.HAS_REQUEST_ID).gt(new bn_js_1.BN(0));
+    }
     getByteLength() {
         const flags = this.calcFlags();
         let length = 0;
@@ -94,6 +103,9 @@ class AppEncryptionRequestDetails {
         }
         if (this.hasToAddress(flags)) {
             length += this.toAddress.getByteLength();
+        }
+        if (this.hasRequestID(flags)) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
         }
         return length;
     }
@@ -115,6 +127,9 @@ class AppEncryptionRequestDetails {
         }
         if (this.hasToAddress(flags)) {
             writer.writeSlice(this.toAddress.toBuffer());
+        }
+        if (this.hasRequestID(flags)) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
         }
         return writer.buffer;
     }
@@ -142,10 +157,13 @@ class AppEncryptionRequestDetails {
             reader.offset = CompactId.fromBuffer(reader.buffer, reader.offset);
             this.toAddress = CompactId;
         }
+        if (this.hasRequestID()) {
+            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+        }
         return reader.offset;
     }
     toJson() {
-        var _a;
+        var _a, _b, _c;
         // Set flags before serialization
         const flags = this.calcFlags();
         return {
@@ -154,8 +172,9 @@ class AppEncryptionRequestDetails {
             encrypttozaddress: this.encryptToZAddress,
             derivationnumber: this.derivationNumber.toNumber(),
             secondaryderivationnumber: (_a = this.secondaryDerivationNumber) === null || _a === void 0 ? void 0 : _a.toNumber(),
-            fromaddress: this.fromAddress.toJson(),
-            toaddress: this.toAddress.toJson()
+            fromaddress: (_b = this.fromAddress) === null || _b === void 0 ? void 0 : _b.toJson(),
+            toaddress: (_c = this.toAddress) === null || _c === void 0 ? void 0 : _c.toJson(),
+            requestid: this.requestID
         };
     }
     static fromJson(json) {
@@ -171,6 +190,9 @@ class AppEncryptionRequestDetails {
         if (instance.hasToAddress()) {
             instance.toAddress = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json === null || json === void 0 ? void 0 : json.toaddress);
         }
+        if (instance.hasRequestID()) {
+            instance.requestID = json === null || json === void 0 ? void 0 : json.requestid;
+        }
         return instance;
     }
 }
@@ -182,3 +204,4 @@ AppEncryptionRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
 AppEncryptionRequestDetails.HAS_FROM_ADDRESS = new bn_js_1.BN(1);
 AppEncryptionRequestDetails.HAS_TO_ADDRESS = new bn_js_1.BN(2);
 AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER = new bn_js_1.BN(4);
+AppEncryptionRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(8);

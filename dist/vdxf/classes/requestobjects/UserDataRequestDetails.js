@@ -20,29 +20,34 @@
  * - ATTESTATION/CLAIM/CREDENTIAL: Type of verification being requested
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RequestUserData = void 0;
+exports.UserDataRequestDetails = void 0;
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
 const address_1 = require("../../../utils/address");
-class RequestUserData {
+const vdxf_1 = require("../../../constants/vdxf");
+class UserDataRequestDetails {
     constructor(data) {
-        this.version = (data === null || data === void 0 ? void 0 : data.version) || RequestUserData.DEFAULT_VERSION;
+        this.version = (data === null || data === void 0 ? void 0 : data.version) || UserDataRequestDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0);
         this.searchDataKey = (data === null || data === void 0 ? void 0 : data.searchDataKey) || [];
         this.signer = data === null || data === void 0 ? void 0 : data.signer;
         this.requestedKeys = data === null || data === void 0 ? void 0 : data.requestedKeys;
+        this.requestID = data === null || data === void 0 ? void 0 : data.requestID;
         this.setFlags();
     }
     calcFlags() {
         let flags = new bn_js_1.BN(0);
         if (this.requestedKeys && this.requestedKeys.length > 0) {
-            flags = flags.or(RequestUserData.HAS_REQUESTED_KEYS);
+            flags = flags.or(UserDataRequestDetails.HAS_REQUESTED_KEYS);
         }
         if (this.signer) {
-            flags = flags.or(RequestUserData.HAS_SIGNER);
+            flags = flags.or(UserDataRequestDetails.HAS_SIGNER);
+        }
+        if (this.requestID) {
+            flags = flags.or(UserDataRequestDetails.HAS_REQUEST_ID);
         }
         return flags;
     }
@@ -50,17 +55,20 @@ class RequestUserData {
         this.flags = this.calcFlags();
     }
     hasSigner() {
-        return this.flags.and(RequestUserData.HAS_SIGNER).eq(RequestUserData.HAS_SIGNER);
+        return this.flags.and(UserDataRequestDetails.HAS_SIGNER).eq(UserDataRequestDetails.HAS_SIGNER);
     }
     hasRequestedKeys() {
-        return this.flags.and(RequestUserData.HAS_REQUESTED_KEYS).eq(RequestUserData.HAS_REQUESTED_KEYS);
+        return this.flags.and(UserDataRequestDetails.HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+    }
+    hasRequestID() {
+        return this.flags.and(UserDataRequestDetails.HAS_REQUEST_ID).eq(UserDataRequestDetails.HAS_REQUEST_ID);
     }
     /**
      * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
      * @returns True if exactly one data type flag is set
      */
     hasDataTypeSet() {
-        const dataTypeFlags = RequestUserData.FULL_DATA.or(RequestUserData.PARTIAL_DATA).or(RequestUserData.COLLECTION);
+        const dataTypeFlags = UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.PARTIAL_DATA).or(UserDataRequestDetails.COLLECTION);
         const setDataFlags = this.flags.and(dataTypeFlags);
         // Check if exactly one flag is set by verifying it's a power of 2
         return !setDataFlags.isZero() && setDataFlags.and(setDataFlags.sub(new bn_js_1.BN(1))).isZero();
@@ -70,13 +78,13 @@ class RequestUserData {
      * @returns True if exactly one request type flag is set
      */
     hasRequestTypeSet() {
-        const requestTypeFlags = RequestUserData.ATTESTATION.or(RequestUserData.CLAIM).or(RequestUserData.CREDENTIAL);
+        const requestTypeFlags = UserDataRequestDetails.ATTESTATION.or(UserDataRequestDetails.CLAIM).or(UserDataRequestDetails.CREDENTIAL);
         const setRequestFlags = this.flags.and(requestTypeFlags);
         // Check if exactly one flag is set by verifying it's a power of 2
         return !setRequestFlags.isZero() && setRequestFlags.and(setRequestFlags.sub(new bn_js_1.BN(1))).isZero();
     }
     isValid() {
-        let valid = this.version.gte(RequestUserData.FIRST_VERSION) && this.version.lte(RequestUserData.LAST_VERSION);
+        let valid = this.version.gte(UserDataRequestDetails.FIRST_VERSION) && this.version.lte(UserDataRequestDetails.LAST_VERSION);
         // Check that exactly one data type flag is set
         valid && (valid = this.hasDataTypeSet());
         // Check that exactly one request type flag is set
@@ -92,7 +100,7 @@ class RequestUserData {
         for (const item of this.searchDataKey) {
             const key = Object.keys(item)[0];
             const value = item[key];
-            length += 20; // VDXF key length
+            length += vdxf_1.HASH160_BYTE_LENGTH;
             length += varuint_1.default.encodingLength(Buffer.byteLength(value, 'utf8'));
             length += Buffer.byteLength(value, 'utf8');
         }
@@ -103,9 +111,12 @@ class RequestUserData {
             length += varuint_1.default.encodingLength(this.requestedKeys ? this.requestedKeys.length : 0);
             if (this.requestedKeys) {
                 for (const key of this.requestedKeys) {
-                    length += 20; // VDXF key length 
+                    length += vdxf_1.HASH160_BYTE_LENGTH;
                 }
             }
+        }
+        if (this.hasRequestID()) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
         }
         return length;
     }
@@ -128,6 +139,9 @@ class RequestUserData {
                 writer.writeSlice((0, address_1.fromBase58Check)(key).hash); // 20-byte VDXF key
             }
         }
+        if (this.hasRequestID()) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        }
         return writer.buffer;
     }
     fromBuffer(buffer, offset) {
@@ -136,10 +150,10 @@ class RequestUserData {
         const searchDataKeyLength = reader.readCompactSize();
         this.searchDataKey = [];
         for (let i = 0; i < searchDataKeyLength; i++) {
-            const keyHash = reader.readSlice(20); // 20-byte VDXF key
+            const keyHash = reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH); // 20-byte VDXF key
             const valueBuffer = reader.readVarSlice();
             const value = valueBuffer.toString('utf8');
-            const key = (0, address_1.toBase58Check)(keyHash, 102);
+            const key = (0, address_1.toBase58Check)(keyHash, vdxf_1.I_ADDR_VERSION);
             this.searchDataKey.push({ [key]: value });
         }
         if (this.hasSigner()) {
@@ -152,42 +166,49 @@ class RequestUserData {
             this.requestedKeys = [];
             for (let i = 0; i < requestedKeysLength; i++) {
                 const keyHash = reader.readSlice(20); // 20-byte VDXF key
-                const key = (0, address_1.toBase58Check)(keyHash, 102);
+                const key = (0, address_1.toBase58Check)(keyHash, vdxf_1.I_ADDR_VERSION);
                 this.requestedKeys.push(key);
             }
+        }
+        if (this.hasRequestID()) {
+            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
         }
         return reader.offset;
     }
     toJson() {
+        var _a;
         const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
             searchdatakey: this.searchDataKey,
-            signer: this.signer.toJson(),
-            requestedkeys: this.requestedKeys
+            signer: (_a = this.signer) === null || _a === void 0 ? void 0 : _a.toJson(),
+            requestedkeys: this.requestedKeys,
+            requestid: this.requestID
         };
     }
     static fromJson(json) {
-        const requestData = new RequestUserData();
+        const requestData = new UserDataRequestDetails();
         requestData.version = new bn_js_1.BN(json.version);
         requestData.flags = new bn_js_1.BN(json.flags);
         requestData.searchDataKey = json.searchdatakey;
         requestData.signer = json.signer ? CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json.signer) : undefined;
         requestData.requestedKeys = json.requestedkeys;
+        requestData.requestID = json.requestid;
         return requestData;
     }
 }
-exports.RequestUserData = RequestUserData;
-RequestUserData.VERSION_INVALID = new bn_js_1.BN(0);
-RequestUserData.FIRST_VERSION = new bn_js_1.BN(1);
-RequestUserData.LAST_VERSION = new bn_js_1.BN(1);
-RequestUserData.DEFAULT_VERSION = new bn_js_1.BN(1);
-RequestUserData.FULL_DATA = new bn_js_1.BN(1);
-RequestUserData.PARTIAL_DATA = new bn_js_1.BN(2);
-RequestUserData.COLLECTION = new bn_js_1.BN(4);
-RequestUserData.ATTESTATION = new bn_js_1.BN(8);
-RequestUserData.CLAIM = new bn_js_1.BN(16);
-RequestUserData.CREDENTIAL = new bn_js_1.BN(32);
-RequestUserData.HAS_SIGNER = new bn_js_1.BN(64);
-RequestUserData.HAS_REQUESTED_KEYS = new bn_js_1.BN(128);
+exports.UserDataRequestDetails = UserDataRequestDetails;
+UserDataRequestDetails.VERSION_INVALID = new bn_js_1.BN(0);
+UserDataRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
+UserDataRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
+UserDataRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
+UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(1);
+UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(2);
+UserDataRequestDetails.COLLECTION = new bn_js_1.BN(4);
+UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(8);
+UserDataRequestDetails.CLAIM = new bn_js_1.BN(16);
+UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(32);
+UserDataRequestDetails.HAS_SIGNER = new bn_js_1.BN(64);
+UserDataRequestDetails.HAS_REQUESTED_KEYS = new bn_js_1.BN(128);
+UserDataRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(256);

@@ -9,3 +9,6 @@ export declare const VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST: import("bn.js");
 export declare const VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE: import("bn.js");
 export declare const VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS: import("bn.js");
 export declare const VDXF_ORDINAL_APP_ENCRYPTION_REQUEST: import("bn.js");
+export declare const VDXF_ORDINAL_USER_SPECIFIC_DATA_PACKET: import("bn.js");
+export declare const VDXF_ORDINAL_USER_DATA_REQUEST: import("bn.js");
+export declare const VDXF_ORDINAL_DATA_RESPONSE: import("bn.js");

@@ -19,7 +19,7 @@ import {
   VerusPayInvoiceDetails 
 } from "../../vdxf/classes";
 import { VerusPayInvoiceDetailsJson } from "../../vdxf/classes/payment/VerusPayInvoiceDetails";
-import { DataResponse, DataResponseJson } from "../../vdxf/classes/response/DataResponse";
+import { DataPacketResponse, DataResponseJson } from "../../vdxf/classes/datapacket/DataPacketResponse";
 
 export type OrdinalVdxfObjectReservedData = 
   DataDescriptor | 
@@ -30,7 +30,7 @@ export type OrdinalVdxfObjectReservedData =
   LoginResponseDetails |
   ProvisionIdentityDetails |
   AppEncryptionRequestDetails |
-  DataResponse |
+  DataPacketResponse |
   UserDataRequestDetails |
   UserSpecificDataPacketDetails;
 

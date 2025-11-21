@@ -34,7 +34,7 @@ class PBaaSEvidenceRef {
         byteLength += varint_1.default.encodingLength(this.object_num);
         byteLength += varint_1.default.encodingLength(this.sub_object);
         if (this.flags.and(PBaaSEvidenceRef.FLAG_HAS_SYSTEM).gt(new bn_js_1.BN(0))) {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
         }
         return byteLength;
     }

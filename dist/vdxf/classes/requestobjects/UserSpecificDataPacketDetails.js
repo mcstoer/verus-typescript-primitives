@@ -1,6 +1,7 @@
 "use strict";
 /**
- * PersonalUserDataDetails - Class for handling personal user data transfer requests
+ * UserSpecificDataPacketDetails - Class for sending personal data to user or requesting the user
+ * signature on personal data
  *
  * This class is used when an application is requesting to transfer or receive personal
  * user data. The request includes:
@@ -14,22 +15,28 @@
  * statements or conditions, and whether it's for the user's signature or being
  * transmitted to/from the user. This enables secure, user-controlled personal
  * data sharing with clear visibility into what data is being transferred.
+ *
+
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PersonalUserDataDetails = void 0;
+exports.UserSpecificDataPacketDetails = void 0;
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 const pbaas_1 = require("../../../pbaas");
-const VerifiableSignatureData_1 = require("../../../vdxf/classes/VerifiableSignatureData");
-class PersonalUserDataDetails {
+const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
+const address_1 = require("../../../utils/address");
+const vdxf_1 = require("../../../constants/vdxf");
+// User_specific_data_packet
+class UserSpecificDataPacketDetails {
     constructor(data) {
-        this.version = (data === null || data === void 0 ? void 0 : data.version) || PersonalUserDataDetails.DEFAULT_VERSION;
+        this.version = (data === null || data === void 0 ? void 0 : data.version) || UserSpecificDataPacketDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0);
         this.signableObjects = (data === null || data === void 0 ? void 0 : data.signableObjects) || [];
         this.statements = (data === null || data === void 0 ? void 0 : data.statements) || [];
         this.signature = (data === null || data === void 0 ? void 0 : data.signature) || undefined;
+        this.detailsID = data === null || data === void 0 ? void 0 : data.detailsID;
         this.setFlags();
     }
     setFlags() {
@@ -38,22 +45,28 @@ class PersonalUserDataDetails {
     calcFlags() {
         let flags = new bn_js_1.BN(0);
         if (this.statements && this.statements.length > 0) {
-            flags = flags.or(PersonalUserDataDetails.HAS_STATEMENTS);
+            flags = flags.or(UserSpecificDataPacketDetails.HAS_STATEMENTS);
         }
         if (this.signature) {
-            flags = flags.or(PersonalUserDataDetails.HAS_SIGNATURE);
+            flags = flags.or(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+        }
+        if (this.detailsID) {
+            flags = flags.or(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
         }
         return flags;
     }
     hasStatements() {
-        return this.flags.and(PersonalUserDataDetails.HAS_STATEMENTS).eq(PersonalUserDataDetails.HAS_STATEMENTS);
+        return this.flags.and(UserSpecificDataPacketDetails.HAS_STATEMENTS).eq(UserSpecificDataPacketDetails.HAS_STATEMENTS);
     }
     hasSignature() {
-        return this.flags.and(PersonalUserDataDetails.HAS_SIGNATURE).eq(PersonalUserDataDetails.HAS_SIGNATURE);
+        return this.flags.and(UserSpecificDataPacketDetails.HAS_SIGNATURE).eq(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+    }
+    hasDetailsID() {
+        return this.flags.and(UserSpecificDataPacketDetails.HAS_DETAILS_ID).eq(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
     }
     isValid() {
-        let valid = this.version.gte(PersonalUserDataDetails.FIRST_VERSION) &&
-            this.version.lte(PersonalUserDataDetails.LAST_VERSION);
+        let valid = this.version.gte(UserSpecificDataPacketDetails.FIRST_VERSION) &&
+            this.version.lte(UserSpecificDataPacketDetails.LAST_VERSION);
         // Check that we have signable objects
         valid && (valid = this.signableObjects.length > 0);
         if (this.hasStatements()) {
@@ -83,6 +96,9 @@ class PersonalUserDataDetails {
         if (this.hasSignature() && this.signature) {
             length += this.signature.getByteLength();
         }
+        if (this.hasDetailsID()) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
+        }
         return length;
     }
     toBuffer() {
@@ -102,6 +118,9 @@ class PersonalUserDataDetails {
         }
         if (this.hasSignature() && this.signature) {
             writer.writeSlice(this.signature.toBuffer());
+        }
+        if (this.hasDetailsID()) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.detailsID).hash);
         }
         return writer.buffer;
     }
@@ -130,6 +149,9 @@ class PersonalUserDataDetails {
             reader.offset = signature.fromBuffer(reader.buffer, reader.offset);
             this.signature = signature;
         }
+        if (this.hasDetailsID()) {
+            this.detailsID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+        }
         return reader.offset;
     }
     toJson() {
@@ -139,11 +161,12 @@ class PersonalUserDataDetails {
             flags: flags.toNumber(),
             signableobjects: this.signableObjects.map(obj => obj.toJson()),
             statements: this.statements,
-            signature: this.signature ? this.signature.toJson() : undefined
+            signature: this.signature ? this.signature.toJson() : undefined,
+            detailsid: this.detailsID
         };
     }
     static fromJson(json) {
-        const instance = new PersonalUserDataDetails();
+        const instance = new UserSpecificDataPacketDetails();
         instance.version = new bn_js_1.BN(json.version);
         instance.flags = new bn_js_1.BN(json.flags);
         const dataDescriptorObjects = [];
@@ -154,17 +177,19 @@ class PersonalUserDataDetails {
         instance.signableObjects = dataDescriptorObjects;
         instance.statements = json.statements || [];
         instance.signature = json.signature ? VerifiableSignatureData_1.VerifiableSignatureData.fromJson(json.signature) : undefined;
+        instance.detailsID = json.detailsid;
         return instance;
     }
 }
-exports.PersonalUserDataDetails = PersonalUserDataDetails;
-PersonalUserDataDetails.VERSION_INVALID = new bn_js_1.BN(0);
-PersonalUserDataDetails.FIRST_VERSION = new bn_js_1.BN(1);
-PersonalUserDataDetails.LAST_VERSION = new bn_js_1.BN(1);
-PersonalUserDataDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
+exports.UserSpecificDataPacketDetails = UserSpecificDataPacketDetails;
+UserSpecificDataPacketDetails.VERSION_INVALID = new bn_js_1.BN(0);
+UserSpecificDataPacketDetails.FIRST_VERSION = new bn_js_1.BN(1);
+UserSpecificDataPacketDetails.LAST_VERSION = new bn_js_1.BN(1);
+UserSpecificDataPacketDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
 // types of data to sign
-PersonalUserDataDetails.HAS_STATEMENTS = new bn_js_1.BN(1);
-PersonalUserDataDetails.HAS_SIGNATURE = new bn_js_1.BN(2);
-PersonalUserDataDetails.FOR_USERS_SIGNATURE = new bn_js_1.BN(4);
-PersonalUserDataDetails.FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(8);
-PersonalUserDataDetails.HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(16);
+UserSpecificDataPacketDetails.HAS_STATEMENTS = new bn_js_1.BN(1);
+UserSpecificDataPacketDetails.HAS_SIGNATURE = new bn_js_1.BN(2);
+UserSpecificDataPacketDetails.FOR_USERS_SIGNATURE = new bn_js_1.BN(4);
+UserSpecificDataPacketDetails.FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(8);
+UserSpecificDataPacketDetails.HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(16);
+UserSpecificDataPacketDetails.HAS_DETAILS_ID = new bn_js_1.BN(32);

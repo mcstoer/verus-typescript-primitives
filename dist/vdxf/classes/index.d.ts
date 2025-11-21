@@ -31,11 +31,11 @@ export { RedirectUri, Subject, ProvisioningInfo, RequestedPermission, Audience, 
 export { ProvisioningTxid } from './provisioning/ProvisioningResult';
 export { Context } from './Context';
 export { DataCategory } from './PersonalProfile';
-export * from './requestobjects/RequestUserData';
+export * from './requestobjects/UserDataRequestDetails';
 export * from './login/LoginRequestDetails';
 export * from './login/LoginResponseDetails';
 export * from './requestobjects/ProvisionIdentityDetails';
 export * from './requestobjects/AppEncryptionRequestDetails';
-export * from './requestobjects/PersonalUserDataDetails';
+export * from './requestobjects/UserSpecificDataPacketDetails';
 export * from './CompactIdAddressObject';
 export { VerifiableSignatureData, VerifiableSignatureDataJson } from './VerifiableSignatureData';

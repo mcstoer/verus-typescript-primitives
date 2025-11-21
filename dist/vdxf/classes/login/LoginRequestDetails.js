@@ -56,7 +56,7 @@ class LoginRequestDetails {
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
-        length += 20; // requestID hash length
+        length += vdxf_1.HASH160_BYTE_LENGTH;
         if (this.hasRecipentConstraints()) {
             length += varuint_1.default.encodingLength(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {

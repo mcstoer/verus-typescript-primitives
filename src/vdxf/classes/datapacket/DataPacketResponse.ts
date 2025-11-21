@@ -2,7 +2,7 @@
 
 
 /**
- * DataResponse - Class for providing structured responses to various request types
+ * DataPacketResponse - Class for providing structured responses to various request types
  * 
  * This class serves as a universal response mechanism that can be used to reply to multiple
  * types of requests. It packages response data within a DataDescriptor along with metadata
@@ -43,7 +43,6 @@ import { BN } from 'bn.js';
 import varint from '../../../utils/varint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
-import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
@@ -62,7 +61,7 @@ export interface  DataResponseJson {
   data: DataDescriptorJson;   
 }
 
-export class DataResponse implements SerializableEntity {
+export class DataPacketResponse implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
   data: DataDescriptor;    
@@ -86,11 +85,11 @@ export class DataResponse implements SerializableEntity {
   }
 
   containsRequestID() {
-    return !!(this.flags.and(DataResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    return !!(this.flags.and(DataPacketResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
   }
 
   toggleContainsRequestID() {
-    this.flags = this.flags.xor(DataResponse.RESPONSE_CONTAINS_REQUEST_ID);
+    this.flags = this.flags.xor(DataPacketResponse.RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
@@ -149,8 +148,8 @@ export class DataResponse implements SerializableEntity {
     }
   }
 
-  static fromJson(json: DataResponseJson): DataResponse {
-    return new DataResponse({
+  static fromJson(json: DataResponseJson): DataPacketResponse {
+    return new DataPacketResponse({
       flags: new BN(json.flags, 10),
       requestID: json.requestid,
       data: DataDescriptor.fromJson(json.data)

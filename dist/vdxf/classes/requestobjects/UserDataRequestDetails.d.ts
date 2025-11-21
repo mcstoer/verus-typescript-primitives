@@ -21,7 +21,7 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
-export interface RequestUserDataInterface {
+export interface UserDataRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
     searchDataKey: Array<{
@@ -29,8 +29,9 @@ export interface RequestUserDataInterface {
     }>;
     signer?: CompactIdAddressObject;
     requestedKeys?: string[];
+    requestID?: string;
 }
-export interface RequestUserDataJson {
+export interface UserDataRequestJson {
     version: number;
     flags: number;
     searchdatakey: Array<{
@@ -38,8 +39,9 @@ export interface RequestUserDataJson {
     }>;
     signer?: CompactIdAddressObjectJson;
     requestedkeys?: string[];
+    requestid?: string;
 }
-export declare class RequestUserData implements SerializableEntity {
+export declare class UserDataRequestDetails implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
@@ -52,6 +54,7 @@ export declare class RequestUserData implements SerializableEntity {
     static CREDENTIAL: import("bn.js");
     static HAS_SIGNER: import("bn.js");
     static HAS_REQUESTED_KEYS: import("bn.js");
+    static HAS_REQUEST_ID: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
     searchDataKey: Array<{
@@ -59,11 +62,13 @@ export declare class RequestUserData implements SerializableEntity {
     }>;
     signer?: CompactIdAddressObject;
     requestedKeys?: string[];
-    constructor(data?: RequestUserDataInterface);
+    requestID?: string;
+    constructor(data?: UserDataRequestInterface);
     calcFlags(): BigNumber;
     setFlags(): void;
     hasSigner(): boolean;
     hasRequestedKeys(): boolean;
+    hasRequestID(): boolean;
     /**
      * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
      * @returns True if exactly one data type flag is set
@@ -78,6 +83,6 @@ export declare class RequestUserData implements SerializableEntity {
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): RequestUserDataJson;
-    static fromJson(json: RequestUserDataJson): RequestUserData;
+    toJson(): UserDataRequestJson;
+    static fromJson(json: UserDataRequestJson): UserDataRequestDetails;
 }

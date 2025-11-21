@@ -40,7 +40,7 @@ class SaltedData extends index_1.VDXFData {
     }
     getByteLength() {
         let byteLength = 0;
-        byteLength += 20; //key
+        byteLength += vdxf_1.HASH160_BYTE_LENGTH; // vdxfkey
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varuint_1.default.encodingLength(this.data.length + this.salt.length);
         byteLength += this.data.length + this.salt.length;

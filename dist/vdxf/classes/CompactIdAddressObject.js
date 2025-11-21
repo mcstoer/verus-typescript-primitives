@@ -66,7 +66,7 @@ class CompactIdAddressObject {
         length += varuint_1.default.encodingLength(this.version.toNumber());
         length += varuint_1.default.encodingLength(this.type.toNumber());
         if (this.isIaddress()) {
-            length += 20; // identityuint160
+            length += vdxf_1.HASH160_BYTE_LENGTH; // identityuint160
         }
         else {
             const addrLen = Buffer.from(this.address, 'utf8').byteLength;

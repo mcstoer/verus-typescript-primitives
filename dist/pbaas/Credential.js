@@ -41,7 +41,7 @@ class Credential {
         let length = 0;
         length += varint_1.default.encodingLength(this.version);
         length += varint_1.default.encodingLength(this.flags);
-        length += 20; // Credential key
+        length += vdxf_1.HASH160_BYTE_LENGTH; // Credential key
         // Both the credential and scopes are serialized as JSON strings.
         const credStr = JSON.stringify(this.credential);
         const credentialLength = credStr.length;

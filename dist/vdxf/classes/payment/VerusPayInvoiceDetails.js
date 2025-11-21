@@ -162,7 +162,7 @@ class VerusPayInvoiceDetails {
         if (this.acceptsNonVerusSystems()) {
             length += varuint_1.default.encodingLength(this.acceptedsystems.length);
             this.acceptedsystems.forEach(() => {
-                length += 20;
+                length += vdxf_1.HASH160_BYTE_LENGTH;
             });
         }
         return length;

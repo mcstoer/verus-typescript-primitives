@@ -23,7 +23,7 @@ class CurrencyValueMap {
             byteLength += varuint_1.default.encodingLength(this.value_map.size);
         }
         for (const [key, value] of this.value_map) {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
             byteLength += this.multivalue ? 8 : varint_1.default.encodingLength(value);
         }
         return byteLength;

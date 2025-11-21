@@ -14,7 +14,7 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
-export interface AppEncryptionRequestDetailsInterface {
+export interface AppEncryptionRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
     encryptToZAddress: string;
@@ -22,8 +22,9 @@ export interface AppEncryptionRequestDetailsInterface {
     secondaryDerivationNumber?: BigNumber;
     fromAddress?: CompactIdAddressObject;
     toAddress?: CompactIdAddressObject;
+    requestID?: string;
 }
-export interface AppEncryptionRequestDetailsJson {
+export interface AppEncryptionRequestJson {
     version: number;
     flags: number;
     encrypttozaddress: string;
@@ -31,6 +32,7 @@ export interface AppEncryptionRequestDetailsJson {
     secondaryderivationnumber?: number;
     fromaddress?: CompactIdAddressObjectJson;
     toaddress?: CompactIdAddressObjectJson;
+    requestid?: string;
 }
 /**
  * Checks if a string is a valid hexadecimal address
@@ -56,6 +58,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     static HAS_FROM_ADDRESS: import("bn.js");
     static HAS_TO_ADDRESS: import("bn.js");
     static HAS_SECONDARY_SEED_DERIVATION_NUMBER: import("bn.js");
+    static HAS_REQUEST_ID: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
     encryptToZAddress: string;
@@ -63,16 +66,18 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     secondaryDerivationNumber?: BigNumber;
     fromAddress?: CompactIdAddressObject;
     toAddress?: CompactIdAddressObject;
-    constructor(data?: AppEncryptionRequestDetailsInterface);
+    requestID?: string;
+    constructor(data?: AppEncryptionRequestInterface);
     setFlags(): void;
     calcFlags(): BigNumber;
     isValid(): boolean;
     hasSecondarySeedDerivation(flags?: BigNumber): boolean;
     hasFromAddress(flags?: BigNumber): boolean;
     hasToAddress(flags?: BigNumber): boolean;
+    hasRequestID(flags?: BigNumber): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): AppEncryptionRequestDetailsJson;
-    static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails;
+    toJson(): AppEncryptionRequestJson;
+    static fromJson(json: AppEncryptionRequestJson): AppEncryptionRequestDetails;
 }

@@ -5,6 +5,7 @@ const varint_1 = require("../utils/varint");
 const varuint_1 = require("../utils/varuint");
 const bufferutils_1 = require("../utils/bufferutils");
 const bn_js_1 = require("bn.js");
+const vdxf_1 = require("../constants/vdxf");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class URLRef {
     constructor(data) {
@@ -24,7 +25,7 @@ class URLRef {
             byteLength += varint_1.default.encodingLength(this.flags);
             if (this.flags.and(URLRef.FLAG_HAS_HASH).eq(URLRef.FLAG_HAS_HASH)) {
                 // If the FLAG_HAS_HASH is set, we include the data hash
-                byteLength += 32; // 32 bytes for the hash
+                byteLength += vdxf_1.HASH256_BYTE_LENGTH; // 32 bytes for the hash
             }
         }
         byteLength += varuint_1.default.encodingLength(Buffer.from(this.url, 'utf8').length);

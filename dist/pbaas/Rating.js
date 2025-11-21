@@ -19,7 +19,7 @@ class Rating {
         byteLength += 1; // trust_level uint8
         byteLength += varuint_1.default.encodingLength(this.ratings.size);
         for (const [key, value] of this.ratings) {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
             byteLength += varuint_1.default.encodingLength(value.length);
             byteLength += value.length;
         }
