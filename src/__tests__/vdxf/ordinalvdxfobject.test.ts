@@ -17,7 +17,7 @@ import {
 } from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
 import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
 import { 
-  AppEncryptionRequest, 
+  AppEncryptionRequestDetails, 
   CompactIdAddressObject, 
   IdentityUpdateRequestDetails, 
   IdentityUpdateResponseDetails, 
@@ -26,7 +26,7 @@ import {
   ProvisionIdentityDetails, 
   ResponseUri, 
   VerusPayInvoiceDetails,
-  UserDataRequest,
+  UserDataRequestDetails,
   UserSpecificDataPacketDetails
 } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
@@ -345,11 +345,11 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   });
 
   it('should serialize / deserialize an AppEncryptionRequestOrdinalVdxfObject', () => {
-    const details = new AppEncryptionRequest({
-      version: AppEncryptionRequest.DEFAULT_VERSION,
-      flags: AppEncryptionRequest.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-        .or(AppEncryptionRequest.HAS_FROM_ADDRESS)
-        .or(AppEncryptionRequest.HAS_TO_ADDRESS),
+    const details = new AppEncryptionRequestDetails({
+      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
+        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
       secondaryDerivationNumber: new BN(234),
@@ -451,9 +451,9 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   });
 
   it('should serialize / deserialize a UserDataRequestOrdinalVdxfObject via buffer', () => {
-    const details = new UserDataRequest({
+    const details = new UserDataRequestDetails({
       version: new BN(1),
-      flags: UserDataRequest.FULL_DATA.or(UserDataRequest.ATTESTATION).or(UserDataRequest.HAS_SIGNER),
+      flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.HAS_SIGNER),
       searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"

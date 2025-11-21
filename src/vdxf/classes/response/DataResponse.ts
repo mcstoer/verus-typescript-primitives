@@ -10,14 +10,14 @@
  * 
  * USAGE AS RESPONSE TO DIFFERENT REQUEST TYPES:
  * 
- * 1. AppEncryptionRequest Response:
+ * 1. AppEncryptionRequestDetails Response:
  *    - The DataDescriptor 'data' field contains the encrypted derived seed
- *    - The requestID references the original AppEncryptionRequest.requestID
+ *    - The requestID references the original AppEncryptionRequestDetails.requestID
  *    - Enables secure delivery of application-specific encrypted keys
  * 
- * 2. UserDataRequest Response:
+ * 2. UserDataRequestDetails Response:
  *    - The DataDescriptor 'data' field contains requested user data/attestations
- *    - The requestID references the original UserDataRequest.requestID
+ *    - The requestID references the original UserDataRequestDetails.requestID
  *    - Allows selective disclosure of personal information
  * 
  * 3. UserSpecificDataPacketDetails Response:

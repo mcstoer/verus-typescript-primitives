@@ -2,14 +2,14 @@ import { VDXF_ORDINAL_APP_ENCRYPTION_REQUEST } from "../../../constants/ordinals
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
 import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
-import { AppEncryptionRequest, AppEncryptionRequestJson } from "../requestobjects/AppEncryptionRequest";
+import { AppEncryptionRequestDetails, AppEncryptionRequestJson } from "../requestobjects/AppEncryptionRequestDetails";
 
 export class AppEncryptionRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
-  data: AppEncryptionRequest;
+  data: AppEncryptionRequestDetails;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<AppEncryptionRequest> = {
-      data: new AppEncryptionRequest()
+    request: OrdinalVdxfObjectInterfaceTemplate<AppEncryptionRequestDetails> = {
+      data: new AppEncryptionRequestDetails()
     }
   ) {
     super(
@@ -17,13 +17,13 @@ export class AppEncryptionRequestOrdinalVdxfObject extends SerializableEntityOrd
         type: VDXF_ORDINAL_APP_ENCRYPTION_REQUEST,
         data: request.data
       },
-      AppEncryptionRequest
+      AppEncryptionRequestDetails
     );
   }
 
   static fromJson(details: OrdinalVdxfObjectJsonTemplate<AppEncryptionRequestJson>): AppEncryptionRequestOrdinalVdxfObject {
     return new AppEncryptionRequestOrdinalVdxfObject({
-      data: AppEncryptionRequest.fromJson(details.data)
+      data: AppEncryptionRequestDetails.fromJson(details.data)
     })
   }
 }

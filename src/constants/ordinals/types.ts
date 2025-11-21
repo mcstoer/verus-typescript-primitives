@@ -1,6 +1,6 @@
 import { DataDescriptor, DataDescriptorJson } from "../../pbaas";
 import { 
-  AppEncryptionRequest, 
+  AppEncryptionRequestDetails, 
   AppEncryptionRequestJson, 
   IdentityUpdateRequestDetails, 
   IdentityUpdateRequestDetailsJson, 
@@ -12,7 +12,7 @@ import {
   LoginResponseDetailsJson, 
   ProvisionIdentityDetails, 
   ProvisionIdentityDetailsJson, 
-  UserDataRequest,
+  UserDataRequestDetails,
   UserDataRequestJson,
   UserSpecificDataPacketDetails,
   UserSpecificDataPacketDetailsJson,
@@ -29,9 +29,9 @@ export type OrdinalVdxfObjectReservedData =
   LoginRequestDetails | 
   LoginResponseDetails |
   ProvisionIdentityDetails |
-  AppEncryptionRequest |
+  AppEncryptionRequestDetails |
   DataResponse |
-  UserDataRequest |
+  UserDataRequestDetails |
   UserSpecificDataPacketDetails;
 
 export type OrdinalVdxfObjectReservedDataJson = 

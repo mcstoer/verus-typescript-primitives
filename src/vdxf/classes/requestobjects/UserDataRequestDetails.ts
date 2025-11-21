@@ -48,7 +48,7 @@ export interface UserDataRequestJson {
   requestid?: string;
 }
 
-export class UserDataRequest implements SerializableEntity {
+export class UserDataRequestDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -74,7 +74,7 @@ export class UserDataRequest implements SerializableEntity {
   requestID?: string;
 
   constructor(data?: UserDataRequestInterface) {
-    this.version = data?.version || UserDataRequest.DEFAULT_VERSION;
+    this.version = data?.version || UserDataRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.searchDataKey = data?.searchDataKey || [];
     this.signer = data?.signer;
@@ -87,13 +87,13 @@ export class UserDataRequest implements SerializableEntity {
   calcFlags(): BigNumber {
     let flags = new BN(0);
     if (this.requestedKeys && this.requestedKeys.length > 0) {
-      flags = flags.or(UserDataRequest.HAS_REQUESTED_KEYS);
+      flags = flags.or(UserDataRequestDetails.HAS_REQUESTED_KEYS);
     }
     if (this.signer) {
-      flags = flags.or(UserDataRequest.HAS_SIGNER);
+      flags = flags.or(UserDataRequestDetails.HAS_SIGNER);
     }
     if (this.requestID) {
-      flags = flags.or(UserDataRequest.HAS_REQUEST_ID);
+      flags = flags.or(UserDataRequestDetails.HAS_REQUEST_ID);
     }
 
     return flags;
@@ -104,15 +104,15 @@ export class UserDataRequest implements SerializableEntity {
   }
 
   hasSigner(): boolean {
-    return this.flags.and(UserDataRequest.HAS_SIGNER).eq(UserDataRequest.HAS_SIGNER);
+    return this.flags.and(UserDataRequestDetails.HAS_SIGNER).eq(UserDataRequestDetails.HAS_SIGNER);
   }
 
   hasRequestedKeys(): boolean {
-    return this.flags.and(UserDataRequest.HAS_REQUESTED_KEYS).eq(UserDataRequest.HAS_REQUESTED_KEYS);
+    return this.flags.and(UserDataRequestDetails.HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.HAS_REQUESTED_KEYS);
   }
 
   hasRequestID(): boolean {
-    return this.flags.and(UserDataRequest.HAS_REQUEST_ID).eq(UserDataRequest.HAS_REQUEST_ID);
+    return this.flags.and(UserDataRequestDetails.HAS_REQUEST_ID).eq(UserDataRequestDetails.HAS_REQUEST_ID);
   }
 
   /**
@@ -120,7 +120,7 @@ export class UserDataRequest implements SerializableEntity {
    * @returns True if exactly one data type flag is set
    */
   hasDataTypeSet(): boolean {
-    const dataTypeFlags = UserDataRequest.FULL_DATA.or(UserDataRequest.PARTIAL_DATA).or(UserDataRequest.COLLECTION);
+    const dataTypeFlags = UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.PARTIAL_DATA).or(UserDataRequestDetails.COLLECTION);
     const setDataFlags = this.flags.and(dataTypeFlags);
     
     // Check if exactly one flag is set by verifying it's a power of 2
@@ -132,7 +132,7 @@ export class UserDataRequest implements SerializableEntity {
    * @returns True if exactly one request type flag is set
    */
   hasRequestTypeSet(): boolean {
-    const requestTypeFlags = UserDataRequest.ATTESTATION.or(UserDataRequest.CLAIM).or(UserDataRequest.CREDENTIAL);
+    const requestTypeFlags = UserDataRequestDetails.ATTESTATION.or(UserDataRequestDetails.CLAIM).or(UserDataRequestDetails.CREDENTIAL);
     const setRequestFlags = this.flags.and(requestTypeFlags);
     
     // Check if exactly one flag is set by verifying it's a power of 2
@@ -140,7 +140,7 @@ export class UserDataRequest implements SerializableEntity {
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(UserDataRequest.FIRST_VERSION) && this.version.lte(UserDataRequest.LAST_VERSION);
+    let valid = this.version.gte(UserDataRequestDetails.FIRST_VERSION) && this.version.lte(UserDataRequestDetails.LAST_VERSION);
     
     // Check that exactly one data type flag is set
     valid &&= this.hasDataTypeSet();
@@ -272,7 +272,7 @@ export class UserDataRequest implements SerializableEntity {
   }
 
   static fromJson(json: UserDataRequestJson) {
-    const requestData = new UserDataRequest();
+    const requestData = new UserDataRequestDetails();
     requestData.version = new BN(json.version);
     requestData.flags = new BN(json.flags);
     requestData.searchDataKey = json.searchdatakey;
