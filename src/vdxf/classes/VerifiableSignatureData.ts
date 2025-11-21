@@ -28,16 +28,16 @@ export interface VerifiableSignatureDataJson {
 }
 
 export interface VerifiableSignatureDataInterface {
-  version: BigNumber;
-  flags: BigNumber;
-  hashType: BigNumber;
-  systemID: CompactIdAddressObject;
+  version?: BigNumber;
+  flags?: BigNumber;
+  hashType?: BigNumber;
+  systemID?: CompactIdAddressObject;
   identityID: CompactIdAddressObject;
   vdxfKeys?: Array<string>;
   vdxfKeyNames?: Array<string>;
   boundHashes?: Array<Buffer>;
   statements?: Array<Buffer>;
-  signatureAsVch: Buffer;
+  signatureAsVch?: Buffer;
 }
 
 export class VerifiableSignatureData implements SerializableEntity {
@@ -64,7 +64,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   static FLAG_HAS_STATEMENTS = new BN(8);
 
   constructor(data?: VerifiableSignatureDataInterface) {
-    this.version = data && data.flags ? data.flags : new BN(0);
+    this.version = data && data.version ? data.version : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
     this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject({ type: CompactIdAddressObject.IS_FQN, address: DEFAULT_VERUS_CHAINNAME });
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;

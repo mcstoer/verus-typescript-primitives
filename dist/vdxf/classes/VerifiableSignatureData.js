@@ -16,7 +16,7 @@ const varint_1 = require("../../utils/varint");
 const pbaas_2 = require("../../pbaas");
 class VerifiableSignatureData {
     constructor(data) {
-        this.version = data && data.flags ? data.flags : new bn_js_1.BN(0);
+        this.version = data && data.version ? data.version : new bn_js_1.BN(0);
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN(0);
         this.systemID = data && data.systemID ? data.systemID : new CompactIdAddressObject_1.CompactIdAddressObject({ type: CompactIdAddressObject_1.CompactIdAddressObject.IS_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
         this.hashType = data && data.hashType ? data.hashType : pbaas_1.HASH_TYPE_SHA256;

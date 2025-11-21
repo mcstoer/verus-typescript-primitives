@@ -15,16 +15,16 @@ export interface VerifiableSignatureDataJson {
     signature: string;
 }
 export interface VerifiableSignatureDataInterface {
-    version: BigNumber;
-    flags: BigNumber;
-    hashType: BigNumber;
-    systemID: CompactIdAddressObject;
+    version?: BigNumber;
+    flags?: BigNumber;
+    hashType?: BigNumber;
+    systemID?: CompactIdAddressObject;
     identityID: CompactIdAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;
     statements?: Array<Buffer>;
-    signatureAsVch: Buffer;
+    signatureAsVch?: Buffer;
 }
 export declare class VerifiableSignatureData implements SerializableEntity {
     version: BigNumber;
