@@ -11,6 +11,7 @@ import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
+import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from "../../../constants/deeplink";
 
 export interface GenericEnvelopeInterface {
   version?: BigNumber;
@@ -275,9 +276,7 @@ export class GenericEnvelope implements SerializableEntity {
   }
 
   toWalletDeeplinkUri(): string {
-    return `${WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${
-      GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid
-    }/${this.toString()}`;
+    return `${DEEPLINK_PROTOCOL_URL_STRING}://${DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
   }
 
   toQrString(): string {

@@ -1,11 +1,12 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY, GenericResponse, SaplingPaymentAddress } from '../../';
+import { GenericResponse } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
 import { GeneralTypeOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
+import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
 
 describe('GenericResponse — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericResponse): GenericResponse {
@@ -13,7 +14,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     const clone = new GenericResponse();
     clone.fromBuffer(buf, 0);
 
-    return GenericResponse.fromQrString((GenericResponse.fromWalletDeeplinkUri(clone.toWalletDeeplinkUri())).toQrString());
+    return clone;
   }
 
   function rawDetailsSha256(req: GenericResponse): Buffer {
@@ -120,35 +121,6 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     const parsed = new GenericResponse();
     parsed.fromBuffer(buf, 0);
     expect(parsed.details[0].toJson()).toEqual(detail.toJson());
-  });
-
-  it('deeplink URI round trip', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
-      data: Buffer.from('face', 'hex'),
-      key: DEFAULT_VERUS_CHAINID
-    });
-    const req = new GenericResponse({ details: [detail] });
-    const uri = req.toWalletDeeplinkUri();
-
-    expect(uri).toContain(WALLET_VDXF_KEY.vdxfid.toLowerCase());
-    expect(uri).toContain(`${GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/`);
-
-    const parsed = GenericResponse.fromWalletDeeplinkUri(uri);
-    expect(parsed.version.toString()).toEqual(req.version.toString());
-    expect(parsed.details[0].toJson()).toEqual(detail.toJson());
-    expect(parsed.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
-  });
-
-  it('fromQrString should parse correctly', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
-      data: Buffer.from('bead', 'hex'),
-      key: DEFAULT_VERUS_CHAINID
-    });
-    const req = new GenericResponse({ details: [detail] });
-    const qr = req.toQrString();
-    const parsed = GenericResponse.fromQrString(qr);
-    expect(parsed.details[0].toJson()).toEqual(detail.toJson());
-    expect(parsed.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
   it('fromBuffer with empty buffer should throw', () => {

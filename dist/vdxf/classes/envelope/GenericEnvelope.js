@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GenericEnvelope = void 0;
-const __1 = require("../../");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const base64url_1 = require("base64url");
 const bn_js_1 = require("bn.js");
@@ -9,6 +8,7 @@ const OrdinalVdxfObject_1 = require("../ordinals/OrdinalVdxfObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
+const deeplink_1 = require("../../../constants/deeplink");
 class GenericEnvelope {
     constructor(envelope = {
         details: [],
@@ -187,7 +187,7 @@ class GenericEnvelope {
         return base64url_1.default.encode(this.toBuffer());
     }
     toWalletDeeplinkUri() {
-        return `${__1.WALLET_VDXF_KEY.vdxfid.toLowerCase()}:/${__1.GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/${this.toString()}`;
+        return `${deeplink_1.DEEPLINK_PROTOCOL_URL_STRING}://${deeplink_1.DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
     }
     toQrString() {
         return this.toString();

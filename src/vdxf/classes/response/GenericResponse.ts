@@ -7,6 +7,7 @@ import { EHashTypes } from '../../../pbaas/DataDescriptor';
 import varuint from '../../../utils/varuint';
 import { GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY } from '../../keys';
 import base64url from 'base64url';
+import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../../constants/deeplink';
 
 export type GenericResponseJson = GenericEnvelopeJson & {
   requesthash?: string,
@@ -123,21 +124,5 @@ export class GenericResponse extends GenericEnvelope implements SerializableEnti
     }
 
     return parentJson;
-  }
-
-  static fromWalletDeeplinkUri(uri: string): GenericResponse {
-    const split = uri.split(`${GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/`);
-
-    const inv = new GenericResponse();
-    inv.fromBuffer(base64url.toBuffer(split[1]), 0);
-
-    return inv;
-  }
-
-  static fromQrString(qrstring: string): GenericResponse {
-    const inv = new GenericResponse();
-    inv.fromBuffer(base64url.toBuffer(qrstring), 0);
-
-    return inv;
   }
 }

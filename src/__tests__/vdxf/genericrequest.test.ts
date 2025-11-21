@@ -1,11 +1,12 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { WALLET_VDXF_KEY, GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY, GenericRequest, SaplingPaymentAddress } from '../../';
+import { GenericRequest, SaplingPaymentAddress } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
 import { GeneralTypeOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
+import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericRequest): GenericRequest {
@@ -70,7 +71,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       systemID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       hashType: HASH_TYPE_SHA256,
       identityID: CompactIdAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
-      signatureAsVch: Buffer.from('abcd', 'hex'),
+      signatureAsVch: Buffer.from('AgX3RgAAAUEgHAVIHuui1Sc9oLxLbglKvmrv47JJLiM0/RBQwzYL1dlamI/2o9qBc93d79laLXWMhQomqZ4U3Mlr3ueuwl4JFA==', 'base64'),
       vdxfKeys: [DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINID],
       vdxfKeyNames: ["VRSC", "VRSC"],
       boundHashes: [Buffer.from('abcd', 'hex')],
@@ -97,6 +98,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
 
     const round = roundTripBuffer(req);
     expect(round.signature).toBeDefined();
+    expect(round.signature?.signatureAsVch.toString('base64')).toBe(sig.signatureAsVch.toString('base64'))
     expect(round.createdAt?.toString()).toEqual(createdAt.toString());
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
@@ -127,8 +129,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const req = new GenericRequest({ details: [detail] });
     const uri = req.toWalletDeeplinkUri();
 
-    expect(uri).toContain(WALLET_VDXF_KEY.vdxfid.toLowerCase());
-    expect(uri).toContain(`${GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY.vdxfid}/`);
+    expect(uri).toContain(`${DEEPLINK_PROTOCOL_URL_STRING}://${DEEPLINK_PROTOCOL_URL_CURRENT_VERSION}/`);
 
     const parsed = GenericRequest.fromWalletDeeplinkUri(uri);
     expect(parsed.version.toString()).toEqual(req.version.toString());
