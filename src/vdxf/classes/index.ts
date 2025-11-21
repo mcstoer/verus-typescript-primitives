@@ -29,6 +29,7 @@ export * from "./identity/IdentityUpdateResponseDetails";
 export * from './ResponseUri';
 export * from './request/GenericRequest';
 export * from './response/GenericResponse';
+export * from './response/AppEncryptionResponseDetails'
 
 export * from './ordinals';
 

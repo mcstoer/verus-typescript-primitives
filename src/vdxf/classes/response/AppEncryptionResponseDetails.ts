@@ -1,0 +1,163 @@
+
+import { BigNumber } from '../../../utils/types/BigNumber';
+import { BN } from 'bn.js';
+import varint from '../../../utils/varint';
+import bufferutils from '../../../utils/bufferutils';
+const { BufferReader, BufferWriter } = bufferutils;
+import { SerializableEntity } from '../../../utils/types/SerializableEntity';
+import { fromBase58Check, toBase58Check } from '../../../utils/address';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
+import { SaplingPaymentAddress } from '../../../pbaas';
+import createHash = require("create-hash");
+import { SaplingExtendedSpendingKey } from '../../../pbaas/SaplingExtendedSpendingKey';
+import { SaplingExtendedViewingKey } from '../../../pbaas/SaplingExtendedViewingKey';
+
+export interface AppEncryptionResponseDetailsInterface {
+  version: BigNumber;
+  flags?: BigNumber;
+  requestID?: string;
+  extendedViewingKey: SaplingExtendedViewingKey;
+  address: SaplingPaymentAddress;
+  extendedSpendingKey?: SaplingExtendedSpendingKey;
+}
+
+export interface AppEncryptionResponseDetailsJson {    
+  version: number;
+  flags?: number;
+  requestid?: string;
+  extendedviewingkey: string;
+  address: string;
+  extendedspendingkey?: string;
+}
+
+export class AppEncryptionResponseDetails implements SerializableEntity {
+  version: BigNumber;
+  flags: BigNumber;
+  requestID?: string;
+  extendedViewingKey: SaplingExtendedViewingKey;
+  address: SaplingPaymentAddress;
+  extendedSpendingKey?: SaplingExtendedSpendingKey;
+
+  static RESPONSE_CONTAINS_REQUEST_ID = new BN(1, 10);
+  static RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY = new BN(2, 10);
+
+  constructor(data?: AppEncryptionResponseDetailsInterface) {
+    this.version = data?.version ?? new BN(1);
+    this.flags = data?.flags ?? new BN(0, 10);
+    this.extendedViewingKey = data?.extendedViewingKey ?? new SaplingExtendedViewingKey();
+    this.address = data?.address ?? new SaplingPaymentAddress();
+
+    if (data?.requestID) {
+      if (!this.containsRequestID()) this.toggleContainsRequestID();
+      this.requestID = data.requestID;
+    }
+
+    if (data?.extendedSpendingKey) {
+      if (!this.containsExtendedSpendingKey()) this.toggleContainsExtendedSpendingKey();
+      this.extendedSpendingKey = data.extendedSpendingKey;
+    }
+  }
+
+  containsRequestID() {
+    return !!(this.flags.and(AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+  }
+
+  toggleContainsRequestID() {
+    this.flags = this.flags.xor(AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID);
+  }
+
+  containsExtendedSpendingKey() {
+    return !!(this.flags.and(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY).toNumber());
+  }
+
+  toggleContainsExtendedSpendingKey() {
+    this.flags = this.flags.xor(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY);
+  }
+
+  toSha256() {
+    return createHash("sha256").update(this.toBuffer()).digest();
+  }
+
+  getByteLength(): number {
+    let length = 0;
+
+    length += varint.encodingLength(this.flags);
+
+    if (this.containsRequestID()) {
+      length += HASH160_BYTE_LENGTH;
+    }
+
+    length += this.extendedViewingKey.getByteLength();
+    length += this.address.getByteLength();
+
+    if (this.containsExtendedSpendingKey()) {
+      length += this.extendedSpendingKey.getByteLength();
+    }
+
+    return length;
+  }
+
+  toBuffer() {
+    const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
+
+    writer.writeVarInt(this.flags);
+
+    if (this.containsRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    }
+
+    writer.writeSlice(this.extendedViewingKey.toBuffer());
+    writer.writeSlice(this.address.toBuffer());
+
+    if (this.containsExtendedSpendingKey()) {
+      writer.writeSlice(this.extendedSpendingKey.toBuffer());
+    }
+
+    return writer.buffer;
+  }
+
+  fromBuffer(buffer: Buffer, offset: number = 0) {
+    const reader = new BufferReader(buffer, offset);
+
+    this.flags = reader.readVarInt();
+
+    if (this.containsRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+    }
+
+    this.extendedViewingKey = new SaplingExtendedViewingKey();
+    reader.offset = this.extendedViewingKey.fromBuffer(reader.buffer, reader.offset);
+
+    this.address = new SaplingPaymentAddress();
+    reader.offset = this.address.fromBuffer(reader.buffer, reader.offset);
+
+    if (this.containsExtendedSpendingKey()) {
+      this.extendedSpendingKey = new SaplingExtendedSpendingKey();
+      reader.offset = this.extendedSpendingKey.fromBuffer(reader.buffer, reader.offset);
+    }
+
+    return reader.offset;
+  }
+
+  toJson(): AppEncryptionResponseDetailsJson {
+    return {
+      version: this.version.toNumber(),
+      flags: this.flags.toNumber(),
+      requestid: this.containsRequestID() ? this.requestID : undefined,
+      extendedviewingkey: this.extendedViewingKey.toKeyString(),
+      address: this.address.toAddressString(),
+      extendedspendingkey: this.containsExtendedSpendingKey() ? this.extendedSpendingKey.toKeyString() : undefined
+    };
+  }
+
+  static fromJson(json: AppEncryptionResponseDetailsJson): AppEncryptionResponseDetails {
+    return new AppEncryptionResponseDetails({
+      version: new BN(json.version, 10),
+      flags: new BN(json.flags ?? 0, 10),
+      requestID: json.requestid,
+      extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(json.extendedviewingkey),
+      address: SaplingPaymentAddress.fromAddressString(json.address),
+      extendedSpendingKey: json.extendedspendingkey ? SaplingExtendedSpendingKey.fromKeyString(json.extendedspendingkey) : undefined
+    });
+  }
+}

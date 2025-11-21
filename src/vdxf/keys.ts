@@ -704,3 +704,13 @@ export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
     "name": "user.data.packet.details"
   }
 }
+
+export const APP_ENCRYPTION_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iLgnRLninDtMa7f7EbH7zsDqHRknC4CUpB",
+  "indexid": "xRWtt9DodY72CHY96GwGyFkNK5mo1n7Jxe",
+  "hash160result": "0d3c42aec1d154f1678e0585e557e75202a4cbbc",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "application.encryption.response"
+  }
+}
