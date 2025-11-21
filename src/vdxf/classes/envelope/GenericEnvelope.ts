@@ -275,14 +275,6 @@ export class GenericEnvelope implements SerializableEntity {
     return base64url.encode(this.toBuffer());
   }
 
-  toWalletDeeplinkUri(): string {
-    return `${DEEPLINK_PROTOCOL_URL_STRING}://${DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
-  }
-
-  toQrString(): string {
-    return this.toString();
-  }
-
   toJson(): GenericEnvelopeJson {
     const details = [];
 

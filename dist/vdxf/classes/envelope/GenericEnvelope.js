@@ -8,7 +8,6 @@ const OrdinalVdxfObject_1 = require("../ordinals/OrdinalVdxfObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
-const deeplink_1 = require("../../../constants/deeplink");
 class GenericEnvelope {
     constructor(envelope = {
         details: [],
@@ -185,12 +184,6 @@ class GenericEnvelope {
     }
     toString() {
         return base64url_1.default.encode(this.toBuffer());
-    }
-    toWalletDeeplinkUri() {
-        return `${deeplink_1.DEEPLINK_PROTOCOL_URL_STRING}://${deeplink_1.DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
-    }
-    toQrString() {
-        return this.toString();
     }
     toJson() {
         const details = [];

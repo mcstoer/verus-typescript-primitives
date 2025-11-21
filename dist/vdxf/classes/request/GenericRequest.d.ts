@@ -29,4 +29,6 @@ export declare class GenericRequest extends GenericEnvelope implements Serializa
     toJson(): GenericRequestJson;
     static fromWalletDeeplinkUri(uri: string): GenericRequest;
     static fromQrString(qrstring: string): GenericRequest;
+    toWalletDeeplinkUri(): string;
+    toQrString(): string;
 }

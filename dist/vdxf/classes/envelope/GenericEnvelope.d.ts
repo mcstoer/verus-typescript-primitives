@@ -58,7 +58,5 @@ export declare class GenericEnvelope implements SerializableEntity {
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toString(): string;
-    toWalletDeeplinkUri(): string;
-    toQrString(): string;
     toJson(): GenericEnvelopeJson;
 }

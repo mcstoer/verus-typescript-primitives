@@ -133,4 +133,12 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
 
     return inv;
   }
+
+  toWalletDeeplinkUri(): string {
+    return `${DEEPLINK_PROTOCOL_URL_STRING}://${DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
+  }
+
+  toQrString(): string {
+    return this.toString();
+  }
 }

@@ -80,6 +80,12 @@ class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
         inv.fromBuffer(base64url_1.default.toBuffer(qrstring), 0);
         return inv;
     }
+    toWalletDeeplinkUri() {
+        return `${deeplink_1.DEEPLINK_PROTOCOL_URL_STRING}://${deeplink_1.DEEPLINK_PROTOCOL_URL_CURRENT_VERSION.toString()}/${this.toString()}`;
+    }
+    toQrString() {
+        return this.toString();
+    }
 }
 exports.GenericRequest = GenericRequest;
 GenericRequest.VERSION_CURRENT = new bn_js_1.BN(1, 10);
