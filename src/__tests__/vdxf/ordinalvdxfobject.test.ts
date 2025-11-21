@@ -401,8 +401,6 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS))
       .toBe(ProvisionIdentityDetailsOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST))
-      .toBe(AppEncryptionRequestDetailsOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST_DETAILS))
       .toBe(AppEncryptionRequestOrdinalVdxfObject);
 
     // unrecognized

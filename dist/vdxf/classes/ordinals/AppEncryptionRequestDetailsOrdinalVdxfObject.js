@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppEncryptionRequestDetailsOrdinalVdxfObject = void 0;
+exports.AppEncryptionRequestOrdinalVdxfObject = void 0;
 const ordinals_1 = require("../../../constants/ordinals/ordinals");
 const SerializableEntityOrdinalVdxfObject_1 = require("./SerializableEntityOrdinalVdxfObject");
 const AppEncryptionRequestDetails_1 = require("../requestobjects/AppEncryptionRequestDetails");
-class AppEncryptionRequestDetailsOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject_1.SerializableEntityOrdinalVdxfObject {
+class AppEncryptionRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject_1.SerializableEntityOrdinalVdxfObject {
     constructor(request = {
         data: new AppEncryptionRequestDetails_1.AppEncryptionRequestDetails()
     }) {
@@ -14,9 +14,9 @@ class AppEncryptionRequestDetailsOrdinalVdxfObject extends SerializableEntityOrd
         }, AppEncryptionRequestDetails_1.AppEncryptionRequestDetails);
     }
     static fromJson(details) {
-        return new AppEncryptionRequestDetailsOrdinalVdxfObject({
+        return new AppEncryptionRequestOrdinalVdxfObject({
             data: AppEncryptionRequestDetails_1.AppEncryptionRequestDetails.fromJson(details.data)
         });
     }
 }
-exports.AppEncryptionRequestDetailsOrdinalVdxfObject = AppEncryptionRequestDetailsOrdinalVdxfObject;
+exports.AppEncryptionRequestOrdinalVdxfObject = AppEncryptionRequestOrdinalVdxfObject;

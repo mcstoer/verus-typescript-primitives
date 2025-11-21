@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerOrdinals = void 0;
 const vdxf_1 = require("../../vdxf");
-const AppEncryptionRequestDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/AppEncryptionRequestDetailsOrdinalVdxfObject");
+const AppEncryptionRequestOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/AppEncryptionRequestOrdinalVdxfObject");
 const DataDescriptorOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject");
 const IdentityUpdateRequestOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/IdentityUpdateRequestOrdinalVdxfObject");
 const IdentityUpdateResponseOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/IdentityUpdateResponseOrdinalVdxfObject");
@@ -20,6 +20,6 @@ const registerOrdinals = () => {
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST.toNumber(), vdxf_1.IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateRequestOrdinalVdxfObject_1.IdentityUpdateRequestOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE.toNumber(), vdxf_1.IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateResponseOrdinalVdxfObject_1.IdentityUpdateResponseOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS.toNumber(), vdxf_1.PROVISION_IDENTITY_DETAILS_VDXF_KEY.vdxfid, ProvisionIdentityDetailsOrdinalVdxfObject_1.ProvisionIdentityDetailsOrdinalVdxfObject, false);
-    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_APP_ENCRYPTION_REQUEST.toNumber(), vdxf_1.APP_ENCRYPTION_REQUEST_VDXF_KEY.vdxfid, AppEncryptionRequestDetailsOrdinalVdxfObject_1.AppEncryptionRequestDetailsOrdinalVdxfObject, false);
+    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_APP_ENCRYPTION_REQUEST.toNumber(), vdxf_1.APP_ENCRYPTION_REQUEST_VDXF_KEY.vdxfid, AppEncryptionRequestOrdinalVdxfObject_1.AppEncryptionRequestOrdinalVdxfObject, false);
 };
 exports.registerOrdinals = registerOrdinals;

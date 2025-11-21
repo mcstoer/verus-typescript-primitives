@@ -7,5 +7,5 @@ export * from './SerializableEntityOrdinalVdxfObject';
 export * from './VerusPayInvoiceOrdinalVdxfObject';
 export * from './LoginRequestDetailsOrdinalVdxfObject';
 export * from './LoginResponseDetailsOrdinalVdxfObject';
-export * from './AppEncryptionRequestDetailsOrdinalVdxfObject';
+export * from './AppEncryptionRequestOrdinalVdxfObject';
 export * from './ProvisionIdentityDetailsOrdinalVdxfObject';
