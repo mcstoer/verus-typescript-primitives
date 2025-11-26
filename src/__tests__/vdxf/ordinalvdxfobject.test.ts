@@ -353,14 +353,12 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize an AppEncryptionRequestOrdinalVdxfObject', () => {
     const details = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
+        .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
+      appOrDelegatedID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      secondaryDerivationNumber: new BN(234),
-      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
-      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      derivationID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
@@ -370,11 +368,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionRequestOrdinalVdxfObject);
 
     const d2 = (round as AppEncryptionRequestOrdinalVdxfObject).data;
+    expect(d2.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
-    expect(d2.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
-    expect(d2.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
-    expect(d2.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+    expect(d2.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d2.requestID).toEqual(details.requestID);
 
     const json = obj.toJson();
@@ -383,11 +380,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(roundJ).toBeInstanceOf(AppEncryptionRequestOrdinalVdxfObject);
 
     const d3 = (roundJ as AppEncryptionRequestOrdinalVdxfObject).data;
+    expect(d3.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
-    expect(d3.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
-    expect(d3.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
-    expect(d3.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+    expect(d3.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d3.requestID).toEqual(details.requestID);
   });
 
@@ -533,11 +529,13 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const testViewingKey = 'zxviews1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472edvlrt950qyy6r766dxnpqktxug7t2wy80s4ug325dwp9hf4vw9a6ethf2mwc9wan28p88dq8q2e8sdlw2mhffg6hy92tjyuquz7a8reqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rsnx0kq4';
     const testSpendingKey = 'secret-extended-key-main1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472el95h53ym2tku2dazny0j2vfukgmp6fu3k7edzcx9n8egesc32sdy3xr4s2ep4skgc7t5j5zds4ws7hf2nuszf7ltfn2nc5rk3k77gyeqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rs0gws78';
     const testAddress = 'zs1anxaua04mnl7dz2mjpflhw0mt73uxy9rjac53lgduk02kh3lnf0hxufk9d76j5uep5j55f5h5rk';
+    const testIncomingViewingKey = Buffer.from('ba9af283ecfe0552480dd7e1ce9af68a12e64da4927e8011a795cb223f4afc00"', 'hex');
 
     const details = new AppEncryptionResponseDetails({
       version: new BN(1),
       flags: AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID.or(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ",
+      IncomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
@@ -549,6 +547,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionResponseOrdinalVdxfObject);
 
     const d2 = (round as AppEncryptionResponseOrdinalVdxfObject).data;
+    expect(d2.IncomingViewingKey.toString('hex')).toEqual(testIncomingViewingKey.toString('hex'));
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.extendedViewingKey!.toKeyString()).toEqual(details.extendedViewingKey!.toKeyString());
     expect(d2.extendedSpendingKey!.toKeyString()).toEqual(details.extendedSpendingKey!.toKeyString());
