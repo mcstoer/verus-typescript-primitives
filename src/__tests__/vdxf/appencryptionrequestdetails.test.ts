@@ -14,12 +14,14 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
   test("creates valid AppEncryptionRequestDetails with zaddress", () => {
     const details = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
-        .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      appOrDelegatedID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
+        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      derivationID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      secondaryDerivationNumber: new BN(234),      
+      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
@@ -33,10 +35,11 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
 
     expect(details.isValid()).toBe(true);
     expect(details.encryptToZAddress).toBe("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4");
-    expect(details.flags.toNumber()).toBe(1+2); // HAS_DERIVATION_ID + HAS_REQUEST_ID
+    expect(details.flags.toNumber()).toBe(1+2+4+8);
     expect(details.derivationNumber.toNumber()).toBe(42);
-    expect(details.appOrDelegatedID?.address).toBe("i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW");
-    expect(details.derivationID?.address).toBe("i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
+    expect(details.secondaryDerivationNumber?.toNumber()).toBe(234);
+    expect(details.fromAddress?.address).toBe("i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW");
+    expect(details.toAddress?.address).toBe("i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
     expect(details.requestID).toBe("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ");
   });
 
@@ -44,12 +47,14 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     // Create the first AppEncryptionRequestDetails
     const originalDetails = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
-      .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      appOrDelegatedID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
+      .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
+      .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      derivationID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      secondaryDerivationNumber: new BN(234),      
+      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
   });
 
@@ -69,10 +74,11 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     expect(deserializedDetails.flags.toNumber()).toBe(originalDetails.flags.toNumber());
     expect(deserializedDetails.encryptToZAddress).toBe(originalDetails.encryptToZAddress);
     expect(deserializedDetails.derivationNumber.toNumber()).toBe(originalDetails.derivationNumber.toNumber());
-    expect(deserializedDetails.appOrDelegatedID?.type.toNumber()).toBe(originalDetails.appOrDelegatedID?.type.toNumber());
-    expect(deserializedDetails.appOrDelegatedID?.address).toBe(originalDetails.appOrDelegatedID?.address);
-    expect(deserializedDetails.derivationID?.type.toNumber()).toBe(originalDetails.derivationID?.type.toNumber());
-    expect(deserializedDetails.derivationID?.address).toBe(originalDetails.derivationID?.address);
+    expect(deserializedDetails.secondaryDerivationNumber?.toNumber()).toBe(originalDetails.secondaryDerivationNumber?.toNumber());
+    expect(deserializedDetails.fromAddress?.type.toNumber()).toBe(originalDetails.fromAddress?.type.toNumber());
+    expect(deserializedDetails.fromAddress?.address).toBe(originalDetails.fromAddress?.address);
+    expect(deserializedDetails.toAddress?.type.toNumber()).toBe(originalDetails.toAddress?.type.toNumber());
+    expect(deserializedDetails.toAddress?.address).toBe(originalDetails.toAddress?.address);
     expect(deserializedDetails.requestID).toBe(originalDetails.requestID);
 
     // Verify that serializing both instances produces the same buffer

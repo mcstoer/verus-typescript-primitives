@@ -16,7 +16,6 @@ export interface AppEncryptionResponseDetailsInterface {
   version: BigNumber;
   flags?: BigNumber;
   requestID?: string;
-  IncomingViewingKey: Buffer;
   extendedViewingKey: SaplingExtendedViewingKey;
   address: SaplingPaymentAddress;
   extendedSpendingKey?: SaplingExtendedSpendingKey;
@@ -26,7 +25,6 @@ export interface AppEncryptionResponseDetailsJson {
   version: number;
   flags?: number;
   requestid?: string;
-  incomingviewingkey: string;
   extendedviewingkey: string;
   address: string;
   extendedspendingkey?: string;
@@ -36,7 +34,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
   requestID?: string;
-  IncomingViewingKey: Buffer;
   extendedViewingKey: SaplingExtendedViewingKey;
   address: SaplingPaymentAddress;
   extendedSpendingKey?: SaplingExtendedSpendingKey;
@@ -47,7 +44,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
   constructor(data?: AppEncryptionResponseDetailsInterface) {
     this.version = data?.version ?? new BN(1);
     this.flags = data?.flags ?? new BN(0, 10);
-    this.IncomingViewingKey = data?.IncomingViewingKey ?? Buffer.alloc(32);
     this.extendedViewingKey = data?.extendedViewingKey ?? new SaplingExtendedViewingKey();
     this.address = data?.address ?? new SaplingPaymentAddress();
 
@@ -91,7 +87,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
       length += HASH160_BYTE_LENGTH;
     }
 
-    length += 32; // IncomingViewingKey
     length += this.extendedViewingKey.getByteLength();
     length += this.address.getByteLength();
 
@@ -111,7 +106,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
       writer.writeSlice(fromBase58Check(this.requestID).hash);
     }
 
-    writer.writeSlice(this.IncomingViewingKey);
     writer.writeSlice(this.extendedViewingKey.toBuffer());
     writer.writeSlice(this.address.toBuffer());
 
@@ -130,8 +124,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     if (this.containsRequestID()) {
       this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
-
-    this.IncomingViewingKey = reader.readSlice(32);
 
     this.extendedViewingKey = new SaplingExtendedViewingKey();
     reader.offset = this.extendedViewingKey.fromBuffer(reader.buffer, reader.offset);
@@ -152,7 +144,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
       version: this.version.toNumber(),
       flags: this.flags.toNumber(),
       requestid: this.containsRequestID() ? this.requestID : undefined,
-      incomingviewingkey: this.IncomingViewingKey.toString('hex'),
       extendedviewingkey: this.extendedViewingKey.toKeyString(),
       address: this.address.toAddressString(),
       extendedspendingkey: this.containsExtendedSpendingKey() ? this.extendedSpendingKey.toKeyString() : undefined
@@ -164,7 +155,6 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
       version: new BN(json.version, 10),
       flags: new BN(json.flags ?? 0, 10),
       requestID: json.requestid,
-      IncomingViewingKey: Buffer.from(json.incomingviewingkey, 'hex'),
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(json.extendedviewingkey),
       address: SaplingPaymentAddress.fromAddressString(json.address),
       extendedSpendingKey: json.extendedspendingkey ? SaplingExtendedSpendingKey.fromKeyString(json.extendedspendingkey) : undefined
