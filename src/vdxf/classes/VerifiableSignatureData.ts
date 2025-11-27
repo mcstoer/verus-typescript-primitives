@@ -328,10 +328,6 @@ export class VerifiableSignatureData implements SerializableEntity {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(height);
 
-    if (this.hasStatements()) {
-      throw new Error("Statements in signature not yet supported.");
-    }
-
     if (!this.hashType.eq(new BN(EHashTypes.HASH_SHA256))) {
       throw new Error("Only SHA256 hash type is currently supported.");
     }
@@ -353,18 +349,11 @@ export class VerifiableSignatureData implements SerializableEntity {
       if (extraHashData.length > 0) {
         hash.update(extraHashData);
       }
-
-      const systemidiaddress = this.systemID.toIAddress();
-      const identityidiaddress = this.identityID.toIAddress();
-      console.log(`systemid address: ${systemidiaddress}`);
-      console.log(`identityid address: ${identityidiaddress}`);
-      const systemidbuf = fromBase58Check(systemidiaddress).hash;
-      const identityidbuf = fromBase58Check(identityidiaddress).hash;
       
       return hash
-        .update(systemidbuf)
+        .update(fromBase58Check(this.systemID.toIAddress()).hash)
         .update(heightBuffer)
-        .update(identityidbuf)
+        .update(fromBase58Check(this.identityID.toIAddress()).hash)
         .update(VERUS_DATA_SIGNATURE_PREFIX)
         .update(sigHash)
         .digest();
