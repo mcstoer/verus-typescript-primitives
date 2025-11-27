@@ -27,15 +27,15 @@ class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
         if (this.encryptResponseToAddress)
             this.setHasEncryptResponseToAddress();
     }
-    getByteLength() {
-        let length = super.getByteLength();
+    getByteLengthOptionalSig(includeSig = true) {
+        let length = super.getByteLengthOptionalSig(includeSig);
         if (this.hasEncryptResponseToAddress()) {
             length += this.encryptResponseToAddress.getByteLength();
         }
         return length;
     }
     toBufferOptionalSig(includeSig = true) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLengthOptionalSig(includeSig)));
         const superBuf = super.toBufferOptionalSig(includeSig);
         writer.writeSlice(superBuf);
         if (this.hasEncryptResponseToAddress()) {

@@ -23,8 +23,8 @@ export declare class GenericRequest extends GenericEnvelope implements Serializa
     hasEncryptResponseToAddress(): boolean;
     setHasEncryptResponseToAddress(): void;
     setFlags(): void;
-    getByteLength(): number;
-    protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
+    getByteLengthOptionalSig(includeSig?: boolean): number;
+    toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toJson(): GenericRequestJson;
     static fromWalletDeeplinkUri(uri: string): GenericRequest;

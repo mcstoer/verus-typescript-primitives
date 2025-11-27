@@ -1,12 +1,12 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { GenericResponse } from '../../';
+import { GenericResponse, IdentityID, IdentityUpdateResponseDetails } from '../../';
 import { createHash } from 'crypto';
-import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
+import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIdAddressObject } from '../../vdxf/classes/CompactIdAddressObject';
-import { GeneralTypeOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
-import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
+import { GeneralTypeOrdinalVdxfObject, IdentityUpdateResponseOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
+import { TEST_TXID } from '../constants/fixtures';
 
 describe('GenericResponse — buffer / URI / QR operations', () => {
   function roundTripBuffer(req: GenericResponse): GenericResponse {
@@ -147,6 +147,48 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     const d2 = round.getDetails(0);
     expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
+  });
+
+  it('same hash before/after signature', () => {
+    const contentmap = new Map();
+    contentmap.set("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j", Buffer.alloc(32));
+    contentmap.set("iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c", Buffer.alloc(32));
+
+    const systemID = IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
+    const requestID = "iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j"
+    const createdAt = new BN("1700000000", 10);
+    const salt = Buffer.from('=H319X:)@H2Z');
+
+    const responseDetails = new IdentityUpdateResponseDetails({
+      requestID: requestID,
+      txid: Buffer.from(TEST_TXID, 'hex')
+    });
+
+    const unsignedSigData: VerifiableSignatureDataInterface = {
+      systemID: CompactIdAddressObject.fromIAddress(systemID.toAddress()!),
+      identityID: CompactIdAddressObject.fromIAddress(systemID.toAddress()!)
+    }
+
+    const req = new GenericResponse({
+      createdAt: createdAt,
+      salt,
+      details: [
+        new IdentityUpdateResponseOrdinalVdxfObject({ data: responseDetails })
+      ],
+      signature: new VerifiableSignatureData(unsignedSigData)
+    });
+
+    const height = 18167;
+
+    req.setSigned();
+
+    const preSigHash = req.getDetailsIdentitySignatureHash(height);
+
+    req.signature!.signatureAsVch = Buffer.from("AgX3RgAAAUEgrnmmyGip2lFhWM0pA2zDifZnAX+ZhPhFEzhhQuPOzr8vLYDpa1PzJNMmMm4dKOfwTdohSFeIPE3SCPR99cZ1vg==", 'base64');
+
+    const postSigHash = req.getDetailsIdentitySignatureHash(height);
+
+    expect(preSigHash.toString('hex')).toBe(postSigHash.toString('hex'));
   });
 
   it('toString / fromQrString consistency', () => {

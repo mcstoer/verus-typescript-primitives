@@ -30,8 +30,8 @@ class GenericResponse extends GenericEnvelope_1.GenericEnvelope {
         if (this.requestHash)
             this.setHasRequestHash();
     }
-    getByteLength() {
-        let length = super.getByteLength();
+    getByteLengthOptionalSig(includeSig = true) {
+        let length = super.getByteLengthOptionalSig(includeSig);
         if (this.hasRequestHash()) {
             const hashLen = this.requestHash.length;
             length += varuint_1.default.encodingLength(this.requestHashType.toNumber());
@@ -41,7 +41,7 @@ class GenericResponse extends GenericEnvelope_1.GenericEnvelope {
         return length;
     }
     toBufferOptionalSig(includeSig = true) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLengthOptionalSig(includeSig)));
         const superBuf = super.toBufferOptionalSig(includeSig);
         writer.writeSlice(superBuf);
         if (this.hasRequestHash()) {
