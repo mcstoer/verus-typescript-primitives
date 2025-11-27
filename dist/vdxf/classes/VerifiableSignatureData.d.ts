@@ -63,6 +63,8 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     calcFlags(): BigNumber;
     setFlags(): void;
     private getBufferEncodingLength;
+    private getExtraHashDataByteLength;
+    private getExtraHashData;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
