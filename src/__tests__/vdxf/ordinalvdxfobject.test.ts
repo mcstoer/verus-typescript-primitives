@@ -15,29 +15,33 @@ import {
 import {
   DataDescriptorOrdinalVdxfObject
 } from '../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject';
-import { DataDescriptor, DEST_PKH, TransferDestination } from '../../pbaas';
-import { 
-  AppEncryptionRequestDetails, 
-  CompactIdAddressObject, 
-  IdentityUpdateRequestDetails, 
-  IdentityUpdateResponseDetails, 
-  LoginRequestDetails, 
-  LoginResponseDetails, 
-  ProvisionIdentityDetails, 
-  ResponseUri, 
+import { DataDescriptor, DEST_PKH, SaplingPaymentAddress, TransferDestination } from '../../pbaas';
+import {
+  AppEncryptionRequestDetails,
+  CompactIdAddressObject,
+  IdentityUpdateRequestDetails,
+  IdentityUpdateResponseDetails,
+  LoginRequestDetails,
+  LoginResponseDetails,
+  ProvisionIdentityDetails,
+  ResponseUri,
   VerusPayInvoiceDetails,
   UserDataRequestDetails,
-  UserSpecificDataPacketDetails
+  UserSpecificDataPacketDetails,
+  AppEncryptionResponseOrdinalVdxfObject,
+  AppEncryptionResponseDetails
 } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
 import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVdxfObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject';
 import { BigNumber } from '../../utils/types/BigNumber';
 import { DataPacketResponse } from '../../vdxf/classes/datapacket/DataPacketResponse';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
+import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingKey';
+import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
 
 // Helper function to create TransferDestination from address string
 function createCompactIdAddressObject(type: BigNumber, address: string): CompactIdAddressObject {
@@ -89,6 +93,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = UserDataRequestOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof UserSpecificDataPacketDetailsOrdinalVdxfObject) {
       newObj = UserSpecificDataPacketDetailsOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof AppEncryptionResponseOrdinalVdxfObject) {
+      newObj = AppEncryptionResponseOrdinalVdxfObject.fromJson(json as any);
     } else {
       throw new Error("Unrecognized type")
     }
@@ -137,7 +143,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       },
       "salt": "4f66603f256d3f757b6dc3ea44802d4041d2a1901e06005028fd60b85a5878a2"
     });
-    
+
     // Force flags, etc.
     dd.SetFlags();
 
@@ -347,14 +353,12 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize an AppEncryptionRequestOrdinalVdxfObject', () => {
     const details = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_SECONDARY_SEED_DERIVATION_NUMBER
-        .or(AppEncryptionRequestDetails.HAS_FROM_ADDRESS)
-        .or(AppEncryptionRequestDetails.HAS_TO_ADDRESS),
+      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
+        .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
+      appOrDelegatedID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      secondaryDerivationNumber: new BN(234),
-      fromAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
-      toAddress: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      derivationID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
@@ -364,11 +368,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionRequestOrdinalVdxfObject);
 
     const d2 = (round as AppEncryptionRequestOrdinalVdxfObject).data;
+    expect(d2.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
-    expect(d2.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
-    expect(d2.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
-    expect(d2.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+    expect(d2.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d2.requestID).toEqual(details.requestID);
 
     const json = obj.toJson();
@@ -377,11 +380,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(roundJ).toBeInstanceOf(AppEncryptionRequestOrdinalVdxfObject);
 
     const d3 = (roundJ as AppEncryptionRequestOrdinalVdxfObject).data;
+    expect(d3.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
-    expect(d3.secondaryDerivationNumber!.toString()).toEqual(details.secondaryDerivationNumber!.toString());
-    expect(d3.fromAddress!.toIAddress()).toEqual(details.fromAddress!.toIAddress());
-    expect(d3.toAddress!.toIAddress()).toEqual(details.toAddress!.toIAddress());
+    expect(d3.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d3.requestID).toEqual(details.requestID);
   });
 
@@ -402,6 +404,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       .toBe(ProvisionIdentityDetailsOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST))
       .toBe(AppEncryptionRequestOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE))
+      .toBe(AppEncryptionResponseOrdinalVdxfObject);
 
     // unrecognized
     expect(() => getOrdinalVdxfObjectClassForType(new BN(999))).toThrow();
@@ -520,4 +524,34 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.signature?.signatureAsVch.toString('hex')).toBe("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf");
   });
 
+  it('should serialize / deserialize an AppEncryptionResponseOrdinalVdxfObject', () => {
+
+    const testViewingKey = 'zxviews1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472edvlrt950qyy6r766dxnpqktxug7t2wy80s4ug325dwp9hf4vw9a6ethf2mwc9wan28p88dq8q2e8sdlw2mhffg6hy92tjyuquz7a8reqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rsnx0kq4';
+    const testSpendingKey = 'secret-extended-key-main1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472el95h53ym2tku2dazny0j2vfukgmp6fu3k7edzcx9n8egesc32sdy3xr4s2ep4skgc7t5j5zds4ws7hf2nuszf7ltfn2nc5rk3k77gyeqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rs0gws78';
+    const testAddress = 'zs1anxaua04mnl7dz2mjpflhw0mt73uxy9rjac53lgduk02kh3lnf0hxufk9d76j5uep5j55f5h5rk';
+    const testIncomingViewingKey = Buffer.from('ba9af283ecfe0552480dd7e1ce9af68a12e64da4927e8011a795cb223f4afc00"', 'hex');
+
+    const details = new AppEncryptionResponseDetails({
+      version: new BN(1),
+      flags: AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID.or(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY),
+      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ",
+      IncomingViewingKey: testIncomingViewingKey,
+      extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
+      extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey),
+      address: SaplingPaymentAddress.fromAddressString(testAddress)
+    });
+
+    const obj = new AppEncryptionResponseOrdinalVdxfObject({ data: details });
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(AppEncryptionResponseOrdinalVdxfObject);
+
+    const d2 = (round as AppEncryptionResponseOrdinalVdxfObject).data;
+    expect(d2.IncomingViewingKey.toString('hex')).toEqual(testIncomingViewingKey.toString('hex'));
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
+    expect(d2.extendedViewingKey!.toKeyString()).toEqual(details.extendedViewingKey!.toKeyString());
+    expect(d2.extendedSpendingKey!.toKeyString()).toEqual(details.extendedSpendingKey!.toKeyString());
+    expect(d2.address!.toAddressString()).toEqual(details.address!.toAddressString());
+
+  });
 });
