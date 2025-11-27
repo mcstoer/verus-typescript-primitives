@@ -74,8 +74,8 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       signatureAsVch: Buffer.from('AgX3RgAAAUEgHAVIHuui1Sc9oLxLbglKvmrv47JJLiM0/RBQwzYL1dlamI/2o9qBc93d79laLXWMhQomqZ4U3Mlr3ueuwl4JFA==', 'base64'),
       vdxfKeys: [DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINID],
       vdxfKeyNames: ["VRSC", "VRSC"],
-      boundHashes: [Buffer.from('abcd', 'hex')],
-      statements: [Buffer.from('abcd', 'hex')]
+      boundHashes: [Buffer.from('abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd', 'hex')],
+      statements: [Buffer.from('1234123412341234123412341234123412341234123412341234123412341234', 'hex')]
     });
 
     const detail = new GeneralTypeOrdinalVdxfObject({

@@ -3,7 +3,7 @@ import { fromBase58Check, toBase58Check } from "../../utils/address";
 import bufferutils from '../../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../../utils/types/BigNumber';
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
+import { HASH160_BYTE_LENGTH, HASH256_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import { EHashTypes } from '../../pbaas/DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
@@ -144,6 +144,61 @@ export class VerifiableSignatureData implements SerializableEntity {
     return varuint.encodingLength(bufLen) + bufLen;
   }
 
+  private getExtraHashDataByteLength(): number {
+    let byteLength = 0;
+
+    if (this.vdxfKeys && this.vdxfKeys.length > 0) {
+      byteLength += varuint.encodingLength(this.vdxfKeys.length);
+      byteLength += this.vdxfKeys.length * HASH160_BYTE_LENGTH;
+    }
+
+    if (this.vdxfKeyNames && this.vdxfKeyNames.length > 0) {
+      byteLength += varuint.encodingLength(this.vdxfKeyNames.length);
+      for (const name of this.vdxfKeyNames) {
+        byteLength += this.getBufferEncodingLength(Buffer.from(name, 'utf8'));
+      }
+    }
+
+    if (this.boundHashes && this.boundHashes.length > 0) {
+      byteLength += varuint.encodingLength(this.boundHashes.length);
+      byteLength += this.boundHashes.length * HASH256_BYTE_LENGTH;
+      
+    }
+
+    return byteLength;
+  }
+
+  private getExtraHashData(): Buffer {
+    const byteLength = this.getExtraHashDataByteLength();
+    
+    if (byteLength === 0) {
+      return Buffer.alloc(0);
+    }
+
+    const bufferWriter = new BufferWriter(Buffer.alloc(byteLength));
+
+    if (this.vdxfKeys && this.vdxfKeys.length > 0) {
+      // Sort vdxfKeys by their 20-byte buffer values before writing
+      const keyBuffers = this.vdxfKeys.map(x => fromBase58Check(x).hash);
+      const sortedBuffers = keyBuffers.sort(Buffer.compare);
+      bufferWriter.writeArray(sortedBuffers);
+    }
+
+    if (this.vdxfKeyNames && this.vdxfKeyNames.length > 0) {
+      // Sort vdxfKeyNames before writing
+      const sortedNames = [...this.vdxfKeyNames].sort();
+      bufferWriter.writeVector(sortedNames.map(x => Buffer.from(x, 'utf8')));
+    }
+
+    if (this.boundHashes && this.boundHashes.length > 0) {
+      // Sort boundHashes before writing
+      const sortedHashes = [...this.boundHashes].sort(Buffer.compare);
+      bufferWriter.writeArray(sortedHashes);
+    }
+
+    return bufferWriter.buffer;
+  }
+
   getByteLength() {
     let byteLength = 0;
 
@@ -273,12 +328,12 @@ export class VerifiableSignatureData implements SerializableEntity {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(height);
 
-    if (this.hasBoundHashes() || this.hasStatements() || this.hasVdxfKeys() || this.hasVdxfKeyNames()) {
-      throw new Error("Bound hashes, statements, and vdxfkeys in signature not yet supported.");
+    if (this.hasStatements()) {
+      throw new Error("Statements in signature not yet supported.");
     }
 
     if (!this.hashType.eq(new BN(EHashTypes.HASH_SHA256))) {
-      throw new Error("Invalid signature type for identity hash");
+      throw new Error("Only SHA256 hash type is currently supported.");
     }
 
     if (this.signatureVersion.eq(new BN(0))) {
@@ -292,10 +347,24 @@ export class VerifiableSignatureData implements SerializableEntity {
         .update(sigHash)
         .digest();
     } else if (this.signatureVersion.eq(new BN(2))) {
-      return createHash("sha256")
-        .update(fromBase58Check(this.systemID.toIAddress()).hash)
+      const extraHashData = this.getExtraHashData();
+      const hash = createHash("sha256");
+      
+      if (extraHashData.length > 0) {
+        hash.update(extraHashData);
+      }
+
+      const systemidiaddress = this.systemID.toIAddress();
+      const identityidiaddress = this.identityID.toIAddress();
+      console.log(`systemid address: ${systemidiaddress}`);
+      console.log(`identityid address: ${identityidiaddress}`);
+      const systemidbuf = fromBase58Check(systemidiaddress).hash;
+      const identityidbuf = fromBase58Check(identityidiaddress).hash;
+      
+      return hash
+        .update(systemidbuf)
         .update(heightBuffer)
-        .update(fromBase58Check(this.identityID.toIAddress()).hash)
+        .update(identityidbuf)
         .update(VERUS_DATA_SIGNATURE_PREFIX)
         .update(sigHash)
         .digest();
