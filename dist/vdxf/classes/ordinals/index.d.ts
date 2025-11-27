@@ -8,6 +8,7 @@ export * from './VerusPayInvoiceOrdinalVdxfObject';
 export * from './LoginRequestDetailsOrdinalVdxfObject';
 export * from './LoginResponseDetailsOrdinalVdxfObject';
 export * from './AppEncryptionRequestOrdinalVdxfObject';
+export * from './AppEncryptionResponseOrdinalVdxfObject';
 export * from './ProvisionIdentityDetailsOrdinalVdxfObject';
 export * from './DataPacketResponseOrdinalVdxfObject';
 export * from './UserDataRequestOrdinalVdxfObject';

@@ -123,21 +123,24 @@ class GenericEnvelope {
         }
         return writer.buffer;
     }
-    internalGetByteLength() {
+    internalGetByteLength(includeSig = true) {
         let length = 0;
         length += varuint_1.default.encodingLength(this.version.toNumber());
         length += varuint_1.default.encodingLength(this.flags.toNumber());
-        if (this.isSigned()) {
+        if (this.isSigned() && includeSig) {
             length += this.signature.getByteLength();
         }
         length += this.getDetailsBufferLength();
         return length;
     }
+    getByteLengthOptionalSig(includeSig) {
+        return this.internalGetByteLength(includeSig);
+    }
     getByteLength() {
-        return this.internalGetByteLength();
+        return this.getByteLengthOptionalSig(true);
     }
     toBufferOptionalSig(includeSig = true) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.internalGetByteLength()));
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.internalGetByteLength(includeSig)));
         writer.writeCompactSize(this.version.toNumber());
         writer.writeCompactSize(this.flags.toNumber());
         if (this.isSigned() && includeSig) {

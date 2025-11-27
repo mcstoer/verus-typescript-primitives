@@ -1,7 +1,3 @@
-import {
-  WALLET_VDXF_KEY,
-  GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY
-} from "../../";
 import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
 import { BN } from 'bn.js';
@@ -11,7 +7,6 @@ import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
-import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from "../../../constants/deeplink";
 
 export interface GenericEnvelopeInterface {
   version?: BigNumber;
@@ -188,13 +183,13 @@ export class GenericEnvelope implements SerializableEntity {
     return writer.buffer;
   }
 
-  private internalGetByteLength(): number {
+  private internalGetByteLength(includeSig = true): number {
     let length = 0;
 
     length += varuint.encodingLength(this.version.toNumber());
     length += varuint.encodingLength(this.flags.toNumber());
 
-    if (this.isSigned()) {  
+    if (this.isSigned() && includeSig) {  
       length += this.signature!.getByteLength();
     }
     
@@ -203,13 +198,17 @@ export class GenericEnvelope implements SerializableEntity {
     return length;
   }
 
+  protected getByteLengthOptionalSig(includeSig?: boolean): number {
+    return this.internalGetByteLength(includeSig);
+  }
+
   getByteLength(): number {
-    return this.internalGetByteLength();
+    return this.getByteLengthOptionalSig(true);
   }
 
   protected toBufferOptionalSig(includeSig = true) {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.internalGetByteLength())
+      Buffer.alloc(this.internalGetByteLength(includeSig))
     );
 
     writer.writeCompactSize(this.version.toNumber());

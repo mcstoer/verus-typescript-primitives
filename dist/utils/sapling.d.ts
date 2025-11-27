@@ -13,3 +13,27 @@ export declare const encodeSaplingAddress: (data: {
     d: Buffer;
     pk_d: Buffer;
 }) => string;
+export interface SaplingExtendedSpendingKeyData {
+    depth: number;
+    parentFVKTag: Buffer;
+    childIndex: Buffer;
+    chainCode: Buffer;
+    ask: Buffer;
+    nsk: Buffer;
+    ovk: Buffer;
+    dk: Buffer;
+}
+export interface SaplingExtendedViewingKeyData {
+    depth: number;
+    parentFVKTag: Buffer;
+    childIndex: Buffer;
+    chainCode: Buffer;
+    ak: Buffer;
+    nk: Buffer;
+    ovk: Buffer;
+    dk: Buffer;
+}
+export declare function decodeSaplingExtendedSpendingKey(encoded: string): SaplingExtendedSpendingKeyData;
+export declare function encodeSaplingExtendedSpendingKey(data: SaplingExtendedSpendingKeyData, testnet?: boolean): string;
+export declare function decodeSaplingExtendedViewingKey(encoded: string): SaplingExtendedViewingKeyData;
+export declare function encodeSaplingExtendedViewingKey(data: SaplingExtendedViewingKeyData, testnet?: boolean): string;

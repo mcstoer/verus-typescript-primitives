@@ -3,13 +3,17 @@
  *
  * This class is used when an application is requesting an encrypted derived seed from the user's master seed,
  * using specific parameters passed by the application. The request includes:
- * - A target encryption key (zaddress format)
- * - Derivation numbers for seed generation
- * - Optional source and destination addresses for context
+ * - App or delegated ID making the request (mandatory)
+ * - A target encryption key (zaddress format) for encrypting the reply
+ * - Derivation number for seed generation
+ * - Optional derivation ID (defaults to Z-address from ID signing if not present)
+ * - Optional request ID for tracking
  *
  * The user's wallet can use these parameters to derive a specific seed from their master seed
  * and encrypt it using the provided encryption key, ensuring the application receives only
  * the specific derived seed it needs without exposing the master seed.
+ *
+ * The RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
@@ -17,63 +21,49 @@ import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactId
 export interface AppEncryptionRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
+    appOrDelegatedID: CompactIdAddressObject;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    secondaryDerivationNumber?: BigNumber;
-    fromAddress?: CompactIdAddressObject;
-    toAddress?: CompactIdAddressObject;
+    derivationID?: CompactIdAddressObject;
     requestID?: string;
 }
 export interface AppEncryptionRequestJson {
     version: number;
     flags: number;
+    appordelegatedid: CompactIdAddressObjectJson;
     encrypttozaddress: string;
     derivationnumber: number;
-    secondaryderivationnumber?: number;
-    fromaddress?: CompactIdAddressObjectJson;
-    toaddress?: CompactIdAddressObjectJson;
+    derivationid?: CompactIdAddressObjectJson;
     requestid?: string;
 }
 /**
  * Checks if a string is a valid hexadecimal address
  * @param flags - Optional flags for the request
- * @flag HAS_FROM_ADDRESS - Indicates if a from address is included
- * @flag HAS_TO_ADDRESS - Indicates if a to address is included
- * @flag HAS_OPTIONAL_SEED_DERIVATION - Indicates if an optional derivation number is included
- * @flag ADDRESSES_NOT_FQN - Indicates if addresses are in hex format rather than FQN
+ * @flag HAS_REQUEST_ID - Indicates if a request ID is included
  *
  * @param encryptToZAddress - The encryption key to use for encrypting to
  * @param derivationNumber - The derivation number to validate
- * @param secondaryDerivationNumber - The optional derivation number to validate
- * @param fromAddress - The from address to be included in the encryption either
- * john.domain@ or [20-byte hex iaddress][20-byte hex system]
- * @param toAddress - The to address to be included in the encryption either
- * john.domain@ or [20-byte hex iaddress][20-byte hex system]
  */
 export declare class AppEncryptionRequestDetails implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
-    static HAS_FROM_ADDRESS: import("bn.js");
-    static HAS_TO_ADDRESS: import("bn.js");
-    static HAS_SECONDARY_SEED_DERIVATION_NUMBER: import("bn.js");
+    static HAS_DERIVATION_ID: import("bn.js");
     static HAS_REQUEST_ID: import("bn.js");
+    static RETURN_ESK: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
+    appOrDelegatedID?: CompactIdAddressObject;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    secondaryDerivationNumber?: BigNumber;
-    fromAddress?: CompactIdAddressObject;
-    toAddress?: CompactIdAddressObject;
+    derivationID?: CompactIdAddressObject;
     requestID?: string;
     constructor(data?: AppEncryptionRequestInterface);
     setFlags(): void;
     calcFlags(): BigNumber;
     isValid(): boolean;
-    hasSecondarySeedDerivation(flags?: BigNumber): boolean;
-    hasFromAddress(flags?: BigNumber): boolean;
-    hasToAddress(flags?: BigNumber): boolean;
+    hasDerivationID(flags?: BigNumber): boolean;
     hasRequestID(flags?: BigNumber): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;

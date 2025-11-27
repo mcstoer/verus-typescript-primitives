@@ -83,3 +83,4 @@ export declare const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface;
 export declare const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface;
 export declare const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface;
 export declare const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface;
+export declare const APP_ENCRYPTION_RESPONSE_VDXF_KEY: VDXFKeyInterface;
