@@ -25,6 +25,7 @@ __exportStar(require("./VerusPayInvoiceOrdinalVdxfObject"), exports);
 __exportStar(require("./LoginRequestDetailsOrdinalVdxfObject"), exports);
 __exportStar(require("./LoginResponseDetailsOrdinalVdxfObject"), exports);
 __exportStar(require("./AppEncryptionRequestOrdinalVdxfObject"), exports);
+__exportStar(require("./AppEncryptionResponseOrdinalVdxfObject"), exports);
 __exportStar(require("./ProvisionIdentityDetailsOrdinalVdxfObject"), exports);
 __exportStar(require("./DataPacketResponseOrdinalVdxfObject"), exports);
 __exportStar(require("./UserDataRequestOrdinalVdxfObject"), exports);

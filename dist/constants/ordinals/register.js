@@ -15,6 +15,7 @@ const OrdinalVdxfObjectOrdinalMap_1 = require("../../vdxf/classes/ordinals/Ordin
 const ProvisionIdentityDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject");
 const VerusPayInvoiceOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject");
 const ordinals_1 = require("./ordinals");
+const AppEncryptionResponseOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/AppEncryptionResponseOrdinalVdxfObject");
 const registerOrdinals = () => {
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR.toNumber(), vdxf_1.DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid, DataDescriptorOrdinalVdxfObject_1.DataDescriptorOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_VERUSPAY_INVOICE.toNumber(), vdxf_1.VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid, VerusPayInvoiceOrdinalVdxfObject_1.VerusPayInvoiceOrdinalVdxfObject, false);
@@ -27,5 +28,6 @@ const registerOrdinals = () => {
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_DATA_RESPONSE.toNumber(), vdxf_1.DATA_RESPONSE_VDXF_KEY.vdxfid, DataPacketResponseOrdinalVdxfObject_1.DataPacketResponseOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_USER_DATA_REQUEST.toNumber(), vdxf_1.USER_DATA_REQUEST_VDXF_KEY.vdxfid, UserDataRequestOrdinalVdxfObject_1.UserDataRequestOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_USER_SPECIFIC_DATA_PACKET.toNumber(), vdxf_1.USER_SPECIFIC_DATA_PACKET_VDXF_KEY.vdxfid, UserSpecificDataPacketDetailsOrdinalVdxfObject_1.UserSpecificDataPacketDetailsOrdinalVdxfObject, false);
+    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE.toNumber(), vdxf_1.APP_ENCRYPTION_RESPONSE_VDXF_KEY.vdxfid, AppEncryptionResponseOrdinalVdxfObject_1.AppEncryptionResponseOrdinalVdxfObject, false);
 };
 exports.registerOrdinals = registerOrdinals;
