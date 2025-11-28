@@ -18,7 +18,7 @@ import {
 import { DataDescriptor, DEST_PKH, SaplingPaymentAddress, TransferDestination } from '../../pbaas';
 import {
   AppEncryptionRequestDetails,
-  CompactIdAddressObject,
+  CompactAddressObject,
   IdentityUpdateRequestDetails,
   IdentityUpdateResponseDetails,
   LoginRequestDetails,
@@ -44,10 +44,12 @@ import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingK
 import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
 
 // Helper function to create TransferDestination from address string
-function createCompactIdAddressObject(type: BigNumber, address: string): CompactIdAddressObject {
-  const obj = new CompactIdAddressObject();
-  obj.type = type;
-  obj.address = address;
+function createCompactIdAddressObject(type: BigNumber, address: string): CompactAddressObject {
+  const obj = new CompactAddressObject({
+    type,
+    address
+  });
+
   return obj;
 }
 
@@ -271,9 +273,9 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const details = new LoginRequestDetails({
       requestID: TEST_CHALLENGE_ID,
       recipientConstraints: [
-        { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
-        { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
-        { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+        { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+        { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+        { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
       ],
       callbackURIs: [{
         type: LoginRequestDetails.TYPE_WEBHOOK,
@@ -327,8 +329,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     const details = new ProvisionIdentityDetails({
       version: new BN(1, 10),
       flags: ProvisionIdentityDetails.FLAG_HAS_SYSTEMID.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID),
-      systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }),
-      parentID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" })
+      systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }),
+      parentID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" })
     })
 
     const obj = new ProvisionIdentityDetailsOrdinalVdxfObject({ data: details });
@@ -355,10 +357,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
       flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
         .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      appOrDelegatedID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      appOrDelegatedID: createCompactIdAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      derivationID: createCompactIdAddressObject(CompactIdAddressObject.IS_IDENTITYID, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      derivationID: createCompactIdAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
@@ -459,7 +461,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       version: new BN(1),
       flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.HAS_SIGNER),
       searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
-      signer: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
+      signer: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 
@@ -495,8 +497,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
         signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
         hashType: new BN(1),
         flags: new BN(0),
-        identityID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_IDENTITYID, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-        systemID: new CompactIdAddressObject({ version: CompactIdAddressObject.DEFAULT_VERSION, type: CompactIdAddressObject.IS_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+        identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+        systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
       }),
       detailsID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });

@@ -10,6 +10,7 @@ import createHash = require('create-hash');
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { VERUSPAY_VERSION_4, VERUSPAY_VERSION_CURRENT } from '../../../constants/vdxf/veruspay';
 import { SaplingPaymentAddress } from '../../../pbaas';
+import { CompactAddressObject, CompactAddressObjectJson, CompactAddressXVariant, CompactXAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 // Added in V3
@@ -26,6 +27,7 @@ export const VERUSPAY_IS_TESTNET = new BN(128, 10)
 // Added in V4
 export const VERUSPAY_IS_PRECONVERT = new BN(256, 10)
 export const VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS = new BN(512, 10)
+export const VERUSPAY_IS_TAGGED = new BN(1024, 10)
 
 export type VerusPayInvoiceDetailsJson = {
   flags?: string,
@@ -35,6 +37,7 @@ export type VerusPayInvoiceDetailsJson = {
   expiryheight?: string,
   maxestimatedslippage?: string,
   acceptedsystems?: Array<string>,
+  tag?: CompactAddressObjectJson
 }
 
 export class VerusPayInvoiceDetails implements SerializableEntity {
@@ -47,6 +50,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
   expiryheight: BigNumber;
   maxestimatedslippage: BigNumber;
   acceptedsystems: Array<string>;
+  tag: CompactXAddressObject;
   
   constructor (data?: {
     flags?: BigNumber,
@@ -56,6 +60,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     expiryheight?: BigNumber,
     maxestimatedslippage?: BigNumber,
     acceptedsystems?: Array<string>,
+    tag?: CompactXAddressObject
   }, verusPayVersion: BigNumber = VERUSPAY_VERSION_CURRENT) {
     this.flags = VERUSPAY_VALID;
     this.amount = null;
@@ -65,6 +70,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     this.maxestimatedslippage = null;
     this.acceptedsystems = null;
     this.verusPayVersion = verusPayVersion;
+    this.tag = null;
 
     if (data != null) {
       if (data.flags != null) this.flags = data.flags
@@ -74,6 +80,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       if (data.expiryheight != null) this.expiryheight = data.expiryheight
       if (data.maxestimatedslippage != null) this.maxestimatedslippage = data.maxestimatedslippage
       if (data.acceptedsystems != null) this.acceptedsystems = data.acceptedsystems
+      if (data.tag != null) this.tag = data.tag
     }
   }
 
@@ -86,7 +93,8 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     excludesVerusBlockchain?: boolean,
     isTestnet?: boolean,
     isPreconvert?: boolean,
-    destinationIsSaplingPaymentAddress?: boolean
+    destinationIsSaplingPaymentAddress?: boolean,
+    isTagged?: boolean
   }) {
     if (flags.acceptsConversion) this.flags = this.flags.or(VERUSPAY_ACCEPTS_CONVERSION);
     if (flags.acceptsNonVerusSystems) this.flags = this.flags.or(VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS);
@@ -99,6 +107,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     if (this.isGTEV4()) {
       if (flags.isPreconvert) this.flags = this.flags.or(VERUSPAY_IS_PRECONVERT);
       if (flags.destinationIsSaplingPaymentAddress) this.flags = this.flags.or(VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS);
+      if (flags.isTagged) this.flags = this.flags.or(VERUSPAY_IS_TAGGED);
     }
   }
 
@@ -112,7 +121,8 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       excludesVerusBlockchain: this.excludesVerusBlockchain(),
       isTestnet: this.isTestnet(),
       isPreconvert: this.isPreconvert(),
-      destinationIsSaplingPaymentAddress: this.destinationIsSaplingPaymentAddress()
+      destinationIsSaplingPaymentAddress: this.destinationIsSaplingPaymentAddress(),
+      isTagged: this.isTagged()
     }
   }
 
@@ -154,6 +164,10 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
 
   destinationIsSaplingPaymentAddress() {
     return this.isGTEV4() && !!(this.flags.and(VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS).toNumber())
+  }
+
+  isTagged() {
+    return this.isGTEV4() && !!(this.flags.and(VERUSPAY_IS_TAGGED).toNumber())
   }
 
   isValid () {
@@ -218,6 +232,10 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       })
     }
 
+    if (this.isTagged()) {
+      length += this.tag.getByteLength();
+    }
+
     return length;
   }
 
@@ -243,6 +261,10 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       writer.writeArray(this.acceptedsystems.map(x => fromBase58Check(x).hash));
     }
 
+    if (this.isTagged()) {
+      writer.writeSlice(this.tag.toBuffer());
+    }
+
     return writer.buffer;
   }
 
@@ -260,7 +282,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
         this.destination = new SaplingPaymentAddress();
       } else this.destination = new TransferDestination();
       
-      reader.offset = this.destination.fromBuffer(buffer, reader.offset);
+      reader.offset = this.destination.fromBuffer(reader.buffer, reader.offset);
     }
     
     this.requestedcurrencyid = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
@@ -279,6 +301,12 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       this.acceptedsystems = acceptedSystemsBuffers.map(x => toBase58Check(x, I_ADDR_VERSION));
     }
 
+    if (this.isTagged()) {
+      this.tag = new CompactAddressObject<CompactAddressXVariant>();
+
+      reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
+    }
+
     return reader.offset;
   }
 
@@ -290,7 +318,8 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       requestedcurrencyid: data.requestedcurrencyid,
       expiryheight: data.expiryheight != null ? new BN(data.expiryheight) : undefined,
       maxestimatedslippage: data.maxestimatedslippage != null ? new BN(data.maxestimatedslippage) : undefined,
-      acceptedsystems: data.acceptedsystems
+      acceptedsystems: data.acceptedsystems,
+      tag: data.tag ? CompactAddressObject.fromJson(data.tag) : undefined
     }, verusPayVersion)
   }
 
@@ -303,6 +332,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       expiryheight: this.expires() ? this.expiryheight.toString() : undefined,
       maxestimatedslippage: this.acceptsConversion() ? this.maxestimatedslippage.toString() : undefined,
       acceptedsystems: this.acceptsNonVerusSystems() ? this.acceptedsystems : undefined,
+      tag: this.isTagged() ? this.tag.toJson() : undefined
     }
   }
 }

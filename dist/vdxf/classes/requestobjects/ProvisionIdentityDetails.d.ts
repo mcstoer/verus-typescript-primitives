@@ -15,27 +15,27 @@
  */
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
+import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 export interface ProvisionIdentityDetailsInterface {
     version?: BigNumber;
     flags: BigNumber;
-    systemID?: CompactIdAddressObject;
-    parentID?: CompactIdAddressObject;
-    identityID?: CompactIdAddressObject;
+    systemID?: CompactAddressObject;
+    parentID?: CompactAddressObject;
+    identityID?: CompactAddressObject;
 }
 export interface ProvisionIdentityDetailsJson {
     version?: number;
     flags: number;
-    systemid?: CompactIdAddressObjectJson;
-    parentid?: CompactIdAddressObjectJson;
-    identityid?: CompactIdAddressObjectJson;
+    systemid?: CompactAddressObjectJson;
+    parentid?: CompactAddressObjectJson;
+    identityid?: CompactAddressObjectJson;
 }
 export declare class ProvisionIdentityDetails implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
-    systemID?: CompactIdAddressObject;
-    parentID?: CompactIdAddressObject;
-    identityID?: CompactIdAddressObject;
+    systemID?: CompactAddressObject;
+    parentID?: CompactAddressObject;
+    identityID?: CompactAddressObject;
     static DEFAULT_VERSION: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");

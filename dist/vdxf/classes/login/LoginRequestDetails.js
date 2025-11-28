@@ -21,7 +21,7 @@ const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
 const vdxf_1 = require("../../../constants/vdxf");
 const address_1 = require("../../../utils/address");
-const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 class LoginRequestDetails {
     constructor(request) {
         this.version = (request === null || request === void 0 ? void 0 : request.version) || LoginRequestDetails.DEFAULT_VERSION;
@@ -108,7 +108,7 @@ class LoginRequestDetails {
             this.recipientConstraints = [];
             const recipientConstraintsLength = reader.readCompactSize();
             for (let i = 0; i < recipientConstraintsLength; i++) {
-                const compactId = new CompactIdAddressObject_1.CompactIdAddressObject();
+                const compactId = new CompactAddressObject_1.CompactAddressObject();
                 const type = reader.readCompactSize();
                 const identityOffset = reader.offset;
                 reader.offset = compactId.fromBuffer(buffer, identityOffset);
@@ -153,7 +153,7 @@ class LoginRequestDetails {
         loginDetails.requestID = data.requestid;
         if (loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
             loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({ type: p.type,
-                identity: CompactIdAddressObject_1.CompactIdAddressObject.fromJson(p.identity) }));
+                identity: CompactAddressObject_1.CompactAddressObject.fromJson(p.identity) }));
         }
         if (loginDetails.hascallbackURIs() && data.callbackURIs) {
             loginDetails.callbackURIs = data.callbackURIs.map(c => ({ type: c.type,

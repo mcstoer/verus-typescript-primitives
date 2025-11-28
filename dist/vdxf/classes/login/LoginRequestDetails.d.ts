@@ -15,7 +15,7 @@
  */
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
+import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 export interface LoginRequestDetailsInterface {
     version?: BigNumber;
     flags?: BigNumber;
@@ -26,7 +26,7 @@ export interface LoginRequestDetailsInterface {
 }
 export interface RecipientConstraintJson {
     type: number;
-    identity: CompactIdAddressObjectJson;
+    identity: CompactAddressObjectJson;
 }
 export interface callbackURIsJson {
     type: number;
@@ -34,7 +34,7 @@ export interface callbackURIsJson {
 }
 export interface RecipientConstraint {
     type: number;
-    identity: CompactIdAddressObject;
+    identity: CompactAddressObject;
 }
 export interface callbackURIs {
     type: number;

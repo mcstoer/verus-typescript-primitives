@@ -22,7 +22,7 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varuint from "../../../utils/varuint";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
-import { CompactIdAddressObject, CompactIdAddressObjectJson } from "../CompactIdAddressObject";
+import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 
 export interface LoginRequestDetailsInterface {
   version?: BigNumber;
@@ -35,7 +35,7 @@ export interface LoginRequestDetailsInterface {
 
 export interface RecipientConstraintJson {
   type: number;
-  identity: CompactIdAddressObjectJson;
+  identity: CompactAddressObjectJson;
 }
 
 export interface callbackURIsJson {
@@ -45,7 +45,7 @@ export interface callbackURIsJson {
 
 export interface RecipientConstraint {
   type: number;
-  identity: CompactIdAddressObject;
+  identity: CompactAddressObject;
 }
 
 export interface callbackURIs {
@@ -200,7 +200,7 @@ export class LoginRequestDetails implements SerializableEntity {
       this.recipientConstraints = [];
       const recipientConstraintsLength = reader.readCompactSize();
       for (let i = 0; i < recipientConstraintsLength; i++) {
-        const compactId = new CompactIdAddressObject();
+        const compactId = new CompactAddressObject();
         const type = reader.readCompactSize();
         const identityOffset = reader.offset;
         reader.offset = compactId.fromBuffer(buffer, identityOffset);
@@ -255,7 +255,7 @@ export class LoginRequestDetails implements SerializableEntity {
 
     if(loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
       loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({type: p.type,
-        identity: CompactIdAddressObject.fromJson(p.identity)}));
+        identity: CompactAddressObject.fromJson(p.identity)}));
     }
 
     if(loginDetails.hascallbackURIs() && data.callbackURIs) {

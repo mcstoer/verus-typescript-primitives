@@ -25,7 +25,7 @@ const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
-const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const address_1 = require("../../../utils/address");
 const vdxf_1 = require("../../../constants/vdxf");
 class UserDataRequestDetails {
@@ -157,7 +157,7 @@ class UserDataRequestDetails {
             this.searchDataKey.push({ [key]: value });
         }
         if (this.hasSigner()) {
-            const signer = new CompactIdAddressObject_1.CompactIdAddressObject();
+            const signer = new CompactAddressObject_1.CompactAddressObject();
             reader.offset = signer.fromBuffer(reader.buffer, reader.offset);
             this.signer = signer;
         }
@@ -192,7 +192,7 @@ class UserDataRequestDetails {
         requestData.version = new bn_js_1.BN(json.version);
         requestData.flags = new bn_js_1.BN(json.flags);
         requestData.searchDataKey = json.searchdatakey;
-        requestData.signer = json.signer ? CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json.signer) : undefined;
+        requestData.signer = json.signer ? CompactAddressObject_1.CompactAddressObject.fromJson(json.signer) : undefined;
         requestData.requestedKeys = json.requestedkeys;
         requestData.requestID = json.requestid;
         return requestData;

@@ -1,5 +1,5 @@
 import { DEFAULT_VERUS_CHAINID, DEFAULT_VERUS_CHAINNAME, KOMODO_ASSETCHAIN_MAXLEN, NULL_I_ADDR } from "../constants/pbaas";
-import { I_ADDR_VERSION } from "../constants/vdxf";
+import { I_ADDR_VERSION, X_ADDR_VERSION } from "../constants/vdxf";
 import { hash, hash160 } from "./hash";
 
 const bs58check = require("bs58check")
@@ -40,7 +40,7 @@ export const toBase58Check = (hash: Buffer, version: number): string => {
   return bs58check.encode(payload);
 };
 
-export const nameAndParentAddrToIAddr = (name: string, parentIAddr?: string): string => {
+export const nameAndParentAddrToAddr = (name: string, parentIAddr?: string, version: number = I_ADDR_VERSION): string => {
   let idHash: Buffer;
   const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
 
@@ -51,10 +51,14 @@ export const nameAndParentAddrToIAddr = (name: string, parentIAddr?: string): st
     idHash = hash(fromBase58Check(parentIAddr).hash, idHash);
   }
 
-  return toBase58Check(hash160(idHash), 102);
+  return toBase58Check(hash160(idHash), version);
 }
 
-export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = ""): string => {
+export const nameAndParentAddrToIAddr = (name: string, parentIAddr?: string): string => {
+  return nameAndParentAddrToAddr(name, parentIAddr, I_ADDR_VERSION)
+}
+
+export const fqnToAddress = (fullyqualifiedname: string, rootSystemName: string = "", version = I_ADDR_VERSION): string => {
   const splitFqnAt = fullyqualifiedname.split("@").filter(x => x.length > 0);
 
   if (splitFqnAt.length !== 1) throw new Error("Invalid name")
@@ -98,7 +102,11 @@ export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = 
     idHash = hash(Parent, idHash);
   }
 
-  return toBase58Check(hash160(idHash), 102);
+  return toBase58Check(hash160(idHash), version);
+}
+
+export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = ""): string => {
+  return fqnToAddress(fullyqualifiedname, rootSystemName, I_ADDR_VERSION)
 }
 
 function trimSpaces(
@@ -281,18 +289,19 @@ function cleanName(
   return { name: subNames[0], parent: newParent ? toBase58Check(newParent, I_ADDR_VERSION) : null };
 }
 
-function getID(name: string, parent: string, verusChainName: string = DEFAULT_VERUS_CHAINNAME): string {
+function getID(name: string, parent: string, verusChainName: string = DEFAULT_VERUS_CHAINNAME, version: number = I_ADDR_VERSION): string {
   const _cleanName = name === "::" ? { name, parent } : cleanName(name, parent, false, verusChainName);
 
   if (_cleanName.name.length == 0) return NULL_I_ADDR;
 
-  return nameAndParentAddrToIAddr(_cleanName.name, _cleanName.parent);
+  return nameAndParentAddrToAddr(_cleanName.name, _cleanName.parent, version);
 }
 
 export function getDataKey(
   keyName: string,
   nameSpaceID?: string,
-  verusChainId: string = DEFAULT_VERUS_CHAINID
+  verusChainId: string = DEFAULT_VERUS_CHAINID,
+  version: number = I_ADDR_VERSION
 ): { id: string; namespace: string } {
   let keyCopy = keyName;
   const addressParts = keyName.split(":");
@@ -313,8 +322,8 @@ export function getDataKey(
     nameSpaceID = verusChainId;
   }
 
-  const parent = getID("::", nameSpaceID);
-  return { id: getID(keyCopy, parent), namespace: nameSpaceID };
+  const parent = getID("::", nameSpaceID, undefined, version);
+  return { id: getID(keyCopy, parent, undefined, version), namespace: nameSpaceID };
 }
 
 export const decodeDestination = (destination: string): Buffer => {

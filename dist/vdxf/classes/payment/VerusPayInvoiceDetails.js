@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerusPayInvoiceDetails = exports.VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS = exports.VERUSPAY_IS_PRECONVERT = exports.VERUSPAY_IS_TESTNET = exports.VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN = exports.VERUSPAY_ACCEPTS_ANY_AMOUNT = exports.VERUSPAY_ACCEPTS_ANY_DESTINATION = exports.VERUSPAY_EXPIRES = exports.VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS = exports.VERUSPAY_ACCEPTS_CONVERSION = exports.VERUSPAY_VALID = exports.VERUSPAY_INVALID = void 0;
+exports.VerusPayInvoiceDetails = exports.VERUSPAY_IS_TAGGED = exports.VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS = exports.VERUSPAY_IS_PRECONVERT = exports.VERUSPAY_IS_TESTNET = exports.VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN = exports.VERUSPAY_ACCEPTS_ANY_AMOUNT = exports.VERUSPAY_ACCEPTS_ANY_DESTINATION = exports.VERUSPAY_EXPIRES = exports.VERUSPAY_ACCEPTS_NON_VERUS_SYSTEMS = exports.VERUSPAY_ACCEPTS_CONVERSION = exports.VERUSPAY_VALID = exports.VERUSPAY_INVALID = void 0;
 const varint_1 = require("../../../utils/varint");
 const varuint_1 = require("../../../utils/varuint");
 const bufferutils_1 = require("../../../utils/bufferutils");
@@ -11,6 +11,7 @@ const vdxf_1 = require("../../../constants/vdxf");
 const createHash = require("create-hash");
 const veruspay_1 = require("../../../constants/vdxf/veruspay");
 const pbaas_1 = require("../../../pbaas");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 // Added in V3
 exports.VERUSPAY_INVALID = new bn_js_1.BN(0, 10);
@@ -25,6 +26,7 @@ exports.VERUSPAY_IS_TESTNET = new bn_js_1.BN(128, 10);
 // Added in V4
 exports.VERUSPAY_IS_PRECONVERT = new bn_js_1.BN(256, 10);
 exports.VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS = new bn_js_1.BN(512, 10);
+exports.VERUSPAY_IS_TAGGED = new bn_js_1.BN(1024, 10);
 class VerusPayInvoiceDetails {
     constructor(data, verusPayVersion = veruspay_1.VERUSPAY_VERSION_CURRENT) {
         this.flags = exports.VERUSPAY_VALID;
@@ -35,6 +37,7 @@ class VerusPayInvoiceDetails {
         this.maxestimatedslippage = null;
         this.acceptedsystems = null;
         this.verusPayVersion = verusPayVersion;
+        this.tag = null;
         if (data != null) {
             if (data.flags != null)
                 this.flags = data.flags;
@@ -50,6 +53,8 @@ class VerusPayInvoiceDetails {
                 this.maxestimatedslippage = data.maxestimatedslippage;
             if (data.acceptedsystems != null)
                 this.acceptedsystems = data.acceptedsystems;
+            if (data.tag != null)
+                this.tag = data.tag;
         }
     }
     setFlags(flags) {
@@ -72,6 +77,8 @@ class VerusPayInvoiceDetails {
                 this.flags = this.flags.or(exports.VERUSPAY_IS_PRECONVERT);
             if (flags.destinationIsSaplingPaymentAddress)
                 this.flags = this.flags.or(exports.VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS);
+            if (flags.isTagged)
+                this.flags = this.flags.or(exports.VERUSPAY_IS_TAGGED);
         }
     }
     getFlagsJson() {
@@ -84,7 +91,8 @@ class VerusPayInvoiceDetails {
             excludesVerusBlockchain: this.excludesVerusBlockchain(),
             isTestnet: this.isTestnet(),
             isPreconvert: this.isPreconvert(),
-            destinationIsSaplingPaymentAddress: this.destinationIsSaplingPaymentAddress()
+            destinationIsSaplingPaymentAddress: this.destinationIsSaplingPaymentAddress(),
+            isTagged: this.isTagged()
         };
     }
     toSha256() {
@@ -116,6 +124,9 @@ class VerusPayInvoiceDetails {
     }
     destinationIsSaplingPaymentAddress() {
         return this.isGTEV4() && !!(this.flags.and(exports.VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS).toNumber());
+    }
+    isTagged() {
+        return this.isGTEV4() && !!(this.flags.and(exports.VERUSPAY_IS_TAGGED).toNumber());
     }
     isValid() {
         return (!!(this.flags.and(exports.VERUSPAY_VALID).toNumber()));
@@ -165,6 +176,9 @@ class VerusPayInvoiceDetails {
                 length += vdxf_1.HASH160_BYTE_LENGTH;
             });
         }
+        if (this.isTagged()) {
+            length += this.tag.getByteLength();
+        }
         return length;
     }
     toBuffer() {
@@ -184,6 +198,9 @@ class VerusPayInvoiceDetails {
         if (this.acceptsNonVerusSystems()) {
             writer.writeArray(this.acceptedsystems.map(x => (0, address_1.fromBase58Check)(x).hash));
         }
+        if (this.isTagged()) {
+            writer.writeSlice(this.tag.toBuffer());
+        }
         return writer.buffer;
     }
     fromBuffer(buffer, offset = 0, verusPayVersion = veruspay_1.VERUSPAY_VERSION_CURRENT) {
@@ -198,7 +215,7 @@ class VerusPayInvoiceDetails {
             }
             else
                 this.destination = new TransferDestination_1.TransferDestination();
-            reader.offset = this.destination.fromBuffer(buffer, reader.offset);
+            reader.offset = this.destination.fromBuffer(reader.buffer, reader.offset);
         }
         this.requestedcurrencyid = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
         if (this.expires()) {
@@ -211,6 +228,10 @@ class VerusPayInvoiceDetails {
             const acceptedSystemsBuffers = reader.readArray(20);
             this.acceptedsystems = acceptedSystemsBuffers.map(x => (0, address_1.toBase58Check)(x, vdxf_1.I_ADDR_VERSION));
         }
+        if (this.isTagged()) {
+            this.tag = new CompactAddressObject_1.CompactAddressObject();
+            reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
+        }
         return reader.offset;
     }
     static fromJson(data, verusPayVersion = veruspay_1.VERUSPAY_VERSION_CURRENT) {
@@ -221,7 +242,8 @@ class VerusPayInvoiceDetails {
             requestedcurrencyid: data.requestedcurrencyid,
             expiryheight: data.expiryheight != null ? new bn_js_1.BN(data.expiryheight) : undefined,
             maxestimatedslippage: data.maxestimatedslippage != null ? new bn_js_1.BN(data.maxestimatedslippage) : undefined,
-            acceptedsystems: data.acceptedsystems
+            acceptedsystems: data.acceptedsystems,
+            tag: data.tag ? CompactAddressObject_1.CompactAddressObject.fromJson(data.tag) : undefined
         }, verusPayVersion);
     }
     toJson() {
@@ -233,6 +255,7 @@ class VerusPayInvoiceDetails {
             expiryheight: this.expires() ? this.expiryheight.toString() : undefined,
             maxestimatedslippage: this.acceptsConversion() ? this.maxestimatedslippage.toString() : undefined,
             acceptedsystems: this.acceptsNonVerusSystems() ? this.acceptedsystems : undefined,
+            tag: this.isTagged() ? this.tag.toJson() : undefined
         };
     }
 }

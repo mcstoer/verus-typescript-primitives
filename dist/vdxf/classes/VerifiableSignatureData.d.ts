@@ -1,14 +1,14 @@
 import { BigNumber } from '../../utils/types/BigNumber';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
-import { CompactIdAddressObject, CompactIdAddressObjectJson } from './CompactIdAddressObject';
+import { CompactAddressObject, CompactAddressObjectJson } from './CompactAddressObject';
 import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
 export interface VerifiableSignatureDataJson {
     version: number;
     flags: number;
     signatureversion: number;
     hashtype: number;
-    systemid: CompactIdAddressObjectJson;
-    identityid: CompactIdAddressObjectJson;
+    systemid: CompactAddressObjectJson;
+    identityid: CompactAddressObjectJson;
     vdxfkeys?: Array<string>;
     vdxfkeynames?: Array<string>;
     boundhashes?: Array<string>;
@@ -20,8 +20,8 @@ export interface VerifiableSignatureDataInterface {
     flags?: BigNumber;
     signatureVersion?: BigNumber;
     hashType?: BigNumber;
-    systemID?: CompactIdAddressObject;
-    identityID: CompactIdAddressObject;
+    systemID?: CompactAddressObject;
+    identityID: CompactAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;
@@ -33,8 +33,8 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     flags: BigNumber;
     signatureVersion: BigNumber;
     hashType: BigNumber;
-    identityID: CompactIdAddressObject;
-    systemID: CompactIdAddressObject;
+    identityID: CompactAddressObject;
+    systemID: CompactAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;
