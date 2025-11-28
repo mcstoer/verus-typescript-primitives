@@ -8,7 +8,7 @@
  * and validation of the compact id object.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CompactIdAddressObject = void 0;
+exports.CompactAddressObject = void 0;
 const bn_js_1 = require("bn.js");
 const bufferutils_1 = require("../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
@@ -16,34 +16,33 @@ const varuint_1 = require("../../utils/varuint");
 const address_1 = require("../../utils/address");
 const vdxf_1 = require("../../constants/vdxf");
 const pbaas_1 = require("../../constants/pbaas");
-class CompactIdAddressObject {
-    constructor(data, allowedTypes = [CompactIdAddressObject.IS_FQN.toString(), CompactIdAddressObject.IS_IDENTITYID.toString()]) {
-        this.version = (data === null || data === void 0 ? void 0 : data.version) || new bn_js_1.BN(CompactIdAddressObject.DEFAULT_VERSION);
-        this.type = (data === null || data === void 0 ? void 0 : data.type) || new bn_js_1.BN(1);
+class CompactAddressObject {
+    constructor(data) {
+        this.version = (data === null || data === void 0 ? void 0 : data.version) || new bn_js_1.BN(CompactAddressObject.DEFAULT_VERSION);
+        this.type = (data === null || data === void 0 ? void 0 : data.type.toString()) || "1";
         this.address = (data === null || data === void 0 ? void 0 : data.address) || '';
         this.rootSystemName = (data === null || data === void 0 ? void 0 : data.rootSystemName) || 'VRSC';
-        this.nameSpace = (data === null || data === void 0 ? void 0 : data.nameSpace) || (0, address_1.toIAddress)(this.rootSystemName, this.rootSystemName);
-        this.allowedTypes = allowedTypes;
-        this.checkValidity();
+        this.nameSpace = (data === null || data === void 0 ? void 0 : data.nameSpace) || (0, address_1.toIAddress)(this.rootSystemName);
+    }
+    get BNType() {
+        return new bn_js_1.BN(this.type);
+    }
+    set setType(type) {
+        this.type = type.toString();
     }
     isFQN() {
-        return (this.type.eq(CompactIdAddressObject.IS_FQN));
+        return (this.BNType.eq(CompactAddressObject.TYPE_FQN));
     }
     isIaddress() {
-        return (this.type.eq(CompactIdAddressObject.IS_IDENTITYID));
+        return (this.BNType.eq(CompactAddressObject.TYPE_I_ADDRESS));
     }
     isXaddress() {
-        return (this.type.eq(CompactIdAddressObject.IS_X_ADDRESS));
+        return (this.BNType.eq(CompactAddressObject.TYPE_X_ADDRESS));
     }
     isValid() {
-        return this.address != null && this.allowedTypes.includes(this.type.toString());
-    }
-    checkValidity() {
-        if (!this.isValid())
-            throw new Error("Invalid CompactIdAddressObject");
+        return this.address != null;
     }
     toIAddress() {
-        this.checkValidity();
         if (this.isXaddress())
             throw new Error("Cannot convert I to X address");
         else if (this.isIaddress())
@@ -55,34 +54,33 @@ class CompactIdAddressObject {
             throw new Error("Unknown type");
     }
     toXAddress() {
-        this.checkValidity();
         if (this.isIaddress())
             throw new Error("Cannot convert X to I address");
         else if (this.isXaddress())
             return this.address;
         else if (this.isFQN()) {
-            return (0, address_1.getDataKey)(this.address, this.nameSpace, (0, address_1.toIAddress)(this.rootSystemName, this.rootSystemName), vdxf_1.X_ADDR_VERSION).id;
+            return (0, address_1.getDataKey)(this.address, this.nameSpace, (0, address_1.toIAddress)(this.rootSystemName), vdxf_1.X_ADDR_VERSION).id;
         }
         else
             throw new Error("Unknown type");
     }
     static fromIAddress(iaddr) {
-        return new CompactIdAddressObject({
+        return new CompactAddressObject({
             address: iaddr,
-            type: CompactIdAddressObject.IS_IDENTITYID
+            type: CompactAddressObject.TYPE_I_ADDRESS
         });
     }
     static fromXAddress(xaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
-        return new CompactIdAddressObject({
+        return new CompactAddressObject({
             address: xaddr,
             nameSpace: nameSpace,
-            type: CompactIdAddressObject.IS_X_ADDRESS
+            type: CompactAddressObject.TYPE_X_ADDRESS
         });
     }
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.version.toNumber());
-        length += varuint_1.default.encodingLength(this.type.toNumber());
+        length += varuint_1.default.encodingLength(this.BNType.toNumber());
         if (this.isIaddress() || this.isXaddress()) {
             length += vdxf_1.HASH160_BYTE_LENGTH; // identityuint160
         }
@@ -95,7 +93,7 @@ class CompactIdAddressObject {
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.version.toNumber());
-        writer.writeCompactSize(this.type.toNumber());
+        writer.writeCompactSize(this.BNType.toNumber());
         if (this.isIaddress() || this.isXaddress()) {
             writer.writeSlice((0, address_1.fromBase58Check)(this.address).hash);
         }
@@ -107,39 +105,37 @@ class CompactIdAddressObject {
     fromBuffer(buffer, offset) {
         const reader = new BufferReader(buffer, offset);
         this.version = new bn_js_1.BN(reader.readCompactSize());
-        this.type = new bn_js_1.BN(reader.readCompactSize());
+        this.type = new bn_js_1.BN(reader.readCompactSize()).toString();
         if (this.isIaddress() || this.isXaddress()) {
             this.address = (0, address_1.toBase58Check)(reader.readSlice(20), this.isIaddress() ? vdxf_1.I_ADDR_VERSION : vdxf_1.X_ADDR_VERSION);
         }
         else {
             this.address = reader.readVarSlice().toString('utf8');
         }
-        this.checkValidity();
         return reader.offset;
     }
     toJson() {
         return {
             version: this.version.toNumber(),
-            type: this.type.toNumber(),
+            type: this.BNType.toNumber(),
             address: this.address,
             rootsystemname: this.rootSystemName,
         };
     }
     static fromJson(json) {
-        const instance = new CompactIdAddressObject();
+        const instance = new CompactAddressObject();
         instance.version = new bn_js_1.BN(json.version);
-        instance.type = new bn_js_1.BN(json.type);
+        instance.type = new bn_js_1.BN(json.type).toString();
         instance.address = json.address;
         instance.rootSystemName = json.rootsystemname;
-        instance.checkValidity();
         return instance;
     }
 }
-exports.CompactIdAddressObject = CompactIdAddressObject;
-CompactIdAddressObject.VERSION_INVALID = new bn_js_1.BN(0);
-CompactIdAddressObject.FIRST_VERSION = new bn_js_1.BN(1);
-CompactIdAddressObject.LAST_VERSION = new bn_js_1.BN(1);
-CompactIdAddressObject.DEFAULT_VERSION = new bn_js_1.BN(1);
-CompactIdAddressObject.IS_FQN = new bn_js_1.BN(1);
-CompactIdAddressObject.IS_IDENTITYID = new bn_js_1.BN(2);
-CompactIdAddressObject.IS_X_ADDRESS = new bn_js_1.BN(3);
+exports.CompactAddressObject = CompactAddressObject;
+CompactAddressObject.VERSION_INVALID = new bn_js_1.BN(0);
+CompactAddressObject.FIRST_VERSION = new bn_js_1.BN(1);
+CompactAddressObject.LAST_VERSION = new bn_js_1.BN(1);
+CompactAddressObject.DEFAULT_VERSION = new bn_js_1.BN(1);
+CompactAddressObject.TYPE_FQN = new bn_js_1.BN(1);
+CompactAddressObject.TYPE_I_ADDRESS = new bn_js_1.BN(2);
+CompactAddressObject.TYPE_X_ADDRESS = new bn_js_1.BN(3);

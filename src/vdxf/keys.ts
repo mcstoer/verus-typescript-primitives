@@ -13,6 +13,7 @@ export interface VDXFKeyInterface {
 
 export const VERUSPAY_INVOICE_VDXF_KEY: VDXFKeyInterface = {
   hash160result: "628efc28c2e2d40050e1a9de7a93e7ddf2aa0076",
+  indexid: "xK4aRumetZg2ecW4Z45qdDBH769xxnaiEH",
   qualifiedname: {
     name: "veruspay.vrsc::invoice",
     namespace: "iAisVse7piEiE2VsixZx4SARyHzSpxYxgq"
@@ -141,6 +142,7 @@ export const WALLET_VDXF_KEY: VDXFKeyInterface = {
     namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
     name: "vrsc::applications.wallet",
   },
+  indexid: "xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf"
 };
 
 export const LOGIN_CONSENT_REDIRECT_VDXF_KEY: VDXFKeyInterface = {

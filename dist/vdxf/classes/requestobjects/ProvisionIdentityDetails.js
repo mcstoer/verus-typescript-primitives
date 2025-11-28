@@ -18,7 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProvisionIdentityDetails = void 0;
 const bufferutils_1 = require("../../../utils/bufferutils");
 const bn_js_1 = require("bn.js");
-const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const varuint_1 = require("../../../utils/varuint");
 class ProvisionIdentityDetails {
     constructor(data) {
@@ -72,17 +72,17 @@ class ProvisionIdentityDetails {
             throw new Error("Cannot create provision identity from empty buffer");
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.hasSystemId()) {
-            const systemID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            const systemID = new CompactAddressObject_1.CompactAddressObject();
             reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
             this.systemID = systemID;
         }
         if (this.hasParentId()) {
-            const parentID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            const parentID = new CompactAddressObject_1.CompactAddressObject();
             reader.offset = parentID.fromBuffer(reader.buffer, reader.offset);
             this.parentID = parentID;
         }
         if (this.hasIdentityId()) {
-            const identityID = new CompactIdAddressObject_1.CompactIdAddressObject();
+            const identityID = new CompactAddressObject_1.CompactAddressObject();
             reader.offset = identityID.fromBuffer(reader.buffer, reader.offset);
             this.identityID = identityID;
         }
@@ -103,13 +103,13 @@ class ProvisionIdentityDetails {
         provision.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         provision.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
         if (provision.hasSystemId()) {
-            provision.systemID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.systemid);
+            provision.systemID = CompactAddressObject_1.CompactAddressObject.fromJson(data.systemid);
         }
         if (provision.hasParentId()) {
-            provision.parentID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.parentid);
+            provision.parentID = CompactAddressObject_1.CompactAddressObject.fromJson(data.parentid);
         }
         if (provision.hasIdentityId()) {
-            provision.identityID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(data.identityid);
+            provision.identityID = CompactAddressObject_1.CompactAddressObject.fromJson(data.identityid);
         }
         return provision;
     }

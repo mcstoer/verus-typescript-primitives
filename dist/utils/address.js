@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decodeEthDestination = exports.decodeDestination = exports.toIAddress = exports.nameAndParentAddrToIAddr = exports.toBase58Check = exports.fromBase58Check = void 0;
+exports.decodeEthDestination = exports.decodeDestination = exports.toIAddress = exports.fqnToAddress = exports.nameAndParentAddrToIAddr = exports.nameAndParentAddrToAddr = exports.toBase58Check = exports.fromBase58Check = void 0;
 exports.getDataKey = getDataKey;
 const pbaas_1 = require("../constants/pbaas");
 const vdxf_1 = require("../constants/vdxf");
@@ -36,7 +36,7 @@ const toBase58Check = (hash, version) => {
     return bs58check.encode(payload);
 };
 exports.toBase58Check = toBase58Check;
-const nameAndParentAddrToIAddr = (name, parentIAddr) => {
+const nameAndParentAddrToAddr = (name, parentIAddr, version = vdxf_1.I_ADDR_VERSION) => {
     let idHash;
     const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
     if (parentIAddr == null) {
@@ -46,10 +46,14 @@ const nameAndParentAddrToIAddr = (name, parentIAddr) => {
         idHash = (0, hash_1.hash)(nameBuffer);
         idHash = (0, hash_1.hash)((0, exports.fromBase58Check)(parentIAddr).hash, idHash);
     }
-    return (0, exports.toBase58Check)((0, hash_1.hash160)(idHash), 102);
+    return (0, exports.toBase58Check)((0, hash_1.hash160)(idHash), version);
+};
+exports.nameAndParentAddrToAddr = nameAndParentAddrToAddr;
+const nameAndParentAddrToIAddr = (name, parentIAddr) => {
+    return (0, exports.nameAndParentAddrToAddr)(name, parentIAddr, vdxf_1.I_ADDR_VERSION);
 };
 exports.nameAndParentAddrToIAddr = nameAndParentAddrToIAddr;
-const toIAddress = (fullyqualifiedname, rootSystemName = "") => {
+const fqnToAddress = (fullyqualifiedname, rootSystemName = "", version = vdxf_1.I_ADDR_VERSION) => {
     const splitFqnAt = fullyqualifiedname.split("@").filter(x => x.length > 0);
     if (splitFqnAt.length !== 1)
         throw new Error("Invalid name");
@@ -84,7 +88,11 @@ const toIAddress = (fullyqualifiedname, rootSystemName = "") => {
         idHash = (0, hash_1.hash)(nameBuffer);
         idHash = (0, hash_1.hash)(Parent, idHash);
     }
-    return (0, exports.toBase58Check)((0, hash_1.hash160)(idHash), 102);
+    return (0, exports.toBase58Check)((0, hash_1.hash160)(idHash), version);
+};
+exports.fqnToAddress = fqnToAddress;
+const toIAddress = (fullyqualifiedname, rootSystemName = "") => {
+    return (0, exports.fqnToAddress)(fullyqualifiedname, rootSystemName, vdxf_1.I_ADDR_VERSION);
 };
 exports.toIAddress = toIAddress;
 function trimSpaces(name, removeDuals) {
@@ -216,13 +224,13 @@ function cleanName(name, parent, removeDuals = false, verusChainName = pbaas_1.D
     }
     return { name: subNames[0], parent: newParent ? (0, exports.toBase58Check)(newParent, vdxf_1.I_ADDR_VERSION) : null };
 }
-function getID(name, parent, verusChainName = pbaas_1.DEFAULT_VERUS_CHAINNAME) {
+function getID(name, parent, verusChainName = pbaas_1.DEFAULT_VERUS_CHAINNAME, version = vdxf_1.I_ADDR_VERSION) {
     const _cleanName = name === "::" ? { name, parent } : cleanName(name, parent, false, verusChainName);
     if (_cleanName.name.length == 0)
         return pbaas_1.NULL_I_ADDR;
-    return (0, exports.nameAndParentAddrToIAddr)(_cleanName.name, _cleanName.parent);
+    return (0, exports.nameAndParentAddrToAddr)(_cleanName.name, _cleanName.parent, version);
 }
-function getDataKey(keyName, nameSpaceID, verusChainId = pbaas_1.DEFAULT_VERUS_CHAINID) {
+function getDataKey(keyName, nameSpaceID, verusChainId = pbaas_1.DEFAULT_VERUS_CHAINID, version = vdxf_1.I_ADDR_VERSION) {
     let keyCopy = keyName;
     const addressParts = keyName.split(":");
     // If the first part of the address is a namespace, it is followed by a double colon
@@ -237,8 +245,8 @@ function getDataKey(keyName, nameSpaceID, verusChainId = pbaas_1.DEFAULT_VERUS_C
     if (!nameSpaceID) {
         nameSpaceID = verusChainId;
     }
-    const parent = getID("::", nameSpaceID);
-    return { id: getID(keyCopy, parent), namespace: nameSpaceID };
+    const parent = getID("::", nameSpaceID, undefined, version);
+    return { id: getID(keyCopy, parent, undefined, version), namespace: nameSpaceID };
 }
 const decodeDestination = (destination) => {
     try {

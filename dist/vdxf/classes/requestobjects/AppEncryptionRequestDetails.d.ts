@@ -17,23 +17,23 @@
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactIdAddressObject, CompactIdAddressObjectJson } from '../CompactIdAddressObject';
+import { CompactAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 export interface AppEncryptionRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
-    appOrDelegatedID: CompactIdAddressObject;
+    appOrDelegatedID: CompactAddressObject;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    derivationID?: CompactIdAddressObject;
+    derivationID?: CompactAddressObject;
     requestID?: string;
 }
 export interface AppEncryptionRequestJson {
     version: number;
     flags: number;
-    appordelegatedid: CompactIdAddressObjectJson;
+    appordelegatedid: CompactAddressObjectJson;
     encrypttozaddress: string;
     derivationnumber: number;
-    derivationid?: CompactIdAddressObjectJson;
+    derivationid?: CompactAddressObjectJson;
     requestid?: string;
 }
 /**
@@ -54,10 +54,10 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     static RETURN_ESK: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
-    appOrDelegatedID?: CompactIdAddressObject;
+    appOrDelegatedID?: CompactAddressObject;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    derivationID?: CompactIdAddressObject;
+    derivationID?: CompactAddressObject;
     requestID?: string;
     constructor(data?: AppEncryptionRequestInterface);
     setFlags(): void;

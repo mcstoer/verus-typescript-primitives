@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
+import { CompactAddressObject, VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
 import { DEST_PKH, TransferDestination } from "../../pbaas/TransferDestination";
 import { fromBase58Check } from "../../utils/address";
 import { VERUSPAY_VERSION_3, VERUSPAY_VERSION_4, VERUSPAY_VERSION_FIRSTVALID, VERUSPAY_VERSION_LASTVALID } from "../../constants/vdxf/veruspay";
@@ -304,7 +304,7 @@ describe('Serializes and deserializes VerusPay invoice', () => {
     expect(invFromJson.toBuffer().toString('hex')).toBe(inv.toBuffer().toString('hex'));
   }
 
-  const testSignedAcceptsConversionHasNonVerusSystemsExpiresWithSaplingAddressPreconvert = async (version: BigNumber) => {
+  const testSignedAcceptsConversionHasNonVerusSystemsExpiresWithSaplingAddressPreconvertTag = async (version: BigNumber) => {
     const addrString = "zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa";
 
     const details = new VerusPayInvoiceDetails({
@@ -313,7 +313,8 @@ describe('Serializes and deserializes VerusPay invoice', () => {
       requestedcurrencyid: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
       maxestimatedslippage: new BN(40000000, 10),
       expiryheight: new BN(2000000, 10),
-      acceptedsystems: ["iNC9NG5Jqk2tqVtqfjfiSpaqxrXaFU6RDu", "iBDkVJqik6BrtcDBQfFygffiYzTMy6EuhU"]
+      acceptedsystems: ["iNC9NG5Jqk2tqVtqfjfiSpaqxrXaFU6RDu", "iBDkVJqik6BrtcDBQfFygffiYzTMy6EuhU"],
+      tag: CompactAddressObject.fromXAddress("xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf")
     }, version)
 
     details.setFlags({
@@ -419,7 +420,7 @@ describe('Serializes and deserializes VerusPay invoice', () => {
   });
 
   test('verus pay invoice with signature that accepts conversion on 2 non-verus systems and expires with sapling address', async () => {
-    await testSignedAcceptsConversionHasNonVerusSystemsExpiresWithSaplingAddressPreconvert(VERUSPAY_VERSION_4);
+    await testSignedAcceptsConversionHasNonVerusSystemsExpiresWithSaplingAddressPreconvertTag(VERUSPAY_VERSION_4);
   })
 
   test('verus pay invoice without signature that accepts any amount and destination for preconvert', async () => {

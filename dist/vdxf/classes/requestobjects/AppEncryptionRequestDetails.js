@@ -22,7 +22,7 @@ const bn_js_1 = require("bn.js");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 const sapling_1 = require("../../../utils/sapling");
-const CompactIdAddressObject_1 = require("../CompactIdAddressObject");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const varuint_1 = require("../../../utils/varuint");
 const address_1 = require("../../../utils/address");
 const vdxf_1 = require("../../../constants/vdxf");
@@ -112,7 +112,7 @@ class AppEncryptionRequestDetails {
         // Read flags
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         // Read appOrDelegatedID
-        const appOrDelegatedIDObj = new CompactIdAddressObject_1.CompactIdAddressObject();
+        const appOrDelegatedIDObj = new CompactAddressObject_1.CompactAddressObject();
         reader.offset = appOrDelegatedIDObj.fromBuffer(reader.buffer, reader.offset);
         this.appOrDelegatedID = appOrDelegatedIDObj;
         // Read encryptToAddress as 43-byte sapling data and encode as sapling address
@@ -121,7 +121,7 @@ class AppEncryptionRequestDetails {
         // Read mandatory derivation number
         this.derivationNumber = reader.readVarInt();
         if (this.hasDerivationID()) {
-            const derivationIDObj = new CompactIdAddressObject_1.CompactIdAddressObject();
+            const derivationIDObj = new CompactAddressObject_1.CompactAddressObject();
             reader.offset = derivationIDObj.fromBuffer(reader.buffer, reader.offset);
             this.derivationID = derivationIDObj;
         }
@@ -148,11 +148,11 @@ class AppEncryptionRequestDetails {
         const instance = new AppEncryptionRequestDetails();
         instance.version = new bn_js_1.BN(json.version);
         instance.flags = new bn_js_1.BN(json.flags);
-        instance.appOrDelegatedID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json.appordelegatedid);
+        instance.appOrDelegatedID = CompactAddressObject_1.CompactAddressObject.fromJson(json.appordelegatedid);
         instance.encryptToZAddress = json.encrypttozaddress;
         instance.derivationNumber = new bn_js_1.BN(json.derivationnumber);
         if (instance.hasDerivationID()) {
-            instance.derivationID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson(json === null || json === void 0 ? void 0 : json.derivationid);
+            instance.derivationID = CompactAddressObject_1.CompactAddressObject.fromJson(json === null || json === void 0 ? void 0 : json.derivationid);
         }
         if (instance.hasRequestID()) {
             instance.requestID = json === null || json === void 0 ? void 0 : json.requestid;

@@ -70,6 +70,6 @@ __exportStar(require("./login/LoginResponseDetails"), exports);
 __exportStar(require("./requestobjects/ProvisionIdentityDetails"), exports);
 __exportStar(require("./requestobjects/AppEncryptionRequestDetails"), exports);
 __exportStar(require("./requestobjects/UserSpecificDataPacketDetails"), exports);
-__exportStar(require("./CompactIdAddressObject"), exports);
+__exportStar(require("./CompactAddressObject"), exports);
 var VerifiableSignatureData_1 = require("./VerifiableSignatureData");
 Object.defineProperty(exports, "VerifiableSignatureData", { enumerable: true, get: function () { return VerifiableSignatureData_1.VerifiableSignatureData; } });

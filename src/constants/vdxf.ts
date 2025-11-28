@@ -6,6 +6,7 @@ export const HASH160_BYTE_LENGTH = 20
 export const HASH256_BYTE_LENGTH = 32
 export const I_ADDR_VERSION = 102
 export const R_ADDR_VERSION = 60
+export const X_ADDR_VERSION = 137
 export const NULL_ADDRESS = "i3UXS5QPRQGNRDDqVnyWTnmFCTHDbzmsYk"
 
 const VERUS_DATA_SIGNATURE_PREFIX_STRING = "Verus signed data:\n"

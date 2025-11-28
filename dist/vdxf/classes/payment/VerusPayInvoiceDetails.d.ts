@@ -2,6 +2,7 @@ import { BigNumber } from '../../../utils/types/BigNumber';
 import { TransferDestination, TransferDestinationJson } from '../../../pbaas/TransferDestination';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { SaplingPaymentAddress } from '../../../pbaas';
+import { CompactAddressObjectJson, CompactXAddressObject } from '../CompactAddressObject';
 export declare const VERUSPAY_INVALID: import("bn.js");
 export declare const VERUSPAY_VALID: import("bn.js");
 export declare const VERUSPAY_ACCEPTS_CONVERSION: import("bn.js");
@@ -13,6 +14,7 @@ export declare const VERUSPAY_EXCLUDES_VERUS_BLOCKCHAIN: import("bn.js");
 export declare const VERUSPAY_IS_TESTNET: import("bn.js");
 export declare const VERUSPAY_IS_PRECONVERT: import("bn.js");
 export declare const VERUSPAY_DESTINATION_IS_SAPLING_PAYMENT_ADDRESS: import("bn.js");
+export declare const VERUSPAY_IS_TAGGED: import("bn.js");
 export type VerusPayInvoiceDetailsJson = {
     flags?: string;
     amount?: string;
@@ -21,6 +23,7 @@ export type VerusPayInvoiceDetailsJson = {
     expiryheight?: string;
     maxestimatedslippage?: string;
     acceptedsystems?: Array<string>;
+    tag?: CompactAddressObjectJson;
 };
 export declare class VerusPayInvoiceDetails implements SerializableEntity {
     verusPayVersion: BigNumber;
@@ -31,6 +34,7 @@ export declare class VerusPayInvoiceDetails implements SerializableEntity {
     expiryheight: BigNumber;
     maxestimatedslippage: BigNumber;
     acceptedsystems: Array<string>;
+    tag: CompactXAddressObject;
     constructor(data?: {
         flags?: BigNumber;
         amount?: BigNumber;
@@ -39,6 +43,7 @@ export declare class VerusPayInvoiceDetails implements SerializableEntity {
         expiryheight?: BigNumber;
         maxestimatedslippage?: BigNumber;
         acceptedsystems?: Array<string>;
+        tag?: CompactXAddressObject;
     }, verusPayVersion?: BigNumber);
     setFlags(flags: {
         acceptsConversion?: boolean;
@@ -50,6 +55,7 @@ export declare class VerusPayInvoiceDetails implements SerializableEntity {
         isTestnet?: boolean;
         isPreconvert?: boolean;
         destinationIsSaplingPaymentAddress?: boolean;
+        isTagged?: boolean;
     }): void;
     getFlagsJson(): {
         [key: string]: boolean;
@@ -64,6 +70,7 @@ export declare class VerusPayInvoiceDetails implements SerializableEntity {
     isTestnet(): boolean;
     isPreconvert(): boolean;
     destinationIsSaplingPaymentAddress(): boolean;
+    isTagged(): boolean;
     isValid(): boolean;
     isGTEV4(): boolean;
     private getVarUIntEncodingLength;

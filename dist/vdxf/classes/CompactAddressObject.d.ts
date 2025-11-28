@@ -8,47 +8,52 @@
  */
 import { BigNumber } from '../../utils/types/BigNumber';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
-export interface CompactIdAddressObjectJson {
+export interface CompactAddressObjectJson {
     version: number;
     type: number;
     address: string;
     rootsystemname: string;
     namespace?: string;
 }
-export interface CompactIdAddressObjectInterface {
+export interface CompactAddressObjectInterface {
     version?: BigNumber;
     type: BigNumber;
     address: string;
     rootSystemName?: string;
     nameSpace?: string;
 }
-export declare class CompactIdAddressObject implements SerializableEntity {
+export type CompactAddressIVariant = "COMPACT_ADDR_I_VARIANT";
+export type CompactAddressXVariant = "COMPACT_ADDR_X_VARIANT";
+export type CompactAddressVariantName = CompactAddressIVariant | CompactAddressXVariant;
+export type CompactAddressVariantAllowedType<T extends CompactAddressVariantName> = T extends CompactAddressIVariant ? `${1 | 2}` : T extends CompactAddressXVariant ? `${1 | 3}` : never;
+export declare class CompactAddressObject<V extends CompactAddressVariantName = CompactAddressIVariant> implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
-    static IS_FQN: import("bn.js");
-    static IS_IDENTITYID: import("bn.js");
-    static IS_X_ADDRESS: import("bn.js");
+    static TYPE_FQN: import("bn.js");
+    static TYPE_I_ADDRESS: import("bn.js");
+    static TYPE_X_ADDRESS: import("bn.js");
     version: BigNumber;
-    type: BigNumber;
+    type: CompactAddressVariantAllowedType<V>;
     address: string;
     rootSystemName: string;
     nameSpace: string;
-    allowedTypes: Array<string>;
-    constructor(data?: CompactIdAddressObjectInterface, allowedTypes?: Array<string>);
+    constructor(data?: CompactAddressObjectInterface);
+    get BNType(): import("bn.js");
+    set setType(type: BigNumber);
     isFQN(): boolean;
     isIaddress(): boolean;
     isXaddress(): boolean;
     isValid(): boolean;
-    checkValidity(): void;
     toIAddress(): string;
     toXAddress(): string;
-    static fromIAddress(iaddr: string): CompactIdAddressObject;
-    static fromXAddress(xaddr: string, nameSpace?: string): CompactIdAddressObject;
+    static fromIAddress(iaddr: string): CompactAddressObject<CompactAddressIVariant>;
+    static fromXAddress(xaddr: string, nameSpace?: string): CompactAddressObject<CompactAddressXVariant>;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): CompactIdAddressObjectJson;
-    static fromJson(json: any): CompactIdAddressObject;
+    toJson(): CompactAddressObjectJson;
+    static fromJson<V extends CompactAddressVariantName>(json: any): CompactAddressObject<V>;
 }
+export type CompactXAddressObject = CompactAddressObject<CompactAddressXVariant>;
