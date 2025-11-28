@@ -8,21 +8,21 @@
  */
 import { BigNumber } from '../../utils/types/BigNumber';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
-export interface CompactIdAddressObjectJson {
+export interface CompactAddressObjectJson {
     version: number;
     type: number;
     address: string;
     rootsystemname: string;
     namespace?: string;
 }
-export interface CompactIdAddressObjectInterface {
+export interface CompactAddressObjectInterface {
     version?: BigNumber;
     type: BigNumber;
     address: string;
     rootSystemName?: string;
     nameSpace?: string;
 }
-export declare class CompactIdAddressObject implements SerializableEntity {
+export declare class CompactAddressObject implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
@@ -36,7 +36,7 @@ export declare class CompactIdAddressObject implements SerializableEntity {
     rootSystemName: string;
     nameSpace: string;
     allowedTypes: Array<string>;
-    constructor(data?: CompactIdAddressObjectInterface, allowedTypes?: Array<string>);
+    constructor(data?: CompactAddressObjectInterface, allowedTypes?: Array<string>);
     isFQN(): boolean;
     isIaddress(): boolean;
     isXaddress(): boolean;
@@ -44,11 +44,11 @@ export declare class CompactIdAddressObject implements SerializableEntity {
     checkValidity(): void;
     toIAddress(): string;
     toXAddress(): string;
-    static fromIAddress(iaddr: string): CompactIdAddressObject;
-    static fromXAddress(xaddr: string, nameSpace?: string): CompactIdAddressObject;
+    static fromIAddress(iaddr: string): CompactAddressObject;
+    static fromXAddress(xaddr: string, nameSpace?: string): CompactAddressObject;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): CompactIdAddressObjectJson;
-    static fromJson(json: any): CompactIdAddressObject;
+    toJson(): CompactAddressObjectJson;
+    static fromJson(json: any): CompactAddressObject;
 }

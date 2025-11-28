@@ -42,6 +42,23 @@ export interface VerifiableSignatureDataInterface {
   signatureAsVch?: Buffer;
 }
 
+export interface CliSignatureData {
+  signaturedata: SignatureJsonDataInterface;
+  system: string;
+  systemid: string;
+  hashtype: string;
+  hash: string;
+  identity: string;
+  canonicalname: string;
+  address: string;
+  signatureheight: number;
+  signature: string;
+  signatureversion: number;
+  vdxfkeys?: Array<string>;
+  vdxfkeynames?: Array<string>;
+  boundhashes?: Array<string>;
+}
+
 export class VerifiableSignatureData implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
@@ -411,15 +428,14 @@ export class VerifiableSignatureData implements SerializableEntity {
     return instance;
   }
 
-  static fromSignatureDataJson(json: SignatureJsonDataInterface, rootSystemName = 'VRSC'): VerifiableSignatureData {
+  static fromCLIJson(json: CliSignatureData, rootSystemName = 'VRSC'): VerifiableSignatureData {
     const instance = new VerifiableSignatureData();
-    instance.version = new BN(json.version);
-    instance.hashType = new BN(json.hashtype);
-    instance.signatureVersion = new BN(2); //default Signature Version
+    instance.version = new BN(VerifiableSignatureData.TYPE_VERUSID_DEFAULT);
+    instance.hashType = new BN(json.signaturedata.hashtype);
+    instance.signatureVersion = new BN(json.signatureversion); //default Signature Version
 
-    instance.systemID = CompactIdAddressObject.fromJson({address: json.systemid, version: 1, type: CompactIdAddressObject.IS_IDENTITYID, rootSystemName});
-    instance.identityID = CompactIdAddressObject.fromJson({address: json.identityid, version: 1, type: CompactIdAddressObject.IS_IDENTITYID, rootSystemName});
-    
+    instance.systemID = CompactAddressObject.fromJson({address: json.systemid, version: 1, type: CompactAddressObject.TYPE_I_ADDRESS, rootSystemName});
+    instance.identityID = CompactAddressObject.fromJson({address: json.address, version: 1, type: CompactAddressObject.TYPE_I_ADDRESS, rootSystemName});    
     
     // Set optional fields
     instance.vdxfKeys = json.vdxfkeys;
@@ -428,6 +444,8 @@ export class VerifiableSignatureData implements SerializableEntity {
     
     // Store the full signature (from daemon in base64 format)
     instance.signatureAsVch = Buffer.from(json.signature, 'base64');
+
+    instance.setFlags();
     
     return instance;
   }

@@ -294,20 +294,21 @@ class VerifiableSignatureData {
         instance.signatureAsVch = Buffer.from(json.signature, 'hex');
         return instance;
     }
-    static fromSignatureDataJson(json, rootSystemName = 'VRSC') {
+    static fromCLIJson(json, rootSystemName = 'VRSC') {
         var _a;
         const instance = new VerifiableSignatureData();
-        instance.version = new bn_js_1.BN(json.version);
-        instance.hashType = new bn_js_1.BN(json.hashtype);
-        instance.signatureVersion = new bn_js_1.BN(2); //default Signature Version
-        instance.systemID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson({ address: json.systemid, version: 1, type: CompactIdAddressObject_1.CompactIdAddressObject.IS_IDENTITYID, rootSystemName });
-        instance.identityID = CompactIdAddressObject_1.CompactIdAddressObject.fromJson({ address: json.identityid, version: 1, type: CompactIdAddressObject_1.CompactIdAddressObject.IS_IDENTITYID, rootSystemName });
+        instance.version = new bn_js_1.BN(VerifiableSignatureData.TYPE_VERUSID_DEFAULT);
+        instance.hashType = new bn_js_1.BN(json.signaturedata.hashtype);
+        instance.signatureVersion = new bn_js_1.BN(json.signatureversion); //default Signature Version
+        instance.systemID = CompactAddressObject_1.CompactAddressObject.fromJson({ address: json.systemid, version: 1, type: CompactAddressObject_1.CompactAddressObject.TYPE_I_ADDRESS, rootSystemName });
+        instance.identityID = CompactAddressObject_1.CompactAddressObject.fromJson({ address: json.address, version: 1, type: CompactAddressObject_1.CompactAddressObject.TYPE_I_ADDRESS, rootSystemName });
         // Set optional fields
         instance.vdxfKeys = json.vdxfkeys;
         instance.vdxfKeyNames = json.vdxfkeynames;
         instance.boundHashes = (_a = json.boundhashes) === null || _a === void 0 ? void 0 : _a.map(x => Buffer.from(x, 'hex'));
         // Store the full signature (from daemon in base64 format)
         instance.signatureAsVch = Buffer.from(json.signature, 'base64');
+        instance.setFlags();
         return instance;
     }
 }
