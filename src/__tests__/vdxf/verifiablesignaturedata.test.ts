@@ -144,8 +144,7 @@ describe('Serializes and deserializes SignatureData', () => {
 
         // Hashes should be identical because keys are sorted before hashing
         expect(hash1.toString('hex')).toBe(hash2.toString('hex'))
-        console.log(`1 run verifyhash "${s2.identityID.toIAddress()}" "${s2.signatureAsVch.toString('base64')}" "${hash2.toString('hex')}"`);
-        console.log(`1 run verifyhash "${s2.identityID.toIAddress()}" "${s2.signatureAsVch.toString('base64')}" "${hash2.reverse().toString('hex')}"`);
+
     });
 
         test('getIdentityHash with extra data - vdxfKeys are sorted by buffer value', () => {
@@ -160,14 +159,119 @@ describe('Serializes and deserializes SignatureData', () => {
         })
 
         const sigHash = createHash("sha256").update("hello world1").digest();
-        const hash1 = s.getIdentityHash(826997, sigHash);
-        console.log(`2 run verifyhash "${s.identityID.toIAddress()}" "${s.signatureAsVch.toString('base64')}" "${hash1.toString('hex')}"`);
-        console.log(`2 run verifyhash "${s.identityID.toIAddress()}" "${s.signatureAsVch.toString('base64')}" "${hash1.reverse().toString('hex')}"`);
-        
+        const hash1 = s.getIdentityHash(826997, sigHash);      
 
         // Hashes should be identical because keys are sorted before hashing
         expect(hash1.toString('hex')).toBe(hash1.toString('hex'))
 
+    });
+
+    test('fromSignatureDataJson parses all fields correctly', () => {
+        const signatureDataJson = {
+            "version": 1,
+            "systemid": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            "hashtype": 5,
+            "signaturehash": "f8220bacb0bf5bd8ca33a890184b66b35fb64647274b4b9fb4ff90e68f77a5a7",
+            "identityid": "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s",
+            "signaturetype": 1,
+            "signature": "AgVgngwAAUEg4QYvX2zJJUZLa4YdtwoxehCQ9T3U6xGw08SmonRSv1xofR1264j5/bdXmq6Qc2YgzlCt3DqVKM9c9DLuCU4bbQ==",
+            "vdxfkeys": [
+                "iQRWB2Ay9rEbzStXDjMFpveh4oEmD6YWXa",
+                "i5cVmwQQZfWz1AYp9AwKakPQxTjQfK2Mrk",
+                "iKqjqcXE15KPNuCvm2evZUnwiYEZ2CLnV2",
+                "iRrCKQqLQrWczeNotMgqJkoUW5ZzF182Ax"
+            ],
+            "vdxfkeynames": [
+                "examplename1",
+                "examplename2"
+            ],
+            "boundhashes": [
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            ]
+        };
+
+        const verifiableSig = VerifiableSignatureData.fromSignatureDataJson(signatureDataJson);
+        
+        // Verify version fields
+        expect(verifiableSig.version.toNumber()).toBe(1);
+        expect(verifiableSig.signatureVersion.toNumber()).toBe(2); // Auto-detected as v2 due to extra data
+        
+        // Verify IDs
+        expect(verifiableSig.systemID.toIAddress()).toBe("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
+        expect(verifiableSig.identityID.toIAddress()).toBe("i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s");
+        
+        // Verify hash type
+        expect(verifiableSig.hashType.toNumber()).toBe(5);
+        
+        // Verify vdxfKeys (stored as strings)
+        expect(verifiableSig.vdxfKeys).toBeDefined();
+        expect(verifiableSig.vdxfKeys?.length).toBe(4);
+        expect(verifiableSig.vdxfKeys?.[0]).toBe("iQRWB2Ay9rEbzStXDjMFpveh4oEmD6YWXa");
+        expect(verifiableSig.vdxfKeys?.[1]).toBe("i5cVmwQQZfWz1AYp9AwKakPQxTjQfK2Mrk");
+        expect(verifiableSig.vdxfKeys?.[2]).toBe("iKqjqcXE15KPNuCvm2evZUnwiYEZ2CLnV2");
+        expect(verifiableSig.vdxfKeys?.[3]).toBe("iRrCKQqLQrWczeNotMgqJkoUW5ZzF182Ax");
+        
+        // Verify vdxfKeyNames
+        expect(verifiableSig.vdxfKeyNames).toBeDefined();
+        expect(verifiableSig.vdxfKeyNames?.length).toBe(2);
+        expect(verifiableSig.vdxfKeyNames?.[0]).toBe("examplename1");
+        expect(verifiableSig.vdxfKeyNames?.[1]).toBe("examplename2");
+        
+        // Verify boundHashes
+        expect(verifiableSig.boundHashes).toBeDefined();
+        expect(verifiableSig.boundHashes?.length).toBe(2);
+        expect(verifiableSig.boundHashes?.[0].toString('hex')).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        expect(verifiableSig.boundHashes?.[1].toString('hex')).toBe("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        
+        // Verify signature
+        expect(verifiableSig.signatureAsVch.toString('base64')).toBe("AgVgngwAAUEg4QYvX2zJJUZLa4YdtwoxehCQ9T3U6xGw08SmonRSv1xofR1264j5/bdXmq6Qc2YgzlCt3DqVKM9c9DLuCU4bbQ==");
+    });
+
+    test('verify daemon signature with all extra data - from signdata', () => {
+        // Real signature data from daemon with vdxfkeys, vdxfkeynames, and boundhashes
+        const signatureDataJson = {
+            "version": 1,
+            "systemid": "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+            "hashtype": 5,
+            "signaturehash": "f8220bacb0bf5bd8ca33a890184b66b35fb64647274b4b9fb4ff90e68f77a5a7",
+            "identityid": "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s",
+            "signaturetype": 1,
+            "signature": "AgVgngwAAUEg4QYvX2zJJUZLa4YdtwoxehCQ9T3U6xGw08SmonRSv1xofR1264j5/bdXmq6Qc2YgzlCt3DqVKM9c9DLuCU4bbQ==",
+            "vdxfkeys": [
+                "iQRWB2Ay9rEbzStXDjMFpveh4oEmD6YWXa",
+                "i5cVmwQQZfWz1AYp9AwKakPQxTjQfK2Mrk",
+                "iKqjqcXE15KPNuCvm2evZUnwiYEZ2CLnV2",
+                "iRrCKQqLQrWczeNotMgqJkoUW5ZzF182Ax"
+            ],
+            "vdxfkeynames": [
+                "examplename1",
+                "examplename2"
+            ],
+            "boundhashes": [
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            ]
+        };
+
+        // Create VerifiableSignatureData directly from SignatureData JSON
+        const verifiableSig = VerifiableSignatureData.fromSignatureDataJson(signatureDataJson);
+        
+        // Verify the parsed data
+        expect(verifiableSig.version.toNumber()).toBe(1);
+        expect(verifiableSig.signatureVersion.toNumber()).toBe(2);
+        expect(verifiableSig.hashType.toNumber()).toBe(5);
+        expect(verifiableSig.systemID.toIAddress()).toBe("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
+        expect(verifiableSig.identityID.toIAddress()).toBe("i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s");
+        expect(verifiableSig.vdxfKeys?.length).toBe(4);
+        expect(verifiableSig.vdxfKeyNames?.length).toBe(2);
+        expect(verifiableSig.boundHashes?.length).toBe(2);
+
+        // The message that was signed is the signaturehash from the daemon
+        const messageHash = Buffer.from(signatureDataJson.signaturehash, 'hex');    
+         
+        // Verify the signature hash matches
+        expect(messageHash.toString('hex')).toBe(signatureDataJson.signaturehash);
     });
 
   

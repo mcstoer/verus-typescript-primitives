@@ -12,7 +12,7 @@ import { VERUS_DATA_SIGNATURE_PREFIX } from "../../constants/vdxf";
 import { CompactIdAddressObject, CompactIdAddressObjectJson } from './CompactIdAddressObject';
 import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import varint from '../../utils/varint';
-import { SignatureData } from '../../pbaas';
+import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
 
 export interface VerifiableSignatureDataJson {
   version: number;
@@ -408,6 +408,27 @@ export class VerifiableSignatureData implements SerializableEntity {
     instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
     instance.statements = json.statements?.map(x => Buffer.from(x, 'hex'));
     instance.signatureAsVch = Buffer.from(json.signature, 'hex');
+    return instance;
+  }
+
+  static fromSignatureDataJson(json: SignatureJsonDataInterface, rootSystemName = 'VRSC'): VerifiableSignatureData {
+    const instance = new VerifiableSignatureData();
+    instance.version = new BN(json.version);
+    instance.hashType = new BN(json.hashtype);
+    instance.signatureVersion = new BN(2); //default Signature Version
+
+    instance.systemID = CompactIdAddressObject.fromJson({address: json.systemid, version: 1, type: CompactIdAddressObject.IS_IDENTITYID, rootSystemName});
+    instance.identityID = CompactIdAddressObject.fromJson({address: json.identityid, version: 1, type: CompactIdAddressObject.IS_IDENTITYID, rootSystemName});
+    
+    
+    // Set optional fields
+    instance.vdxfKeys = json.vdxfkeys;
+    instance.vdxfKeyNames = json.vdxfkeynames;
+    instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
+    
+    // Store the full signature (from daemon in base64 format)
+    instance.signatureAsVch = Buffer.from(json.signature, 'base64');
+    
     return instance;
   }
 }
