@@ -127,7 +127,6 @@ describe('Serializes and deserializes SignatureData', () => {
 
         const sigHash = createHash("sha256").update("hello world1").digest();
         const hash1 = s.getIdentityHash(826975, sigHash);
-        console.log(`run verifyhash "${s.identityID.toIAddress()}" "${s.signatureAsVch.toString('base64')}" "${hash1.toString('hex')}"`);
 
         // Create with same keys but different order
         const s2 = new VerifiableSignatureData({
@@ -144,7 +143,6 @@ describe('Serializes and deserializes SignatureData', () => {
 
         // Hashes should be identical because keys are sorted before hashing
         expect(hash1.toString('hex')).toBe(hash2.toString('hex'))
-
     });
 
     test('getIdentityHash with extra data - vdxfKeys are sorted by buffer value', () => {
