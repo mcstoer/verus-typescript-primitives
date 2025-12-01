@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_AUTHENTICATION_REQUEST } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 import { AuthenticationRequestDetails, AuthenticationRequestDetailsJson } from "../login/AuthenticationRequestDetails";
 
-export class AuthenticationRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class AuthenticationRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: AuthenticationRequestDetails;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<AuthenticationRequestDetails> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<AuthenticationRequestDetails> = {
       data: new AuthenticationRequestDetails()
     }
   ) {
@@ -21,8 +21,8 @@ export class AuthenticationRequestOrdinalVdxfObject extends SerializableEntityOr
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<AuthenticationRequestDetailsJson>): AuthenticationRequestOrdinalVdxfObject {
-    return new AuthenticationRequestOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<AuthenticationRequestDetailsJson>): AuthenticationRequestOrdinalVDXFObject {
+    return new AuthenticationRequestOrdinalVDXFObject({
       data: AuthenticationRequestDetails.fromJson(details.data)
     })
   }

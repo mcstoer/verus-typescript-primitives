@@ -1,10 +1,10 @@
-import { OrdinalVdxfObjectClass } from "./OrdinalVdxfObject";
+import { OrdinalVDXFObjectClass } from "./OrdinalVDXFObject";
 
 // Singleton class that exists to create a bidirectional map of ordinals <-> vdxf keys
-class _OrdinalVdxfObjectOrdinalMap {
+class _OrdinalVDXFObjectOrdinalMap {
   private keyToOrdinalMap: Map<string, number>;
   private ordinalToKeyMap: Map<number, string>;
-  keyToOrdinalClass: Map<string, OrdinalVdxfObjectClass>;
+  keyToOrdinalClass: Map<string, OrdinalVDXFObjectClass>;
 
   constructor() {
     this.keyToOrdinalMap = new Map();
@@ -16,7 +16,7 @@ class _OrdinalVdxfObjectOrdinalMap {
     this.ordinalToKeyMap = new Map(Array.from(this.keyToOrdinalMap, a => a.reverse() as [number,string]));
   }
 
-  registerOrdinal(ordinal: number, vdxfKey: string, ordinalClass: OrdinalVdxfObjectClass, throwOnDuplicate: boolean = true): void {
+  registerOrdinal(ordinal: number, vdxfKey: string, ordinalClass: OrdinalVDXFObjectClass, throwOnDuplicate: boolean = true): void {
     if (this.isRecognizedOrdinal(ordinal) || this.vdxfKeyHasOrdinal(vdxfKey)) {
       if (throwOnDuplicate) throw new Error("Cannot overwrite existing ordinal");
       else return;
@@ -47,9 +47,9 @@ class _OrdinalVdxfObjectOrdinalMap {
     return this.ordinalToKeyMap.get(ordinal);
   }
 
-  getClassForVdxfKey(vdxfKey: string): OrdinalVdxfObjectClass {
+  getClassForVdxfKey(vdxfKey: string): OrdinalVDXFObjectClass {
     return this.keyToOrdinalClass.get(vdxfKey);
   }
 }
 
-export const OrdinalVdxfObjectOrdinalMap = new _OrdinalVdxfObjectOrdinalMap();
+export const OrdinalVDXFObjectOrdinalMap = new _OrdinalVDXFObjectOrdinalMap();

@@ -2,7 +2,7 @@ import bufferutils from "../../../utils/bufferutils";
 import base64url from "base64url";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-import { OrdinalVdxfObject, OrdinalVdxfObjectJson } from "../ordinals/OrdinalVdxfObject";
+import { OrdinalVDXFObject, OrdinalVDXFObjectJson } from "../ordinals/OrdinalVDXFObject";
 import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
@@ -14,7 +14,7 @@ export interface GenericEnvelopeInterface {
   signature?: VerifiableSignatureData;
   createdAt?: BigNumber;
   salt?: Buffer;
-  details: Array<OrdinalVdxfObject>;
+  details: Array<OrdinalVDXFObject>;
 }
 
 export type GenericEnvelopeJson = {
@@ -23,7 +23,7 @@ export type GenericEnvelopeJson = {
   signature?: VerifiableSignatureDataJson;
   createdat?: string;
   salt?: string;
-  details: Array<OrdinalVdxfObjectJson>;
+  details: Array<OrdinalVDXFObjectJson>;
 }
 
 export class GenericEnvelope implements SerializableEntity {
@@ -32,7 +32,7 @@ export class GenericEnvelope implements SerializableEntity {
   signature?: VerifiableSignatureData;
   createdAt?: BigNumber;
   salt?: Buffer; // var length buffer
-  details: Array<OrdinalVdxfObject>;
+  details: Array<OrdinalVDXFObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
   static VERSION_FIRSTVALID = new BN(1, 10)
@@ -126,7 +126,7 @@ export class GenericEnvelope implements SerializableEntity {
     } else throw new Error("Must contain verifiable signature with at least systemID and identityID to generate details identity signature hash")
   }
 
-  getDetails(index = 0): OrdinalVdxfObject {
+  getDetails(index = 0): OrdinalVDXFObject {
     return this.details[index];
   }
 
@@ -255,13 +255,13 @@ export class GenericEnvelope implements SerializableEntity {
       const numItems = reader.readCompactSize();
 
       for (let i = 0; i < numItems; i++) {
-        const ord = OrdinalVdxfObject.createFromBuffer(reader.buffer, reader.offset);
+        const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
 
         reader.offset = ord.offset;
         this.details.push(ord.obj);
       }
     } else {
-      const ord = OrdinalVdxfObject.createFromBuffer(reader.buffer, reader.offset);
+      const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
 
       reader.offset = ord.offset;
       this.details = [ord.obj]

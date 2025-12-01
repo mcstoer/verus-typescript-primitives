@@ -1,14 +1,14 @@
-import { OrdinalVdxfObjectReservedData } from "../../../constants/ordinals/types";
+import { OrdinalVDXFObjectReservedData } from "../../../constants/ordinals/types";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObject, OrdinalVdxfObjectDataClass, OrdinalVdxfObjectInterfaceTemplate } from "./OrdinalVdxfObject";
+import { OrdinalVDXFObject, OrdinalVDXFObjectDataClass, OrdinalVDXFObjectInterfaceTemplate } from "./OrdinalVDXFObject";
 
-export class SerializableEntityOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
-  data: OrdinalVdxfObjectReservedData;
-  entity: OrdinalVdxfObjectDataClass;
+export class SerializableEntityOrdinalVDXFObject extends OrdinalVDXFObject implements SerializableDataEntity {
+  data: OrdinalVDXFObjectReservedData;
+  entity: OrdinalVDXFObjectDataClass;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<OrdinalVdxfObjectReservedData>,
-    entity: OrdinalVdxfObjectDataClass
+    request: OrdinalVDXFObjectInterfaceTemplate<OrdinalVDXFObjectReservedData>,
+    entity: OrdinalVDXFObjectDataClass
   ) {
     if (!request || !request.type) throw new Error("Expected request with data and type")
 

@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_DATA_RESPONSE } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 import { DataPacketResponse, DataResponseJson } from "../datapacket/DataPacketResponse";
 
-export class DataPacketResponseOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class DataPacketResponseOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: DataPacketResponse;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<DataPacketResponse> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<DataPacketResponse> = {
       data: new DataPacketResponse()
     }
   ) {
@@ -21,8 +21,8 @@ export class DataPacketResponseOrdinalVdxfObject extends SerializableEntityOrdin
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<DataResponseJson>): DataPacketResponseOrdinalVdxfObject {
-    return new DataPacketResponseOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<DataResponseJson>): DataPacketResponseOrdinalVDXFObject {
+    return new DataPacketResponseOrdinalVDXFObject({
       data: DataPacketResponse.fromJson(details.data)
     })
   }

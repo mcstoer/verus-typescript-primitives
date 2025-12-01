@@ -6,9 +6,9 @@ import varuint from "../../../utils/varuint";
 import { fromBase58Check, getDataKey, toBase58Check, toIAddress } from "../../../utils/address";
 import varint from "../../../utils/varint";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from "../../../constants/vdxf";
-import { OrdinalVdxfObjectOrdinalMap } from "./OrdinalVdxfObjectOrdinalMap";
+import { OrdinalVDXFObjectOrdinalMap } from "./OrdinalVDXFObjectOrdinalMap";
 import { DEFAULT_VERUS_CHAINNAME } from "../../../constants/pbaas";
-import { OrdinalVdxfObjectReservedData, OrdinalVdxfObjectReservedDataJson } from "../../../constants/ordinals/types";
+import { OrdinalVDXFObjectReservedData, OrdinalVDXFObjectReservedDataJson } from "../../../constants/ordinals/types";
 import { 
   VDXF_OBJECT_RESERVED_BYTE_I_ADDR, 
   VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY, 
@@ -16,35 +16,35 @@ import {
   VDXF_ORDINAL_DATA_DESCRIPTOR 
 } from "../../../constants/ordinals/ordinals";
 
-export interface OrdinalVdxfObjectInterfaceTemplate<T> {
+export interface OrdinalVDXFObjectInterfaceTemplate<T> {
   version?: BigNumber;
   type?: BigNumber;
   key?: string;
   data?: T;
 }
 
-export type OrdinalVdxfObjectJsonTemplate<T> = {
+export type OrdinalVDXFObjectJsonTemplate<T> = {
   version: string;
   type: string;
   vdxfkey?: string;
   data?: T;
 }
 
-export type BufferOrOrdinalVdxfObjectReservedData = Buffer | OrdinalVdxfObjectReservedData;
-export type StringOrOrdinalVdxfObjectReservedDataJson = string | OrdinalVdxfObjectReservedDataJson;
+export type BufferOrOrdinalVDXFObjectReservedData = Buffer | OrdinalVDXFObjectReservedData;
+export type StringOrOrdinalVDXFObjectReservedDataJson = string | OrdinalVDXFObjectReservedDataJson;
 
-export type OrdinalVdxfObjectInterface = OrdinalVdxfObjectInterfaceTemplate<BufferOrOrdinalVdxfObjectReservedData>;
-export type OrdinalVdxfObjectJson = OrdinalVdxfObjectJsonTemplate<StringOrOrdinalVdxfObjectReservedDataJson>;
+export type OrdinalVDXFObjectInterface = OrdinalVDXFObjectInterfaceTemplate<BufferOrOrdinalVDXFObjectReservedData>;
+export type OrdinalVDXFObjectJson = OrdinalVDXFObjectJsonTemplate<StringOrOrdinalVDXFObjectReservedDataJson>;
 
-export type OrdinalVdxfObjectDataClass = new (...args: any[]) => OrdinalVdxfObjectReservedData;
-export type OrdinalVdxfObjectClass = new (...args: any[]) => OrdinalVdxfObject; 
+export type OrdinalVDXFObjectDataClass = new (...args: any[]) => OrdinalVDXFObjectReservedData;
+export type OrdinalVDXFObjectClass = new (...args: any[]) => OrdinalVDXFObject; 
 
-export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfObjectClass => {
-  if (OrdinalVdxfObjectOrdinalMap.isRecognizedOrdinal(type.toNumber())) {
-    const key = OrdinalVdxfObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber());
+export const getOrdinalVDXFObjectClassForType = (type: BigNumber): OrdinalVDXFObjectClass => {
+  if (OrdinalVDXFObjectOrdinalMap.isRecognizedOrdinal(type.toNumber())) {
+    const key = OrdinalVDXFObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber());
 
-    if (OrdinalVdxfObjectOrdinalMap.hasClassForVdxfKey(key)) {      
-      return OrdinalVdxfObjectOrdinalMap.getClassForVdxfKey(OrdinalVdxfObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber()));
+    if (OrdinalVDXFObjectOrdinalMap.hasClassForVdxfKey(key)) {      
+      return OrdinalVDXFObjectOrdinalMap.getClassForVdxfKey(OrdinalVDXFObjectOrdinalMap.getVdxfKeyForOrdinal(type.toNumber()));
     } else {
       throw new Error("No class found for " + key)
     }
@@ -52,15 +52,15 @@ export const getOrdinalVdxfObjectClassForType = (type: BigNumber): OrdinalVdxfOb
     type.eq(VDXF_OBJECT_RESERVED_BYTE_I_ADDR) || 
     type.eq(VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING) || 
     type.eq(VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY)
-  ) return GeneralTypeOrdinalVdxfObject;
+  ) return GeneralTypeOrdinalVDXFObject;
   else throw new Error("Unrecognized vdxf ordinal object type " + type.toNumber());
 }
 
-export class OrdinalVdxfObject implements SerializableEntity {
+export class OrdinalVDXFObject implements SerializableEntity {
   version: BigNumber;
   type: BigNumber;
   key?: string;
-  data?: BufferOrOrdinalVdxfObjectReservedData;
+  data?: BufferOrOrdinalVDXFObjectReservedData;
 
   static VERSION_INVALID = new BN(0, 10)
   static VERSION_FIRST = new BN(1, 10)
@@ -68,7 +68,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
   static VERSION_CURRENT = new BN(1, 10)
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<BufferOrOrdinalVdxfObjectReservedData> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<BufferOrOrdinalVDXFObjectReservedData> = {
       type: VDXF_ORDINAL_DATA_DESCRIPTOR
     }
   ) {
@@ -86,7 +86,7 @@ export class OrdinalVdxfObject implements SerializableEntity {
     }
 
     if (request.version) this.version = request.version;
-    else this.version = OrdinalVdxfObject.VERSION_CURRENT;
+    else this.version = OrdinalVDXFObject.VERSION_CURRENT;
   }
 
   isDefinedByVdxfKey() {
@@ -190,12 +190,12 @@ export class OrdinalVdxfObject implements SerializableEntity {
     return this.fromBufferOptionalType(buffer, offset);
   }
 
-  toJson(): OrdinalVdxfObjectJson {
+  toJson(): OrdinalVDXFObjectJson {
     return {
       type: this.type ? this.type.toString() : undefined,
       version: this.version ? this.version.toString() : undefined,
       vdxfkey: this.key,
-      data: this.data ? this.isDefinedByCustomKey() ? this.data.toString('hex') : (this.data as OrdinalVdxfObjectReservedData).toJson() : undefined
+      data: this.data ? this.isDefinedByCustomKey() ? this.data.toString('hex') : (this.data as OrdinalVDXFObjectReservedData).toJson() : undefined
     };
   }
 
@@ -204,14 +204,14 @@ export class OrdinalVdxfObject implements SerializableEntity {
     offset?: number, 
     optimizeWithOrdinal: boolean = false, 
     rootSystemName: string = DEFAULT_VERUS_CHAINNAME
-  ): { offset: number, obj: OrdinalVdxfObject } {
+  ): { offset: number, obj: OrdinalVDXFObject } {
     if (buffer.length == 0) throw new Error("Cannot create request from empty buffer");
     
     const reader = new bufferutils.BufferReader(buffer, offset);
     let type = new BN(reader.readCompactSize());
     const rootSystemId = toIAddress(rootSystemName);
 
-    const Entity = getOrdinalVdxfObjectClassForType(type);
+    const Entity = getOrdinalVDXFObjectClassForType(type);
     const ord = new Entity({ type });
     
     let key: string;
@@ -232,8 +232,8 @@ export class OrdinalVdxfObject implements SerializableEntity {
         }
       }
 
-      if (OrdinalVdxfObjectOrdinalMap.vdxfKeyHasOrdinal(vdxfKey)) {
-        type = new BN(OrdinalVdxfObjectOrdinalMap.getOrdinalForVdxfKey(vdxfKey));
+      if (OrdinalVDXFObjectOrdinalMap.vdxfKeyHasOrdinal(vdxfKey)) {
+        type = new BN(OrdinalVDXFObjectOrdinalMap.getOrdinalForVdxfKey(vdxfKey));
       }
     }
 
@@ -243,12 +243,12 @@ export class OrdinalVdxfObject implements SerializableEntity {
   }
 }
 
-export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements SerializableDataEntity {
+export class GeneralTypeOrdinalVDXFObject extends OrdinalVDXFObject implements SerializableDataEntity {
   data: Buffer;
   key: string;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<Buffer> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<Buffer> = {
       type: VDXF_OBJECT_RESERVED_BYTE_I_ADDR,
       data: Buffer.alloc(0),
       key: NULL_ADDRESS
@@ -273,8 +273,8 @@ export class GeneralTypeOrdinalVdxfObject extends OrdinalVdxfObject implements S
     this.data = Buffer.from(buffer)
   }
 
-  static fromJson(details: OrdinalVdxfObjectJson): GeneralTypeOrdinalVdxfObject {
-    return new GeneralTypeOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJson): GeneralTypeOrdinalVDXFObject {
+    return new GeneralTypeOrdinalVDXFObject({
       key: details.vdxfkey,
       data: details.data ? Buffer.from(details.data as string, 'hex') : undefined
     });

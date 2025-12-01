@@ -5,7 +5,7 @@ import { ContentMultiMap, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, Id
 import { createHash } from 'crypto';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactAddressObject } from '../../vdxf/classes/CompactAddressObject';
-import { GeneralTypeOrdinalVdxfObject, IdentityUpdateRequestOrdinalVdxfObject } from '../../vdxf/classes/ordinals';
+import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
 import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
@@ -24,7 +24,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   }
 
   it('round trips with a single detail (no signature / createdAt)', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('cafebabe', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -39,18 +39,18 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.flags.toString()).toEqual(req.flags.toString());
     expect(round.details.length).toBe(1);
     const d2 = round.getDetails(0);
-    expect(d2).toBeInstanceOf(GeneralTypeOrdinalVdxfObject);
-    expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
-    expect((d2 as GeneralTypeOrdinalVdxfObject).key).toEqual(detail.key);
+    expect(d2).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
+    expect((d2 as GeneralTypeOrdinalVDXFObject).data).toEqual(detail.data);
+    expect((d2 as GeneralTypeOrdinalVDXFObject).key).toEqual(detail.key);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
   it('round trips with multiple details', () => {
-    const d1 = new GeneralTypeOrdinalVdxfObject({
+    const d1 = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('aa', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
-    const d2 = new GeneralTypeOrdinalVdxfObject({
+    const d2 = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('bb', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -59,8 +59,8 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
 
     const round = roundTripBuffer(req);
     expect(round.details.length).toBe(2);
-    expect((round.getDetails(0) as GeneralTypeOrdinalVdxfObject).data).toEqual(d1.data);
-    expect((round.getDetails(1) as GeneralTypeOrdinalVdxfObject).data).toEqual(d2.data);
+    expect((round.getDetails(0) as GeneralTypeOrdinalVDXFObject).data).toEqual(d1.data);
+    expect((round.getDetails(1) as GeneralTypeOrdinalVDXFObject).data).toEqual(d2.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
@@ -78,7 +78,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       statements: [Buffer.from('1234123412341234123412341234123412341234123412341234123412341234', 'hex')]
     });
 
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('abcd', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -103,7 +103,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
-    expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
+    expect((d2 as GeneralTypeOrdinalVDXFObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
@@ -114,7 +114,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       signatureAsVch: Buffer.from('AgX3RgAAAUEgHAVIHuui1Sc9oLxLbglKvmrv47JJLiM0/RBQwzYL1dlamI/2o9qBc93d79laLXWMhQomqZ4U3Mlr3ueuwl4JFA==', 'base64'),
     });
 
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('abcd', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -141,7 +141,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
-    expect((d2 as GeneralTypeOrdinalVdxfObject).data).toEqual(detail.data);
+    expect((d2 as GeneralTypeOrdinalVDXFObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
@@ -241,7 +241,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       salt,
       encryptResponseToAddress: SaplingPaymentAddress.fromAddressString("zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa"),
       details: [
-        new IdentityUpdateRequestOrdinalVdxfObject({ data: requestDetails })
+        new IdentityUpdateRequestOrdinalVDXFObject({ data: requestDetails })
       ],
       signature: new VerifiableSignatureData(unsignedSigData)
     });
@@ -260,7 +260,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   });
 
   it('toString / fromQrString consistency', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('feed', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -274,7 +274,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   });
 
   it('deeplink URI round trip', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('face', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });
@@ -290,7 +290,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
   });
 
   it('fromQrString should parse correctly', () => {
-    const detail = new GeneralTypeOrdinalVdxfObject({
+    const detail = new GeneralTypeOrdinalVDXFObject({
       data: Buffer.from('bead', 'hex'),
       key: DEFAULT_VERUS_CHAINID
     });

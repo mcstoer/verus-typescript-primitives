@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 import { AppEncryptionResponseDetails, AppEncryptionResponseDetailsJson } from "../response/AppEncryptionResponseDetails";
 
-export class AppEncryptionResponseOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class AppEncryptionResponseOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: AppEncryptionResponseDetails;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<AppEncryptionResponseDetails> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<AppEncryptionResponseDetails> = {
       data: new AppEncryptionResponseDetails()
     }
   ) {
@@ -21,8 +21,8 @@ export class AppEncryptionResponseOrdinalVdxfObject extends SerializableEntityOr
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<AppEncryptionResponseDetailsJson>): AppEncryptionResponseOrdinalVdxfObject {
-    return new AppEncryptionResponseOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<AppEncryptionResponseDetailsJson>): AppEncryptionResponseOrdinalVDXFObject {
+    return new AppEncryptionResponseOrdinalVDXFObject({
       data: AppEncryptionResponseDetails.fromJson(details.data)
     })
   }

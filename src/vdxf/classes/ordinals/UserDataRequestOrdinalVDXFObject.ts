@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_USER_DATA_REQUEST } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 import { UserDataRequestDetails, UserDataRequestJson } from "../requestobjects/UserDataRequestDetails";
 
-export class UserDataRequestOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class UserDataRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: UserDataRequestDetails;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<UserDataRequestDetails> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<UserDataRequestDetails> = {
       data: new UserDataRequestDetails()
     }
   ) {
@@ -21,8 +21,8 @@ export class UserDataRequestOrdinalVdxfObject extends SerializableEntityOrdinalV
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<UserDataRequestJson>): UserDataRequestOrdinalVdxfObject {
-    return new UserDataRequestOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<UserDataRequestJson>): UserDataRequestOrdinalVDXFObject {
+    return new UserDataRequestOrdinalVDXFObject({
       data: UserDataRequestDetails.fromJson(details.data)
     })
   }

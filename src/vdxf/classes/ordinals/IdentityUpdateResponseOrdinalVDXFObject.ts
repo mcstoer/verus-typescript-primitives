@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { IdentityUpdateResponseDetails, IdentityUpdateResponseDetailsJson } from "../identity/IdentityUpdateResponseDetails";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 
-export class IdentityUpdateResponseOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class IdentityUpdateResponseOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: IdentityUpdateResponseDetails;
 
   constructor(
-    response: OrdinalVdxfObjectInterfaceTemplate<IdentityUpdateResponseDetails> = {
+    response: OrdinalVDXFObjectInterfaceTemplate<IdentityUpdateResponseDetails> = {
       data: new IdentityUpdateResponseDetails()
     }
   ) {
@@ -21,8 +21,8 @@ export class IdentityUpdateResponseOrdinalVdxfObject extends SerializableEntityO
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<IdentityUpdateResponseDetailsJson>): IdentityUpdateResponseOrdinalVdxfObject {
-    return new IdentityUpdateResponseOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<IdentityUpdateResponseDetailsJson>): IdentityUpdateResponseOrdinalVDXFObject {
+    return new IdentityUpdateResponseOrdinalVDXFObject({
       data: IdentityUpdateResponseDetails.fromJson(details.data)
     })
   }

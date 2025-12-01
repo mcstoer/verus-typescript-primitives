@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 import { ProvisionIdentityDetails, ProvisionIdentityDetailsJson } from "../requestobjects/ProvisionIdentityDetails";
 
-export class ProvisionIdentityDetailsOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class ProvisionIdentityDetailsOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: ProvisionIdentityDetails;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<ProvisionIdentityDetails> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<ProvisionIdentityDetails> = {
       data: new ProvisionIdentityDetails()
     }
   ) {
@@ -21,8 +21,8 @@ export class ProvisionIdentityDetailsOrdinalVdxfObject extends SerializableEntit
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<ProvisionIdentityDetailsJson>): ProvisionIdentityDetailsOrdinalVdxfObject {
-    return new ProvisionIdentityDetailsOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<ProvisionIdentityDetailsJson>): ProvisionIdentityDetailsOrdinalVDXFObject {
+    return new ProvisionIdentityDetailsOrdinalVDXFObject({
       data: ProvisionIdentityDetails.fromJson(details.data)
     })
   }

@@ -1,14 +1,14 @@
 import { VDXF_ORDINAL_DATA_DESCRIPTOR } from "../../../constants/ordinals/ordinals";
 import { DataDescriptor, DataDescriptorJson } from "../../../pbaas";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
-import { OrdinalVdxfObjectInterfaceTemplate, OrdinalVdxfObjectJsonTemplate } from "./OrdinalVdxfObject";
-import { SerializableEntityOrdinalVdxfObject } from "./SerializableEntityOrdinalVdxfObject";
+import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
+import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 
-export class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVdxfObject implements SerializableDataEntity {
+export class DataDescriptorOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: DataDescriptor;
 
   constructor(
-    request: OrdinalVdxfObjectInterfaceTemplate<DataDescriptor> = {
+    request: OrdinalVDXFObjectInterfaceTemplate<DataDescriptor> = {
       data: new DataDescriptor()
     }
   ) {
@@ -21,8 +21,8 @@ export class DataDescriptorOrdinalVdxfObject extends SerializableEntityOrdinalVd
     );
   }
 
-  static fromJson(details: OrdinalVdxfObjectJsonTemplate<DataDescriptorJson>): DataDescriptorOrdinalVdxfObject {
-    return new DataDescriptorOrdinalVdxfObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<DataDescriptorJson>): DataDescriptorOrdinalVDXFObject {
+    return new DataDescriptorOrdinalVDXFObject({
       data: DataDescriptor.fromJson(details.data)
     })
   }
