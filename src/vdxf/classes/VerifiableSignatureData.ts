@@ -3,7 +3,7 @@ import { fromBase58Check, toBase58Check } from "../../utils/address";
 import bufferutils from '../../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../../utils/types/BigNumber';
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
+import { HASH160_BYTE_LENGTH, HASH256_BYTE_LENGTH, I_ADDR_VERSION } from '../../constants/vdxf';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import { EHashTypes } from '../../pbaas/DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
@@ -12,7 +12,7 @@ import { VERUS_DATA_SIGNATURE_PREFIX } from "../../constants/vdxf";
 import { CompactAddressObject, CompactAddressObjectJson } from './CompactAddressObject';
 import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import varint from '../../utils/varint';
-import { SignatureData } from '../../pbaas';
+import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
 
 export interface VerifiableSignatureDataJson {
   version: number;
@@ -40,6 +40,23 @@ export interface VerifiableSignatureDataInterface {
   boundHashes?: Array<Buffer>;
   statements?: Array<Buffer>;
   signatureAsVch?: Buffer;
+}
+
+export interface CliSignatureData {
+  signaturedata: SignatureJsonDataInterface;
+  system: string;
+  systemid: string;
+  hashtype: string;
+  hash: string;
+  identity: string;
+  canonicalname: string;
+  address: string;
+  signatureheight: number;
+  signature: string;
+  signatureversion: number;
+  vdxfkeys?: Array<string>;
+  vdxfkeynames?: Array<string>;
+  boundhashes?: Array<string>;
 }
 
 export class VerifiableSignatureData implements SerializableEntity {
@@ -142,6 +159,61 @@ export class VerifiableSignatureData implements SerializableEntity {
     const bufLen = buf.byteLength;
     
     return varuint.encodingLength(bufLen) + bufLen;
+  }
+
+  private getExtraHashDataByteLength(): number {
+    let byteLength = 0;
+
+    if (this.vdxfKeys && this.vdxfKeys.length > 0) {
+      byteLength += varuint.encodingLength(this.vdxfKeys.length);
+      byteLength += this.vdxfKeys.length * HASH160_BYTE_LENGTH;
+    }
+
+    if (this.vdxfKeyNames && this.vdxfKeyNames.length > 0) {
+      byteLength += varuint.encodingLength(this.vdxfKeyNames.length);
+      for (const name of this.vdxfKeyNames) {
+        byteLength += this.getBufferEncodingLength(Buffer.from(name, 'utf8'));
+      }
+    }
+
+    if (this.boundHashes && this.boundHashes.length > 0) {
+      byteLength += varuint.encodingLength(this.boundHashes.length);
+      byteLength += this.boundHashes.length * HASH256_BYTE_LENGTH;
+      
+    }
+
+    return byteLength;
+  }
+
+  private getExtraHashData(): Buffer {
+    const byteLength = this.getExtraHashDataByteLength();
+    
+    if (byteLength === 0) {
+      return Buffer.alloc(0);
+    }
+
+    const bufferWriter = new BufferWriter(Buffer.alloc(byteLength));
+
+    if (this.vdxfKeys && this.vdxfKeys.length > 0) {
+      // Sort vdxfKeys by their 20-byte buffer values before writing
+      const keyBuffers = this.vdxfKeys.map(x => fromBase58Check(x).hash);
+      const sortedBuffers = keyBuffers.sort(Buffer.compare);
+      bufferWriter.writeArray(sortedBuffers);
+    }
+
+    if (this.vdxfKeyNames && this.vdxfKeyNames.length > 0) {
+      // Sort vdxfKeyNames before writing
+      const sortedNames = [...this.vdxfKeyNames].sort();
+      bufferWriter.writeVector(sortedNames.map(x => Buffer.from(x, 'utf8')));
+    }
+
+    if (this.boundHashes && this.boundHashes.length > 0) {
+      // Sort boundHashes before writing
+      const sortedHashes = [...this.boundHashes].sort(Buffer.compare);
+      bufferWriter.writeArray(sortedHashes);
+    }
+
+    return bufferWriter.buffer;
   }
 
   getByteLength() {
@@ -273,12 +345,8 @@ export class VerifiableSignatureData implements SerializableEntity {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(height);
 
-    if (this.hasBoundHashes() || this.hasStatements() || this.hasVdxfKeys() || this.hasVdxfKeyNames()) {
-      throw new Error("Bound hashes, statements, and vdxfkeys in signature not yet supported.");
-    }
-
     if (!this.hashType.eq(new BN(EHashTypes.HASH_SHA256))) {
-      throw new Error("Invalid signature type for identity hash");
+      throw new Error("Only SHA256 hash type is currently supported.");
     }
 
     if (this.signatureVersion.eq(new BN(0))) {
@@ -292,7 +360,14 @@ export class VerifiableSignatureData implements SerializableEntity {
         .update(sigHash)
         .digest();
     } else if (this.signatureVersion.eq(new BN(2))) {
-      return createHash("sha256")
+      const extraHashData = this.getExtraHashData();
+      const hash = createHash("sha256");
+      
+      if (extraHashData.length > 0) {
+        hash.update(extraHashData);
+      }
+      
+      return hash
         .update(fromBase58Check(this.systemID.toIAddress()).hash)
         .update(heightBuffer)
         .update(fromBase58Check(this.identityID.toIAddress()).hash)
@@ -350,6 +425,28 @@ export class VerifiableSignatureData implements SerializableEntity {
     instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
     instance.statements = json.statements?.map(x => Buffer.from(x, 'hex'));
     instance.signatureAsVch = Buffer.from(json.signature, 'hex');
+    return instance;
+  }
+
+  static fromCLIJson(json: CliSignatureData, rootSystemName = 'VRSC'): VerifiableSignatureData {
+    const instance = new VerifiableSignatureData();
+    instance.version = new BN(VerifiableSignatureData.TYPE_VERUSID_DEFAULT);
+    instance.hashType = new BN(json.signaturedata.hashtype);
+    instance.signatureVersion = new BN(json.signatureversion); //default Signature Version
+
+    instance.systemID = CompactAddressObject.fromJson({address: json.systemid, version: 1, type: CompactAddressObject.TYPE_I_ADDRESS, rootSystemName});
+    instance.identityID = CompactAddressObject.fromJson({address: json.address, version: 1, type: CompactAddressObject.TYPE_I_ADDRESS, rootSystemName});    
+    
+    // Set optional fields
+    instance.vdxfKeys = json.vdxfkeys;
+    instance.vdxfKeyNames = json.vdxfkeynames;
+    instance.boundHashes = json.boundhashes?.map(x => Buffer.from(x, 'hex'));
+    
+    // Store the full signature (from daemon in base64 format)
+    instance.signatureAsVch = Buffer.from(json.signature, 'base64');
+
+    instance.setFlags();
+    
     return instance;
   }
 }

@@ -44,7 +44,7 @@ import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingK
 import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
 
 // Helper function to create TransferDestination from address string
-function createCompactIdAddressObject(type: BigNumber, address: string): CompactAddressObject {
+function createCompactAddressObject(type: BigNumber, address: string): CompactAddressObject {
   const obj = new CompactAddressObject({
     type,
     address
@@ -357,10 +357,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
       flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
         .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      appOrDelegatedID: createCompactIdAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
+      appOrDelegatedID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
-      derivationID: createCompactIdAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
     });
 

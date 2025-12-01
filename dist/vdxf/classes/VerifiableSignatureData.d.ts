@@ -1,7 +1,7 @@
 import { BigNumber } from '../../utils/types/BigNumber';
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import { CompactAddressObject, CompactAddressObjectJson } from './CompactAddressObject';
-import { SignatureData } from '../../pbaas';
+import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
 export interface VerifiableSignatureDataJson {
     version: number;
     flags: number;
@@ -27,6 +27,22 @@ export interface VerifiableSignatureDataInterface {
     boundHashes?: Array<Buffer>;
     statements?: Array<Buffer>;
     signatureAsVch?: Buffer;
+}
+export interface CliSignatureData {
+    signaturedata: SignatureJsonDataInterface;
+    system: string;
+    systemid: string;
+    hashtype: string;
+    hash: string;
+    identity: string;
+    canonicalname: string;
+    address: string;
+    signatureheight: number;
+    signature: string;
+    signatureversion: number;
+    vdxfkeys?: Array<string>;
+    vdxfkeynames?: Array<string>;
+    boundhashes?: Array<string>;
 }
 export declare class VerifiableSignatureData implements SerializableEntity {
     version: BigNumber;
@@ -63,6 +79,8 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     calcFlags(): BigNumber;
     setFlags(): void;
     private getBufferEncodingLength;
+    private getExtraHashDataByteLength;
+    private getExtraHashData;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
@@ -70,4 +88,5 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     toSignatureData(sigHash: Buffer): SignatureData;
     toJson(): VerifiableSignatureDataJson;
     static fromJson(json: VerifiableSignatureDataJson): VerifiableSignatureData;
+    static fromCLIJson(json: CliSignatureData, rootSystemName?: string): VerifiableSignatureData;
 }
