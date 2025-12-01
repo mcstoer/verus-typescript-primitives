@@ -1,8 +1,7 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DATA_TYPE_MMRDATA, DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
-import { ContentMultiMap, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, SaplingPaymentAddress } from '../../';
-import { createHash } from 'crypto';
+import { ContentMultiMap, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, ResponseURI, SaplingPaymentAddress } from '../../';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactAddressObject } from '../../vdxf/classes/CompactAddressObject';
 import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
@@ -15,12 +14,6 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     clone.fromBuffer(buf, 0);
     
     return GenericRequest.fromQrString((GenericRequest.fromWalletDeeplinkUri(clone.toWalletDeeplinkUri())).toQrString());
-  }
-
-  function rawDetailsSha256(req: GenericRequest): Buffer {
-    // replicate the same behavior as getRawDetailsSha256()
-    const buf = req['toBufferOptionalSig'](false);  // call internal method
-    return createHash("sha256").update(buf).digest();
   }
 
   it('round trips with a single detail (no signature / createdAt)', () => {
@@ -64,7 +57,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt, signature, and encryptResponseToAddress', () => {
+  it('round trips with createdAt, signature, responseURI, and encryptResponseToAddress', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
@@ -90,7 +83,8 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       details: [detail],
       signature: sig,
       createdAt,
-      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr)
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr),
+      responseURIs: [ResponseURI.fromUriString("https://verus.io/callback", ResponseURI.TYPE_POST), ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_REDIRECT)]
     });
 
     expect(req.isSigned()).toBe(true);
@@ -100,6 +94,11 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.signature).toBeDefined();
     expect(round.signature?.signatureAsVch.toString('base64')).toBe(sig.signatureAsVch.toString('base64'))
     expect(round.createdAt?.toString()).toEqual(createdAt.toString());
+    expect(round.hasResponseURIs()).toBe(true)
+    expect(round.responseURIs![0].getUriString()).toBe("https://verus.io/callback")
+    expect(round.responseURIs![0].type.toString()).toBe(ResponseURI.TYPE_POST.toString())
+    expect(round.responseURIs![1].getUriString()).toBe("https://example.com/callback")
+    expect(round.responseURIs![1].type.toString()).toBe(ResponseURI.TYPE_REDIRECT.toString())
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);

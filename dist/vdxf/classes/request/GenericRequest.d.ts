@@ -1,13 +1,17 @@
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { GenericEnvelope, GenericEnvelopeInterface, GenericEnvelopeJson } from "../envelope/GenericEnvelope";
 import { SaplingPaymentAddress } from '../../../pbaas/SaplingPaymentAddress';
+import { ResponseURI, ResponseURIJson } from '../ResponseURI';
 export type GenericRequestJson = GenericEnvelopeJson & {
+    responseuris?: Array<ResponseURIJson>;
     encryptresponsetoaddress?: string;
 };
 export type GenericRequestInterface = GenericEnvelopeInterface & {
+    responseURIs?: Array<ResponseURI>;
     encryptResponseToAddress?: SaplingPaymentAddress;
 };
 export declare class GenericRequest extends GenericEnvelope implements SerializableEntity {
+    responseURIs?: Array<ResponseURI>;
     encryptResponseToAddress?: SaplingPaymentAddress;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
@@ -18,9 +22,12 @@ export declare class GenericRequest extends GenericEnvelope implements Serializa
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
     static FLAG_HAS_SALT: import("bn.js");
+    static FLAG_HAS_RESPONSE_URIS: import("bn.js");
     static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS: import("bn.js");
     constructor(envelope?: GenericRequestInterface);
+    hasResponseURIs(): boolean;
     hasEncryptResponseToAddress(): boolean;
+    setHasResponseURIs(): void;
     setHasEncryptResponseToAddress(): void;
     setFlags(): void;
     getByteLengthOptionalSig(includeSig?: boolean): number;

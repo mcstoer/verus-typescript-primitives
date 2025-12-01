@@ -3,19 +3,23 @@ import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { GenericEnvelope, GenericEnvelopeInterface, GenericEnvelopeJson } from "../envelope/GenericEnvelope";
 import { SaplingPaymentAddress } from '../../../pbaas/SaplingPaymentAddress';
 import bufferutils from '../../../utils/bufferutils';
-import { GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY } from '../../keys';
 import base64url from 'base64url';
 import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../../constants/deeplink';
+import { ResponseURI, ResponseURIJson } from '../ResponseURI';
+import varuint from '../../../utils/varuint';
 
 export type GenericRequestJson = GenericEnvelopeJson & {
+  responseuris?: Array<ResponseURIJson>;
   encryptresponsetoaddress?: string;
 };
 
 export type GenericRequestInterface = GenericEnvelopeInterface & {
+  responseURIs?: Array<ResponseURI>;
   encryptResponseToAddress?: SaplingPaymentAddress;
 }
 
 export class GenericRequest extends GenericEnvelope implements SerializableEntity {
+  responseURIs?: Array<ResponseURI>; 
   encryptResponseToAddress?: SaplingPaymentAddress;
 
   static VERSION_CURRENT = new BN(1, 10);
@@ -28,7 +32,8 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
   static FLAG_MULTI_DETAILS = GenericEnvelope.FLAG_MULTI_DETAILS;
   static FLAG_IS_TESTNET = GenericEnvelope.FLAG_IS_TESTNET;
   static FLAG_HAS_SALT = GenericEnvelope.FLAG_HAS_SALT;
-  static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new BN(32, 10);
+  static FLAG_HAS_RESPONSE_URIS = new BN(32, 10);
+  static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new BN(64, 10);
 
   constructor(
     envelope: GenericRequestInterface = {
@@ -38,13 +43,22 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
   ) {
     super(envelope)
 
-    this.encryptResponseToAddress = envelope.encryptResponseToAddress;
+    this.responseURIs = envelope?.responseURIs;
+    this.encryptResponseToAddress = envelope?.encryptResponseToAddress;
 
     this.setFlags();
   }
 
+  hasResponseURIs() {
+    return !!(this.flags.and(GenericRequest.FLAG_HAS_RESPONSE_URIS).toNumber());
+  }
+
   hasEncryptResponseToAddress() {
     return !!(this.flags.and(GenericRequest.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).toNumber());
+  }
+
+  setHasResponseURIs() {
+    this.flags = this.flags.or(GenericRequest.FLAG_HAS_RESPONSE_URIS);
   }
 
   setHasEncryptResponseToAddress() {
@@ -54,11 +68,20 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
   setFlags() {
     super.setFlags();
 
+    if (this.responseURIs) this.setHasResponseURIs();
     if (this.encryptResponseToAddress) this.setHasEncryptResponseToAddress();
   }
 
   getByteLengthOptionalSig(includeSig = true): number {
     let length = super.getByteLengthOptionalSig(includeSig);
+
+    if (this.hasResponseURIs()) {
+      length += varuint.encodingLength(this.responseURIs.length);
+
+      for (let i = 0; i < this.responseURIs.length; i++) {
+        length += this.responseURIs[i].getByteLength();
+      }
+    }
 
     if (this.hasEncryptResponseToAddress()) {
       length += this.encryptResponseToAddress.getByteLength();
@@ -76,6 +99,14 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
 
     writer.writeSlice(superBuf);
 
+    if (this.hasResponseURIs()) {
+      writer.writeCompactSize(this.responseURIs.length);
+
+      for (let i = 0; i < this.responseURIs.length; i++) {
+        writer.writeSlice(this.responseURIs[i].toBuffer());
+      }
+    }
+
     if (this.hasEncryptResponseToAddress()) {
       writer.writeSlice(this.encryptResponseToAddress.toBuffer());
     }
@@ -90,6 +121,17 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
 
     reader.offset = super.fromBuffer(reader.buffer, reader.offset);
 
+    if (this.hasResponseURIs()) {
+      this.responseURIs = [];
+      const callbackURIsLength = reader.readCompactSize();
+
+      for (let i = 0; i < callbackURIsLength; i++) {
+        const newURI = new ResponseURI();
+        reader.offset = newURI.fromBuffer(reader.buffer, reader.offset);
+        this.responseURIs.push(newURI);
+      }
+    }
+
     if (this.hasEncryptResponseToAddress()) {
       this.encryptResponseToAddress = new SaplingPaymentAddress();
 
@@ -101,6 +143,10 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
 
   toJson(): GenericRequestJson {
     const parentJson = super.toJson();
+
+    if (this.hasResponseURIs()) {
+      parentJson["responseuris"] = this.responseURIs.map(x => x.toJson())
+    }
 
     if (this.hasEncryptResponseToAddress()) {
       parentJson["encryptresponsetoaddress"] = this.encryptResponseToAddress.toAddressString();
