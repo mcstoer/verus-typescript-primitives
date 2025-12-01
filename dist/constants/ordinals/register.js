@@ -9,8 +9,8 @@ const UserDataRequestOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/
 const UserSpecificDataPacketDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/UserSpecificDataPacketDetailsOrdinalVdxfObject");
 const IdentityUpdateRequestOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/IdentityUpdateRequestOrdinalVdxfObject");
 const IdentityUpdateResponseOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/IdentityUpdateResponseOrdinalVdxfObject");
-const LoginRequestDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/LoginRequestDetailsOrdinalVdxfObject");
-const LoginResponseDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/LoginResponseDetailsOrdinalVdxfObject");
+const AuthenticationRequestOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/AuthenticationRequestOrdinalVdxfObject");
+const AuthenticationResponseOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/AuthenticationResponseOrdinalVdxfObject");
 const OrdinalVdxfObjectOrdinalMap_1 = require("../../vdxf/classes/ordinals/OrdinalVdxfObjectOrdinalMap");
 const ProvisionIdentityDetailsOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject");
 const VerusPayInvoiceOrdinalVdxfObject_1 = require("../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject");
@@ -19,8 +19,8 @@ const AppEncryptionResponseOrdinalVdxfObject_1 = require("../../vdxf/classes/ord
 const registerOrdinals = () => {
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR.toNumber(), vdxf_1.DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid, DataDescriptorOrdinalVdxfObject_1.DataDescriptorOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_VERUSPAY_INVOICE.toNumber(), vdxf_1.VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid, VerusPayInvoiceOrdinalVdxfObject_1.VerusPayInvoiceOrdinalVdxfObject, false);
-    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_LOGIN_REQUEST.toNumber(), vdxf_1.LOGIN_REQUEST_DETAILS_VDXF_KEY.vdxfid, LoginRequestDetailsOrdinalVdxfObject_1.LoginRequestOrdinalVdxfObject, false);
-    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_LOGIN_RESPONSE.toNumber(), vdxf_1.LOGIN_RESPONSE_DETAILS_VDXF_KEY.vdxfid, LoginResponseDetailsOrdinalVdxfObject_1.LoginResponseOrdinalVdxfObject, false);
+    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_AUTHENTICATION_REQUEST.toNumber(), vdxf_1.AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY.vdxfid, AuthenticationRequestOrdinalVdxfObject_1.AuthenticationRequestOrdinalVdxfObject, false);
+    OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_AUTHENTICATION_RESPONSE.toNumber(), vdxf_1.AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY.vdxfid, AuthenticationResponseOrdinalVdxfObject_1.AuthenticationResponseOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST.toNumber(), vdxf_1.IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateRequestOrdinalVdxfObject_1.IdentityUpdateRequestOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE.toNumber(), vdxf_1.IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateResponseOrdinalVdxfObject_1.IdentityUpdateResponseOrdinalVdxfObject, false);
     OrdinalVdxfObjectOrdinalMap_1.OrdinalVdxfObjectOrdinalMap.registerOrdinal(ordinals_1.VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS.toNumber(), vdxf_1.PROVISION_IDENTITY_DETAILS_VDXF_KEY.vdxfid, ProvisionIdentityDetailsOrdinalVdxfObject_1.ProvisionIdentityDetailsOrdinalVdxfObject, false);

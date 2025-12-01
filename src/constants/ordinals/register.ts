@@ -1,4 +1,4 @@
-import { APP_ENCRYPTION_REQUEST_VDXF_KEY, APP_ENCRYPTION_RESPONSE_VDXF_KEY, DATA_RESPONSE_VDXF_KEY, DATA_TYPE_OBJECT_DATADESCRIPTOR, IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY, IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY, LOGIN_REQUEST_DETAILS_VDXF_KEY, LOGIN_RESPONSE_DETAILS_VDXF_KEY, PROVISION_IDENTITY_DETAILS_VDXF_KEY, USER_DATA_REQUEST_VDXF_KEY, USER_SPECIFIC_DATA_PACKET_VDXF_KEY, VERUSPAY_INVOICE_DETAILS_VDXF_KEY } from "../../vdxf";
+import { APP_ENCRYPTION_REQUEST_VDXF_KEY, APP_ENCRYPTION_RESPONSE_VDXF_KEY, DATA_RESPONSE_VDXF_KEY, DATA_TYPE_OBJECT_DATADESCRIPTOR, IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY, IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY, AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY, AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY, PROVISION_IDENTITY_DETAILS_VDXF_KEY, USER_DATA_REQUEST_VDXF_KEY, USER_SPECIFIC_DATA_PACKET_VDXF_KEY, VERUSPAY_INVOICE_DETAILS_VDXF_KEY } from "../../vdxf";
 import { AppEncryptionRequestOrdinalVdxfObject } from "../../vdxf/classes/ordinals/AppEncryptionRequestOrdinalVdxfObject";
 import { DataDescriptorOrdinalVdxfObject } from "../../vdxf/classes/ordinals/DataDescriptorOrdinalVdxfObject";
 import { DataPacketResponseOrdinalVdxfObject } from "../../vdxf/classes/ordinals/DataPacketResponseOrdinalVdxfObject";
@@ -6,19 +6,19 @@ import { UserDataRequestOrdinalVdxfObject } from "../../vdxf/classes/ordinals/Us
 import { UserSpecificDataPacketDetailsOrdinalVdxfObject } from "../../vdxf/classes/ordinals/UserSpecificDataPacketDetailsOrdinalVdxfObject";
 import { IdentityUpdateRequestOrdinalVdxfObject } from "../../vdxf/classes/ordinals/IdentityUpdateRequestOrdinalVdxfObject";
 import { IdentityUpdateResponseOrdinalVdxfObject } from "../../vdxf/classes/ordinals/IdentityUpdateResponseOrdinalVdxfObject";
-import { LoginRequestOrdinalVdxfObject } from "../../vdxf/classes/ordinals/LoginRequestDetailsOrdinalVdxfObject";
-import { LoginResponseOrdinalVdxfObject } from "../../vdxf/classes/ordinals/LoginResponseDetailsOrdinalVdxfObject";
+import { AuthenticationRequestOrdinalVdxfObject } from "../../vdxf/classes/ordinals/AuthenticationRequestOrdinalVdxfObject";
+import { AuthenticationResponseOrdinalVdxfObject } from "../../vdxf/classes/ordinals/AuthenticationResponseOrdinalVdxfObject";
 import { OrdinalVdxfObjectOrdinalMap } from "../../vdxf/classes/ordinals/OrdinalVdxfObjectOrdinalMap";
 import { ProvisionIdentityDetailsOrdinalVdxfObject } from "../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject";
 import { VerusPayInvoiceOrdinalVdxfObject } from "../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject";
-import { VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_DATA_RESPONSE, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_LOGIN_RESPONSE, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_USER_DATA_REQUEST, VDXF_ORDINAL_USER_SPECIFIC_DATA_PACKET, VDXF_ORDINAL_VERUSPAY_INVOICE } from "./ordinals";
+import { VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_DATA_RESPONSE, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_AUTHENTICATION_RESPONSE, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_USER_DATA_REQUEST, VDXF_ORDINAL_USER_SPECIFIC_DATA_PACKET, VDXF_ORDINAL_VERUSPAY_INVOICE } from "./ordinals";
 import { AppEncryptionResponseOrdinalVdxfObject } from "../../vdxf/classes/ordinals/AppEncryptionResponseOrdinalVdxfObject";
 
 export const registerOrdinals = () => {
   OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_DATA_DESCRIPTOR.toNumber(), DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid, DataDescriptorOrdinalVdxfObject, false);
   OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_VERUSPAY_INVOICE.toNumber(), VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid, VerusPayInvoiceOrdinalVdxfObject, false);
-  OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_LOGIN_REQUEST.toNumber(), LOGIN_REQUEST_DETAILS_VDXF_KEY.vdxfid, LoginRequestOrdinalVdxfObject, false);
-  OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_LOGIN_RESPONSE.toNumber(), LOGIN_RESPONSE_DETAILS_VDXF_KEY.vdxfid, LoginResponseOrdinalVdxfObject, false);
+  OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_REQUEST.toNumber(), AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY.vdxfid, AuthenticationRequestOrdinalVdxfObject, false);
+  OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_RESPONSE.toNumber(), AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY.vdxfid, AuthenticationResponseOrdinalVdxfObject, false);
   OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST.toNumber(), IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateRequestOrdinalVdxfObject, false);
   OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE.toNumber(), IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateResponseOrdinalVdxfObject, false);
   OrdinalVdxfObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS.toNumber(), PROVISION_IDENTITY_DETAILS_VDXF_KEY.vdxfid, ProvisionIdentityDetailsOrdinalVdxfObject, false);

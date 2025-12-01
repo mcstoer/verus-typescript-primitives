@@ -1,6 +1,6 @@
 
 /**
- * LoginRequestDetails - Class for handling application login and authentication requests
+ * AuthenticationRequestDetails - Class for handling application login and authentication requests
  * 
  * This class is used when an application is requesting authentication or login from the user,
  * including specific recipientConstraints and callback information. The request includes:
@@ -25,7 +25,7 @@ import { fromBase58Check, toBase58Check } from "../../../utils/address";
 import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 import { ResponseURI, ResponseURIJson } from "../ResponseURI";
 
-export interface LoginRequestDetailsInterface {
+export interface AuthenticationRequestDetailsInterface {
   version?: BigNumber;
   flags?: BigNumber;  
   requestID: string;
@@ -44,7 +44,7 @@ export interface RecipientConstraint {
   identity: CompactAddressObject;
 }
 
-export interface LoginRequestDetailsJson {
+export interface AuthenticationRequestDetailsJson {
   version: number;
   requestid: string;
   flags: number;
@@ -53,7 +53,7 @@ export interface LoginRequestDetailsJson {
   expirytime?: number;
 }
 
-export class LoginRequestDetails implements SerializableEntity {
+export class AuthenticationRequestDetails implements SerializableEntity {
   version: BigNumber;
   flags?: BigNumber;  
   requestID: string;
@@ -76,9 +76,9 @@ export class LoginRequestDetails implements SerializableEntity {
   static REQUIRED_PARENT = 3;
 
   constructor(
-    request?: LoginRequestDetailsInterface 
+    request?: AuthenticationRequestDetailsInterface 
   ) {
-    this.version = request?.version || LoginRequestDetails.DEFAULT_VERSION;
+    this.version = request?.version || AuthenticationRequestDetails.DEFAULT_VERSION;
     this.requestID = request?.requestID || '';
     this.flags = request?.flags || new BN(0, 10);
     this.recipientConstraints = request?.recipientConstraints || null;
@@ -89,26 +89,26 @@ export class LoginRequestDetails implements SerializableEntity {
   }
 
   hasRecipentConstraints(): boolean {   
-    return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
   }
 
   hasResponseURIs(): boolean {
-    return this.flags.and(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS).eq(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS);
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS).eq(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
   }
 
   hasExpiryTime(): boolean {
-    return this.flags.and(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
   }
 
   calcFlags(flags: BigNumber = this.flags): BigNumber {
     if (this.recipientConstraints) {
-      flags = flags.or(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
     }
     if (this.responseURIs) {
-      flags = flags.or(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS);
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
     }
     if (this.expiryTime) {
-      flags = flags.or(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
     } 
     return flags;
   }
@@ -211,7 +211,7 @@ export class LoginRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): LoginRequestDetailsJson {
+  toJson(): AuthenticationRequestDetailsJson {
     const flags = this.calcFlags();
 
     const retval = {
@@ -227,9 +227,9 @@ export class LoginRequestDetails implements SerializableEntity {
     return retval;
   }
 
-  static fromJson(data: LoginRequestDetailsJson): LoginRequestDetails {
+  static fromJson(data: AuthenticationRequestDetailsJson): AuthenticationRequestDetails {
 
-    const loginDetails = new LoginRequestDetails();
+    const loginDetails = new AuthenticationRequestDetails();
 
     loginDetails.version = new BN(data?.version || 0);
     loginDetails.flags = new BN(data?.flags || 0);

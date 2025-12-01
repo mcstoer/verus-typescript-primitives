@@ -9,12 +9,12 @@ import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import varuint from '../../../utils/varuint';
 const { BufferReader, BufferWriter } = bufferutils;
 
-export type LoginResponseDetailsJson = {
+export type AuthenticationResponseDetailsJson = {
   flags: string,
   requestid: string
 }
 
-export class LoginResponseDetails implements SerializableEntity {
+export class AuthenticationResponseDetails implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
 
@@ -63,15 +63,15 @@ export class LoginResponseDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): LoginResponseDetailsJson {
+  toJson(): AuthenticationResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
       requestid: this.requestID,
     }
   }
 
-  static fromJson(json: LoginResponseDetailsJson): LoginResponseDetails {
-    return new LoginResponseDetails({
+  static fromJson(json: AuthenticationResponseDetailsJson): AuthenticationResponseDetails {
+    return new AuthenticationResponseDetails({
       flags: new BN(json.flags, 10),
       requestID: json.requestid
     });

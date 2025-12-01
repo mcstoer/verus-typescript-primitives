@@ -5,8 +5,8 @@ import {
   getOrdinalVdxfObjectClassForType,
   IdentityUpdateRequestOrdinalVdxfObject,
   IdentityUpdateResponseOrdinalVdxfObject,
-  LoginRequestOrdinalVdxfObject,
-  LoginResponseOrdinalVdxfObject,
+  AuthenticationRequestOrdinalVdxfObject,
+  AuthenticationResponseOrdinalVdxfObject,
   OrdinalVdxfObject,
   UserDataRequestOrdinalVdxfObject,
   UserSpecificDataPacketDetailsOrdinalVdxfObject,
@@ -21,8 +21,8 @@ import {
   CompactAddressObject,
   IdentityUpdateRequestDetails,
   IdentityUpdateResponseDetails,
-  LoginRequestDetails,
-  LoginResponseDetails,
+  AuthenticationRequestDetails,
+  AuthenticationResponseDetails,
   ProvisionIdentityDetails,
   ResponseURI,
   VerusPayInvoiceDetails,
@@ -33,7 +33,7 @@ import {
 } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_LOGIN_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVdxfObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVdxfObject';
 import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVdxfObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVdxfObject';
@@ -81,10 +81,10 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       newObj = IdentityUpdateRequestOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof IdentityUpdateResponseOrdinalVdxfObject) {
       newObj = IdentityUpdateResponseOrdinalVdxfObject.fromJson(json as any);
-    } else if (obj instanceof LoginRequestOrdinalVdxfObject) {
-      newObj = LoginRequestOrdinalVdxfObject.fromJson(json as any);
-    } else if (obj instanceof LoginResponseOrdinalVdxfObject) {
-      newObj = LoginResponseOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof AuthenticationRequestOrdinalVdxfObject) {
+      newObj = AuthenticationRequestOrdinalVdxfObject.fromJson(json as any);
+    } else if (obj instanceof AuthenticationResponseOrdinalVdxfObject) {
+      newObj = AuthenticationResponseOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof ProvisionIdentityDetailsOrdinalVdxfObject) {
       newObj = ProvisionIdentityDetailsOrdinalVdxfObject.fromJson(json as any);
     } else if (obj instanceof AppEncryptionRequestOrdinalVdxfObject) {
@@ -269,56 +269,56 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
     expect(d3.txid!.toString('hex')).toEqual(details.txid!.toString('hex'));
   });
 
-  it('should serialize / deserialize a LoginRequestOrdinalVdxfObject via buffer', () => {
-    const details = new LoginRequestDetails({
+  it('should serialize / deserialize a AuthenticationRequestOrdinalVdxfObject via buffer', () => {
+    const details = new AuthenticationRequestDetails({
       requestID: TEST_CHALLENGE_ID,
       recipientConstraints: [
-        { type: LoginRequestDetails.REQUIRED_ID, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
-        { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
-        { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+        { type: AuthenticationRequestDetails.REQUIRED_ID, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+        { type: AuthenticationRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+        { type: AuthenticationRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
       ],
       responseURIs: [ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_POST)],
       expiryTime: new BN(2938475938457)
     });
 
-    const obj = new LoginRequestOrdinalVdxfObject({ data: details });
+    const obj = new AuthenticationRequestOrdinalVdxfObject({ data: details });
 
     const round = roundTripBuffer(obj);
-    expect(round).toBeInstanceOf(LoginRequestOrdinalVdxfObject);
+    expect(round).toBeInstanceOf(AuthenticationRequestOrdinalVdxfObject);
 
-    const d2 = (round as LoginRequestOrdinalVdxfObject).data;
+    const d2 = (round as AuthenticationRequestOrdinalVdxfObject).data;
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
 
     const json = obj.toJson();
     expect(json.data).toBeDefined();
     const roundJ = roundTripJson(obj);
-    expect(roundJ).toBeInstanceOf(LoginRequestOrdinalVdxfObject);
+    expect(roundJ).toBeInstanceOf(AuthenticationRequestOrdinalVdxfObject);
 
-    const d3 = (roundJ as LoginRequestOrdinalVdxfObject).data;
+    const d3 = (roundJ as AuthenticationRequestOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d3.expiryTime!.toNumber()).toEqual(details.expiryTime!.toNumber());
   });
 
-  it('should serialize / deserialize a LoginResponseOrdinalVdxfObject via buffer', () => {
-    const details = new LoginResponseDetails({
+  it('should serialize / deserialize a AuthenticationResponseOrdinalVdxfObject via buffer', () => {
+    const details = new AuthenticationResponseDetails({
       requestID: TEST_CHALLENGE_ID
     });
 
-    const obj = new LoginResponseOrdinalVdxfObject({ data: details });
+    const obj = new AuthenticationResponseOrdinalVdxfObject({ data: details });
 
     const round = roundTripBuffer(obj);
-    expect(round).toBeInstanceOf(LoginResponseOrdinalVdxfObject);
+    expect(round).toBeInstanceOf(AuthenticationResponseOrdinalVdxfObject);
 
-    const d2 = (round as LoginResponseOrdinalVdxfObject).data;
+    const d2 = (round as AuthenticationResponseOrdinalVdxfObject).data;
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
 
     const json = obj.toJson();
     expect(json.data).toBeDefined();
     const roundJ = roundTripJson(obj);
-    expect(roundJ).toBeInstanceOf(LoginResponseOrdinalVdxfObject);
+    expect(roundJ).toBeInstanceOf(AuthenticationResponseOrdinalVdxfObject);
 
-    const d3 = (roundJ as LoginResponseOrdinalVdxfObject).data;
+    const d3 = (roundJ as AuthenticationResponseOrdinalVdxfObject).data;
     expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
   });
 
@@ -397,8 +397,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
       .toBe(IdentityUpdateResponseOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_OBJECT_RESERVED_BYTE_I_ADDR))
       .toBe(GeneralTypeOrdinalVdxfObject);
-    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_LOGIN_REQUEST))
-      .toBe(LoginRequestOrdinalVdxfObject);
+    expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_AUTHENTICATION_REQUEST))
+      .toBe(AuthenticationRequestOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS))
       .toBe(ProvisionIdentityDetailsOrdinalVdxfObject);
     expect(getOrdinalVdxfObjectClassForType(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST))

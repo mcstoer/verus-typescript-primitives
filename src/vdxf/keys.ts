@@ -637,24 +637,24 @@ export const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface = {
   }
 }
 
-export const LOGIN_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "bf65d30f52d523170e8422ed7204342607d44229",
-  "indexid": "xC4of3pbeRqveks6kRNYdV9FQ1L5x5wXRE",
+export const AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "ba8f92aeb1d135d6a64366af727ce0435a03ef45",
+  "indexid": "xEgQr2xov3Sa5XCaWYF67mgqz2swZXpUk3",
   "qualifiedname": {
-    "name": "vrsc::identity.login.request.details",
+    "name": "vrsc::identity.authentication.request.details",
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
-  "vdxfid": "i7EhCFPWo7dG2az4tjiPf6ciNMK5671Z5A"
+  "vdxfid": "i9rJPEXj4jDuTMKYeraw9PAJxNrvaRM5fu"
 }
 
-export const LOGIN_RESPONSE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "e65d6b3f3b49ec499762e4c9369f1f7f72b251bb",
-  "indexid": "xRP68AHAxF9zbxeFpMFA5y85H2RhLiUJ9U",
+export const AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "32bee6633cbf8bb8ceff189a5c51abb16615e033",
+  "indexid": "xD2voG9dsSKNJXcW6jDvJ7KwGbvWqT1jXL",
   "qualifiedname": {
-    "name": "vrsc::identity.login.response.details",
+    "name": "vrsc::identity.authentication.response.details",
     "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
-  "vdxfid": "iLYyfMr66vwKynmDxfb17abYFNQgU71i6T"
+  "vdxfid": "i8CpLTiZ286hgMjUF3ZmKioQEwuVytVpYr"
 }
 
 export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {

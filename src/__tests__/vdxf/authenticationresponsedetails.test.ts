@@ -1,19 +1,19 @@
 import { BN } from "bn.js";
 import {
-  LoginResponseDetails
+  AuthenticationResponseDetails
 } from "../../vdxf/classes";
 import { TEST_CHALLENGE_ID } from "../constants/fixtures";
 
-describe("LoginRequestDetails", () => {
+describe("AuthenticationRequestDetails", () => {
   describe("constructor and basic properties", () => {
     test("creates instance with all optional data", () => {
-      const details = new LoginResponseDetails({
+      const details = new AuthenticationResponseDetails({
         requestID: TEST_CHALLENGE_ID
       });
 
       const detailsBuffer = details.toBuffer();
 
-      const newDetails = new LoginResponseDetails();
+      const newDetails = new AuthenticationResponseDetails();
       newDetails.fromBuffer(detailsBuffer);
 
       expect(newDetails.requestID).toBe(TEST_CHALLENGE_ID);
