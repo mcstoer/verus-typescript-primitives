@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResponseUri = void 0;
+exports.ResponseURI = void 0;
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../utils/varuint");
 const bufferutils_1 = require("../../utils/bufferutils");
-class ResponseUri {
+class ResponseURI {
     // TODO: Add TYPE_Z_ADDR_REF where response is encrypted and sent to encoded sapling address, 
     // with optional amount specified
     constructor(data) {
@@ -20,8 +20,8 @@ class ResponseUri {
     getUriString() {
         return this.uri.toString('utf-8');
     }
-    static fromUriString(str, type = ResponseUri.TYPE_REDIRECT) {
-        return new ResponseUri({ uri: Buffer.from(str, 'utf-8'), type });
+    static fromUriString(str, type = ResponseURI.TYPE_REDIRECT) {
+        return new ResponseURI({ uri: Buffer.from(str, 'utf-8'), type });
     }
     getByteLength() {
         let length = 0;
@@ -50,13 +50,13 @@ class ResponseUri {
         };
     }
     static fromJson(json) {
-        return new ResponseUri({
+        return new ResponseURI({
             type: new bn_js_1.BN(json.type, 10),
             uri: Buffer.from(json.uri, 'utf-8')
         });
     }
 }
-exports.ResponseUri = ResponseUri;
-ResponseUri.TYPE_INVALID = new bn_js_1.BN(0, 10);
-ResponseUri.TYPE_REDIRECT = new bn_js_1.BN(1, 10);
-ResponseUri.TYPE_POST = new bn_js_1.BN(2, 10);
+exports.ResponseURI = ResponseURI;
+ResponseURI.TYPE_INVALID = new bn_js_1.BN(0, 10);
+ResponseURI.TYPE_REDIRECT = new bn_js_1.BN(1, 10);
+ResponseURI.TYPE_POST = new bn_js_1.BN(2, 10);

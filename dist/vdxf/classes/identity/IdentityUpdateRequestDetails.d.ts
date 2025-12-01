@@ -2,7 +2,7 @@ import { PartialIdentity } from '../../../pbaas/PartialIdentity';
 import { PartialSignData, PartialSignDataCLIJson, PartialSignDataJson } from '../../../pbaas/PartialSignData';
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { ContentMultiMapJsonValue, IdentityID, VerusCLIVerusIDJson, VerusCLIVerusIDJsonBase } from '../../../pbaas';
-import { ResponseUri, ResponseUriJson } from '../ResponseUri';
+import { ResponseURI, ResponseURIJson } from '../ResponseURI';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 export type SignDataMap = Map<string, PartialSignData>;
 export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{
@@ -16,7 +16,7 @@ export type IdentityUpdateRequestDetailsJson = {
     identity?: VerusCLIVerusIDJson;
     expiryheight?: string;
     systemid?: string;
-    responseuris?: Array<ResponseUriJson>;
+    responseuris?: Array<ResponseURIJson>;
     signdatamap?: {
         [key: string]: PartialSignDataJson;
     };
@@ -28,7 +28,7 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     identity?: PartialIdentity;
     expiryHeight?: BigNumber;
     systemID?: IdentityID;
-    responseURIs?: Array<ResponseUri>;
+    responseURIs?: Array<ResponseURI>;
     signDataMap?: SignDataMap;
     txid?: Buffer;
     static IDENTITY_UPDATE_REQUEST_VALID: import("bn.js");
@@ -46,7 +46,7 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
         expiryHeight?: BigNumber;
         systemID?: IdentityID;
         txid?: Buffer;
-        responseURIs?: Array<ResponseUri>;
+        responseURIs?: Array<ResponseURI>;
         signDataMap?: SignDataMap;
     });
     expires(): boolean;

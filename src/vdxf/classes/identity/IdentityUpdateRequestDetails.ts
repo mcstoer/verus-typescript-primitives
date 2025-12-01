@@ -8,7 +8,7 @@ import { PartialSignData, PartialSignDataCLIJson, PartialSignDataJson } from '..
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { ContentMultiMapJsonValue, IdentityID, VerusCLIVerusIDJson, VerusCLIVerusIDJsonBase } from '../../../pbaas';
-import { ResponseUri, ResponseUriJson } from '../ResponseUri';
+import { ResponseURI, ResponseURIJson } from '../ResponseURI';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
 
@@ -24,7 +24,7 @@ export type IdentityUpdateRequestDetailsJson = {
   identity?: VerusCLIVerusIDJson;
   expiryheight?: string;
   systemid?: string;
-  responseuris?: Array<ResponseUriJson>;
+  responseuris?: Array<ResponseURIJson>;
   signdatamap?: { [key: string]: PartialSignDataJson };
   txid?: string;
 }
@@ -35,7 +35,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   identity?: PartialIdentity;         // Parts of the identity to update
   expiryHeight?: BigNumber;           // Time after which update request will no longer be accepted
   systemID?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
-  responseURIs?: Array<ResponseUri>;  // Array of uris + type to send response to (type can be post, redirect, etc. depending on how response is expected to be received)
+  responseURIs?: Array<ResponseURI>;  // Array of uris + type to send response to (type can be post, redirect, etc. depending on how response is expected to be received)
   signDataMap?: SignDataMap;          // Map of data to pass to signdata
   txid?: Buffer;                      // 32 byte transaction ID of transaction that must be spent to update identity, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
@@ -56,7 +56,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     expiryHeight?: BigNumber,
     systemID?: IdentityID,
     txid?: Buffer,
-    responseURIs?: Array<ResponseUri>,
+    responseURIs?: Array<ResponseURI>,
     signDataMap?: SignDataMap
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
@@ -190,7 +190,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     if (this.containsResponseUris()) {
       length += varuint.encodingLength(this.responseURIs.length);
       length += this.responseURIs.reduce(
-        (sum: number, current: ResponseUri) => sum + current.getByteLength(),
+        (sum: number, current: ResponseURI) => sum + current.getByteLength(),
         0
       );
     }
@@ -272,7 +272,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       const urisLength = reader.readCompactSize();
 
       for (let i = 0; i < urisLength; i++) {
-        const uri = new ResponseUri();
+        const uri = new ResponseURI();
         reader.offset = uri.fromBuffer(
           reader.buffer,
           reader.offset
@@ -339,7 +339,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       identity: json.identity ? PartialIdentity.fromJson(json.identity) : undefined,
       expiryHeight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
       systemID: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
-      responseURIs: json.responseuris ? json.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
+      responseURIs: json.responseuris ? json.responseuris.map(x => ResponseURI.fromJson(x)) : undefined,
       signDataMap,
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
     })
@@ -393,7 +393,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       systemID: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
       requestID: details?.requestid,
       expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
-      responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseUri.fromJson(x)) : undefined,
+      responseURIs: details?.responseuris ? details.responseuris.map(x => ResponseURI.fromJson(x)) : undefined,
       txid: details?.txid ? Buffer.from(details.txid, 'hex').reverse() : undefined,
     })
   }

@@ -6,7 +6,7 @@
  * including specific recipientConstraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
- * - Callback URIs for post-authentication redirects
+ * - Response URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  *
  * The user's wallet can use these parameters to present a clear authentication request
@@ -22,21 +22,22 @@ const varuint_1 = require("../../../utils/varuint");
 const vdxf_1 = require("../../../constants/vdxf");
 const address_1 = require("../../../utils/address");
 const CompactAddressObject_1 = require("../CompactAddressObject");
+const ResponseURI_1 = require("../ResponseURI");
 class LoginRequestDetails {
     constructor(request) {
         this.version = (request === null || request === void 0 ? void 0 : request.version) || LoginRequestDetails.DEFAULT_VERSION;
         this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || '';
         this.flags = (request === null || request === void 0 ? void 0 : request.flags) || new bn_js_1.BN(0, 10);
         this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) || null;
-        this.callbackURIs = (request === null || request === void 0 ? void 0 : request.callbackURIs) || null;
+        this.responseURIs = (request === null || request === void 0 ? void 0 : request.responseURIs) || null;
         this.expiryTime = (request === null || request === void 0 ? void 0 : request.expiryTime) || null;
         this.setFlags();
     }
     hasRecipentConstraints() {
         return this.flags.and(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
     }
-    hascallbackURIs() {
-        return this.flags.and(LoginRequestDetails.FLAG_HAS_CALLBACK_URI).eq(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
+    hasResponseURIs() {
+        return this.flags.and(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS).eq(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS);
     }
     hasExpiryTime() {
         return this.flags.and(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
@@ -45,8 +46,8 @@ class LoginRequestDetails {
         if (this.recipientConstraints) {
             flags = flags.or(LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
         }
-        if (this.callbackURIs) {
-            flags = flags.or(LoginRequestDetails.FLAG_HAS_CALLBACK_URI);
+        if (this.responseURIs) {
+            flags = flags.or(LoginRequestDetails.FLAG_HAS_RESPONSE_URIS);
         }
         if (this.expiryTime) {
             flags = flags.or(LoginRequestDetails.FLAG_HAS_EXPIRY_TIME);
@@ -64,12 +65,10 @@ class LoginRequestDetails {
                 length += this.recipientConstraints[i].identity.getByteLength();
             }
         }
-        if (this.hascallbackURIs()) {
-            length += varuint_1.default.encodingLength(this.callbackURIs.length);
-            for (let i = 0; i < this.callbackURIs.length; i++) {
-                length += varuint_1.default.encodingLength(this.callbackURIs[i].type);
-                length += varuint_1.default.encodingLength(Buffer.from(this.callbackURIs[i].uri, 'utf8').byteLength);
-                length += Buffer.from(this.callbackURIs[i].uri, 'utf8').byteLength;
+        if (this.hasResponseURIs()) {
+            length += varuint_1.default.encodingLength(this.responseURIs.length);
+            for (let i = 0; i < this.responseURIs.length; i++) {
+                length += this.responseURIs[i].getByteLength();
             }
         }
         if (this.hasExpiryTime()) {
@@ -88,11 +87,10 @@ class LoginRequestDetails {
                 writer.writeSlice(this.recipientConstraints[i].identity.toBuffer());
             }
         }
-        if (this.hascallbackURIs()) {
-            writer.writeCompactSize(this.callbackURIs.length);
-            for (let i = 0; i < this.callbackURIs.length; i++) {
-                writer.writeCompactSize(this.callbackURIs[i].type);
-                writer.writeVarSlice(Buffer.from(this.callbackURIs[i].uri, 'utf8'));
+        if (this.hasResponseURIs()) {
+            writer.writeCompactSize(this.responseURIs.length);
+            for (let i = 0; i < this.responseURIs.length; i++) {
+                writer.writeSlice(this.responseURIs[i].toBuffer());
             }
         }
         if (this.hasExpiryTime()) {
@@ -118,14 +116,13 @@ class LoginRequestDetails {
                 });
             }
         }
-        if (this.hascallbackURIs()) {
-            this.callbackURIs = [];
+        if (this.hasResponseURIs()) {
+            this.responseURIs = [];
             const callbackURIsLength = reader.readCompactSize();
             for (let i = 0; i < callbackURIsLength; i++) {
-                this.callbackURIs.push({
-                    type: reader.readCompactSize(),
-                    uri: reader.readVarSlice().toString('utf8')
-                });
+                const newURI = new ResponseURI_1.ResponseURI();
+                reader.offset = newURI.fromBuffer(reader.buffer, reader.offset);
+                this.responseURIs.push(newURI);
             }
         }
         if (this.hasExpiryTime()) {
@@ -141,7 +138,7 @@ class LoginRequestDetails {
             requestid: this.requestID,
             recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({ type: p.type,
                 identity: p.identity.toJson() })) : undefined,
-            callbackURIs: this.callbackURIs ? this.callbackURIs : undefined,
+            responseURIs: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
             expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
         };
         return retval;
@@ -155,9 +152,8 @@ class LoginRequestDetails {
             loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({ type: p.type,
                 identity: CompactAddressObject_1.CompactAddressObject.fromJson(p.identity) }));
         }
-        if (loginDetails.hascallbackURIs() && data.callbackURIs) {
-            loginDetails.callbackURIs = data.callbackURIs.map(c => ({ type: c.type,
-                uri: c.uri }));
+        if (loginDetails.hasResponseURIs() && data.responseURIs) {
+            loginDetails.responseURIs = data.responseURIs.map(c => ResponseURI_1.ResponseURI.fromJson(c));
         }
         if (loginDetails.hasExpiryTime() && data.expirytime) {
             loginDetails.expiryTime = new bn_js_1.BN(data.expirytime);
@@ -182,8 +178,8 @@ class LoginRequestDetails {
                 return false;
             }
         }
-        if (this.hascallbackURIs()) {
-            if (!this.callbackURIs || this.callbackURIs.length === 0) {
+        if (this.hasResponseURIs()) {
+            if (!this.responseURIs || this.responseURIs.length === 0) {
                 return false;
             }
         }
@@ -201,12 +197,9 @@ LoginRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1, 10);
 LoginRequestDetails.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
 LoginRequestDetails.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
 LoginRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS = new bn_js_1.BN(1, 10);
-LoginRequestDetails.FLAG_HAS_CALLBACK_URI = new bn_js_1.BN(2, 10);
+LoginRequestDetails.FLAG_HAS_RESPONSE_URIS = new bn_js_1.BN(2, 10);
 LoginRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(4, 10);
 // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
 LoginRequestDetails.REQUIRED_ID = 1;
 LoginRequestDetails.REQUIRED_SYSTEM = 2;
 LoginRequestDetails.REQUIRED_PARENT = 3;
-// Callback URI Types
-LoginRequestDetails.TYPE_WEBHOOK = 1;
-LoginRequestDetails.TYPE_REDIRECT = 2;

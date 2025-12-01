@@ -43,7 +43,7 @@ var ProvisioningResult_1 = require("./provisioning/ProvisioningResult");
 Object.defineProperty(exports, "LoginConsentProvisioningResult", { enumerable: true, get: function () { return ProvisioningResult_1.ProvisioningResult; } });
 __exportStar(require("./identity/IdentityUpdateRequestDetails"), exports);
 __exportStar(require("./identity/IdentityUpdateResponseDetails"), exports);
-__exportStar(require("./ResponseUri"), exports);
+__exportStar(require("./ResponseURI"), exports);
 __exportStar(require("./request/GenericRequest"), exports);
 __exportStar(require("./response/GenericResponse"), exports);
 __exportStar(require("./response/AppEncryptionResponseDetails"), exports);

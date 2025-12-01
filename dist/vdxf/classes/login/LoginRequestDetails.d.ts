@@ -5,7 +5,7 @@
  * including specific recipientConstraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
- * - Callback URIs for post-authentication redirects
+ * - Response URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  *
  * The user's wallet can use these parameters to present a clear authentication request
@@ -16,36 +16,29 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { ResponseURI, ResponseURIJson } from "../ResponseURI";
 export interface LoginRequestDetailsInterface {
     version?: BigNumber;
     flags?: BigNumber;
     requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
-    callbackURIs?: Array<callbackURIs>;
+    responseURIs?: Array<ResponseURI>;
     expiryTime?: BigNumber;
 }
 export interface RecipientConstraintJson {
     type: number;
     identity: CompactAddressObjectJson;
 }
-export interface callbackURIsJson {
-    type: number;
-    uri: string;
-}
 export interface RecipientConstraint {
     type: number;
     identity: CompactAddressObject;
-}
-export interface callbackURIs {
-    type: number;
-    uri: string;
 }
 export interface LoginRequestDetailsJson {
     version: number;
     requestid: string;
     flags: number;
     recipientConstraints?: Array<RecipientConstraintJson>;
-    callbackURIs?: Array<callbackURIsJson>;
+    responseURIs?: Array<ResponseURIJson>;
     expirytime?: number;
 }
 export declare class LoginRequestDetails implements SerializableEntity {
@@ -53,22 +46,20 @@ export declare class LoginRequestDetails implements SerializableEntity {
     flags?: BigNumber;
     requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
-    callbackURIs?: Array<callbackURIs>;
+    responseURIs?: Array<ResponseURI>;
     expiryTime?: BigNumber;
     static DEFAULT_VERSION: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");
     static FLAG_HAS_RECIPIENT_CONSTRAINTS: import("bn.js");
-    static FLAG_HAS_CALLBACK_URI: import("bn.js");
+    static FLAG_HAS_RESPONSE_URIS: import("bn.js");
     static FLAG_HAS_EXPIRY_TIME: import("bn.js");
     static REQUIRED_ID: number;
     static REQUIRED_SYSTEM: number;
     static REQUIRED_PARENT: number;
-    static TYPE_WEBHOOK: number;
-    static TYPE_REDIRECT: number;
     constructor(request?: LoginRequestDetailsInterface);
     hasRecipentConstraints(): boolean;
-    hascallbackURIs(): boolean;
+    hasResponseURIs(): boolean;
     hasExpiryTime(): boolean;
     calcFlags(flags?: BigNumber): BigNumber;
     getByteLength(): number;

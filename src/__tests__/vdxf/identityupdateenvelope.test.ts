@@ -1,7 +1,7 @@
 import { IdentityUpdateRequestDetails } from "../../vdxf/classes/identity/IdentityUpdateRequestDetails";
 import { IdentityUpdateResponseDetails } from "../../vdxf/classes/identity/IdentityUpdateResponseDetails";
 import { ContentMultiMap } from "../../pbaas";
-import { ResponseUri } from "../../vdxf/classes/ResponseUri";
+import { ResponseURI } from "../../vdxf/classes/ResponseURI";
 import { PartialSignData } from "../../pbaas/PartialSignData";
 import { 
   TEST_BASE_SIGN_DATA_WITH_MMR_DATA, 
@@ -64,7 +64,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY,
       expiryHeight: TEST_EXPIRYHEIGHT,
-      responseURIs: [ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT), ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST)],
+      responseURIs: [ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT), ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST)],
       signDataMap: TEST_SIGNDATA_MAP
     };
 
@@ -157,8 +157,8 @@ describe("IdentityUpdate request/response details Serialization", () => {
     testJsonSerialization(TEST_MMR_DATA);
   });
 
-  test("Serialize/Deserialize ResponseUri to/from JSON", () => {
-    const responseUri = ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT);
+  test("Serialize/Deserialize ResponseURI to/from JSON", () => {
+    const responseUri = ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT);
     testJsonSerialization(responseUri);
   });
 
@@ -186,8 +186,8 @@ describe("IdentityUpdate request/response details Serialization", () => {
         requestid: TEST_REQUESTID.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(), 
         responseuris: [
-          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
-          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
+          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(), 
+          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
         ],
         txid: TEST_TXID
       }
@@ -203,8 +203,8 @@ describe("IdentityUpdate request/response details Serialization", () => {
       requestID: TEST_REQUESTID.toString(),
       expiryHeight: TEST_EXPIRYHEIGHT.toString(), 
       responseuris: [
-        ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(), 
-        ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
+        ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(), 
+        ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
       ],
       txid: TEST_TXID
     };

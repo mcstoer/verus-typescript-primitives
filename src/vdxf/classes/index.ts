@@ -26,7 +26,7 @@ export { ProvisioningResultInterface as LoginConsentProvisioningResultInterface 
 
 export * from "./identity/IdentityUpdateRequestDetails";
 export * from "./identity/IdentityUpdateResponseDetails";
-export * from './ResponseUri';
+export * from './ResponseURI';
 export * from './request/GenericRequest';
 export * from './response/GenericResponse';
 export * from './response/AppEncryptionResponseDetails'

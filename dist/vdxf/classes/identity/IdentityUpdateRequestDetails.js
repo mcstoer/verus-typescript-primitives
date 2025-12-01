@@ -10,7 +10,7 @@ const PartialIdentity_1 = require("../../../pbaas/PartialIdentity");
 const PartialSignData_1 = require("../../../pbaas/PartialSignData");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
-const ResponseUri_1 = require("../ResponseUri");
+const ResponseURI_1 = require("../ResponseURI");
 const pbaas_2 = require("../../../constants/pbaas");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateRequestDetails {
@@ -186,7 +186,7 @@ class IdentityUpdateRequestDetails {
             this.responseURIs = [];
             const urisLength = reader.readCompactSize();
             for (let i = 0; i < urisLength; i++) {
-                const uri = new ResponseUri_1.ResponseUri();
+                const uri = new ResponseURI_1.ResponseURI();
                 reader.offset = uri.fromBuffer(reader.buffer, reader.offset);
                 this.responseURIs.push(uri);
             }
@@ -236,7 +236,7 @@ class IdentityUpdateRequestDetails {
             identity: json.identity ? PartialIdentity_1.PartialIdentity.fromJson(json.identity) : undefined,
             expiryHeight: json.expiryheight ? new bn_js_1.BN(json.expiryheight, 10) : undefined,
             systemID: json.systemid ? pbaas_1.IdentityID.fromAddress(json.systemid) : undefined,
-            responseURIs: json.responseuris ? json.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
+            responseURIs: json.responseuris ? json.responseuris.map(x => ResponseURI_1.ResponseURI.fromJson(x)) : undefined,
             signDataMap,
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
         });
@@ -277,7 +277,7 @@ class IdentityUpdateRequestDetails {
             systemID: (details === null || details === void 0 ? void 0 : details.systemid) ? pbaas_1.IdentityID.fromAddress(details.systemid) : undefined,
             requestID: details === null || details === void 0 ? void 0 : details.requestid,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
-            responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseUri_1.ResponseUri.fromJson(x)) : undefined,
+            responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseURI_1.ResponseURI.fromJson(x)) : undefined,
             txid: (details === null || details === void 0 ? void 0 : details.txid) ? Buffer.from(details.txid, 'hex').reverse() : undefined,
         });
     }

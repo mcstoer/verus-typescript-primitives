@@ -1,10 +1,10 @@
 import { BigNumber } from "../../utils/types/BigNumber";
 import { SerializableEntity } from "../../utils/types/SerializableEntity";
-export type ResponseUriJson = {
+export type ResponseURIJson = {
     type: string;
     uri: string;
 };
-export declare class ResponseUri implements SerializableEntity {
+export declare class ResponseURI implements SerializableEntity {
     uri: Buffer;
     type: BigNumber;
     static TYPE_INVALID: import("bn.js");
@@ -15,10 +15,10 @@ export declare class ResponseUri implements SerializableEntity {
         type?: BigNumber;
     });
     getUriString(): string;
-    static fromUriString(str: string, type?: BigNumber): ResponseUri;
+    static fromUriString(str: string, type?: BigNumber): ResponseURI;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): ResponseUriJson;
-    static fromJson(json: ResponseUriJson): ResponseUri;
+    toJson(): ResponseURIJson;
+    static fromJson(json: ResponseURIJson): ResponseURI;
 }

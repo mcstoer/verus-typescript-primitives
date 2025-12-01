@@ -5,12 +5,12 @@ import varint from "../../utils/varint";
 import varuint from "../../utils/varuint";
 import bufferutils from "../../utils/bufferutils";
 
-export type ResponseUriJson = {
+export type ResponseURIJson = {
   type: string;
   uri: string;
 }
 
-export class ResponseUri implements SerializableEntity {
+export class ResponseURI implements SerializableEntity {
   uri: Buffer;      // utf8 uri string
   type: BigNumber;  // type of place to send response
 
@@ -39,8 +39,8 @@ export class ResponseUri implements SerializableEntity {
     return this.uri.toString('utf-8');
   }
 
-  static fromUriString(str: string, type: BigNumber = ResponseUri.TYPE_REDIRECT): ResponseUri {
-    return new ResponseUri({ uri: Buffer.from(str, 'utf-8'), type });
+  static fromUriString(str: string, type: BigNumber = ResponseURI.TYPE_REDIRECT): ResponseURI {
+    return new ResponseURI({ uri: Buffer.from(str, 'utf-8'), type });
   }
 
   getByteLength(): number {
@@ -76,15 +76,15 @@ export class ResponseUri implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): ResponseUriJson {
+  toJson(): ResponseURIJson {
     return {
       type: this.type.toString(10),
       uri: this.getUriString()
     };
   }
 
-  static fromJson(json: ResponseUriJson): ResponseUri {
-    return new ResponseUri({
+  static fromJson(json: ResponseURIJson): ResponseURI {
+    return new ResponseURI({
       type: new BN(json.type, 10),
       uri: Buffer.from(json.uri, 'utf-8')
     });

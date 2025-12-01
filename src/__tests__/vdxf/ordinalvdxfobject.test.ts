@@ -24,7 +24,7 @@ import {
   LoginRequestDetails,
   LoginResponseDetails,
   ProvisionIdentityDetails,
-  ResponseUri,
+  ResponseURI,
   VerusPayInvoiceDetails,
   UserDataRequestDetails,
   UserSpecificDataPacketDetails,
@@ -214,8 +214,8 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
         requestid: TEST_REQUESTID.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(),
         responseuris: [
-          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_REDIRECT).toJson(),
-          ResponseUri.fromUriString("http:/127.0.0.1:8000", ResponseUri.TYPE_POST).toJson()
+          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(),
+          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
         ],
         txid: TEST_TXID
       }
@@ -277,10 +277,7 @@ describe('OrdinalVdxfObject and subclasses round-trip serialization', () => {
         { type: LoginRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
         { type: LoginRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
       ],
-      callbackURIs: [{
-        type: LoginRequestDetails.TYPE_WEBHOOK,
-        uri: "https://example.com/callback"
-      }],
+      responseURIs: [ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_POST)],
       expiryTime: new BN(2938475938457)
     });
 
