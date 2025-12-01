@@ -32,8 +32,8 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
   static FLAG_MULTI_DETAILS = GenericEnvelope.FLAG_MULTI_DETAILS;
   static FLAG_IS_TESTNET = GenericEnvelope.FLAG_IS_TESTNET;
   static FLAG_HAS_SALT = GenericEnvelope.FLAG_HAS_SALT;
-  static FLAG_HAS_RESPONSE_URIS = new BN(32, 10);
-  static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new BN(64, 10);
+  static FLAG_HAS_RESPONSE_URIS = new BN(64, 10);
+  static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new BN(128, 10);
 
   constructor(
     envelope: GenericRequestInterface = {

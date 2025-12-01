@@ -6,6 +6,7 @@ export interface GenericEnvelopeInterface {
     version?: BigNumber;
     flags?: BigNumber;
     signature?: VerifiableSignatureData;
+    requestID?: string;
     createdAt?: BigNumber;
     salt?: Buffer;
     details: Array<OrdinalVDXFObject>;
@@ -14,6 +15,7 @@ export type GenericEnvelopeJson = {
     version: string;
     flags?: string;
     signature?: VerifiableSignatureDataJson;
+    requestid?: string;
     createdat?: string;
     salt?: string;
     details: Array<OrdinalVDXFObjectJson>;
@@ -22,6 +24,7 @@ export declare class GenericEnvelope implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
     signature?: VerifiableSignatureData;
+    requestID?: string;
     createdAt?: BigNumber;
     salt?: Buffer;
     details: Array<OrdinalVDXFObject>;
@@ -30,6 +33,7 @@ export declare class GenericEnvelope implements SerializableEntity {
     static VERSION_LASTVALID: import("bn.js");
     static BASE_FLAGS: import("bn.js");
     static FLAG_SIGNED: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
     static FLAG_HAS_CREATED_AT: import("bn.js");
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
@@ -37,11 +41,13 @@ export declare class GenericEnvelope implements SerializableEntity {
     constructor(envelope?: GenericEnvelopeInterface);
     isValidVersion(): boolean;
     isSigned(): boolean;
+    hasRequestID(): boolean;
     hasMultiDetails(): boolean;
     hasCreatedAt(): boolean;
     hasSalt(): boolean;
     isTestnet(): boolean;
     setSigned(): void;
+    setHasRequestID(): void;
     setHasMultiDetails(): void;
     setHasCreatedAt(): void;
     setHasSalt(): void;
@@ -50,8 +56,8 @@ export declare class GenericEnvelope implements SerializableEntity {
     getRawDataSha256(includeSig?: boolean): Buffer<ArrayBufferLike>;
     getDetailsIdentitySignatureHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
     getDetails(index?: number): OrdinalVDXFObject;
-    protected getDetailsBufferLength(): number;
-    protected getDetailsBuffer(): Buffer;
+    protected getDataBufferLengthAfterSig(): number;
+    protected getDataBufferAfterSig(): Buffer;
     private internalGetByteLength;
     protected getByteLengthOptionalSig(includeSig?: boolean): number;
     getByteLength(): number;

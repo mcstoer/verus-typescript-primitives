@@ -8,20 +8,23 @@ const OrdinalVDXFObject_1 = require("../ordinals/OrdinalVDXFObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
+const vdxf_1 = require("../../../constants/vdxf");
+const address_1 = require("../../../utils/address");
 class GenericEnvelope {
     constructor(envelope = {
         details: [],
         flags: GenericEnvelope.BASE_FLAGS
     }) {
-        this.signature = envelope.signature;
-        this.details = envelope.details;
-        this.createdAt = envelope.createdAt;
-        this.salt = envelope.salt;
-        if (envelope.flags)
+        this.signature = envelope === null || envelope === void 0 ? void 0 : envelope.signature;
+        this.requestID = envelope === null || envelope === void 0 ? void 0 : envelope.requestID;
+        this.details = envelope === null || envelope === void 0 ? void 0 : envelope.details;
+        this.createdAt = envelope === null || envelope === void 0 ? void 0 : envelope.createdAt;
+        this.salt = envelope === null || envelope === void 0 ? void 0 : envelope.salt;
+        if (envelope === null || envelope === void 0 ? void 0 : envelope.flags)
             this.flags = envelope.flags;
         else
             this.flags = GenericEnvelope.BASE_FLAGS;
-        if (envelope.version)
+        if (envelope === null || envelope === void 0 ? void 0 : envelope.version)
             this.version = envelope.version;
         else
             this.version = GenericEnvelope.VERSION_CURRENT;
@@ -32,6 +35,9 @@ class GenericEnvelope {
     }
     isSigned() {
         return !!(this.flags.and(GenericEnvelope.FLAG_SIGNED).toNumber());
+    }
+    hasRequestID() {
+        return !!(this.flags.and(GenericEnvelope.FLAG_HAS_REQUEST_ID).toNumber());
     }
     hasMultiDetails() {
         return !!(this.flags.and(GenericEnvelope.FLAG_MULTI_DETAILS).toNumber());
@@ -48,6 +54,9 @@ class GenericEnvelope {
     setSigned() {
         this.flags = this.flags.or(GenericEnvelope.FLAG_SIGNED);
     }
+    setHasRequestID() {
+        this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_REQUEST_ID);
+    }
     setHasMultiDetails() {
         this.flags = this.flags.or(GenericEnvelope.FLAG_MULTI_DETAILS);
     }
@@ -61,14 +70,16 @@ class GenericEnvelope {
         this.flags = this.flags.or(GenericEnvelope.FLAG_IS_TESTNET);
     }
     setFlags() {
-        if (this.createdAt)
-            this.setHasCreatedAt();
-        if (this.details && this.details.length > 1)
-            this.setHasMultiDetails();
         if (this.signature)
             this.setSigned();
+        if (this.requestID)
+            this.setHasRequestID();
+        if (this.createdAt)
+            this.setHasCreatedAt();
         if (this.salt)
             this.setHasSalt();
+        if (this.details && this.details.length > 1)
+            this.setHasMultiDetails();
     }
     getRawDataSha256(includeSig = false) {
         return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
@@ -83,8 +94,11 @@ class GenericEnvelope {
     getDetails(index = 0) {
         return this.details[index];
     }
-    getDetailsBufferLength() {
+    getDataBufferLengthAfterSig() {
         let length = 0;
+        if (this.hasRequestID()) {
+            length += vdxf_1.HASH160_BYTE_LENGTH;
+        }
         if (this.hasCreatedAt()) {
             length += varuint_1.default.encodingLength(this.createdAt.toNumber());
         }
@@ -104,8 +118,11 @@ class GenericEnvelope {
         }
         return length;
     }
-    getDetailsBuffer() {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getDetailsBufferLength()));
+    getDataBufferAfterSig() {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getDataBufferLengthAfterSig()));
+        if (this.hasRequestID()) {
+            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        }
         if (this.hasCreatedAt()) {
             writer.writeCompactSize(this.createdAt.toNumber());
         }
@@ -130,7 +147,7 @@ class GenericEnvelope {
         if (this.isSigned() && includeSig) {
             length += this.signature.getByteLength();
         }
-        length += this.getDetailsBufferLength();
+        length += this.getDataBufferLengthAfterSig();
         return length;
     }
     getByteLengthOptionalSig(includeSig) {
@@ -146,7 +163,7 @@ class GenericEnvelope {
         if (this.isSigned() && includeSig) {
             writer.writeSlice(this.signature.toBuffer());
         }
-        writer.writeSlice(this.getDetailsBuffer());
+        writer.writeSlice(this.getDataBufferAfterSig());
         return writer.buffer;
     }
     toBuffer() {
@@ -162,6 +179,9 @@ class GenericEnvelope {
             const _sig = new VerifiableSignatureData_1.VerifiableSignatureData();
             reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
             this.signature = _sig;
+        }
+        if (this.hasRequestID()) {
+            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
         }
         if (this.hasCreatedAt()) {
             this.createdAt = new bn_js_1.BN(reader.readCompactSize());
@@ -196,11 +216,12 @@ class GenericEnvelope {
             }
         }
         return {
-            signature: undefined, //TODO: Add signature toJson function this.isSigned() ? this.signature.toJson() : undefined,
-            details: details,
             version: this.version.toString(),
             flags: this.flags.toString(),
-            createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined
+            signature: this.isSigned() ? this.signature.toJson() : undefined,
+            requestid: this.requestID,
+            createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
+            details: details
         };
     }
 }
@@ -210,7 +231,8 @@ GenericEnvelope.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
 GenericEnvelope.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
 GenericEnvelope.BASE_FLAGS = new bn_js_1.BN(0, 10);
 GenericEnvelope.FLAG_SIGNED = new bn_js_1.BN(1, 10);
-GenericEnvelope.FLAG_HAS_CREATED_AT = new bn_js_1.BN(2, 10);
-GenericEnvelope.FLAG_MULTI_DETAILS = new bn_js_1.BN(4, 10);
-GenericEnvelope.FLAG_IS_TESTNET = new bn_js_1.BN(8, 10);
-GenericEnvelope.FLAG_HAS_SALT = new bn_js_1.BN(16, 10);
+GenericEnvelope.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(2, 10);
+GenericEnvelope.FLAG_HAS_CREATED_AT = new bn_js_1.BN(4, 10);
+GenericEnvelope.FLAG_MULTI_DETAILS = new bn_js_1.BN(8, 10);
+GenericEnvelope.FLAG_IS_TESTNET = new bn_js_1.BN(16, 10);
+GenericEnvelope.FLAG_HAS_SALT = new bn_js_1.BN(32, 10);

@@ -7,11 +7,14 @@ import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from "../../../constants/vdxf";
+import { fromBase58Check, toBase58Check } from "../../../utils/address";
 
 export interface GenericEnvelopeInterface {
   version?: BigNumber;
   flags?: BigNumber;
   signature?: VerifiableSignatureData;
+  requestID?: string;
   createdAt?: BigNumber;
   salt?: Buffer;
   details: Array<OrdinalVDXFObject>;
@@ -21,6 +24,7 @@ export type GenericEnvelopeJson = {
   version: string;
   flags?: string;
   signature?: VerifiableSignatureDataJson;
+  requestid?: string;
   createdat?: string;
   salt?: string;
   details: Array<OrdinalVDXFObjectJson>;
@@ -30,6 +34,7 @@ export class GenericEnvelope implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
   signature?: VerifiableSignatureData;
+  requestID?: string;
   createdAt?: BigNumber;
   salt?: Buffer; // var length buffer
   details: Array<OrdinalVDXFObject>;
@@ -40,10 +45,11 @@ export class GenericEnvelope implements SerializableEntity {
 
   static BASE_FLAGS = new BN(0, 10)
   static FLAG_SIGNED = new BN(1, 10)
-  static FLAG_HAS_CREATED_AT = new BN(2, 10)
-  static FLAG_MULTI_DETAILS = new BN(4, 10)
-  static FLAG_IS_TESTNET = new BN(8, 10)
-  static FLAG_HAS_SALT = new BN(16, 10)
+  static FLAG_HAS_REQUEST_ID = new BN(2, 10)
+  static FLAG_HAS_CREATED_AT = new BN(4, 10)
+  static FLAG_MULTI_DETAILS = new BN(8, 10)
+  static FLAG_IS_TESTNET = new BN(16, 10)
+  static FLAG_HAS_SALT = new BN(32, 10)
 
   constructor(
     envelope: GenericEnvelopeInterface = {
@@ -51,15 +57,16 @@ export class GenericEnvelope implements SerializableEntity {
       flags: GenericEnvelope.BASE_FLAGS
     }
   ) {
-    this.signature = envelope.signature;
-    this.details = envelope.details;
-    this.createdAt = envelope.createdAt;
-    this.salt = envelope.salt;
+    this.signature = envelope?.signature;
+    this.requestID = envelope?.requestID;
+    this.details = envelope?.details;
+    this.createdAt = envelope?.createdAt;
+    this.salt = envelope?.salt;
 
-    if (envelope.flags) this.flags = envelope.flags;
+    if (envelope?.flags) this.flags = envelope.flags;
     else this.flags = GenericEnvelope.BASE_FLAGS;
 
-    if (envelope.version) this.version = envelope.version;
+    if (envelope?.version) this.version = envelope.version;
     else this.version = GenericEnvelope.VERSION_CURRENT;
 
     this.setFlags();
@@ -71,6 +78,10 @@ export class GenericEnvelope implements SerializableEntity {
 
   isSigned() {
     return !!(this.flags.and(GenericEnvelope.FLAG_SIGNED).toNumber());
+  }
+
+  hasRequestID() {
+    return !!(this.flags.and(GenericEnvelope.FLAG_HAS_REQUEST_ID).toNumber());
   }
 
   hasMultiDetails() {
@@ -93,6 +104,10 @@ export class GenericEnvelope implements SerializableEntity {
     this.flags = this.flags.or(GenericEnvelope.FLAG_SIGNED);
   }
 
+  setHasRequestID() {
+    this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_REQUEST_ID);
+  }
+
   setHasMultiDetails() {
     this.flags = this.flags.or(GenericEnvelope.FLAG_MULTI_DETAILS);
   }
@@ -110,10 +125,11 @@ export class GenericEnvelope implements SerializableEntity {
   }
 
   setFlags() {
-    if (this.createdAt) this.setHasCreatedAt();
-    if (this.details && this.details.length > 1) this.setHasMultiDetails();
     if (this.signature) this.setSigned();
+    if (this.requestID) this.setHasRequestID();
+    if (this.createdAt) this.setHasCreatedAt();
     if (this.salt) this.setHasSalt();
+    if (this.details && this.details.length > 1) this.setHasMultiDetails();
   }
 
   getRawDataSha256(includeSig = false) {
@@ -130,8 +146,12 @@ export class GenericEnvelope implements SerializableEntity {
     return this.details[index];
   }
 
-  protected getDetailsBufferLength(): number {
+  protected getDataBufferLengthAfterSig(): number {
     let length = 0;
+
+    if (this.hasRequestID()) {
+      length += HASH160_BYTE_LENGTH;
+    }
 
     if (this.hasCreatedAt()) {
       length += varuint.encodingLength(this.createdAt.toNumber());
@@ -157,10 +177,14 @@ export class GenericEnvelope implements SerializableEntity {
     return length;
   }
 
-  protected getDetailsBuffer(): Buffer {
+  protected getDataBufferAfterSig(): Buffer {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.getDetailsBufferLength())
+      Buffer.alloc(this.getDataBufferLengthAfterSig())
     );
+
+    if (this.hasRequestID()) {
+      writer.writeSlice(fromBase58Check(this.requestID).hash);
+    }
 
     if (this.hasCreatedAt()) {
       writer.writeCompactSize(this.createdAt.toNumber());
@@ -193,7 +217,7 @@ export class GenericEnvelope implements SerializableEntity {
       length += this.signature!.getByteLength();
     }
     
-    length += this.getDetailsBufferLength();
+    length += this.getDataBufferLengthAfterSig();
 
     return length;
   }
@@ -218,7 +242,7 @@ export class GenericEnvelope implements SerializableEntity {
       writer.writeSlice(this.signature!.toBuffer());
     }
 
-    writer.writeSlice(this.getDetailsBuffer());
+    writer.writeSlice(this.getDataBufferAfterSig());
 
     return writer.buffer;
   }
@@ -239,6 +263,10 @@ export class GenericEnvelope implements SerializableEntity {
       const _sig = new VerifiableSignatureData();
       reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
       this.signature = _sig;
+    }
+
+    if (this.hasRequestID()) {
+      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
     }
 
     if (this.hasCreatedAt()) {
@@ -284,11 +312,12 @@ export class GenericEnvelope implements SerializableEntity {
     }
     
     return {
-      signature: undefined, //TODO: Add signature toJson function this.isSigned() ? this.signature.toJson() : undefined,
-      details: details,
       version: this.version.toString(),
       flags: this.flags.toString(),
-      createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined
+      signature: this.isSigned() ? this.signature.toJson() : undefined,
+      requestid: this.requestID,
+      createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
+      details: details
     };
   }
 }

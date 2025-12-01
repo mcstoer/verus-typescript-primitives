@@ -1,6 +1,6 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
-import { DATA_TYPE_MMRDATA, DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
+import { DATA_TYPE_MMRDATA, DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256, NULL_I_ADDR } from '../../constants/pbaas';
 import { ContentMultiMap, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, ResponseURI, SaplingPaymentAddress } from '../../';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactAddressObject } from '../../vdxf/classes/CompactAddressObject';
@@ -57,7 +57,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt, signature, responseURI, and encryptResponseToAddress', () => {
+  it('round trips with createdAt, signature, responseURI, requestID, and encryptResponseToAddress', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
@@ -82,6 +82,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const req = new GenericRequest({
       details: [detail],
       signature: sig,
+      requestID: NULL_I_ADDR,
       createdAt,
       encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr),
       responseURIs: [ResponseURI.fromUriString("https://verus.io/callback", ResponseURI.TYPE_POST), ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_REDIRECT)]
@@ -99,6 +100,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.responseURIs![0].type.toString()).toBe(ResponseURI.TYPE_POST.toString())
     expect(round.responseURIs![1].getUriString()).toBe("https://example.com/callback")
     expect(round.responseURIs![1].type.toString()).toBe(ResponseURI.TYPE_REDIRECT.toString())
+    expect(round.requestID).toBe(NULL_I_ADDR)
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);

@@ -1,6 +1,6 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
-import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
+import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256, NULL_I_ADDR } from '../../constants/pbaas';
 import { GenericResponse, IdentityID, IdentityUpdateResponseDetails } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
@@ -64,7 +64,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt, signature, and requestHash/requestHashType', () => {
+  it('round trips with createdAt, signature, requestID, and requestHash/requestHashType', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
@@ -89,6 +89,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
 
     const req = new GenericResponse({
       details: [detail],
+      requestID: NULL_I_ADDR,
       signature: sig,
       createdAt,
       requestHash: requestHash,
@@ -104,6 +105,7 @@ describe('GenericResponse — buffer / URI / QR operations', () => {
     expect(round.hasRequestHash()).toBe(true)
     expect(round.requestHash?.toString('hex')).toBe(requestHash.toString('hex'))
     expect(round.requestHashType?.toNumber()).toBe(requestHashType.toNumber())
+    expect(round.requestID).toBe(NULL_I_ADDR)
     const d2 = round.getDetails(0);
     expect((d2 as GeneralTypeOrdinalVDXFObject).data).toEqual(detail.data);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));

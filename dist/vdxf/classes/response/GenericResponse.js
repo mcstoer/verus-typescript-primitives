@@ -80,4 +80,4 @@ GenericResponse.FLAG_HAS_CREATED_AT = GenericEnvelope_1.GenericEnvelope.FLAG_HAS
 GenericResponse.FLAG_MULTI_DETAILS = GenericEnvelope_1.GenericEnvelope.FLAG_MULTI_DETAILS;
 GenericResponse.FLAG_IS_TESTNET = GenericEnvelope_1.GenericEnvelope.FLAG_IS_TESTNET;
 GenericResponse.FLAG_HAS_SALT = GenericEnvelope_1.GenericEnvelope.FLAG_HAS_SALT;
-GenericResponse.FLAG_HAS_REQUEST_HASH = new bn_js_1.BN(32, 10);
+GenericResponse.FLAG_HAS_REQUEST_HASH = new bn_js_1.BN(64, 10);
