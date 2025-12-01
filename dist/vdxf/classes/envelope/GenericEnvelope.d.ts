@@ -1,0 +1,63 @@
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { OrdinalVDXFObject, OrdinalVDXFObjectJson } from "../ordinals/OrdinalVDXFObject";
+import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
+export interface GenericEnvelopeInterface {
+    version?: BigNumber;
+    flags?: BigNumber;
+    signature?: VerifiableSignatureData;
+    createdAt?: BigNumber;
+    salt?: Buffer;
+    details: Array<OrdinalVDXFObject>;
+}
+export type GenericEnvelopeJson = {
+    version: string;
+    flags?: string;
+    signature?: VerifiableSignatureDataJson;
+    createdat?: string;
+    salt?: string;
+    details: Array<OrdinalVDXFObjectJson>;
+};
+export declare class GenericEnvelope implements SerializableEntity {
+    version: BigNumber;
+    flags: BigNumber;
+    signature?: VerifiableSignatureData;
+    createdAt?: BigNumber;
+    salt?: Buffer;
+    details: Array<OrdinalVDXFObject>;
+    static VERSION_CURRENT: import("bn.js");
+    static VERSION_FIRSTVALID: import("bn.js");
+    static VERSION_LASTVALID: import("bn.js");
+    static BASE_FLAGS: import("bn.js");
+    static FLAG_SIGNED: import("bn.js");
+    static FLAG_HAS_CREATED_AT: import("bn.js");
+    static FLAG_MULTI_DETAILS: import("bn.js");
+    static FLAG_IS_TESTNET: import("bn.js");
+    static FLAG_HAS_SALT: import("bn.js");
+    constructor(envelope?: GenericEnvelopeInterface);
+    isValidVersion(): boolean;
+    isSigned(): boolean;
+    hasMultiDetails(): boolean;
+    hasCreatedAt(): boolean;
+    hasSalt(): boolean;
+    isTestnet(): boolean;
+    setSigned(): void;
+    setHasMultiDetails(): void;
+    setHasCreatedAt(): void;
+    setHasSalt(): void;
+    setIsTestnet(): void;
+    setFlags(): void;
+    getRawDataSha256(includeSig?: boolean): Buffer<ArrayBufferLike>;
+    getDetailsIdentitySignatureHash(signedBlockheight: number): Buffer<ArrayBufferLike>;
+    getDetails(index?: number): OrdinalVDXFObject;
+    protected getDetailsBufferLength(): number;
+    protected getDetailsBuffer(): Buffer;
+    private internalGetByteLength;
+    protected getByteLengthOptionalSig(includeSig?: boolean): number;
+    getByteLength(): number;
+    protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
+    toBuffer(): Buffer;
+    fromBuffer(buffer: Buffer, offset?: number): number;
+    toString(): string;
+    toJson(): GenericEnvelopeJson;
+}

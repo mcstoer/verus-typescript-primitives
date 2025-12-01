@@ -1,0 +1,65 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SaplingExtendedViewingKey = void 0;
+const bufferutils_1 = require("../utils/bufferutils");
+const sapling_1 = require("../utils/sapling");
+const { BufferReader, BufferWriter } = bufferutils_1.default;
+class SaplingExtendedViewingKey {
+    constructor(data) {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        if (data != null) {
+            this.depth = (_a = data.depth) !== null && _a !== void 0 ? _a : 0;
+            this.parentFVKTag = (_b = data.parentFVKTag) !== null && _b !== void 0 ? _b : Buffer.alloc(4);
+            this.childIndex = (_c = data.childIndex) !== null && _c !== void 0 ? _c : Buffer.alloc(4);
+            this.chainCode = (_d = data.chainCode) !== null && _d !== void 0 ? _d : Buffer.alloc(32);
+            this.ak = (_e = data.ak) !== null && _e !== void 0 ? _e : Buffer.alloc(32);
+            this.nk = (_f = data.nk) !== null && _f !== void 0 ? _f : Buffer.alloc(32);
+            this.ovk = (_g = data.ovk) !== null && _g !== void 0 ? _g : Buffer.alloc(32);
+            this.dk = (_h = data.dk) !== null && _h !== void 0 ? _h : Buffer.alloc(32);
+        }
+    }
+    getByteLength() {
+        return 1 + 4 + 4 + 32 + 32 + 32 + 32 + 32; // 169 bytes total
+    }
+    toBuffer() {
+        const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
+        writer.writeUInt8(this.depth);
+        writer.writeSlice(this.parentFVKTag);
+        writer.writeSlice(this.childIndex);
+        writer.writeSlice(this.chainCode);
+        writer.writeSlice(this.ak);
+        writer.writeSlice(this.nk);
+        writer.writeSlice(this.ovk);
+        writer.writeSlice(this.dk);
+        return writer.buffer;
+    }
+    fromBuffer(buffer, offset = 0) {
+        const reader = new BufferReader(buffer, offset);
+        this.depth = reader.readUInt8();
+        this.parentFVKTag = reader.readSlice(4);
+        this.childIndex = reader.readSlice(4);
+        this.chainCode = reader.readSlice(32);
+        this.ak = reader.readSlice(32);
+        this.nk = reader.readSlice(32);
+        this.ovk = reader.readSlice(32);
+        this.dk = reader.readSlice(32);
+        return reader.offset;
+    }
+    static fromKeyString(key) {
+        const decoded = (0, sapling_1.decodeSaplingExtendedViewingKey)(key);
+        return new SaplingExtendedViewingKey(decoded);
+    }
+    toKeyString(testnet = false) {
+        return (0, sapling_1.encodeSaplingExtendedViewingKey)({
+            depth: this.depth,
+            parentFVKTag: this.parentFVKTag,
+            childIndex: this.childIndex,
+            chainCode: this.chainCode,
+            ak: this.ak,
+            nk: this.nk,
+            ovk: this.ovk,
+            dk: this.dk
+        }, testnet);
+    }
+}
+exports.SaplingExtendedViewingKey = SaplingExtendedViewingKey;

@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VERUSPAY_VERSION_MASK = exports.VERUSPAY_VERSION_SIGNED = exports.VERUSPAY_VERSION_LASTVALID = exports.VERUSPAY_VERSION_FIRSTVALID = exports.VERUSPAY_VERSION_CURRENT = exports.VERUSPAY_VERSION_4 = exports.VERUSPAY_VERSION_3 = void 0;
+const bn_js_1 = require("bn.js");
+exports.VERUSPAY_VERSION_3 = new bn_js_1.BN(3, 10);
+exports.VERUSPAY_VERSION_4 = new bn_js_1.BN(4, 10);
+exports.VERUSPAY_VERSION_CURRENT = new bn_js_1.BN(4, 10);
+exports.VERUSPAY_VERSION_FIRSTVALID = new bn_js_1.BN(3, 10);
+exports.VERUSPAY_VERSION_LASTVALID = new bn_js_1.BN(4, 10);
+exports.VERUSPAY_VERSION_SIGNED = new bn_js_1.BN('80000000', 16);
+exports.VERUSPAY_VERSION_MASK = exports.VERUSPAY_VERSION_SIGNED;
