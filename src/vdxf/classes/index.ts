@@ -55,7 +55,4 @@ export * from './requestobjects/ProvisionIdentityDetails'
 export * from './requestobjects/AppEncryptionRequestDetails'
 export * from './requestobjects/UserSpecificDataPacketDetails'
 export * from './CompactAddressObject'
-export {
-  VerifiableSignatureData,
-  VerifiableSignatureDataJson
-} from './VerifiableSignatureData'
+export * from './VerifiableSignatureData'
