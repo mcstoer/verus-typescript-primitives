@@ -38,6 +38,7 @@ __exportStar(require("./constants/ordinals/register"), exports);
 __exportStar(require("./constants/ordinals/ordinals"), exports);
 __exportStar(require("./constants/ordinals/types"), exports);
 __exportStar(require("./constants/vdxf/veruspay"), exports);
+__exportStar(require("./constants/deeplink"), exports);
 __exportStar(require("./identity/IdentityDefinition"), exports);
 __exportStar(require("./currency/CurrencyDefinition"), exports);
 __exportStar(require("./vdxf/classes"), exports);
