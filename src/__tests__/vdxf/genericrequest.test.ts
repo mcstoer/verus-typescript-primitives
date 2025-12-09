@@ -1,10 +1,10 @@
 import { BN } from 'bn.js';
 import base64url from 'base64url';
 import { DATA_TYPE_MMRDATA, DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256, NULL_I_ADDR } from '../../constants/pbaas';
-import { ContentMultiMap, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, ResponseURI, SaplingPaymentAddress } from '../../';
+import { ContentMultiMap, DEST_PKH, fromBase58Check, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, ResponseURI, SaplingPaymentAddress, TransferDestination, VerusPayInvoiceDetails } from '../../';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactAddressObject } from '../../vdxf/classes/CompactAddressObject';
-import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
+import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject, VerusPayInvoiceOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
 import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
@@ -143,6 +143,59 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
     expect((d2 as GeneralTypeOrdinalVDXFObject).data).toEqual(detail.data);
+    expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
+  });
+
+  it('round trips with createdAt, signature that can be hashed, and invoice', () => {
+    const sig = new VerifiableSignatureData({
+      systemID: CompactAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      identityID: CompactAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
+      signatureAsVch: Buffer.from('AgX3RgAAAUEgHAVIHuui1Sc9oLxLbglKvmrv47JJLiM0/RBQwzYL1dlamI/2o9qBc93d79laLXWMhQomqZ4U3Mlr3ueuwl4JFA==', 'base64'),
+    });
+
+    const details = new VerusPayInvoiceDetails({
+      amount: new BN(10000000000, 10),
+      destination: new TransferDestination({
+        type: DEST_PKH,
+        destination_bytes: fromBase58Check("R9J8E2no2HVjQmzX6Ntes2ShSGcn7WiRcx").hash
+      }),
+      requestedcurrencyid: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq",
+      maxestimatedslippage: new BN(40000000, 10),
+      expiryheight: new BN(2000000, 10),
+      acceptedsystems: ["iNC9NG5Jqk2tqVtqfjfiSpaqxrXaFU6RDu", "iBDkVJqik6BrtcDBQfFygffiYzTMy6EuhU"]
+    })
+
+    details.setFlags({
+      acceptsConversion: true,
+      expires: true,
+      acceptsNonVerusSystems: true
+    })
+
+    const createdAt = new BN(9999);
+    const saplingAddr = "zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa"
+
+    const req = new GenericRequest({
+      details: [new VerusPayInvoiceOrdinalVDXFObject({
+        data: details,
+      })],
+      signature: sig,
+      createdAt,
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr)
+    });
+
+    expect(req.isSigned()).toBe(true);
+    expect(req.hasCreatedAt()).toBe(true);
+    expect(req.getDetailsIdentitySignatureHash(1000)).toBeDefined();
+    expect(req.signature?.signatureVersion.toString()).toBe("2");
+
+    const round = roundTripBuffer(req);
+    expect(round.signature).toBeDefined();
+    expect(round.signature?.signatureAsVch.toString('base64')).toBe(sig.signatureAsVch.toString('base64'))
+    expect(round.createdAt?.toString()).toEqual(createdAt.toString());
+    expect(round.hasEncryptResponseToAddress()).toBe(true)
+    expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
+    const d2 = round.getDetails(0);
+    expect((d2 as VerusPayInvoiceOrdinalVDXFObject).data).toEqual(details);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
