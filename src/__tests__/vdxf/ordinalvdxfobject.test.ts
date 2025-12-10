@@ -354,7 +354,6 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
       flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
         .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      appOrDelegatedID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"),
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
       derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
@@ -367,7 +366,6 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionRequestOrdinalVDXFObject);
 
     const d2 = (round as AppEncryptionRequestOrdinalVDXFObject).data;
-    expect(d2.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d2.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
@@ -379,7 +377,6 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(roundJ).toBeInstanceOf(AppEncryptionRequestOrdinalVDXFObject);
 
     const d3 = (roundJ as AppEncryptionRequestOrdinalVDXFObject).data;
-    expect(d3.appOrDelegatedID!.toIAddress()).toEqual(details.appOrDelegatedID!.toIAddress());
     expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d3.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
@@ -534,7 +531,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
       version: new BN(1),
       flags: AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID.or(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY),
       requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ",
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
@@ -546,7 +543,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionResponseOrdinalVDXFObject);
 
     const d2 = (round as AppEncryptionResponseOrdinalVDXFObject).data;
-    expect(d2.IncomingViewingKey.toString('hex')).toEqual(testIncomingViewingKey.toString('hex'));
+    expect(d2.incomingViewingKey.toString('hex')).toEqual(testIncomingViewingKey.toString('hex'));
     expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.extendedViewingKey!.toKeyString()).toEqual(details.extendedViewingKey!.toKeyString());
     expect(d2.extendedSpendingKey!.toKeyString()).toEqual(details.extendedSpendingKey!.toKeyString());

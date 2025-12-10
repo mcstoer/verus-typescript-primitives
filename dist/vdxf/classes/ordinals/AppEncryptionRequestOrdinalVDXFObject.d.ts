@@ -1,7 +1,7 @@
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
-import { AppEncryptionRequestDetails, AppEncryptionRequestJson } from "../requestobjects/AppEncryptionRequestDetails";
+import { AppEncryptionRequestDetails, AppEncryptionRequestJson } from "../appencryption/AppEncryptionRequestDetails";
 export declare class AppEncryptionRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
     data: AppEncryptionRequestDetails;
     constructor(request?: OrdinalVDXFObjectInterfaceTemplate<AppEncryptionRequestDetails>);

@@ -2,7 +2,7 @@ import { VDXF_ORDINAL_APP_ENCRYPTION_REQUEST } from "../../../constants/ordinals
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
-import { AppEncryptionRequestDetails, AppEncryptionRequestJson } from "../requestobjects/AppEncryptionRequestDetails";
+import { AppEncryptionRequestDetails, AppEncryptionRequestJson } from "../appencryption/AppEncryptionRequestDetails";
 
 export class AppEncryptionRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: AppEncryptionRequestDetails;

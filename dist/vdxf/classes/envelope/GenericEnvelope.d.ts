@@ -2,6 +2,7 @@ import { BigNumber } from "../../../utils/types/BigNumber";
 import { OrdinalVDXFObject, OrdinalVDXFObjectJson } from "../ordinals/OrdinalVDXFObject";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
+import { CompactAddressObject } from "../CompactAddressObject";
 export interface GenericEnvelopeInterface {
     version?: BigNumber;
     flags?: BigNumber;
@@ -9,6 +10,7 @@ export interface GenericEnvelopeInterface {
     requestID?: string;
     createdAt?: BigNumber;
     salt?: Buffer;
+    appOrDelegatedID?: CompactAddressObject;
     details: Array<OrdinalVDXFObject>;
 }
 export type GenericEnvelopeJson = {
@@ -18,6 +20,7 @@ export type GenericEnvelopeJson = {
     requestid?: string;
     createdat?: string;
     salt?: string;
+    appOrDelegatedID?: string;
     details: Array<OrdinalVDXFObjectJson>;
 };
 export declare class GenericEnvelope implements SerializableEntity {
@@ -27,6 +30,7 @@ export declare class GenericEnvelope implements SerializableEntity {
     requestID?: string;
     createdAt?: BigNumber;
     salt?: Buffer;
+    appOrDelegatedID?: CompactAddressObject;
     details: Array<OrdinalVDXFObject>;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
@@ -38,6 +42,7 @@ export declare class GenericEnvelope implements SerializableEntity {
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
     static FLAG_HAS_SALT: import("bn.js");
+    static FLAG_HAS_APP_OR_DELEGATED_ID: import("bn.js");
     constructor(envelope?: GenericEnvelopeInterface);
     isValidVersion(): boolean;
     isSigned(): boolean;
@@ -45,12 +50,14 @@ export declare class GenericEnvelope implements SerializableEntity {
     hasMultiDetails(): boolean;
     hasCreatedAt(): boolean;
     hasSalt(): boolean;
+    hasAppOrDelegatedID(): boolean;
     isTestnet(): boolean;
     setSigned(): void;
     setHasRequestID(): void;
     setHasMultiDetails(): void;
     setHasCreatedAt(): void;
     setHasSalt(): void;
+    setHasAppOrDelegatedID(): void;
     setIsTestnet(): void;
     setFlags(): void;
     getRawDataSha256(includeSig?: boolean): Buffer<ArrayBufferLike>;

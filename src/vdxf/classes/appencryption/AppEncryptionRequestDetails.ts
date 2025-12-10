@@ -19,7 +19,6 @@
 
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
-import varint from '../../../utils/varint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
@@ -32,7 +31,6 @@ import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 export interface AppEncryptionRequestInterface {
   version?: BigNumber;
   flags: BigNumber;
-  appOrDelegatedID: CompactAddressObject;
   encryptToZAddress: string;
   derivationNumber: BigNumber;
   derivationID?: CompactAddressObject;
@@ -42,7 +40,6 @@ export interface AppEncryptionRequestInterface {
 export interface AppEncryptionRequestJson {
   version: number;
   flags: number;
-  appordelegatedid: CompactAddressObjectJson;
   encrypttozaddress: string;
   derivationnumber: number;
   derivationid?: CompactAddressObjectJson;
@@ -70,7 +67,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
   version: BigNumber;
   flags: BigNumber;
-  appOrDelegatedID?: CompactAddressObject;  // ID of the app or delegated entity making the request
   encryptToZAddress: string;                  // zaddress reply is encrypted to
   derivationNumber: BigNumber;
   derivationID?: CompactAddressObject;      // Defaults to choosing the Z-address from the ID signing if not present
@@ -79,7 +75,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   constructor(data?: AppEncryptionRequestInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
-    this.appOrDelegatedID = data?.appOrDelegatedID;
     this.encryptToZAddress = data?.encryptToZAddress || '';
     this.derivationNumber = data?.derivationNumber || new BN(0);
     this.derivationID = data?.derivationID;
@@ -107,7 +102,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   isValid(): boolean {
-    let valid = this.appOrDelegatedID != null;
+    let valid = true;
     valid &&= this.encryptToZAddress != null && this.encryptToZAddress.length > 0;
     valid &&= this.derivationNumber != null && this.derivationNumber.gte(new BN(0));
 
@@ -129,9 +124,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(flags.toNumber());
-
-    // appOrDelegatedID
-    length += this.appOrDelegatedID.getByteLength();
 
     // encryptToKey - zaddress encoding (43 bytes for sapling address data)
     length += 43; // Sapling address decoded data (11 + 32 bytes)
@@ -155,9 +147,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     // Write flags
     writer.writeCompactSize(flags.toNumber());
-
-    // Write appOrDelegatedID
-    writer.writeSlice(this.appOrDelegatedID.toBuffer());
 
     // Write encryptToAddress as decoded sapling address data
     const saplingData = decodeSaplingAddress(this.encryptToZAddress);
@@ -183,11 +172,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     // Read flags
     this.flags = new BN(reader.readCompactSize());
-
-    // Read appOrDelegatedID
-    const appOrDelegatedIDObj = new CompactAddressObject();
-    reader.offset = appOrDelegatedIDObj.fromBuffer(reader.buffer, reader.offset);
-    this.appOrDelegatedID = appOrDelegatedIDObj;
 
     // Read encryptToAddress as 43-byte sapling data and encode as sapling address
     const saplingData = reader.readSlice(43);
@@ -216,7 +200,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
-      appordelegatedid: this.appOrDelegatedID.toJson(),
       encrypttozaddress: this.encryptToZAddress,
       derivationnumber: this.derivationNumber.toNumber(),
       derivationid: this.derivationID?.toJson(),
@@ -228,7 +211,6 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     const instance = new AppEncryptionRequestDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
-    instance.appOrDelegatedID = CompactAddressObject.fromJson(json.appordelegatedid);
     instance.encryptToZAddress = json.encrypttozaddress;
     instance.derivationNumber = new BN(json.derivationnumber);
     

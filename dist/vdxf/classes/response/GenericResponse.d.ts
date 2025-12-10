@@ -21,6 +21,7 @@ export declare class GenericResponse extends GenericEnvelope implements Serializ
     static FLAG_MULTI_DETAILS: import("bn.js");
     static FLAG_IS_TESTNET: import("bn.js");
     static FLAG_HAS_SALT: import("bn.js");
+    static FLAG_HAS_APP_OR_DELEGATED_ID: import("bn.js");
     static FLAG_HAS_REQUEST_HASH: import("bn.js");
     constructor(envelope?: GenericResponseInterface);
     hasRequestHash(): boolean;

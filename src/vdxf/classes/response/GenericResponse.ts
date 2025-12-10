@@ -5,9 +5,6 @@ import bufferutils from '../../../utils/bufferutils';
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { EHashTypes } from '../../../pbaas/DataDescriptor';
 import varuint from '../../../utils/varuint';
-import { GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY } from '../../keys';
-import base64url from 'base64url';
-import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../../constants/deeplink';
 
 export type GenericResponseJson = GenericEnvelopeJson & {
   requesthash?: string,
@@ -33,7 +30,8 @@ export class GenericResponse extends GenericEnvelope implements SerializableEnti
   static FLAG_MULTI_DETAILS = GenericEnvelope.FLAG_MULTI_DETAILS;
   static FLAG_IS_TESTNET = GenericEnvelope.FLAG_IS_TESTNET;
   static FLAG_HAS_SALT = GenericEnvelope.FLAG_HAS_SALT;
-  static FLAG_HAS_REQUEST_HASH = new BN(64, 10);
+  static FLAG_HAS_APP_OR_DELEGATED_ID = GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID;
+  static FLAG_HAS_REQUEST_HASH = new BN(128, 10);
 
   constructor(
     envelope: GenericResponseInterface = {

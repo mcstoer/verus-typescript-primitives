@@ -29,7 +29,7 @@ export * from "./identity/IdentityUpdateResponseDetails";
 export * from './ResponseURI';
 export * from './request/GenericRequest';
 export * from './response/GenericResponse';
-export * from './response/AppEncryptionResponseDetails'
+export * from './appencryption/AppEncryptionResponseDetails'
 
 export * from './ordinals';
 
@@ -52,7 +52,7 @@ export * from './requestobjects/UserDataRequestDetails'
 export * from './login/AuthenticationRequestDetails'
 export * from './login/AuthenticationResponseDetails'
 export * from './requestobjects/ProvisionIdentityDetails'
-export * from './requestobjects/AppEncryptionRequestDetails'
+export * from './appencryption/AppEncryptionRequestDetails'
 export * from './requestobjects/UserSpecificDataPacketDetails'
 export * from './CompactAddressObject'
 export * from './VerifiableSignatureData'

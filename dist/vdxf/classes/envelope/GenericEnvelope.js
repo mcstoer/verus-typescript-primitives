@@ -10,6 +10,7 @@ const crypto_1 = require("crypto");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
 const vdxf_1 = require("../../../constants/vdxf");
 const address_1 = require("../../../utils/address");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 class GenericEnvelope {
     constructor(envelope = {
         details: [],
@@ -20,6 +21,7 @@ class GenericEnvelope {
         this.details = envelope === null || envelope === void 0 ? void 0 : envelope.details;
         this.createdAt = envelope === null || envelope === void 0 ? void 0 : envelope.createdAt;
         this.salt = envelope === null || envelope === void 0 ? void 0 : envelope.salt;
+        this.appOrDelegatedID = envelope === null || envelope === void 0 ? void 0 : envelope.appOrDelegatedID;
         if (envelope === null || envelope === void 0 ? void 0 : envelope.flags)
             this.flags = envelope.flags;
         else
@@ -48,6 +50,9 @@ class GenericEnvelope {
     hasSalt() {
         return !!(this.flags.and(GenericEnvelope.FLAG_HAS_SALT).toNumber());
     }
+    hasAppOrDelegatedID() {
+        return !!(this.flags.and(GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID).toNumber());
+    }
     isTestnet() {
         return !!(this.flags.and(GenericEnvelope.FLAG_IS_TESTNET).toNumber());
     }
@@ -66,6 +71,9 @@ class GenericEnvelope {
     setHasSalt() {
         this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_SALT);
     }
+    setHasAppOrDelegatedID() {
+        this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID);
+    }
     setIsTestnet() {
         this.flags = this.flags.or(GenericEnvelope.FLAG_IS_TESTNET);
     }
@@ -78,6 +86,8 @@ class GenericEnvelope {
             this.setHasCreatedAt();
         if (this.salt)
             this.setHasSalt();
+        if (this.appOrDelegatedID)
+            this.setHasAppOrDelegatedID();
         if (this.details && this.details.length > 1)
             this.setHasMultiDetails();
     }
@@ -107,6 +117,9 @@ class GenericEnvelope {
             length += varuint_1.default.encodingLength(saltLen);
             length += saltLen;
         }
+        if (this.hasAppOrDelegatedID()) {
+            length += this.appOrDelegatedID.getByteLength();
+        }
         if (this.hasMultiDetails()) {
             length += varuint_1.default.encodingLength(this.details.length);
             for (const detail of this.details) {
@@ -128,6 +141,9 @@ class GenericEnvelope {
         }
         if (this.hasSalt()) {
             writer.writeVarSlice(this.salt);
+        }
+        if (this.hasAppOrDelegatedID()) {
+            writer.writeSlice(this.appOrDelegatedID.toBuffer());
         }
         if (this.hasMultiDetails()) {
             writer.writeCompactSize(this.details.length);
@@ -189,6 +205,10 @@ class GenericEnvelope {
         if (this.hasSalt()) {
             this.salt = reader.readVarSlice();
         }
+        if (this.hasAppOrDelegatedID()) {
+            this.appOrDelegatedID = new CompactAddressObject_1.CompactAddressObject();
+            reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
+        }
         if (this.hasMultiDetails()) {
             this.details = [];
             const numItems = reader.readCompactSize();
@@ -221,6 +241,8 @@ class GenericEnvelope {
             signature: this.isSigned() ? this.signature.toJson() : undefined,
             requestid: this.requestID,
             createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
+            salt: this.hasSalt() ? this.salt.toString('hex') : undefined,
+            appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toIAddress() : undefined,
             details: details
         };
     }
@@ -236,3 +258,4 @@ GenericEnvelope.FLAG_HAS_CREATED_AT = new bn_js_1.BN(4, 10);
 GenericEnvelope.FLAG_MULTI_DETAILS = new bn_js_1.BN(8, 10);
 GenericEnvelope.FLAG_IS_TESTNET = new bn_js_1.BN(16, 10);
 GenericEnvelope.FLAG_HAS_SALT = new bn_js_1.BN(32, 10);
+GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID = new bn_js_1.BN(64, 10);

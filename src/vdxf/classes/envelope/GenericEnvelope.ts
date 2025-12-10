@@ -9,6 +9,7 @@ import { createHash } from "crypto";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from "../../../constants/vdxf";
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
+import { CompactAddressObject } from "../CompactAddressObject";
 
 export interface GenericEnvelopeInterface {
   version?: BigNumber;
@@ -17,6 +18,7 @@ export interface GenericEnvelopeInterface {
   requestID?: string;
   createdAt?: BigNumber;
   salt?: Buffer;
+  appOrDelegatedID?: CompactAddressObject;
   details: Array<OrdinalVDXFObject>;
 }
 
@@ -27,6 +29,7 @@ export type GenericEnvelopeJson = {
   requestid?: string;
   createdat?: string;
   salt?: string;
+  appOrDelegatedID?: string;
   details: Array<OrdinalVDXFObjectJson>;
 }
 
@@ -37,6 +40,7 @@ export class GenericEnvelope implements SerializableEntity {
   requestID?: string;
   createdAt?: BigNumber;
   salt?: Buffer; // var length buffer
+  appOrDelegatedID?: CompactAddressObject;
   details: Array<OrdinalVDXFObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
@@ -50,6 +54,7 @@ export class GenericEnvelope implements SerializableEntity {
   static FLAG_MULTI_DETAILS = new BN(8, 10)
   static FLAG_IS_TESTNET = new BN(16, 10)
   static FLAG_HAS_SALT = new BN(32, 10)
+  static FLAG_HAS_APP_OR_DELEGATED_ID = new BN(64, 10);
 
   constructor(
     envelope: GenericEnvelopeInterface = {
@@ -62,6 +67,7 @@ export class GenericEnvelope implements SerializableEntity {
     this.details = envelope?.details;
     this.createdAt = envelope?.createdAt;
     this.salt = envelope?.salt;
+    this.appOrDelegatedID = envelope?.appOrDelegatedID;
 
     if (envelope?.flags) this.flags = envelope.flags;
     else this.flags = GenericEnvelope.BASE_FLAGS;
@@ -96,6 +102,10 @@ export class GenericEnvelope implements SerializableEntity {
     return !!(this.flags.and(GenericEnvelope.FLAG_HAS_SALT).toNumber());
   }
 
+  hasAppOrDelegatedID() {
+    return !!(this.flags.and(GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID).toNumber());
+  }
+
   isTestnet() {
     return !!(this.flags.and(GenericEnvelope.FLAG_IS_TESTNET).toNumber());
   }
@@ -120,6 +130,10 @@ export class GenericEnvelope implements SerializableEntity {
     this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_SALT);
   }
 
+  setHasAppOrDelegatedID() {
+    this.flags = this.flags.or(GenericEnvelope.FLAG_HAS_APP_OR_DELEGATED_ID);
+  }
+
   setIsTestnet() {
     this.flags = this.flags.or(GenericEnvelope.FLAG_IS_TESTNET);
   }
@@ -129,6 +143,7 @@ export class GenericEnvelope implements SerializableEntity {
     if (this.requestID) this.setHasRequestID();
     if (this.createdAt) this.setHasCreatedAt();
     if (this.salt) this.setHasSalt();
+    if (this.appOrDelegatedID) this.setHasAppOrDelegatedID();
     if (this.details && this.details.length > 1) this.setHasMultiDetails();
   }
 
@@ -164,6 +179,10 @@ export class GenericEnvelope implements SerializableEntity {
       length += saltLen;
     }
 
+    if (this.hasAppOrDelegatedID()) {
+      length += this.appOrDelegatedID.getByteLength();
+    }
+
     if (this.hasMultiDetails()) {
       length += varuint.encodingLength(this.details.length);
       
@@ -192,6 +211,10 @@ export class GenericEnvelope implements SerializableEntity {
 
     if (this.hasSalt()) {
       writer.writeVarSlice(this.salt);
+    }
+
+    if (this.hasAppOrDelegatedID()) {
+      writer.writeSlice(this.appOrDelegatedID.toBuffer());
     }
 
     if (this.hasMultiDetails()) {
@@ -277,6 +300,12 @@ export class GenericEnvelope implements SerializableEntity {
       this.salt = reader.readVarSlice();
     }
 
+    if (this.hasAppOrDelegatedID()) {
+      this.appOrDelegatedID = new CompactAddressObject();
+
+      reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
+    }
+
     if (this.hasMultiDetails()) {
       this.details = [];
 
@@ -317,6 +346,8 @@ export class GenericEnvelope implements SerializableEntity {
       signature: this.isSigned() ? this.signature.toJson() : undefined,
       requestid: this.requestID,
       createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
+      salt: this.hasSalt() ? this.salt.toString('hex') : undefined,
+      appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toIAddress() : undefined,
       details: details
     };
   }

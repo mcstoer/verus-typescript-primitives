@@ -1,8 +1,8 @@
-import { AppEncryptionResponseDetails } from '../../vdxf/classes/response/AppEncryptionResponseDetails';
 import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
 import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingPaymentAddress } from '../../pbaas/SaplingPaymentAddress';
 import { BN } from 'bn.js';
+import { AppEncryptionRequestDetails, AppEncryptionResponseDetails } from '../../vdxf/classes';
 
 describe('AppEncryptionResponseDetails', () => {
   const testViewingKey = 'zxviews1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472edvlrt950qyy6r766dxnpqktxug7t2wy80s4ug325dwp9hf4vw9a6ethf2mwc9wan28p88dq8q2e8sdlw2mhffg6hy92tjyuquz7a8reqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rsnx0kq4';
@@ -14,12 +14,12 @@ describe('AppEncryptionResponseDetails', () => {
     const testIncomingViewingKey = Buffer.from('be9af283ecfe0552480dd7e1ce9af61a12e64da4927e8011a795cb223f4afc00"', 'hex');
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
     });
 
-    expect(response.IncomingViewingKey).toEqual(testIncomingViewingKey);
+    expect(response.incomingViewingKey).toEqual(testIncomingViewingKey);
     expect(response.extendedViewingKey).toBeInstanceOf(SaplingExtendedViewingKey);
     expect(response.address).toBeInstanceOf(SaplingPaymentAddress);
     expect(response.containsRequestID()).toBe(false);
@@ -31,12 +31,12 @@ describe('AppEncryptionResponseDetails', () => {
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
       requestID: testRequestID,
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
     });
 
-    expect(response.IncomingViewingKey).toEqual(testIncomingViewingKey);
+    expect(response.incomingViewingKey).toEqual(testIncomingViewingKey);
     expect(response.requestID).toBe(testRequestID);
     expect(response.containsRequestID()).toBe(true);
     expect(response.containsExtendedSpendingKey()).toBe(false);
@@ -46,13 +46,13 @@ describe('AppEncryptionResponseDetails', () => {
     const testIncomingViewingKey = Buffer.from('fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321', 'hex');
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey)
     });
 
-    expect(response.IncomingViewingKey).toEqual(testIncomingViewingKey);
+    expect(response.incomingViewingKey).toEqual(testIncomingViewingKey);
     expect(response.extendedSpendingKey).toBeInstanceOf(SaplingExtendedSpendingKey);
     expect(response.containsRequestID()).toBe(false);
     expect(response.containsExtendedSpendingKey()).toBe(true);
@@ -63,13 +63,13 @@ describe('AppEncryptionResponseDetails', () => {
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
       requestID: testRequestID,
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey)
     });
 
-    expect(response.IncomingViewingKey).toEqual(testIncomingViewingKey);
+    expect(response.incomingViewingKey).toEqual(testIncomingViewingKey);
     expect(response.requestID).toBe(testRequestID);
     expect(response.containsRequestID()).toBe(true);
     expect(response.extendedSpendingKey).toBeInstanceOf(SaplingExtendedSpendingKey);
@@ -80,7 +80,7 @@ describe('AppEncryptionResponseDetails', () => {
     const testIncomingViewingKey = Buffer.from('9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba', 'hex');
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
     });
@@ -89,7 +89,7 @@ describe('AppEncryptionResponseDetails', () => {
     const response2 = new AppEncryptionResponseDetails();
     response2.fromBuffer(buffer);
 
-    expect(response2.IncomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
+    expect(response2.incomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
     expect(response2.containsRequestID()).toBe(false);
     expect(response2.containsExtendedSpendingKey()).toBe(false);
     expect(response2.extendedViewingKey.toKeyString()).toBe(testViewingKey);
@@ -101,7 +101,7 @@ describe('AppEncryptionResponseDetails', () => {
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
       requestID: testRequestID,
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress)
     });
@@ -110,7 +110,7 @@ describe('AppEncryptionResponseDetails', () => {
     const response2 = new AppEncryptionResponseDetails();
     response2.fromBuffer(buffer);
 
-    expect(response2.IncomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
+    expect(response2.incomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
     expect(response2.requestID).toBe(testRequestID);
     expect(response2.containsRequestID()).toBe(true);
     expect(response2.extendedViewingKey.toKeyString()).toBe(testViewingKey);
@@ -121,7 +121,7 @@ describe('AppEncryptionResponseDetails', () => {
     const testIncomingViewingKey = Buffer.from('5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a', 'hex');
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey)
@@ -131,7 +131,7 @@ describe('AppEncryptionResponseDetails', () => {
     const response2 = new AppEncryptionResponseDetails();
     response2.fromBuffer(buffer);
 
-    expect(response2.IncomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
+    expect(response2.incomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
     expect(response2.containsExtendedSpendingKey()).toBe(true);
     expect(response2.extendedSpendingKey).toBeDefined();
     expect(response2.extendedSpendingKey!.toKeyString()).toBe(testSpendingKey);
@@ -142,7 +142,7 @@ describe('AppEncryptionResponseDetails', () => {
     const response = new AppEncryptionResponseDetails({
       version: new BN(1),
       requestID: testRequestID,
-      IncomingViewingKey: testIncomingViewingKey,
+      incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       address: SaplingPaymentAddress.fromAddressString(testAddress),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey)
@@ -151,7 +151,7 @@ describe('AppEncryptionResponseDetails', () => {
     const json = response.toJson();
     const response2 = AppEncryptionResponseDetails.fromJson(json);
 
-    expect(response2.IncomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
+    expect(response2.incomingViewingKey.toString('hex')).toBe(testIncomingViewingKey.toString('hex'));
     expect(response2.requestID).toBe(testRequestID);
     expect(response2.containsRequestID()).toBe(true);
     expect(response2.extendedViewingKey.toKeyString()).toBe(testViewingKey);

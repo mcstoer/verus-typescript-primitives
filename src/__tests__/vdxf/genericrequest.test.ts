@@ -57,7 +57,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 
-  it('round trips with createdAt, signature, responseURI, requestID, and encryptResponseToAddress', () => {
+  it('round trips with createdAt, signature, responseURI, requestID, encryptResponseToAddress, and appOrDelegatedID', () => {
     const sig = new VerifiableSignatureData({
       flags: new BN(0),
       version: new BN(1),
@@ -85,6 +85,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
       requestID: NULL_I_ADDR,
       createdAt,
       encryptResponseToAddress: SaplingPaymentAddress.fromAddressString(saplingAddr),
+      appOrDelegatedID: CompactAddressObject.fromIAddress(DEFAULT_VERUS_CHAINID),
       responseURIs: [ResponseURI.fromUriString("https://verus.io/callback", ResponseURI.TYPE_POST), ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_REDIRECT)]
     });
 
@@ -101,6 +102,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.responseURIs![1].getUriString()).toBe("https://example.com/callback")
     expect(round.responseURIs![1].type.toString()).toBe(ResponseURI.TYPE_REDIRECT.toString())
     expect(round.requestID).toBe(NULL_I_ADDR)
+    expect(round.appOrDelegatedID?.toIAddress()).toBe(DEFAULT_VERUS_CHAINID)
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
