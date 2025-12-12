@@ -32,8 +32,9 @@ export declare class OrdinalVDXFObject implements SerializableEntity {
     constructor(request?: OrdinalVDXFObjectInterfaceTemplate<BufferOrOrdinalVDXFObjectReservedData>);
     isDefinedByVdxfKey(): boolean;
     isDefinedByTextVdxfKey(): boolean;
-    isDefinedByCurrencyOrId(): boolean;
+    isDefinedByIDOrCurrencyFQN(): boolean;
     isDefinedByCustomKey(): boolean;
+    getIAddressKey(): string;
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
     fromDataBuffer(buffer: Buffer): void;

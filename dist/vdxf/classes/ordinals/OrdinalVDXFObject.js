@@ -33,7 +33,7 @@ class OrdinalVDXFObject {
         type: ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR
     }) {
         if (request.key) {
-            this.type = ordinals_1.VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
+            this.type = request.type ? request.type : ordinals_1.VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
             this.key = request.key;
             if (request.data) {
                 this.data = request.data;
@@ -58,11 +58,28 @@ class OrdinalVDXFObject {
     isDefinedByTextVdxfKey() {
         return this.type.eq(ordinals_1.VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING);
     }
-    isDefinedByCurrencyOrId() {
+    isDefinedByIDOrCurrencyFQN() {
         return this.type.eq(ordinals_1.VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY);
     }
     isDefinedByCustomKey() {
-        return this.isDefinedByCurrencyOrId() || this.isDefinedByTextVdxfKey() || this.isDefinedByVdxfKey();
+        return this.isDefinedByIDOrCurrencyFQN() || this.isDefinedByTextVdxfKey() || this.isDefinedByVdxfKey();
+    }
+    // Returns the I address vdxf key of this vdxf object
+    getIAddressKey() {
+        if (this.isDefinedByVdxfKey()) {
+            return this.key;
+        }
+        else if (this.isDefinedByTextVdxfKey()) {
+            return (0, address_1.getDataKey)(this.key).id;
+        }
+        else if (this.isDefinedByIDOrCurrencyFQN()) {
+            return (0, address_1.toIAddress)(this.key);
+        }
+        else if (OrdinalVDXFObjectOrdinalMap_1.OrdinalVDXFObjectOrdinalMap.isRecognizedOrdinal(this.type.toNumber())) {
+            return OrdinalVDXFObjectOrdinalMap_1.OrdinalVDXFObjectOrdinalMap.getVdxfKeyForOrdinal(this.type.toNumber());
+        }
+        else
+            throw new Error("Could not get I address for ordinal VDXF object");
     }
     getDataByteLength() {
         return 0;
@@ -77,7 +94,7 @@ class OrdinalVDXFObject {
         if (this.isDefinedByVdxfKey()) {
             length += (0, address_1.fromBase58Check)(this.key).hash.length;
         }
-        else if (this.isDefinedByTextVdxfKey() || this.isDefinedByCurrencyOrId()) {
+        else if (this.isDefinedByTextVdxfKey() || this.isDefinedByIDOrCurrencyFQN()) {
             const utf8Key = Buffer.from(this.key, 'utf8');
             length += varuint_1.default.encodingLength(utf8Key.length);
             length += utf8Key.length;
@@ -94,7 +111,7 @@ class OrdinalVDXFObject {
         if (this.isDefinedByVdxfKey()) {
             writer.writeSlice((0, address_1.fromBase58Check)(this.key).hash);
         }
-        else if (this.isDefinedByTextVdxfKey() || this.isDefinedByCurrencyOrId()) {
+        else if (this.isDefinedByTextVdxfKey() || this.isDefinedByIDOrCurrencyFQN()) {
             writer.writeVarSlice(Buffer.from(this.key, 'utf8'));
         }
         writer.writeVarInt(this.version);
@@ -114,7 +131,7 @@ class OrdinalVDXFObject {
             if (this.isDefinedByVdxfKey()) {
                 this.key = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
             }
-            else if (this.isDefinedByTextVdxfKey() || this.isDefinedByCurrencyOrId()) {
+            else if (this.isDefinedByTextVdxfKey() || this.isDefinedByIDOrCurrencyFQN()) {
                 this.key = reader.readVarSlice().toString('utf8');
             }
         }
@@ -152,7 +169,7 @@ class OrdinalVDXFObject {
                 key = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
                 vdxfKey = key;
             }
-            else if (ord.isDefinedByTextVdxfKey() || ord.isDefinedByCurrencyOrId()) {
+            else if (ord.isDefinedByTextVdxfKey() || ord.isDefinedByIDOrCurrencyFQN()) {
                 key = reader.readVarSlice().toString('utf8');
                 if (ord.isDefinedByTextVdxfKey()) {
                     vdxfKey = (0, address_1.getDataKey)(key, undefined, rootSystemId).id;
@@ -198,7 +215,8 @@ class GeneralTypeOrdinalVDXFObject extends OrdinalVDXFObject {
     static fromJson(details) {
         return new GeneralTypeOrdinalVDXFObject({
             key: details.vdxfkey,
-            data: details.data ? Buffer.from(details.data, 'hex') : undefined
+            data: details.data ? Buffer.from(details.data, 'hex') : undefined,
+            type: details.type ? new bn_js_1.BN(details.type) : ordinals_1.VDXF_OBJECT_RESERVED_BYTE_I_ADDR
         });
     }
 }

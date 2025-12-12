@@ -33,7 +33,7 @@ import {
 } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
-import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE } from '../../constants/ordinals/ordinals';
+import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE, VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVDXFObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVDXFObject';
 import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVDXFObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVDXFObject';
@@ -42,6 +42,7 @@ import { DataPacketResponse } from '../../vdxf/classes/datapacket/DataPacketResp
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
+import { VERUSPAY_INVOICE_DETAILS_VDXF_KEY } from '../../vdxf';
 
 // Helper function to create TransferDestination from address string
 function createCompactAddressObject(type: BigNumber, address: string): CompactAddressObject {
@@ -104,19 +105,21 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     return newObj as T;
   }
 
-  it('should serialize / deserialize a GeneralTypeOrdinalVDXFObject (opaque buffer) via buffer', () => {
+  it('should serialize / deserialize a GeneralTypeOrdinalVDXFObject (opaque buffer) via buffer with I address key', () => {
     const sample = Buffer.from('deadbeef', 'hex');
-    const obj = new GeneralTypeOrdinalVDXFObject({ data: sample, key: DEFAULT_VERUS_CHAINID });
+    const obj = new GeneralTypeOrdinalVDXFObject({ data: sample, key: VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid });
 
     // check some properties
     expect(obj.isDefinedByVdxfKey()).toBe(true);
+    expect(obj.getIAddressKey()).toBe(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
     expect(obj.data).toEqual(sample);
-    expect(obj.key).toEqual(DEFAULT_VERUS_CHAINID);
+    expect(obj.key).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
 
     const round = roundTripBuffer(obj);
     expect(round).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
     expect((round as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
-    expect(((round as GeneralTypeOrdinalVDXFObject).key)).toEqual(DEFAULT_VERUS_CHAINID);
+    expect((round as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+    expect(((round as GeneralTypeOrdinalVDXFObject).key)).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
 
     // Their JSON should match hex
     const j = obj.toJson();
@@ -124,7 +127,68 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     const roundJ = roundTripJson<GeneralTypeOrdinalVDXFObject>(obj);
     expect(roundJ).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
     expect((roundJ as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
-    expect(((roundJ as GeneralTypeOrdinalVDXFObject).key)).toEqual(DEFAULT_VERUS_CHAINID);
+    expect((roundJ as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+    expect(((roundJ as GeneralTypeOrdinalVDXFObject).key)).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+  });
+
+  it('should serialize / deserialize a GeneralTypeOrdinalVDXFObject (opaque buffer) via buffer with vdxfkey text key', () => {
+    const sample = Buffer.from('deadbeef', 'hex');
+    const obj = new GeneralTypeOrdinalVDXFObject({ 
+      data: sample, 
+      key: VERUSPAY_INVOICE_DETAILS_VDXF_KEY.qualifiedname.name,
+      type: VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING
+    });
+
+    // check some properties
+    expect(obj.isDefinedByTextVdxfKey()).toBe(true);
+    expect(obj.getIAddressKey()).toBe(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+    expect(obj.data).toEqual(sample);
+    expect(obj.key).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.qualifiedname.name);
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
+    expect((round as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
+    expect((round as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+    expect(((round as GeneralTypeOrdinalVDXFObject).key)).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.qualifiedname.name);
+
+    // Their JSON should match hex
+    const j = obj.toJson();
+    expect(j.data).toEqual(sample.toString('hex'));
+    const roundJ = roundTripJson<GeneralTypeOrdinalVDXFObject>(obj);
+    expect(roundJ).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
+    expect((roundJ as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
+    expect((roundJ as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid);
+    expect(((roundJ as GeneralTypeOrdinalVDXFObject).key)).toEqual(VERUSPAY_INVOICE_DETAILS_VDXF_KEY.qualifiedname.name);
+  });
+
+  it('should serialize / deserialize a GeneralTypeOrdinalVDXFObject (opaque buffer) via buffer with FQN key', () => {
+    const sample = Buffer.from('deadbeef', 'hex');
+    const obj = new GeneralTypeOrdinalVDXFObject({ 
+      data: sample, 
+      key: "service.VRSCTEST",
+      type: VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY
+    });
+
+    // check some properties
+    expect(obj.isDefinedByIDOrCurrencyFQN()).toBe(true);
+    expect(obj.getIAddressKey()).toBe("iFZC7A1HnnJGwBmoPjX3mG37RKbjZZLPhm");
+    expect(obj.data).toEqual(sample);
+    expect(obj.key).toEqual("service.VRSCTEST");
+
+    const round = roundTripBuffer(obj);
+    expect(round).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
+    expect((round as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
+    expect((round as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual("iFZC7A1HnnJGwBmoPjX3mG37RKbjZZLPhm");
+    expect(((round as GeneralTypeOrdinalVDXFObject).key)).toEqual("service.VRSCTEST");
+
+    // Their JSON should match hex
+    const j = obj.toJson();
+    expect(j.data).toEqual(sample.toString('hex'));
+    const roundJ = roundTripJson<GeneralTypeOrdinalVDXFObject>(obj);
+    expect(roundJ).toBeInstanceOf(GeneralTypeOrdinalVDXFObject);
+    expect((roundJ as GeneralTypeOrdinalVDXFObject).data).toEqual(sample);
+    expect((roundJ as GeneralTypeOrdinalVDXFObject).getIAddressKey()).toEqual("iFZC7A1HnnJGwBmoPjX3mG37RKbjZZLPhm");
+    expect(((roundJ as GeneralTypeOrdinalVDXFObject).key)).toEqual("service.VRSCTEST");
   });
 
   it('should serialize / deserialize a DataDescriptorOrdinalVDXFObject via buffer', () => {
