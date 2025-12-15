@@ -1,4 +1,4 @@
-import { APP_ENCRYPTION_REQUEST_VDXF_KEY, APP_ENCRYPTION_RESPONSE_VDXF_KEY, DATA_RESPONSE_VDXF_KEY, DATA_TYPE_OBJECT_DATADESCRIPTOR, IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY, IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY, AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY, AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY, PROVISION_IDENTITY_DETAILS_VDXF_KEY, USER_DATA_REQUEST_VDXF_KEY, USER_SPECIFIC_DATA_PACKET_VDXF_KEY, VERUSPAY_INVOICE_DETAILS_VDXF_KEY } from "../../vdxf";
+import { APP_ENCRYPTION_REQUEST_VDXF_KEY, APP_ENCRYPTION_RESPONSE_VDXF_KEY, DATA_RESPONSE_VDXF_KEY, DATA_TYPE_OBJECT_DATADESCRIPTOR, AUTHENTICATION_REQUEST_VDXF_KEY, AUTHENTICATION_RESPONSE_VDXF_KEY, PROVISION_IDENTITY_DETAILS_VDXF_KEY, USER_DATA_REQUEST_VDXF_KEY, USER_SPECIFIC_DATA_PACKET_VDXF_KEY, VERUSPAY_INVOICE_DETAILS_VDXF_KEY, IDENTITY_UPDATE_RESPONSE_VDXF_KEY, IDENTITY_UPDATE_REQUEST_VDXF_KEY } from "../../vdxf";
 import { AppEncryptionRequestOrdinalVDXFObject } from "../../vdxf/classes/ordinals/AppEncryptionRequestOrdinalVDXFObject";
 import { DataDescriptorOrdinalVDXFObject } from "../../vdxf/classes/ordinals/DataDescriptorOrdinalVDXFObject";
 import { DataPacketResponseOrdinalVDXFObject } from "../../vdxf/classes/ordinals/DataPacketResponseOrdinalVDXFObject";
@@ -14,13 +14,17 @@ import { VerusPayInvoiceOrdinalVDXFObject } from "../../vdxf/classes/ordinals/Ve
 import { VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_DATA_RESPONSE, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_AUTHENTICATION_RESPONSE, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_USER_DATA_REQUEST, VDXF_ORDINAL_USER_SPECIFIC_DATA_PACKET, VDXF_ORDINAL_VERUSPAY_INVOICE } from "./ordinals";
 import { AppEncryptionResponseOrdinalVDXFObject } from "../../vdxf/classes/ordinals/AppEncryptionResponseOrdinalVDXFObject";
 
+// This is where all ordinals are currently registered for ordinal VDXF objects. Standard naming convention for the VDXF keys is to
+// include the word "response" at the end if it is a response and "request" at the end if it is a request. In case it isn't a request
+// (an object expecting a response) or a response, you can use the world "details" at the end, but best not to mix request + details
+// or response + details
 export const registerOrdinals = () => {
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_DATA_DESCRIPTOR.toNumber(), DATA_TYPE_OBJECT_DATADESCRIPTOR.vdxfid, DataDescriptorOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_VERUSPAY_INVOICE.toNumber(), VERUSPAY_INVOICE_DETAILS_VDXF_KEY.vdxfid, VerusPayInvoiceOrdinalVDXFObject, false);
-  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_REQUEST.toNumber(), AUTHENTICATION_REQUEST_DETAILS_VDXF_KEY.vdxfid, AuthenticationRequestOrdinalVDXFObject, false);
-  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_RESPONSE.toNumber(), AUTHENTICATION_RESPONSE_DETAILS_VDXF_KEY.vdxfid, AuthenticationResponseOrdinalVDXFObject, false);
-  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST.toNumber(), IDENTITY_UPDATE_REQUEST_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateRequestOrdinalVDXFObject, false);
-  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE.toNumber(), IDENTITY_UPDATE_RESPONSE_DETAILS_VDXF_KEY.vdxfid, IdentityUpdateResponseOrdinalVDXFObject, false);
+  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_REQUEST.toNumber(), AUTHENTICATION_REQUEST_VDXF_KEY.vdxfid, AuthenticationRequestOrdinalVDXFObject, false);
+  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_AUTHENTICATION_RESPONSE.toNumber(), AUTHENTICATION_RESPONSE_VDXF_KEY.vdxfid, AuthenticationResponseOrdinalVDXFObject, false);
+  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST.toNumber(), IDENTITY_UPDATE_REQUEST_VDXF_KEY.vdxfid, IdentityUpdateRequestOrdinalVDXFObject, false);
+  OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE.toNumber(), IDENTITY_UPDATE_RESPONSE_VDXF_KEY.vdxfid, IdentityUpdateResponseOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS.toNumber(), PROVISION_IDENTITY_DETAILS_VDXF_KEY.vdxfid, ProvisionIdentityDetailsOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_APP_ENCRYPTION_REQUEST.toNumber(), APP_ENCRYPTION_REQUEST_VDXF_KEY.vdxfid, AppEncryptionRequestOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(VDXF_ORDINAL_DATA_RESPONSE.toNumber(), DATA_RESPONSE_VDXF_KEY.vdxfid, DataPacketResponseOrdinalVDXFObject, false);
