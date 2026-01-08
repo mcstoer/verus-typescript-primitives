@@ -37,8 +37,8 @@ export interface AuthenticationRequestDetailsJson {
     version: number;
     requestid: string;
     flags: number;
-    recipientConstraints?: Array<RecipientConstraintJson>;
-    responseURIs?: Array<ResponseURIJson>;
+    recipientconstraints?: Array<RecipientConstraintJson>;
+    responseuris?: Array<ResponseURIJson>;
     expirytime?: number;
 }
 export declare class AuthenticationRequestDetails implements SerializableEntity {

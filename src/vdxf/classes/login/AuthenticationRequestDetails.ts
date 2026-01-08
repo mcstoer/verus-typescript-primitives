@@ -48,8 +48,8 @@ export interface AuthenticationRequestDetailsJson {
   version: number;
   requestid: string;
   flags: number;
-  recipientConstraints?: Array<RecipientConstraintJson>;
-  responseURIs?: Array<ResponseURIJson>;
+  recipientconstraints?: Array<RecipientConstraintJson>;
+  responseuris?: Array<ResponseURIJson>;
   expirytime?: number;
 }
 
@@ -228,20 +228,19 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   }
 
   static fromJson(data: AuthenticationRequestDetailsJson): AuthenticationRequestDetails {
-
     const loginDetails = new AuthenticationRequestDetails();
 
     loginDetails.version = new BN(data?.version || 0);
     loginDetails.flags = new BN(data?.flags || 0);
     loginDetails.requestID = data.requestid;
 
-    if(loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
-      loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({type: p.type,
+    if(loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
+      loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({type: p.type,
         identity: CompactAddressObject.fromJson(p.identity)}));
     }
 
-    if(loginDetails.hasResponseURIs() && data.responseURIs) {
-      loginDetails.responseURIs = data.responseURIs.map(c => ResponseURI.fromJson(c));
+    if(loginDetails.hasResponseURIs() && data.responseuris) {
+      loginDetails.responseURIs = data.responseuris.map(c => ResponseURI.fromJson(c));
     }
 
     if(loginDetails.hasExpiryTime() && data.expirytime) {

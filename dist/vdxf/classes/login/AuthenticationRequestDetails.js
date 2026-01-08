@@ -148,12 +148,12 @@ class AuthenticationRequestDetails {
         loginDetails.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         loginDetails.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
         loginDetails.requestID = data.requestid;
-        if (loginDetails.hasRecipentConstraints() && data.recipientConstraints) {
-            loginDetails.recipientConstraints = data.recipientConstraints.map(p => ({ type: p.type,
+        if (loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
+            loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({ type: p.type,
                 identity: CompactAddressObject_1.CompactAddressObject.fromJson(p.identity) }));
         }
-        if (loginDetails.hasResponseURIs() && data.responseURIs) {
-            loginDetails.responseURIs = data.responseURIs.map(c => ResponseURI_1.ResponseURI.fromJson(c));
+        if (loginDetails.hasResponseURIs() && data.responseuris) {
+            loginDetails.responseURIs = data.responseuris.map(c => ResponseURI_1.ResponseURI.fromJson(c));
         }
         if (loginDetails.hasExpiryTime() && data.expirytime) {
             loginDetails.expiryTime = new bn_js_1.BN(data.expirytime);
