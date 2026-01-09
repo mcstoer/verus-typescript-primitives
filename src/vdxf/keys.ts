@@ -51,6 +51,16 @@ export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "iLWiYHVjoTyoeKwji1B5vRT9Xr1aA9yyvX"
 }
 
+export const GENERIC_RESPONSE_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "4eb641e76ca30947a0782a7c9b5d79e934300340",
+  "indexid": "xE96xgWEcUhxTuVAMr4TvW7mGpR5c2SFy4",
+  "qualifiedname": {
+    "name": "vrsc::response.generic",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "i9JzVt59mAVHqjc8WAQJx7bEFAQ4ffuhrC"
+}
+
 export const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "0bcef8b06c211828d16dc038e4d34d097aeb64e4",
   "indexid": "xV8GreW8nt1Py99r8KPsLxDyy6UYJQvXja",

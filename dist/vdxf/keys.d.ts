@@ -14,6 +14,7 @@ export declare const VERUSPAY_INVOICE_VDXF_KEY: VDXFKeyInterface;
 export declare const VERUSPAY_INVOICE_DETAILS_VDXF_KEY: VDXFKeyInterface;
 export declare const GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY: VDXFKeyInterface;
 export declare const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface;
+export declare const GENERIC_RESPONSE_DEEPLINK_VDXF_KEY: VDXFKeyInterface;
 export declare const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface;
 export declare const IDENTITY_UPDATE_RESPONSE_VDXF_KEY: VDXFKeyInterface;
 export declare const IDENTITY_AUTH_SIG_VDXF_KEY: VDXFKeyInterface;
