@@ -6,7 +6,6 @@
  * including specific recipientConstraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
- * - Response URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  *
  * The user's wallet can use these parameters to present a clear authentication request
@@ -22,22 +21,17 @@ const varuint_1 = require("../../../utils/varuint");
 const vdxf_1 = require("../../../constants/vdxf");
 const address_1 = require("../../../utils/address");
 const CompactAddressObject_1 = require("../CompactAddressObject");
-const ResponseURI_1 = require("../ResponseURI");
 class AuthenticationRequestDetails {
     constructor(request) {
         this.version = (request === null || request === void 0 ? void 0 : request.version) || AuthenticationRequestDetails.DEFAULT_VERSION;
         this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || '';
         this.flags = (request === null || request === void 0 ? void 0 : request.flags) || new bn_js_1.BN(0, 10);
         this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) || null;
-        this.responseURIs = (request === null || request === void 0 ? void 0 : request.responseURIs) || null;
         this.expiryTime = (request === null || request === void 0 ? void 0 : request.expiryTime) || null;
         this.setFlags();
     }
     hasRecipentConstraints() {
         return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
-    }
-    hasResponseURIs() {
-        return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS).eq(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
     }
     hasExpiryTime() {
         return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
@@ -45,9 +39,6 @@ class AuthenticationRequestDetails {
     calcFlags(flags = this.flags) {
         if (this.recipientConstraints) {
             flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
-        }
-        if (this.responseURIs) {
-            flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
         }
         if (this.expiryTime) {
             flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
@@ -65,12 +56,6 @@ class AuthenticationRequestDetails {
                 length += this.recipientConstraints[i].identity.getByteLength();
             }
         }
-        if (this.hasResponseURIs()) {
-            length += varuint_1.default.encodingLength(this.responseURIs.length);
-            for (let i = 0; i < this.responseURIs.length; i++) {
-                length += this.responseURIs[i].getByteLength();
-            }
-        }
         if (this.hasExpiryTime()) {
             length += varuint_1.default.encodingLength(this.expiryTime.toNumber());
         }
@@ -85,12 +70,6 @@ class AuthenticationRequestDetails {
             for (let i = 0; i < this.recipientConstraints.length; i++) {
                 writer.writeCompactSize(this.recipientConstraints[i].type);
                 writer.writeSlice(this.recipientConstraints[i].identity.toBuffer());
-            }
-        }
-        if (this.hasResponseURIs()) {
-            writer.writeCompactSize(this.responseURIs.length);
-            for (let i = 0; i < this.responseURIs.length; i++) {
-                writer.writeSlice(this.responseURIs[i].toBuffer());
             }
         }
         if (this.hasExpiryTime()) {
@@ -116,15 +95,6 @@ class AuthenticationRequestDetails {
                 });
             }
         }
-        if (this.hasResponseURIs()) {
-            this.responseURIs = [];
-            const callbackURIsLength = reader.readCompactSize();
-            for (let i = 0; i < callbackURIsLength; i++) {
-                const newURI = new ResponseURI_1.ResponseURI();
-                reader.offset = newURI.fromBuffer(reader.buffer, reader.offset);
-                this.responseURIs.push(newURI);
-            }
-        }
         if (this.hasExpiryTime()) {
             this.expiryTime = new bn_js_1.BN(reader.readCompactSize());
         }
@@ -138,7 +108,6 @@ class AuthenticationRequestDetails {
             requestid: this.requestID,
             recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({ type: p.type,
                 identity: p.identity.toJson() })) : undefined,
-            responseURIs: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
             expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
         };
         return retval;
@@ -151,9 +120,6 @@ class AuthenticationRequestDetails {
         if (loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
             loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({ type: p.type,
                 identity: CompactAddressObject_1.CompactAddressObject.fromJson(p.identity) }));
-        }
-        if (loginDetails.hasResponseURIs() && data.responseuris) {
-            loginDetails.responseURIs = data.responseuris.map(c => ResponseURI_1.ResponseURI.fromJson(c));
         }
         if (loginDetails.hasExpiryTime() && data.expirytime) {
             loginDetails.expiryTime = new bn_js_1.BN(data.expirytime);
@@ -178,11 +144,6 @@ class AuthenticationRequestDetails {
                 return false;
             }
         }
-        if (this.hasResponseURIs()) {
-            if (!this.responseURIs || this.responseURIs.length === 0) {
-                return false;
-            }
-        }
         if (this.hasExpiryTime()) {
             if (!this.expiryTime || this.expiryTime.isZero()) {
                 return false;
@@ -197,8 +158,7 @@ AuthenticationRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1, 10);
 AuthenticationRequestDetails.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
 AuthenticationRequestDetails.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
 AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS = new bn_js_1.BN(1, 10);
-AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS = new bn_js_1.BN(2, 10);
-AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(4, 10);
+AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(2, 10);
 // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
 AuthenticationRequestDetails.REQUIRED_ID = 1;
 AuthenticationRequestDetails.REQUIRED_SYSTEM = 2;

@@ -5,7 +5,6 @@
  * including specific recipientConstraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
- * - Response URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  *
  * The user's wallet can use these parameters to present a clear authentication request
@@ -16,13 +15,11 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
-import { ResponseURI, ResponseURIJson } from "../ResponseURI";
 export interface AuthenticationRequestDetailsInterface {
     version?: BigNumber;
     flags?: BigNumber;
     requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
-    responseURIs?: Array<ResponseURI>;
     expiryTime?: BigNumber;
 }
 export interface RecipientConstraintJson {
@@ -38,7 +35,6 @@ export interface AuthenticationRequestDetailsJson {
     requestid: string;
     flags: number;
     recipientconstraints?: Array<RecipientConstraintJson>;
-    responseuris?: Array<ResponseURIJson>;
     expirytime?: number;
 }
 export declare class AuthenticationRequestDetails implements SerializableEntity {
@@ -46,20 +42,17 @@ export declare class AuthenticationRequestDetails implements SerializableEntity 
     flags?: BigNumber;
     requestID: string;
     recipientConstraints?: Array<RecipientConstraint>;
-    responseURIs?: Array<ResponseURI>;
     expiryTime?: BigNumber;
     static DEFAULT_VERSION: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");
     static VERSION_LASTVALID: import("bn.js");
     static FLAG_HAS_RECIPIENT_CONSTRAINTS: import("bn.js");
-    static FLAG_HAS_RESPONSE_URIS: import("bn.js");
     static FLAG_HAS_EXPIRY_TIME: import("bn.js");
     static REQUIRED_ID: number;
     static REQUIRED_SYSTEM: number;
     static REQUIRED_PARENT: number;
     constructor(request?: AuthenticationRequestDetailsInterface);
     hasRecipentConstraints(): boolean;
-    hasResponseURIs(): boolean;
     hasExpiryTime(): boolean;
     calcFlags(flags?: BigNumber): BigNumber;
     getByteLength(): number;

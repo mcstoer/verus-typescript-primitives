@@ -6,7 +6,6 @@
  * including specific recipientConstraints and callback information. The request includes:
  * - Request ID for tracking the authentication session
  * - Permission sets defining what access the application is requesting
- * - Response URIs for post-authentication redirects
  * - Optional expiry time for the authentication session
  * 
  * The user's wallet can use these parameters to present a clear authentication request
@@ -23,14 +22,12 @@ import varuint from "../../../utils/varuint";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from "../../../utils/address";
 import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
-import { ResponseURI, ResponseURIJson } from "../ResponseURI";
 
 export interface AuthenticationRequestDetailsInterface {
   version?: BigNumber;
   flags?: BigNumber;  
   requestID: string;
   recipientConstraints?: Array<RecipientConstraint>;
-  responseURIs?: Array<ResponseURI>;
   expiryTime?: BigNumber; // UNIX Timestamp
 }
 
@@ -49,7 +46,6 @@ export interface AuthenticationRequestDetailsJson {
   requestid: string;
   flags: number;
   recipientconstraints?: Array<RecipientConstraintJson>;
-  responseuris?: Array<ResponseURIJson>;
   expirytime?: number;
 }
 
@@ -58,7 +54,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   flags?: BigNumber;  
   requestID: string;
   recipientConstraints?: Array<RecipientConstraint>;
-  responseURIs?: Array<ResponseURI>;
   expiryTime?: BigNumber; // UNIX Timestamp
 
   // Version
@@ -67,8 +62,7 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   static VERSION_LASTVALID = new BN(1, 10)
 
   static FLAG_HAS_RECIPIENT_CONSTRAINTS = new BN(1, 10);
-  static FLAG_HAS_RESPONSE_URIS = new BN(2, 10);
-  static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
+  static FLAG_HAS_EXPIRY_TIME = new BN(2, 10);
 
   // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
   static REQUIRED_ID = 1;
@@ -82,7 +76,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     this.requestID = request?.requestID || '';
     this.flags = request?.flags || new BN(0, 10);
     this.recipientConstraints = request?.recipientConstraints || null;
-    this.responseURIs = request?.responseURIs || null;
     this.expiryTime = request?.expiryTime || null;
 
     this.setFlags();
@@ -92,10 +85,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
   }
 
-  hasResponseURIs(): boolean {
-    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS).eq(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
-  }
-
   hasExpiryTime(): boolean {
     return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
   }
@@ -103,9 +92,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   calcFlags(flags: BigNumber = this.flags): BigNumber {
     if (this.recipientConstraints) {
       flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
-    }
-    if (this.responseURIs) {
-      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RESPONSE_URIS);
     }
     if (this.expiryTime) {
       flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
@@ -127,14 +113,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
       }      
     }
 
-    if (this.hasResponseURIs()) {
-      length += varuint.encodingLength(this.responseURIs.length);
-
-      for (let i = 0; i < this.responseURIs.length; i++) {
-        length += this.responseURIs[i].getByteLength();
-      }
-    }
-
     if (this.hasExpiryTime()) {
       length += varuint.encodingLength(this.expiryTime.toNumber());
     }
@@ -153,14 +131,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
       for (let i = 0; i < this.recipientConstraints.length; i++) {
         writer.writeCompactSize(this.recipientConstraints[i].type);
         writer.writeSlice(this.recipientConstraints[i].identity.toBuffer());
-      }
-    }
-
-    if (this.hasResponseURIs()) {
-      writer.writeCompactSize(this.responseURIs.length);
-
-      for (let i = 0; i < this.responseURIs.length; i++) {
-        writer.writeSlice(this.responseURIs[i].toBuffer());
       }
     }
 
@@ -193,17 +163,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
       }
     } 
 
-    if (this.hasResponseURIs()) {
-      this.responseURIs = [];
-      const callbackURIsLength = reader.readCompactSize();
-
-      for (let i = 0; i < callbackURIsLength; i++) {
-        const newURI = new ResponseURI();
-        reader.offset = newURI.fromBuffer(reader.buffer, reader.offset);
-        this.responseURIs.push(newURI);
-      }
-    }
-
     if (this.hasExpiryTime()) {
       this.expiryTime = new BN(reader.readCompactSize());
     }
@@ -220,7 +179,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
       requestid: this.requestID,
       recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
-      responseURIs: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
       expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
     };
 
@@ -237,10 +195,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     if(loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
       loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({type: p.type,
         identity: CompactAddressObject.fromJson(p.identity)}));
-    }
-
-    if(loginDetails.hasResponseURIs() && data.responseuris) {
-      loginDetails.responseURIs = data.responseuris.map(c => ResponseURI.fromJson(c));
     }
 
     if(loginDetails.hasExpiryTime() && data.expirytime) {
@@ -267,12 +221,6 @@ export class AuthenticationRequestDetails implements SerializableEntity {
 
     if (this.hasRecipentConstraints()) {
       if (!this.recipientConstraints || this.recipientConstraints.length === 0) {
-        return false;
-      }
-    }
-
-    if (this.hasResponseURIs()) {
-      if (!this.responseURIs || this.responseURIs.length === 0) {
         return false;
       }
     }

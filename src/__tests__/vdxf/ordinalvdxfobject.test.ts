@@ -341,7 +341,6 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
         { type: AuthenticationRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
         { type: AuthenticationRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
       ],
-      responseURIs: [ResponseURI.fromUriString("https://example.com/callback", ResponseURI.TYPE_POST)],
       expiryTime: new BN(2938475938457)
     });
 
