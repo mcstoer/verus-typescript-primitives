@@ -24,7 +24,6 @@ import {
   AuthenticationRequestDetails,
   AuthenticationResponseDetails,
   ProvisionIdentityDetails,
-  ResponseURI,
   VerusPayInvoiceDetails,
   UserDataRequestDetails,
   UserSpecificDataPacketDetails,
@@ -277,10 +276,6 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
         systemid: TEST_SYSTEMID.toAddress() as string,
         requestid: TEST_REQUESTID.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(),
-        responseuris: [
-          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(),
-          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
-        ],
         txid: TEST_TXID
       }
     );

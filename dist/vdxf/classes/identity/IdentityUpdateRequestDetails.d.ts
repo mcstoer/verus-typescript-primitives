@@ -2,7 +2,6 @@ import { PartialIdentity } from '../../../pbaas/PartialIdentity';
 import { PartialSignData, PartialSignDataCLIJson, PartialSignDataJson } from '../../../pbaas/PartialSignData';
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { ContentMultiMapJsonValue, IdentityID, VerusCLIVerusIDJson, VerusCLIVerusIDJsonBase } from '../../../pbaas';
-import { ResponseURI, ResponseURIJson } from '../ResponseURI';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 export type SignDataMap = Map<string, PartialSignData>;
 export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{
@@ -16,7 +15,6 @@ export type IdentityUpdateRequestDetailsJson = {
     identity?: VerusCLIVerusIDJson;
     expiryheight?: string;
     systemid?: string;
-    responseuris?: Array<ResponseURIJson>;
     signdatamap?: {
         [key: string]: PartialSignDataJson;
     };
@@ -28,13 +26,11 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     identity?: PartialIdentity;
     expiryHeight?: BigNumber;
     systemID?: IdentityID;
-    responseURIs?: Array<ResponseURI>;
     signDataMap?: SignDataMap;
     txid?: Buffer;
     static IDENTITY_UPDATE_REQUEST_VALID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_EXPIRES: import("bn.js");
-    static IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID: import("bn.js");
@@ -46,7 +42,6 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
         expiryHeight?: BigNumber;
         systemID?: IdentityID;
         txid?: Buffer;
-        responseURIs?: Array<ResponseURI>;
         signDataMap?: SignDataMap;
     });
     expires(): boolean;
@@ -54,14 +49,12 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     containsSystem(): boolean;
     containsRequestID(): boolean;
     containsTxid(): boolean;
-    containsResponseUris(): boolean;
     isTestnet(): boolean;
     toggleExpires(): void;
     toggleContainsSignData(): void;
     toggleContainsSystem(): void;
     toggleContainsRequestID(): void;
     toggleContainsTxid(): void;
-    toggleContainsResponseUris(): void;
     toggleIsTestnet(): void;
     toSha256(): Buffer<ArrayBufferLike>;
     getIdentityAddress(): string;

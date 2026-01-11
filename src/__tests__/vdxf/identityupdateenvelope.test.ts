@@ -1,7 +1,6 @@
 import { IdentityUpdateRequestDetails } from "../../vdxf/classes/identity/IdentityUpdateRequestDetails";
 import { IdentityUpdateResponseDetails } from "../../vdxf/classes/identity/IdentityUpdateResponseDetails";
 import { ContentMultiMap } from "../../pbaas";
-import { ResponseURI } from "../../vdxf/classes/ResponseURI";
 import { PartialSignData } from "../../pbaas/PartialSignData";
 import { 
   TEST_BASE_SIGN_DATA_WITH_MMR_DATA, 
@@ -64,11 +63,10 @@ describe("IdentityUpdate request/response details Serialization", () => {
       systemID: TEST_SYSTEMID, 
       identity: TEST_PARTIAL_IDENTITY,
       expiryHeight: TEST_EXPIRYHEIGHT,
-      responseURIs: [ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT), ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST)],
       signDataMap: TEST_SIGNDATA_MAP
     };
 
-    const toRemove = ["expiryHeight", "responseURIs", "signDataMap", "systemID"];
+    const toRemove = ["expiryHeight", "signDataMap", "systemID"];
 
     for (let i = 0; i < toRemove.length + 1; i++) {
       const newRequestDetails = new IdentityUpdateRequestDetails({ ...baseRequestDetailsConfig });
@@ -157,11 +155,6 @@ describe("IdentityUpdate request/response details Serialization", () => {
     testJsonSerialization(TEST_MMR_DATA);
   });
 
-  test("Serialize/Deserialize ResponseURI to/from JSON", () => {
-    const responseUri = ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT);
-    testJsonSerialization(responseUri);
-  });
-
   test("Serialize/Deserialize ContentMultiMap to/from JSON", () => {
     const contentMultiMap = ContentMultiMap.fromJson({
       "iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j": [
@@ -185,10 +178,6 @@ describe("IdentityUpdate request/response details Serialization", () => {
         systemid: TEST_SYSTEMID.toAddress() as string, 
         requestid: TEST_REQUESTID.toString(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(), 
-        responseuris: [
-          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(), 
-          ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
-        ],
         txid: TEST_TXID
       }
     );
@@ -202,10 +191,6 @@ describe("IdentityUpdate request/response details Serialization", () => {
     const detailsProps = {
       requestID: TEST_REQUESTID.toString(),
       expiryHeight: TEST_EXPIRYHEIGHT.toString(), 
-      responseuris: [
-        ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_REDIRECT).toJson(), 
-        ResponseURI.fromUriString("http:/127.0.0.1:8000", ResponseURI.TYPE_POST).toJson()
-      ],
       txid: TEST_TXID
     };
 

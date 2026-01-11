@@ -10,7 +10,6 @@ const PartialIdentity_1 = require("../../../pbaas/PartialIdentity");
 const PartialSignData_1 = require("../../../pbaas/PartialSignData");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
-const ResponseURI_1 = require("../ResponseURI");
 const pbaas_2 = require("../../../constants/pbaas");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateRequestDetails {
@@ -39,11 +38,6 @@ class IdentityUpdateRequestDetails {
                 this.toggleContainsTxid();
             this.txid = data.txid;
         }
-        if (data === null || data === void 0 ? void 0 : data.responseURIs) {
-            if (!this.containsResponseUris())
-                this.toggleContainsResponseUris();
-            this.responseURIs = data.responseURIs;
-        }
         if (data === null || data === void 0 ? void 0 : data.signDataMap) {
             if (!this.containsSignData())
                 this.toggleContainsSignData();
@@ -65,9 +59,6 @@ class IdentityUpdateRequestDetails {
     containsTxid() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID).toNumber());
     }
-    containsResponseUris() {
-        return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS).toNumber());
-    }
     isTestnet() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET).toNumber());
     }
@@ -85,9 +76,6 @@ class IdentityUpdateRequestDetails {
     }
     toggleContainsTxid() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID);
-    }
-    toggleContainsResponseUris() {
-        this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS);
     }
     toggleIsTestnet() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET);
@@ -123,10 +111,6 @@ class IdentityUpdateRequestDetails {
         if (this.containsTxid()) {
             length += pbaas_2.UINT_256_LENGTH;
         }
-        if (this.containsResponseUris()) {
-            length += varuint_1.default.encodingLength(this.responseURIs.length);
-            length += this.responseURIs.reduce((sum, current) => sum + current.getByteLength(), 0);
-        }
         if (this.containsSignData()) {
             length += varuint_1.default.encodingLength(this.signDataMap.size);
             for (const [key, value] of this.signDataMap.entries()) {
@@ -151,9 +135,6 @@ class IdentityUpdateRequestDetails {
             if (this.txid.length !== pbaas_2.UINT_256_LENGTH)
                 throw new Error("invalid txid length");
             writer.writeSlice(this.txid);
-        }
-        if (this.containsResponseUris()) {
-            writer.writeArray(this.responseURIs.map((x) => x.toBuffer()));
         }
         if (this.containsSignData()) {
             writer.writeCompactSize(this.signDataMap.size);
@@ -182,15 +163,6 @@ class IdentityUpdateRequestDetails {
         if (this.containsTxid()) {
             this.txid = reader.readSlice(pbaas_2.UINT_256_LENGTH);
         }
-        if (this.containsResponseUris()) {
-            this.responseURIs = [];
-            const urisLength = reader.readCompactSize();
-            for (let i = 0; i < urisLength; i++) {
-                const uri = new ResponseURI_1.ResponseURI();
-                reader.offset = uri.fromBuffer(reader.buffer, reader.offset);
-                this.responseURIs.push(uri);
-            }
-        }
         if (this.containsSignData()) {
             this.signDataMap = new Map();
             const size = reader.readCompactSize();
@@ -218,7 +190,6 @@ class IdentityUpdateRequestDetails {
             expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
             systemid: this.systemID ? this.systemID.toAddress() : undefined,
             txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
-            responseuris: this.responseURIs ? this.responseURIs.map(x => x.toJson()) : undefined,
             signdatamap: signDataJson
         };
     }
@@ -236,7 +207,6 @@ class IdentityUpdateRequestDetails {
             identity: json.identity ? PartialIdentity_1.PartialIdentity.fromJson(json.identity) : undefined,
             expiryHeight: json.expiryheight ? new bn_js_1.BN(json.expiryheight, 10) : undefined,
             systemID: json.systemid ? pbaas_1.IdentityID.fromAddress(json.systemid) : undefined,
-            responseURIs: json.responseuris ? json.responseuris.map(x => ResponseURI_1.ResponseURI.fromJson(x)) : undefined,
             signDataMap,
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
         });
@@ -277,7 +247,6 @@ class IdentityUpdateRequestDetails {
             systemID: (details === null || details === void 0 ? void 0 : details.systemid) ? pbaas_1.IdentityID.fromAddress(details.systemid) : undefined,
             requestID: details === null || details === void 0 ? void 0 : details.requestid,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
-            responseURIs: (details === null || details === void 0 ? void 0 : details.responseuris) ? details.responseuris.map(x => ResponseURI_1.ResponseURI.fromJson(x)) : undefined,
             txid: (details === null || details === void 0 ? void 0 : details.txid) ? Buffer.from(details.txid, 'hex').reverse() : undefined,
         });
     }
@@ -287,8 +256,7 @@ exports.IdentityUpdateRequestDetails = IdentityUpdateRequestDetails;
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_VALID = new bn_js_1.BN(0, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SIGNDATA = new bn_js_1.BN(1, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES = new bn_js_1.BN(2, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_RESPONSE_URIS = new bn_js_1.BN(4, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new bn_js_1.BN(8, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(16, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(32, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(64, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new bn_js_1.BN(4, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(8, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(16, 10);
+IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(32, 10);
