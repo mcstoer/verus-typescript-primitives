@@ -43,7 +43,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
   static IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new BN(4, 10);
   static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new BN(8, 10);
   static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new BN(16, 10);
-  static IDENTITY_UPDATE_REQUEST_IS_TESTNET = new BN(32, 10);
 
   constructor (data?: {
     flags?: BigNumber,
@@ -106,10 +105,6 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID).toNumber());
   }
 
-  isTestnet() {
-    return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET).toNumber());
-  }
-
   toggleExpires() {
     this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES);
   }
@@ -130,20 +125,16 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID);
   }
 
-  toggleIsTestnet() {
-    this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET);
-  }
-
   toSha256() {
     return createHash("sha256").update(this.toBuffer()).digest();
   }
 
-  getIdentityAddress() {
+  getIdentityAddress(isTestnet: boolean = false) {
     if (this.identity.name === "VRSC" || this.identity.name === "VRSCTEST") {
       return nameAndParentAddrToIAddr(this.identity.name);
     } else if (this.identity.parent) {
       return this.identity.getIdentityAddress();
-    } else if (this.isTestnet()) {
+    } else if (isTestnet) {
       return nameAndParentAddrToIAddr(this.identity.name, nameAndParentAddrToIAddr("VRSCTEST"));
     } else {
       return nameAndParentAddrToIAddr(this.identity.name, nameAndParentAddrToIAddr("VRSC"));

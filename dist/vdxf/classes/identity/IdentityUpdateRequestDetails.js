@@ -59,9 +59,6 @@ class IdentityUpdateRequestDetails {
     containsTxid() {
         return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID).toNumber());
     }
-    isTestnet() {
-        return !!(this.flags.and(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET).toNumber());
-    }
     toggleExpires() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES);
     }
@@ -77,20 +74,17 @@ class IdentityUpdateRequestDetails {
     toggleContainsTxid() {
         this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID);
     }
-    toggleIsTestnet() {
-        this.flags = this.flags.xor(IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET);
-    }
     toSha256() {
         return createHash("sha256").update(this.toBuffer()).digest();
     }
-    getIdentityAddress() {
+    getIdentityAddress(isTestnet = false) {
         if (this.identity.name === "VRSC" || this.identity.name === "VRSCTEST") {
             return (0, address_1.nameAndParentAddrToIAddr)(this.identity.name);
         }
         else if (this.identity.parent) {
             return this.identity.getIdentityAddress();
         }
-        else if (this.isTestnet()) {
+        else if (isTestnet) {
             return (0, address_1.nameAndParentAddrToIAddr)(this.identity.name, (0, address_1.nameAndParentAddrToIAddr)("VRSCTEST"));
         }
         else {
@@ -259,4 +253,3 @@ IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_EXPIRES = new bn_js_1.BN(2,
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID = new bn_js_1.BN(4, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM = new bn_js_1.BN(8, 10);
 IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_CONTAINS_TXID = new bn_js_1.BN(16, 10);
-IdentityUpdateRequestDetails.IDENTITY_UPDATE_REQUEST_IS_TESTNET = new bn_js_1.BN(32, 10);

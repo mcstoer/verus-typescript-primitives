@@ -34,7 +34,6 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     static IDENTITY_UPDATE_REQUEST_CONTAINS_REQUEST_ID: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_SYSTEM: import("bn.js");
     static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID: import("bn.js");
-    static IDENTITY_UPDATE_REQUEST_IS_TESTNET: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
         requestID?: string;
@@ -49,15 +48,13 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     containsSystem(): boolean;
     containsRequestID(): boolean;
     containsTxid(): boolean;
-    isTestnet(): boolean;
     toggleExpires(): void;
     toggleContainsSignData(): void;
     toggleContainsSystem(): void;
     toggleContainsRequestID(): void;
     toggleContainsTxid(): void;
-    toggleIsTestnet(): void;
     toSha256(): Buffer<ArrayBufferLike>;
-    getIdentityAddress(): string;
+    getIdentityAddress(isTestnet?: boolean): string;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number, parseVdxfObjects?: boolean): number;
