@@ -302,7 +302,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     }
 
     if (this.isTagged()) {
-      this.tag = new CompactAddressObject<CompactAddressXVariant>();
+      this.tag = new CompactXAddressObject;
 
       reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
     }
@@ -319,7 +319,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
       expiryheight: data.expiryheight != null ? new BN(data.expiryheight) : undefined,
       maxestimatedslippage: data.maxestimatedslippage != null ? new BN(data.maxestimatedslippage) : undefined,
       acceptedsystems: data.acceptedsystems,
-      tag: data.tag ? CompactAddressObject.fromJson(data.tag) : undefined
+      tag: data.tag ? CompactAddressObject.fromJson(data.tag) as CompactXAddressObject : undefined
     }, verusPayVersion)
   }
 

@@ -229,7 +229,7 @@ class VerusPayInvoiceDetails {
             this.acceptedsystems = acceptedSystemsBuffers.map(x => (0, address_1.toBase58Check)(x, vdxf_1.I_ADDR_VERSION));
         }
         if (this.isTagged()) {
-            this.tag = new CompactAddressObject_1.CompactAddressObject();
+            this.tag = new CompactAddressObject_1.CompactXAddressObject;
             reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;

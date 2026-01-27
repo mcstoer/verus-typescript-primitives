@@ -1,4 +1,4 @@
-import { CompactAddressObject, CompactAddressXVariant } from '../../vdxf/classes/CompactAddressObject';
+import { CompactAddressObject, CompactAddressXVariant, CompactXAddressObject } from '../../vdxf/classes/CompactAddressObject';
 import { BN } from "bn.js";
 
 
@@ -23,6 +23,7 @@ describe("CompactAddressObject", () => {
       expect(newDetails.address).toBe("iB5PRXMHLYcNtM8dfLB6KwfJrHU2mKDYuU");
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
+      expect(item.toIAddress()).toBe("iB5PRXMHLYcNtM8dfLB6KwfJrHU2mKDYuU");
     });
 
     test("creates instance with xaddress", () => {
@@ -61,6 +62,25 @@ describe("CompactAddressObject", () => {
       expect(newDetails.rootSystemName).toBe("VRSC");
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
       expect(item.toXAddress()).toBe("xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf");
+    });
+
+    test("creates instance of CompactXAddress with data key", () => {
+      const item = new CompactXAddressObject({
+        version: new BN(CompactAddressObject.DEFAULT_VERSION),
+        type: CompactAddressObject.TYPE_FQN,
+        address: "vrsc::applications.wallet"
+      });
+
+      const detailsBuffer = item.toBuffer();
+
+      const newDetails = new CompactAddressObject<CompactAddressXVariant>();
+      newDetails.fromBuffer(detailsBuffer);
+      expect(newDetails.version.toString()).toBe("1");
+      expect(newDetails.BNType.toNumber()).toBe(CompactAddressObject.TYPE_FQN.toNumber());
+      expect(newDetails.address).toBe("vrsc::applications.wallet");
+      expect(newDetails.rootSystemName).toBe("VRSC");
+      expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
+      expect(item.toAddress()).toBe("xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf");
     });
 
     test("creates instance with fqn", () => {

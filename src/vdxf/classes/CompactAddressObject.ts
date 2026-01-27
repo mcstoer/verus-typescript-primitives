@@ -190,4 +190,16 @@ export class CompactAddressObject<V extends CompactAddressVariantName = CompactA
   }
 }
 
-export type CompactXAddressObject = CompactAddressObject<CompactAddressXVariant>;
+export class CompactXAddressObject extends CompactAddressObject<CompactAddressXVariant> {
+  static fromAddress(xaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactXAddressObject {
+    return new CompactXAddressObject({
+      address: xaddr,
+      nameSpace: nameSpace,
+      type: CompactAddressObject.TYPE_X_ADDRESS
+    })
+  }
+
+  toAddress() {
+    return this.toXAddress();
+  }
+};

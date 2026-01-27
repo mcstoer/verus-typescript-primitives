@@ -8,7 +8,7 @@
  * and validation of the compact id object.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CompactAddressObject = void 0;
+exports.CompactXAddressObject = exports.CompactAddressObject = void 0;
 const bn_js_1 = require("bn.js");
 const bufferutils_1 = require("../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
@@ -139,3 +139,17 @@ CompactAddressObject.DEFAULT_VERSION = new bn_js_1.BN(1);
 CompactAddressObject.TYPE_FQN = new bn_js_1.BN(1);
 CompactAddressObject.TYPE_I_ADDRESS = new bn_js_1.BN(2);
 CompactAddressObject.TYPE_X_ADDRESS = new bn_js_1.BN(3);
+class CompactXAddressObject extends CompactAddressObject {
+    static fromAddress(xaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+        return new CompactXAddressObject({
+            address: xaddr,
+            nameSpace: nameSpace,
+            type: CompactAddressObject.TYPE_X_ADDRESS
+        });
+    }
+    toAddress() {
+        return this.toXAddress();
+    }
+}
+exports.CompactXAddressObject = CompactXAddressObject;
+;

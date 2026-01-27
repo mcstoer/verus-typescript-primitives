@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { CompactAddressObject, VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
+import { CompactAddressObject, CompactXAddressObject, VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
 import { DEST_PKH, TransferDestination } from "../../pbaas/TransferDestination";
 import { fromBase58Check } from "../../utils/address";
 import { VERUSPAY_VERSION_3, VERUSPAY_VERSION_4, VERUSPAY_VERSION_FIRSTVALID, VERUSPAY_VERSION_LASTVALID } from "../../constants/vdxf/veruspay";
@@ -314,7 +314,7 @@ describe('Serializes and deserializes VerusPay invoice', () => {
       maxestimatedslippage: new BN(40000000, 10),
       expiryheight: new BN(2000000, 10),
       acceptedsystems: ["iNC9NG5Jqk2tqVtqfjfiSpaqxrXaFU6RDu", "iBDkVJqik6BrtcDBQfFygffiYzTMy6EuhU"],
-      tag: CompactAddressObject.fromXAddress("xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf")
+      tag: CompactXAddressObject.fromAddress("xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf")
     }, version)
 
     details.setFlags({
