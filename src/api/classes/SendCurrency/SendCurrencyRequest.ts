@@ -17,6 +17,7 @@ type output = {
   preconvert?: boolean;
   burn?: boolean;
   mintnew?: boolean;
+  vdxftag?: string;
 }
 
 export class SendCurrencyRequest extends ApiRequest {
