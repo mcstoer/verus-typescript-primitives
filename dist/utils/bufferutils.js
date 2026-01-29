@@ -1,7 +1,7 @@
 "use strict";
 // The MIT License (MIT)
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reverseBuffer = exports.writeUInt64LE = exports.readUInt64LE = void 0;
+exports.BufferReader = exports.BufferWriter = exports.reverseBuffer = exports.writeUInt64LE = exports.readUInt64LE = void 0;
 const varuint_1 = require("./varuint");
 const varint_1 = require("./varint");
 const bn_js_1 = require("bn.js");
@@ -69,7 +69,7 @@ class BufferWriter {
         this.offset = (0, exports.writeUInt64LE)(this.buffer, i, this.offset);
     }
     writeInt64(i) {
-        const slice = i.toBuffer('le', 8);
+        const slice = i.toBuffer("le", 8);
         this.writeSlice(slice);
     }
     writeCompactSize(i) {
@@ -99,6 +99,7 @@ class BufferWriter {
         array.forEach((buf) => this.writeSlice(buf));
     }
 }
+exports.BufferWriter = BufferWriter;
 /**
  * Helper class for reading of bitcoin data types from a buffer.
  */
@@ -133,7 +134,7 @@ class BufferReader {
         return result;
     }
     readInt64() {
-        return new bn_js_1.BN(this.readSlice(8), 16, 'le');
+        return new bn_js_1.BN(this.readSlice(8), 16, "le");
     }
     readCompactSize() {
         const vi = varuint_1.default.decode(this.buffer, this.offset);
@@ -171,6 +172,7 @@ class BufferReader {
         return array;
     }
 }
+exports.BufferReader = BufferReader;
 exports.default = {
     readUInt64LE: exports.readUInt64LE,
     writeUInt64LE: exports.writeUInt64LE,

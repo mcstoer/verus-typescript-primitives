@@ -22,7 +22,7 @@
 
 import { BigNumber } from "./types/BigNumber";
 import varuint from "./varuint";
-import varint from './varint'
+import varint from "./varint";
 import { BN } from "bn.js";
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
@@ -71,7 +71,7 @@ export const reverseBuffer = (buffer: Buffer): Buffer => {
 /**
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
-class BufferWriter {
+export class BufferWriter {
   buffer: Buffer;
   offset: number;
 
@@ -101,7 +101,7 @@ class BufferWriter {
   }
 
   writeInt64(i: BigNumber) {
-    const slice = i.toBuffer('le', 8);
+    const slice = i.toBuffer("le", 8);
     this.writeSlice(slice);
   }
 
@@ -141,7 +141,7 @@ class BufferWriter {
 /**
  * Helper class for reading of bitcoin data types from a buffer.
  */
-class BufferReader {
+export class BufferReader {
   buffer: Buffer;
   offset: number;
 
@@ -181,7 +181,7 @@ class BufferReader {
   }
 
   readInt64(): BigNumber {
-    return new BN(this.readSlice(8), 16, 'le')
+    return new BN(this.readSlice(8), 16, "le");
   }
 
   readCompactSize() {

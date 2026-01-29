@@ -5,7 +5,7 @@ export declare const reverseBuffer: (buffer: Buffer) => Buffer;
 /**
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
-declare class BufferWriter {
+export declare class BufferWriter {
     buffer: Buffer;
     offset: number;
     constructor(buffer: Buffer, offset?: number);
@@ -25,7 +25,7 @@ declare class BufferWriter {
 /**
  * Helper class for reading of bitcoin data types from a buffer.
  */
-declare class BufferReader {
+export declare class BufferReader {
     buffer: Buffer;
     offset: number;
     constructor(buffer: Buffer, offset?: number);
