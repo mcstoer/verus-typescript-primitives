@@ -10,6 +10,7 @@ export declare class GetAddressDeltasResponse extends ApiResponse {
         currencyvalues?: {
             [key: string]: number;
         };
+        blocktime?: number;
         currencynames?: {
             [key: string]: string;
         };

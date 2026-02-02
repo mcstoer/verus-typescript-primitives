@@ -600,12 +600,12 @@ export const DATA_TYPE_OBJECT_CREDENTIAL: VDXFKeyInterface = {
   },
 };
 
-export const IDENTITY_CREDENTIALS: VDXFKeyInterface = {
-  vdxfid: "iM8ULboymw7rqdjX5YihsmxFG59dbyT2Cj",
-  hash160result: "089fcd4c0bb1edb78789a223cf76a3399e5ca7c1",
+export const IDENTITY_CREDENTIAL: VDXFKeyInterface = {
+  vdxfid: "iMRGoNZvSuayeu17PmbXv2CA6eRL4xfmhm",
+  hash160result: "888557a3eb9ef8b0e871ee8489de586e25cdd4c4",
   qualifiedname: {
     namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    name: "vrsc::identity.credentials"
+    name: "vrsc::identity.credential"
   },
 };
 
@@ -627,92 +627,66 @@ export const IDENTITY_CREDENTIAL_USERNAME: VDXFKeyInterface = {
   },
 };
 
-export const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface = {
-  "vdxfid": "i4BWC5Lr7gAT7KzyDx82Ye5DeFQD8ckcXe",
-  "indexid": "x91cesmvxzP7jVt15dnBX2bkfuRDya9TPq",
-  "hash160result": "3c520f0bde6be181461ebbff11bce396a604c007",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::attestation.view.request.multipleattestations"
+export const PROOFS_CONTROLLER: VDXFKeyInterface = {
+  vdxfid: "i9TbCypmPKRpKPZDjk3YcCEZXK6wmPTXjw",
+  hash160result: "aa3bd2020b6347500c1831665345a2ed417da341",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller"
   }
-}
+};
 
-export const AUTHENTICATION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "d989dfa450a2bcd597fff2409a62c00640644cba",
-  "indexid": "xRHh6LdgnyNjv5vhoUYbdPaDE5b1Asnykb",
-  "qualifiedname": {
-    "name": "vrsc::identity.authentication.request",
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
-  },
-  "vdxfid": "iLTadYCbwfA5Hv3fwntSf13gCRZzF8Qedv"
-}
-
-export const AUTHENTICATION_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "70db17c46d4aebbf0023ac0e23dd3d85c196eee8",
-  "indexid": "xVYGUq1veNvX7bQMPkysn77RwfXbLcjhnJ",
-  "qualifiedname": {
-    "name": "vrsc::identity.authentication.response",
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
-  },
-  "vdxfid": "iQiA22aqo4hrVRXKY5Kioiatv1WaSL2EEw"
-}
-
-export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
-  "hash160result": "1ed843dce0f4d9a2bbb839994e3927807eb1878c",
-  "indexid": "xM7h3sXBovFXuwGQ3wvK2ibtUmMHn3mYkM",
-  "qualifiedname": {
-    "name": "vrsc::identity.provision.details",
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
-  },
-  "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
-}
-
-export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9",
-  "indexid": "xQuu8CLZyYyPcB7gMkyP2D3pw8UgHevmcM",
-  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "application.encryption.request"
+export const PROOFS_CONTROLLER_DISCORD: VDXFKeyInterface = {
+  vdxfid: "i6mezdUSNyPq6fsze4cN6U4SAtsHHu1Tn7",
+  hash160result: "5bc38e3dc0a8d3681c4a685ea8f6658ab1c22524",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.discord"
   }
-}
+};
 
-export const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "i5L8SNcCqY68X3KZEPgJEjGxY2zvMPzutN",
-  "indexid": "xAAEuB3HgrJo9DCb65LTD7oVZh1wAjCfTC",
-  "hash160result": "47ecd4c56c93486380a1ec0d06e186ae8cba5914",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "vrsc::generic.data.packet.response"
+export const PROOFS_CONTROLLER_FACEBOOK: VDXFKeyInterface = {
+  vdxfid: "iHm7TCzTyRFkRrNGTcGhJsLsVwmi4P7SCr",
+  hash160result: "ad714f6d836cecc6394d09b686db01017dd0b49c",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.facebook"
   }
-}
+};
 
-export const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "iC7kqU8mfKtqe2gcE2qpuyN4CEcPFTxKGL",
-  "indexid": "xGwsJGZrWe7WGCZe5iVytMtbDtdQCPvmno",
-  "hash160result": "d1fba3d9bf18a5293ff912374fc64725db95cb5e",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "user.data.request"
+export const PROOFS_CONTROLLER_GITHUB: VDXFKeyInterface = {
+  vdxfid: "i5cjUDhRPEBQctXQYr3gNq8ZZakdBZwDKw",
+  hash160result: "b627bd17208e8a1d956e202fa688423190a07d17",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.github"
   }
-}
+};
 
-export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "i6JYTdVNLz4Sb6515B73BSX6C1Xba63tNQ",
-  "indexid": "xB8evRvTCJH7DFx2vrmC9q3dDfYcXW1F15",
-  "hash160result": "34dfdf234ec37a8451790a19538dbd162913051f",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "user.data.packet.details"
+export const PROOFS_CONTROLLER_LINKEDIN: VDXFKeyInterface = {
+  vdxfid: "iLWNwRnEujoenFaYvQ3ShkSXhcduw8j8R5",
+  hash160result: "aceb990c8981b13773f9763d4b3d8e9a3ee1d3ba",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.linkedin"
   }
-}
+};
 
-export const APP_ENCRYPTION_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
-  "vdxfid": "iLgnRLninDtMa7f7EbH7zsDqHRknC4CUpB",
-  "indexid": "xRWtt9DodY72CHY96GwGyFkNK5mo1n7Jxe",
-  "hash160result": "0d3c42aec1d154f1678e0585e557e75202a4cbbc",
-  "qualifiedname": {
-    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name": "application.encryption.response"
+export const PROOFS_CONTROLLER_REDDIT: VDXFKeyInterface = {
+  vdxfid: "i4eJshMkii8ML6FCMEFUqj5GgVUchRvQca",
+  hash160result: "c778b90896928a8806109ba751d79d3162cdd10c",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.reddit"
   }
-}
+};
+
+export const PROOFS_CONTROLLER_BLUESKY: VDXFKeyInterface = {
+  vdxfid: "iBnLtVL69rXXZtjEVndYahV5EgKeWi4GS4",
+  indexid: "xGcTMHmB1AkCC4cGMUHhZ61cGLLfM1kPwm",
+  hash160result: "d60b5cfbf4408e338c491ca2994ee186feb01f5b",
+  qualifiedname: {
+    namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    name: "vrsc::system.proofs.controller.bluesky"
+  }
+};

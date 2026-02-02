@@ -9,6 +9,7 @@ export class GetAddressDeltasResponse extends ApiResponse {
     height: number;
     address: string;
     currencyvalues?: { [key: string]: number },
+    blocktime?: number;
     currencynames?: { [key: string]: string },
     sent?: {
       outputs: Array<{

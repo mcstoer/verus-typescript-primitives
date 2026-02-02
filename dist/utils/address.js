@@ -5,6 +5,7 @@ exports.getDataKey = getDataKey;
 const pbaas_1 = require("../constants/pbaas");
 const vdxf_1 = require("../constants/vdxf");
 const hash_1 = require("./hash");
+const tolower_1 = require("./tolower");
 const bs58check = require("bs58check");
 const fromBase58Check = (address) => {
     var payload = bs58check.decode(address);
@@ -38,7 +39,7 @@ const toBase58Check = (hash, version) => {
 exports.toBase58Check = toBase58Check;
 const nameAndParentAddrToAddr = (name, parentIAddr, version = vdxf_1.I_ADDR_VERSION) => {
     let idHash;
-    const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
+    const nameBuffer = Buffer.from((0, tolower_1.toLowerCaseCLocale)(name), "utf8");
     if (parentIAddr == null) {
         idHash = (0, hash_1.hash)(nameBuffer);
     }
@@ -59,7 +60,7 @@ const fqnToAddress = (fullyqualifiedname, rootSystemName = "", version = vdxf_1.
         throw new Error("Invalid name");
     const cleanFqn = splitFqnAt[0];
     const splitFqnDot = cleanFqn.split('.');
-    if (splitFqnDot[splitFqnDot.length - 1] !== rootSystemName &&
+    if ((0, tolower_1.toLowerCaseCLocale)(splitFqnDot[splitFqnDot.length - 1]) !== (0, tolower_1.toLowerCaseCLocale)(rootSystemName) &&
         splitFqnDot[splitFqnDot.length - 1] !== "") {
         splitFqnDot.push(rootSystemName);
     }
@@ -67,7 +68,7 @@ const fqnToAddress = (fullyqualifiedname, rootSystemName = "", version = vdxf_1.
     let Parent;
     for (let i = splitFqnDot.length - 1; i >= 0; i--) {
         let idHash;
-        const parentName = Buffer.from(splitFqnDot[i].toLowerCase(), "utf8");
+        const parentName = Buffer.from((0, tolower_1.toLowerCaseCLocale)(splitFqnDot[i]), "utf8");
         if (parentName.length > 0) {
             if (Parent == null) {
                 idHash = (0, hash_1.hash)(parentName);
@@ -80,7 +81,7 @@ const fqnToAddress = (fullyqualifiedname, rootSystemName = "", version = vdxf_1.
         }
     }
     let idHash;
-    const nameBuffer = Buffer.from(name.toLowerCase(), "utf8");
+    const nameBuffer = Buffer.from((0, tolower_1.toLowerCaseCLocale)(name), "utf8");
     if (Parent == null) {
         idHash = (0, hash_1.hash)(nameBuffer);
     }
@@ -144,7 +145,6 @@ function trimSpaces(name, removeDuals) {
     return chars.join("");
 }
 function parseSubNames(name, addVerus, removeDuals = false, verusChainName = pbaas_1.DEFAULT_VERUS_CHAINNAME) {
-    var _a;
     const parts = name.split("@");
     if (parts.length === 0 ||
         parts.length > 2 ||
@@ -163,11 +163,11 @@ function parseSubNames(name, addVerus, removeDuals = false, verusChainName = pba
         addVerus = false;
         retNames.pop();
     }
-    const verusChainNameLc = verusChainName.toLowerCase();
+    const verusChainNameLc = (0, tolower_1.toLowerCaseCLocale)(verusChainName);
     if (addVerus) {
         if (explicitChain) {
             const chainParts = chain.split(".");
-            const lastChainPart = chainParts[chainParts.length - 1].toLowerCase();
+            const lastChainPart = (0, tolower_1.toLowerCaseCLocale)(chainParts[chainParts.length - 1]);
             if (lastChainPart !== "" && lastChainPart !== verusChainNameLc) {
                 chainParts.push(verusChainNameLc);
                 chain = chainParts.join(".");
@@ -177,7 +177,7 @@ function parseSubNames(name, addVerus, removeDuals = false, verusChainName = pba
                 chain = chainParts.join(".");
             }
         }
-        const lastName = (_a = retNames[retNames.length - 1]) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+        const lastName = (0, tolower_1.toLowerCaseCLocale)(retNames[retNames.length - 1]);
         if (lastName !== "" && lastName !== verusChainNameLc) {
             retNames.push(verusChainNameLc);
         }
@@ -206,12 +206,12 @@ function cleanName(name, parent, removeDuals = false, verusChainName = pbaas_1.D
     const last = subNames[subNames.length - 1];
     if (newParent &&
         subNames.length > 1 &&
-        last.toLowerCase() === verusChainName.toLowerCase()) {
+        (0, tolower_1.toLowerCaseCLocale)(last) === (0, tolower_1.toLowerCaseCLocale)(verusChainName)) {
         subNames.pop();
     }
     // Build up the parent hash from right to left
     for (let i = subNames.length - 1; i > 0; i--) {
-        const parentNameStr = Buffer.from(subNames[i].toLowerCase(), 'utf8');
+        const parentNameStr = Buffer.from((0, tolower_1.toLowerCaseCLocale)(subNames[i]), 'utf8');
         let idHash;
         if (!newParent) {
             idHash = (0, hash_1.hash)(parentNameStr); // Hash from a string
