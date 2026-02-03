@@ -8,7 +8,7 @@
  * and validation of the compact id object.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CompactXAddressObject = exports.CompactAddressObject = void 0;
+exports.CompactIAddressObject = exports.CompactXAddressObject = exports.CompactAddressObject = void 0;
 const bn_js_1 = require("bn.js");
 const bufferutils_1 = require("../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
@@ -150,6 +150,28 @@ class CompactXAddressObject extends CompactAddressObject {
     toAddress() {
         return this.toXAddress();
     }
+    static fromCompactAddressObjectJson(json) {
+        const inst = CompactAddressObject.fromJson(json);
+        return inst;
+    }
 }
 exports.CompactXAddressObject = CompactXAddressObject;
+;
+class CompactIAddressObject extends CompactAddressObject {
+    static fromAddress(iaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+        return new CompactIAddressObject({
+            address: iaddr,
+            nameSpace: nameSpace,
+            type: CompactAddressObject.TYPE_I_ADDRESS
+        });
+    }
+    toAddress() {
+        return this.toIAddress();
+    }
+    static fromCompactAddressObjectJson(json) {
+        const inst = CompactAddressObject.fromJson(json);
+        return inst;
+    }
+}
+exports.CompactIAddressObject = CompactIAddressObject;
 ;

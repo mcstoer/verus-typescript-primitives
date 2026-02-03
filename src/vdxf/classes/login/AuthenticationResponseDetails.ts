@@ -4,29 +4,43 @@ import createHash = require('create-hash');
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
-import varuint from '../../../utils/varuint';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export type AuthenticationResponseDetailsJson = {
   flags: string,
-  requestid: string
+  requestid?: CompactAddressObjectJson
 }
 
 export class AuthenticationResponseDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: string;              // ID of request, to be referenced in response
+  requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
+  
+  static FLAG_HAS_REQUEST_ID = new BN(1, 10);
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: string
+    requestID?: CompactIAddressObject
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
+    this.requestID = data?.requestID || null;
 
-    if (data?.requestID) {
-      this.requestID = data.requestID;
-    } else this.requestID = '';
+    this.setFlags();
+  }
+
+  hasRequestID(): boolean {
+    return this.flags.and(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID).eq(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID);
+  }
+
+  setFlags() {
+    this.flags = this.calcFlags();
+  }
+
+  calcFlags(flags: BigNumber = this.flags): BigNumber {
+    if (this.requestID) {
+      flags = flags.or(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID);
+    }
+    return flags;
   }
 
   toSha256() {
@@ -38,7 +52,9 @@ export class AuthenticationResponseDetails implements SerializableEntity {
 
     length += varint.encodingLength(this.flags);
 
-    length += HASH160_BYTE_LENGTH;
+    if (this.hasRequestID()) {
+      length += this.requestID.getByteLength();
+    }
 
     return length;
   }
@@ -48,7 +64,9 @@ export class AuthenticationResponseDetails implements SerializableEntity {
 
     writer.writeVarInt(this.flags);
 
-    writer.writeSlice(fromBase58Check(this.requestID).hash);
+    if (this.hasRequestID()) {
+      writer.writeSlice(this.requestID.toBuffer());
+    }
 
     return writer.buffer;
   }
@@ -58,7 +76,11 @@ export class AuthenticationResponseDetails implements SerializableEntity {
 
     this.flags = reader.readVarInt();
 
-    this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+    if (this.hasRequestID()) {
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+    }
 
     return reader.offset;
   }
@@ -66,14 +88,14 @@ export class AuthenticationResponseDetails implements SerializableEntity {
   toJson(): AuthenticationResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
-      requestid: this.requestID,
+      requestid: this.requestID.toJson(),
     }
   }
 
   static fromJson(json: AuthenticationResponseDetailsJson): AuthenticationResponseDetails {
     return new AuthenticationResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: json.requestid
+      requestID: CompactIAddressObject.fromCompactAddressObjectJson(json.requestid)
     });
   }
 }

@@ -19,14 +19,11 @@ import { BigNumber } from "../../../utils/types/BigNumber";
 import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varuint from "../../../utils/varuint";
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
-import { fromBase58Check, toBase58Check } from "../../../utils/address";
-import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 
 export interface AuthenticationRequestDetailsInterface {
-  version?: BigNumber;
   flags?: BigNumber;  
-  requestID: string;
+  requestID?: CompactIAddressObject;
   recipientConstraints?: Array<RecipientConstraint>;
   expiryTime?: BigNumber; // UNIX Timestamp
 }
@@ -38,31 +35,25 @@ export interface RecipientConstraintJson {
 
 export interface RecipientConstraint {
   type: number;
-  identity: CompactAddressObject;
+  identity: CompactIAddressObject;
 }
 
 export interface AuthenticationRequestDetailsJson {
-  version: number;
-  requestid: string;
+  requestid?: CompactAddressObjectJson;
   flags: number;
   recipientconstraints?: Array<RecipientConstraintJson>;
   expirytime?: number;
 }
 
 export class AuthenticationRequestDetails implements SerializableEntity {
-  version: BigNumber;
-  flags?: BigNumber;  
-  requestID: string;
+  flags?: BigNumber;
+  requestID: CompactIAddressObject;
   recipientConstraints?: Array<RecipientConstraint>;
   expiryTime?: BigNumber; // UNIX Timestamp
 
-  // Version
-  static DEFAULT_VERSION = new BN(1, 10)
-  static VERSION_FIRSTVALID = new BN(1, 10)
-  static VERSION_LASTVALID = new BN(1, 10)
-
-  static FLAG_HAS_RECIPIENT_CONSTRAINTS = new BN(1, 10);
-  static FLAG_HAS_EXPIRY_TIME = new BN(2, 10);
+  static FLAG_HAS_REQUEST_ID = new BN(1, 10);
+  static FLAG_HAS_RECIPIENT_CONSTRAINTS = new BN(2, 10);
+  static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
 
   // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
   static REQUIRED_ID = 1;
@@ -72,13 +63,16 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   constructor(
     request?: AuthenticationRequestDetailsInterface 
   ) {
-    this.version = request?.version || AuthenticationRequestDetails.DEFAULT_VERSION;
-    this.requestID = request?.requestID || '';
     this.flags = request?.flags || new BN(0, 10);
+    this.requestID = request?.requestID || null;
     this.recipientConstraints = request?.recipientConstraints || null;
     this.expiryTime = request?.expiryTime || null;
 
     this.setFlags();
+  }
+
+  hasRequestID(): boolean {
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID).eq(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
   }
 
   hasRecipentConstraints(): boolean {   
@@ -90,6 +84,9 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   }
 
   calcFlags(flags: BigNumber = this.flags): BigNumber {
+    if (this.requestID) {
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
+    }
     if (this.recipientConstraints) {
       flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
     }
@@ -103,7 +100,10 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
-    length += HASH160_BYTE_LENGTH;
+
+    if (this.hasRequestID()) {
+      length += this.requestID.getByteLength();
+    }
 
     if (this.hasRecipentConstraints()) {
       length += varuint.encodingLength(this.recipientConstraints.length);      
@@ -124,8 +124,11 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
     writer.writeCompactSize(this.flags.toNumber());
-    writer.writeSlice(fromBase58Check(this.requestID).hash);
 
+    if (this.hasRequestID()) {
+      writer.writeSlice(this.requestID.toBuffer());
+    }
+    
     if (this.hasRecipentConstraints()) {
       writer.writeCompactSize(this.recipientConstraints.length);   
       for (let i = 0; i < this.recipientConstraints.length; i++) {
@@ -145,14 +148,19 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     const reader = new bufferutils.BufferReader(buffer, offset);
 
     this.flags = new BN(reader.readCompactSize());
-    this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+
+    if (this.hasRequestID()) {
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+    }
 
     if (this.hasRecipentConstraints()) {
       this.recipientConstraints = [];
       const recipientConstraintsLength = reader.readCompactSize();
 
       for (let i = 0; i < recipientConstraintsLength; i++) {
-        const compactId = new CompactAddressObject();
+        const compactId = new CompactIAddressObject();
         const type = reader.readCompactSize();
         const identityOffset = reader.offset;
         reader.offset = compactId.fromBuffer(buffer, identityOffset);
@@ -174,9 +182,8 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     const flags = this.calcFlags();
 
     const retval = {
-      version: this.version.toNumber(),
       flags: flags.toNumber(),
-      requestid: this.requestID,
+      requestid: this.requestID.toJson(),
       recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({type: p.type,
           identity: p.identity.toJson()})) : undefined,
       expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
@@ -188,13 +195,12 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   static fromJson(data: AuthenticationRequestDetailsJson): AuthenticationRequestDetails {
     const loginDetails = new AuthenticationRequestDetails();
 
-    loginDetails.version = new BN(data?.version || 0);
     loginDetails.flags = new BN(data?.flags || 0);
-    loginDetails.requestID = data.requestid;
+    loginDetails.requestID = CompactIAddressObject.fromCompactAddressObjectJson(data.requestid);
 
     if(loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
       loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({type: p.type,
-        identity: CompactAddressObject.fromJson(p.identity)}));
+        identity: CompactIAddressObject.fromCompactAddressObjectJson(p.identity)}));
     }
 
     if(loginDetails.hasExpiryTime() && data.expirytime) {
@@ -209,14 +215,13 @@ export class AuthenticationRequestDetails implements SerializableEntity {
   }   
 
   isValid(): boolean {
-    let valid = this.requestID != null && this.requestID.length > 0;
+    let valid = true;
     valid &&= this.flags != null && this.flags.gte(new BN(0));
     
-    // Validate requestID is a valid base58 address
-    try {
-      fromBase58Check(this.requestID);
-    } catch {
-      valid = false;
+    if (this.hasRequestID()) {
+      if (!this.requestID || !this.requestID.isValid()) {
+        return false;
+      }
     }
 
     if (this.hasRecipentConstraints()) {

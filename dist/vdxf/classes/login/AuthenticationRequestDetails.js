@@ -18,17 +18,17 @@ exports.AuthenticationRequestDetails = void 0;
 const bufferutils_1 = require("../../../utils/bufferutils");
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
-const vdxf_1 = require("../../../constants/vdxf");
-const address_1 = require("../../../utils/address");
 const CompactAddressObject_1 = require("../CompactAddressObject");
 class AuthenticationRequestDetails {
     constructor(request) {
-        this.version = (request === null || request === void 0 ? void 0 : request.version) || AuthenticationRequestDetails.DEFAULT_VERSION;
-        this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || '';
         this.flags = (request === null || request === void 0 ? void 0 : request.flags) || new bn_js_1.BN(0, 10);
+        this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || null;
         this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) || null;
         this.expiryTime = (request === null || request === void 0 ? void 0 : request.expiryTime) || null;
         this.setFlags();
+    }
+    hasRequestID() {
+        return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID).eq(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
     }
     hasRecipentConstraints() {
         return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
@@ -37,6 +37,9 @@ class AuthenticationRequestDetails {
         return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
     }
     calcFlags(flags = this.flags) {
+        if (this.requestID) {
+            flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
+        }
         if (this.recipientConstraints) {
             flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
         }
@@ -48,7 +51,9 @@ class AuthenticationRequestDetails {
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
-        length += vdxf_1.HASH160_BYTE_LENGTH;
+        if (this.hasRequestID()) {
+            length += this.requestID.getByteLength();
+        }
         if (this.hasRecipentConstraints()) {
             length += varuint_1.default.encodingLength(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
@@ -64,7 +69,9 @@ class AuthenticationRequestDetails {
     toBuffer() {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
-        writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        if (this.hasRequestID()) {
+            writer.writeSlice(this.requestID.toBuffer());
+        }
         if (this.hasRecipentConstraints()) {
             writer.writeCompactSize(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
@@ -80,12 +87,15 @@ class AuthenticationRequestDetails {
     fromBuffer(buffer, offset) {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
-        this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+        if (this.hasRequestID()) {
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+        }
         if (this.hasRecipentConstraints()) {
             this.recipientConstraints = [];
             const recipientConstraintsLength = reader.readCompactSize();
             for (let i = 0; i < recipientConstraintsLength; i++) {
-                const compactId = new CompactAddressObject_1.CompactAddressObject();
+                const compactId = new CompactAddressObject_1.CompactIAddressObject();
                 const type = reader.readCompactSize();
                 const identityOffset = reader.offset;
                 reader.offset = compactId.fromBuffer(buffer, identityOffset);
@@ -103,9 +113,8 @@ class AuthenticationRequestDetails {
     toJson() {
         const flags = this.calcFlags();
         const retval = {
-            version: this.version.toNumber(),
             flags: flags.toNumber(),
-            requestid: this.requestID,
+            requestid: this.requestID.toJson(),
             recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({ type: p.type,
                 identity: p.identity.toJson() })) : undefined,
             expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
@@ -114,12 +123,11 @@ class AuthenticationRequestDetails {
     }
     static fromJson(data) {
         const loginDetails = new AuthenticationRequestDetails();
-        loginDetails.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         loginDetails.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
-        loginDetails.requestID = data.requestid;
+        loginDetails.requestID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.requestid);
         if (loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
             loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({ type: p.type,
-                identity: CompactAddressObject_1.CompactAddressObject.fromJson(p.identity) }));
+                identity: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(p.identity) }));
         }
         if (loginDetails.hasExpiryTime() && data.expirytime) {
             loginDetails.expiryTime = new bn_js_1.BN(data.expirytime);
@@ -130,14 +138,12 @@ class AuthenticationRequestDetails {
         this.flags = this.calcFlags();
     }
     isValid() {
-        let valid = this.requestID != null && this.requestID.length > 0;
+        let valid = true;
         valid && (valid = this.flags != null && this.flags.gte(new bn_js_1.BN(0)));
-        // Validate requestID is a valid base58 address
-        try {
-            (0, address_1.fromBase58Check)(this.requestID);
-        }
-        catch (_a) {
-            valid = false;
+        if (this.hasRequestID()) {
+            if (!this.requestID || !this.requestID.isValid()) {
+                return false;
+            }
         }
         if (this.hasRecipentConstraints()) {
             if (!this.recipientConstraints || this.recipientConstraints.length === 0) {
@@ -153,12 +159,9 @@ class AuthenticationRequestDetails {
     }
 }
 exports.AuthenticationRequestDetails = AuthenticationRequestDetails;
-// Version
-AuthenticationRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1, 10);
-AuthenticationRequestDetails.VERSION_FIRSTVALID = new bn_js_1.BN(1, 10);
-AuthenticationRequestDetails.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
-AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS = new bn_js_1.BN(1, 10);
-AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(2, 10);
+AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1, 10);
+AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS = new bn_js_1.BN(2, 10);
+AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(4, 10);
 // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
 AuthenticationRequestDetails.REQUIRED_ID = 1;
 AuthenticationRequestDetails.REQUIRED_SYSTEM = 2;

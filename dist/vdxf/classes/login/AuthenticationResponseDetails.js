@@ -5,17 +5,25 @@ const varint_1 = require("../../../utils/varint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const createHash = require("create-hash");
 const bn_js_1 = require("bn.js");
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class AuthenticationResponseDetails {
     constructor(data) {
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN("0", 10);
-        if (data === null || data === void 0 ? void 0 : data.requestID) {
-            this.requestID = data.requestID;
+        this.requestID = (data === null || data === void 0 ? void 0 : data.requestID) || null;
+        this.setFlags();
+    }
+    hasRequestID() {
+        return this.flags.and(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID).eq(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID);
+    }
+    setFlags() {
+        this.flags = this.calcFlags();
+    }
+    calcFlags(flags = this.flags) {
+        if (this.requestID) {
+            flags = flags.or(AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID);
         }
-        else
-            this.requestID = '';
+        return flags;
     }
     toSha256() {
         return createHash("sha256").update(this.toBuffer()).digest();
@@ -23,32 +31,40 @@ class AuthenticationResponseDetails {
     getByteLength() {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
-        length += vdxf_1.HASH160_BYTE_LENGTH;
+        if (this.hasRequestID()) {
+            length += this.requestID.getByteLength();
+        }
         return length;
     }
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
-        writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+        if (this.hasRequestID()) {
+            writer.writeSlice(this.requestID.toBuffer());
+        }
         return writer.buffer;
     }
     fromBuffer(buffer, offset = 0) {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
-        this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+        if (this.hasRequestID()) {
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+        }
         return reader.offset;
     }
     toJson() {
         return {
             flags: this.flags.toString(10),
-            requestid: this.requestID,
+            requestid: this.requestID.toJson(),
         };
     }
     static fromJson(json) {
         return new AuthenticationResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestID: json.requestid
+            requestID: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid)
         });
     }
 }
 exports.AuthenticationResponseDetails = AuthenticationResponseDetails;
+AuthenticationResponseDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1, 10);

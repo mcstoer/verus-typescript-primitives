@@ -202,4 +202,30 @@ export class CompactXAddressObject extends CompactAddressObject<CompactAddressXV
   toAddress() {
     return this.toXAddress();
   }
+
+  static fromCompactAddressObjectJson(json: any): CompactXAddressObject {
+    const inst = CompactAddressObject.fromJson(json);
+
+    return inst as CompactXAddressObject;
+  }
+};
+
+export class CompactIAddressObject extends CompactAddressObject<CompactAddressIVariant> {
+  static fromAddress(iaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactIAddressObject {
+    return new CompactIAddressObject({
+      address: iaddr,
+      nameSpace: nameSpace,
+      type: CompactAddressObject.TYPE_I_ADDRESS
+    })
+  }
+
+  toAddress() {
+    return this.toIAddress();
+  }
+
+  static fromCompactAddressObjectJson(json: any): CompactIAddressObject {
+    const inst = CompactAddressObject.fromJson(json);
+
+    return inst as CompactIAddressObject;
+  }
 };

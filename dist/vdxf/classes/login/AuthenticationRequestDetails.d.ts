@@ -14,11 +14,10 @@
  */
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 export interface AuthenticationRequestDetailsInterface {
-    version?: BigNumber;
     flags?: BigNumber;
-    requestID: string;
+    requestID?: CompactIAddressObject;
     recipientConstraints?: Array<RecipientConstraint>;
     expiryTime?: BigNumber;
 }
@@ -28,30 +27,27 @@ export interface RecipientConstraintJson {
 }
 export interface RecipientConstraint {
     type: number;
-    identity: CompactAddressObject;
+    identity: CompactIAddressObject;
 }
 export interface AuthenticationRequestDetailsJson {
-    version: number;
-    requestid: string;
+    requestid?: CompactAddressObjectJson;
     flags: number;
     recipientconstraints?: Array<RecipientConstraintJson>;
     expirytime?: number;
 }
 export declare class AuthenticationRequestDetails implements SerializableEntity {
-    version: BigNumber;
     flags?: BigNumber;
-    requestID: string;
+    requestID: CompactIAddressObject;
     recipientConstraints?: Array<RecipientConstraint>;
     expiryTime?: BigNumber;
-    static DEFAULT_VERSION: import("bn.js");
-    static VERSION_FIRSTVALID: import("bn.js");
-    static VERSION_LASTVALID: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
     static FLAG_HAS_RECIPIENT_CONSTRAINTS: import("bn.js");
     static FLAG_HAS_EXPIRY_TIME: import("bn.js");
     static REQUIRED_ID: number;
     static REQUIRED_SYSTEM: number;
     static REQUIRED_PARENT: number;
     constructor(request?: AuthenticationRequestDetailsInterface);
+    hasRequestID(): boolean;
     hasRecipentConstraints(): boolean;
     hasExpiryTime(): boolean;
     calcFlags(flags?: BigNumber): BigNumber;

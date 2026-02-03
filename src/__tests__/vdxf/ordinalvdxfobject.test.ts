@@ -28,7 +28,8 @@ import {
   UserDataRequestDetails,
   UserSpecificDataPacketDetails,
   AppEncryptionResponseOrdinalVDXFObject,
-  AppEncryptionResponseDetails
+  AppEncryptionResponseDetails,
+  CompactIAddressObject
 } from '../../vdxf/classes';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
@@ -330,11 +331,11 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
 
   it('should serialize / deserialize a AuthenticationRequestOrdinalVDXFObject via buffer', () => {
     const details = new AuthenticationRequestDetails({
-      requestID: TEST_CHALLENGE_ID,
+      requestID: CompactIAddressObject.fromAddress(TEST_CHALLENGE_ID, TEST_SYSTEMID.toAddress()!),
       recipientConstraints: [
-        { type: AuthenticationRequestDetails.REQUIRED_ID, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
-        { type: AuthenticationRequestDetails.REQUIRED_SYSTEM, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
-        { type: AuthenticationRequestDetails.REQUIRED_PARENT, identity: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+        { type: AuthenticationRequestDetails.REQUIRED_ID, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+        { type: AuthenticationRequestDetails.REQUIRED_SYSTEM, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+        { type: AuthenticationRequestDetails.REQUIRED_PARENT, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
       ],
       expiryTime: new BN(2938475938457)
     });
@@ -360,7 +361,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
 
   it('should serialize / deserialize a AuthenticationResponseOrdinalVDXFObject via buffer', () => {
     const details = new AuthenticationResponseDetails({
-      requestID: TEST_CHALLENGE_ID
+      requestID: CompactIAddressObject.fromAddress(TEST_CHALLENGE_ID, TEST_SYSTEMID.toAddress()!)
     });
 
     const obj = new AuthenticationResponseOrdinalVDXFObject({ data: details });

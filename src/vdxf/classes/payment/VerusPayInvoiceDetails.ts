@@ -302,7 +302,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     }
 
     if (this.isTagged()) {
-      this.tag = new CompactXAddressObject;
+      this.tag = new CompactXAddressObject();
 
       reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
     }

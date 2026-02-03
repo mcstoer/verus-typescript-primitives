@@ -59,4 +59,10 @@ export declare class CompactAddressObject<V extends CompactAddressVariantName = 
 export declare class CompactXAddressObject extends CompactAddressObject<CompactAddressXVariant> {
     static fromAddress(xaddr: string, nameSpace?: string): CompactXAddressObject;
     toAddress(): string;
+    static fromCompactAddressObjectJson(json: any): CompactXAddressObject;
+}
+export declare class CompactIAddressObject extends CompactAddressObject<CompactAddressIVariant> {
+    static fromAddress(iaddr: string, nameSpace?: string): CompactIAddressObject;
+    toAddress(): string;
+    static fromCompactAddressObjectJson(json: any): CompactIAddressObject;
 }

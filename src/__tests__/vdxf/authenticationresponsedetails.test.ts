@@ -1,14 +1,15 @@
 import { BN } from "bn.js";
 import {
-  AuthenticationResponseDetails
+  AuthenticationResponseDetails,
+  CompactIAddressObject
 } from "../../vdxf/classes";
-import { TEST_CHALLENGE_ID } from "../constants/fixtures";
+import { TEST_CHALLENGE_ID, TEST_SYSTEMID } from "../constants/fixtures";
 
 describe("AuthenticationRequestDetails", () => {
   describe("constructor and basic properties", () => {
     test("creates instance with all optional data", () => {
       const details = new AuthenticationResponseDetails({
-        requestID: TEST_CHALLENGE_ID
+        requestID: CompactIAddressObject.fromAddress(TEST_CHALLENGE_ID, TEST_SYSTEMID.toAddress()!)
       });
 
       const detailsBuffer = details.toBuffer();
@@ -16,7 +17,7 @@ describe("AuthenticationRequestDetails", () => {
       const newDetails = new AuthenticationResponseDetails();
       newDetails.fromBuffer(detailsBuffer);
 
-      expect(newDetails.requestID).toBe(TEST_CHALLENGE_ID);
+      expect(newDetails.requestID!.toAddress()).toBe(TEST_CHALLENGE_ID);
 
       expect(detailsBuffer.toString('hex')).toBe(newDetails.toBuffer().toString('hex'));
     });
