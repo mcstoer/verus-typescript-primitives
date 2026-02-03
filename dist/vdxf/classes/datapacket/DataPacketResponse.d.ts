@@ -52,7 +52,7 @@ export declare class DataPacketResponse implements SerializableEntity {
     requestID?: string;
     data: DataDescriptor;
     static RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
-    constructor(data?: {
+    constructor(initialData?: {
         flags?: BigNumber;
         requestID?: string;
         data: DataDescriptor;

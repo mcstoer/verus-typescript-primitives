@@ -46,14 +46,14 @@ const vdxf_1 = require("../../../constants/vdxf");
 const pbaas_1 = require("../../../pbaas");
 const createHash = require("create-hash");
 class DataPacketResponse {
-    constructor(data) {
-        this.flags = data && data.flags ? data.flags : new bn_js_1.BN("0", 10);
-        if (data === null || data === void 0 ? void 0 : data.requestID) {
+    constructor(initialData) {
+        this.flags = initialData && initialData.flags ? initialData.flags : new bn_js_1.BN("0", 10);
+        if (initialData === null || initialData === void 0 ? void 0 : initialData.requestID) {
             if (!this.containsRequestID())
                 this.toggleContainsRequestID();
-            this.requestID = data.requestID;
+            this.requestID = initialData.requestID;
         }
-        this.data = data === null || data === void 0 ? void 0 : data.data;
+        this.data = initialData && initialData.data ? initialData.data : new pbaas_1.DataDescriptor();
     }
     containsRequestID() {
         return !!(this.flags.and(DataPacketResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());

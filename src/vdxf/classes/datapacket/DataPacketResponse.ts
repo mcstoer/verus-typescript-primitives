@@ -68,20 +68,19 @@ export class DataPacketResponse implements SerializableEntity {
 
   static RESPONSE_CONTAINS_REQUEST_ID = new BN(1, 10);
 
-  constructor (data?: {
+  constructor (initialData?: {
     flags?: BigNumber,
     requestID?: string,
     data: DataDescriptor
   }) {
-    this.flags = data && data.flags ? data.flags : new BN("0", 10);
+    this.flags = initialData && initialData.flags ? initialData.flags : new BN("0", 10);
 
-    if (data?.requestID) {
+    if (initialData?.requestID) {
       if (!this.containsRequestID()) this.toggleContainsRequestID();
-      this.requestID = data.requestID;
+      this.requestID = initialData.requestID;
     }
 
-    this.data = data?.data;
-
+    this.data = initialData && initialData.data ? initialData.data : new DataDescriptor();
   }
 
   containsRequestID() {
