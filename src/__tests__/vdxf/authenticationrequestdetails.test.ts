@@ -37,7 +37,7 @@ describe("AuthenticationRequestDetails", () => {
       const newDetails = new AuthenticationRequestDetails();
       newDetails.fromBuffer(detailsBuffer);
 
-      expect(newDetails.requestID.toAddress()).toBe(TEST_CHALLENGE_ID);
+      expect(newDetails.requestID!.toAddress()).toBe(TEST_CHALLENGE_ID);
       expect(newDetails.recipientConstraints?.length).toBe(3);
       expect(newDetails.expiryTime?.toString()).toBe("2938475938457");
 

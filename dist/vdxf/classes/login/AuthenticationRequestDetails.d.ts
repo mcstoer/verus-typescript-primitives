@@ -37,7 +37,7 @@ export interface AuthenticationRequestDetailsJson {
 }
 export declare class AuthenticationRequestDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestID: CompactIAddressObject;
+    requestID?: CompactIAddressObject;
     recipientConstraints?: Array<RecipientConstraint>;
     expiryTime?: BigNumber;
     static FLAG_HAS_REQUEST_ID: import("bn.js");

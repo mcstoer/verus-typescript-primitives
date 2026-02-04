@@ -47,7 +47,7 @@ export interface AuthenticationRequestDetailsJson {
 
 export class AuthenticationRequestDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID: CompactIAddressObject;
+  requestID?: CompactIAddressObject;
   recipientConstraints?: Array<RecipientConstraint>;
   expiryTime?: BigNumber; // UNIX Timestamp
 
