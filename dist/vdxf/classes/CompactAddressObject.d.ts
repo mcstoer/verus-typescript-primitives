@@ -48,6 +48,7 @@ export declare class CompactAddressObject<V extends CompactAddressVariantName = 
     isValid(): boolean;
     toIAddress(): string;
     toXAddress(): string;
+    toString(): string;
     static fromIAddress(iaddr: string): CompactAddressObject<CompactAddressIVariant>;
     static fromXAddress(xaddr: string, nameSpace?: string): CompactAddressObject<CompactAddressXVariant>;
     getByteLength(): number;

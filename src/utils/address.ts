@@ -112,6 +112,10 @@ export const toIAddress = (fullyqualifiedname: string, rootSystemName: string = 
   return fqnToAddress(fullyqualifiedname, rootSystemName, I_ADDR_VERSION)
 }
 
+export const toXAddress = (fullyqualifiedname: string, rootSystemName: string = ""): string => {
+  return fqnToAddress(fullyqualifiedname, rootSystemName, X_ADDR_VERSION)
+}
+
 function trimSpaces(
   name: string,
   removeDuals: boolean

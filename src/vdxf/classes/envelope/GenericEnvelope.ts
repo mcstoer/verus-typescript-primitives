@@ -7,18 +7,16 @@ import varuint from "../../../utils/varuint";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { createHash } from "crypto";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from "../../../constants/vdxf";
-import { fromBase58Check, toBase58Check } from "../../../utils/address";
-import { CompactAddressObject } from "../CompactAddressObject";
+import { CompactAddressObjectJson, CompactIAddressObject } from "../CompactAddressObject";
 
 export interface GenericEnvelopeInterface {
   version?: BigNumber;
   flags?: BigNumber;
   signature?: VerifiableSignatureData;
-  requestID?: string;
+  requestID?: CompactIAddressObject;
   createdAt?: BigNumber;
   salt?: Buffer;
-  appOrDelegatedID?: CompactAddressObject;
+  appOrDelegatedID?: CompactIAddressObject;
   details: Array<OrdinalVDXFObject>;
 }
 
@@ -26,10 +24,10 @@ export type GenericEnvelopeJson = {
   version: string;
   flags?: string;
   signature?: VerifiableSignatureDataJson;
-  requestid?: string;
+  requestid?: CompactAddressObjectJson;
   createdat?: string;
   salt?: string;
-  appOrDelegatedID?: string;
+  appOrDelegatedID?: CompactAddressObjectJson;
   details: Array<OrdinalVDXFObjectJson>;
 }
 
@@ -37,10 +35,10 @@ export class GenericEnvelope implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
   signature?: VerifiableSignatureData;
-  requestID?: string;
+  requestID?: CompactIAddressObject;
   createdAt?: BigNumber;
   salt?: Buffer; // var length buffer
-  appOrDelegatedID?: CompactAddressObject;
+  appOrDelegatedID?: CompactIAddressObject;
   details: Array<OrdinalVDXFObject>;
 
   static VERSION_CURRENT = new BN(1, 10)
@@ -165,7 +163,7 @@ export class GenericEnvelope implements SerializableEntity {
     let length = 0;
 
     if (this.hasRequestID()) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     if (this.hasCreatedAt()) {
@@ -202,7 +200,7 @@ export class GenericEnvelope implements SerializableEntity {
     );
 
     if (this.hasRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     if (this.hasCreatedAt()) {
@@ -289,7 +287,9 @@ export class GenericEnvelope implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     if (this.hasCreatedAt()) {
@@ -301,7 +301,7 @@ export class GenericEnvelope implements SerializableEntity {
     }
 
     if (this.hasAppOrDelegatedID()) {
-      this.appOrDelegatedID = new CompactAddressObject();
+      this.appOrDelegatedID = new CompactIAddressObject();
 
       reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
     }
@@ -344,10 +344,10 @@ export class GenericEnvelope implements SerializableEntity {
       version: this.version.toString(),
       flags: this.flags.toString(),
       signature: this.isSigned() ? this.signature.toJson() : undefined,
-      requestid: this.requestID,
+      requestid: this.hasRequestID() ? this.requestID.toJson() : undefined,
       createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
       salt: this.hasSalt() ? this.salt.toString('hex') : undefined,
-      appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toIAddress() : undefined,
+      appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toJson() : undefined,
       details: details
     };
   }

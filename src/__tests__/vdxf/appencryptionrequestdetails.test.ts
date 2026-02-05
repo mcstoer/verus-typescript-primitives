@@ -1,10 +1,10 @@
 import { BN } from "bn.js";
-import { AppEncryptionRequestDetails, CompactAddressObject } from "../../vdxf/classes";
+import { AppEncryptionRequestDetails, CompactIAddressObject, CompactAddressObject } from "../../vdxf/classes";
 import { BigNumber } from "../../utils/types/BigNumber";
 
 // Helper function to create TransferDestination from address string
-function createCompactAddressObject(type: BigNumber, address: string): CompactAddressObject {
-  const obj = new CompactAddressObject({
+function createCompactAddressObject(type: BigNumber, address: string): CompactIAddressObject {
+  const obj = new CompactIAddressObject({
     address,
     type
   });

@@ -112,7 +112,7 @@ class AppEncryptionRequestDetails {
         // Read mandatory derivation number
         this.derivationNumber = reader.readVarInt();
         if (this.hasDerivationID()) {
-            const derivationIDObj = new CompactAddressObject_1.CompactAddressObject();
+            const derivationIDObj = new CompactAddressObject_1.CompactIAddressObject();
             reader.offset = derivationIDObj.fromBuffer(reader.buffer, reader.offset);
             this.derivationID = derivationIDObj;
         }
@@ -141,7 +141,7 @@ class AppEncryptionRequestDetails {
         instance.encryptToZAddress = json.encrypttozaddress;
         instance.derivationNumber = new bn_js_1.BN(json.derivationnumber);
         if (instance.hasDerivationID()) {
-            instance.derivationID = CompactAddressObject_1.CompactAddressObject.fromJson(json === null || json === void 0 ? void 0 : json.derivationid);
+            instance.derivationID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json === null || json === void 0 ? void 0 : json.derivationid);
         }
         if (instance.hasRequestID()) {
             instance.requestID = json === null || json === void 0 ? void 0 : json.requestid;

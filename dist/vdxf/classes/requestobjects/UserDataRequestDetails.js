@@ -157,7 +157,7 @@ class UserDataRequestDetails {
             this.searchDataKey.push({ [key]: value });
         }
         if (this.hasSigner()) {
-            const signer = new CompactAddressObject_1.CompactAddressObject();
+            const signer = new CompactAddressObject_1.CompactIAddressObject();
             reader.offset = signer.fromBuffer(reader.buffer, reader.offset);
             this.signer = signer;
         }
@@ -192,7 +192,7 @@ class UserDataRequestDetails {
         requestData.version = new bn_js_1.BN(json.version);
         requestData.flags = new bn_js_1.BN(json.flags);
         requestData.searchDataKey = json.searchdatakey;
-        requestData.signer = json.signer ? CompactAddressObject_1.CompactAddressObject.fromJson(json.signer) : undefined;
+        requestData.signer = json.signer ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
         requestData.requestedKeys = json.requestedkeys;
         requestData.requestID = json.requestid;
         return requestData;

@@ -1,8 +1,7 @@
 import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureData";
-import { CompactAddressObject } from "../../vdxf/classes/CompactAddressObject";
+import { CompactAddressObject, CompactIAddressObject } from "../../vdxf/classes/CompactAddressObject";
 import { HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import { BN } from "bn.js";
-import { SignatureData } from "../../pbaas/SignatureData";
 
 const createHash = require("create-hash");
 
@@ -14,8 +13,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
             hashType: HASH_TYPE_SHA256,
             flags: new BN(0),
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
         })
 
         const sFromBuf = new VerifiableSignatureData();
@@ -31,8 +30,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
             vdxfKeys: ["iRrCKQqLQrWczeNotMgqJkoUW5ZzF182Ax", "iCCSCFbq9n7ftEQCQT94t8CcVV5NdxnTvL"],
         })
 
@@ -50,8 +49,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
             vdxfKeyNames: ["key.name.one", "key.name.two", "another.key"],
         })
 
@@ -69,8 +68,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
             boundHashes: [
                 Buffer.from("a".repeat(64), 'hex'),
                 Buffer.from("b".repeat(64), 'hex'),
@@ -91,8 +90,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
             vdxfKeys: ["iRrCKQqLQrWczeNotMgqJkoUW5ZzF182Ax", "iCCSCFbq9n7ftEQCQT94t8CcVV5NdxnTvL"],
             vdxfKeyNames: ["key.name.one", "key.name.two"],
             boundHashes: [
@@ -120,8 +119,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("AgVfngwAAUEgywnMVejMz6iZj88qRawIivovU9L9uQtGcDbD635QbNt2G/QoZjxT6c7w099JjBd2cGa8ajI99KG0MTbHT99ZZw==", 'base64'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
             vdxfKeys: ["iQRWB2Ay9rEbzStXDjMFpveh4oEmD6YWXa"],
         })
 
@@ -134,8 +133,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("AgVfngwAAUEgywnMVejMz6iZj88qRawIivovU9L9uQtGcDbD635QbNt2G/QoZjxT6c7w099JjBd2cGa8ajI99KG0MTbHT99ZZw==", 'base64'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
             vdxfKeys: ["iQRWB2Ay9rEbzStXDjMFpveh4oEmD6YWXa"],
         })
 
@@ -152,8 +151,8 @@ describe('Serializes and deserializes SignatureData', () => {
             signatureVersion: new BN(2),
             signatureAsVch: Buffer.from("AgV1ngwAAUEfYEg7UW5l0zS88ERfSBXZJ6+RWiUwXQ8BwMkkUesmemFBF29LEVw0C60csXMbMdLYxt3qGLLhgHnev9XIwWFIvw==", 'base64'),
             hashType: HASH_TYPE_SHA256,
-            identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
-            systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
+            identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i4M7ar436N7wKHgZodjGAWdsBSNjG7cz8s", rootSystemName: "VRSCTEST" }),
+            systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSCTEST", rootSystemName: "VRSCTEST" }),
         })
 
         const sigHash = createHash("sha256").update("hello world1").digest();

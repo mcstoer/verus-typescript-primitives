@@ -26,7 +26,7 @@ import varuint from '../../../utils/varuint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
+import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
@@ -34,7 +34,7 @@ export interface UserDataRequestInterface {
   version?: BigNumber;
   flags: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
-  signer?: CompactAddressObject;
+  signer?: CompactIAddressObject;
   requestedKeys?: string[];
   requestID?: string;
 }
@@ -69,7 +69,7 @@ export class UserDataRequestDetails implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
-  signer?: CompactAddressObject;
+  signer?: CompactIAddressObject;
   requestedKeys?: string[];
   requestID?: string;
 
@@ -235,7 +235,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
     
     if (this.hasSigner()) {
-      const signer = new CompactAddressObject();
+      const signer = new CompactIAddressObject();
 
       reader.offset = signer.fromBuffer(reader.buffer, reader.offset);
       this.signer = signer;
@@ -276,7 +276,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     requestData.version = new BN(json.version);
     requestData.flags = new BN(json.flags);
     requestData.searchDataKey = json.searchdatakey;
-    requestData.signer = json.signer ? CompactAddressObject.fromJson(json.signer) : undefined;
+    requestData.signer = json.signer ? CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
     requestData.requestedKeys = json.requestedkeys;
     requestData.requestID = json.requestid;
 

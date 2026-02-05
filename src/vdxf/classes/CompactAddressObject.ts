@@ -13,7 +13,7 @@ import { BigNumber } from '../../utils/types/BigNumber';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../utils/types/SerializableEntity';
 import varuint from '../../utils/varuint';
-import { fromBase58Check, getDataKey, toBase58Check, toIAddress } from "../../utils/address";
+import { fromBase58Check, getDataKey, toBase58Check, toIAddress, toXAddress } from "../../utils/address";
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, X_ADDR_VERSION } from '../../constants/vdxf';
 import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 
@@ -95,7 +95,11 @@ export class CompactAddressObject<V extends CompactAddressVariantName = CompactA
     if (this.isXaddress()) throw new Error("Cannot convert I to X address")
     else if (this.isIaddress()) return this.address;
     else if (this.isFQN()) {
-      return toIAddress(this.address, this.rootSystemName);
+      if (this.address.includes("::")) {
+        return getDataKey(this.address, this.nameSpace, toIAddress(this.rootSystemName), I_ADDR_VERSION).id;
+      } else {
+        return toIAddress(this.address, this.rootSystemName);
+      }
     } else throw new Error("Unknown type")
   }
 
@@ -103,8 +107,20 @@ export class CompactAddressObject<V extends CompactAddressVariantName = CompactA
     if (this.isIaddress()) throw new Error("Cannot convert X to I address")
     else if (this.isXaddress()) return this.address;
     else if (this.isFQN()) {
-      return getDataKey(this.address, this.nameSpace, toIAddress(this.rootSystemName), X_ADDR_VERSION).id;
+      if (this.address.includes("::")) {
+        return getDataKey(this.address, this.nameSpace, toIAddress(this.rootSystemName), X_ADDR_VERSION).id;
+      } else {
+        return toXAddress(this.address, this.rootSystemName);
+      }
     } else throw new Error("Unknown type")
+  }
+
+  toString(): string {
+    if (this.isIaddress()) {
+      return this.toIAddress();
+    } else if (this.isXaddress()) {
+      return this.toXAddress();
+    } else return this.address
   }
 
   static fromIAddress(iaddr: string): CompactAddressObject<CompactAddressIVariant> {

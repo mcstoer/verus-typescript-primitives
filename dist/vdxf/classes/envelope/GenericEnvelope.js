@@ -8,8 +8,6 @@ const OrdinalVDXFObject_1 = require("../ordinals/OrdinalVDXFObject");
 const varuint_1 = require("../../../utils/varuint");
 const crypto_1 = require("crypto");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
-const vdxf_1 = require("../../../constants/vdxf");
-const address_1 = require("../../../utils/address");
 const CompactAddressObject_1 = require("../CompactAddressObject");
 class GenericEnvelope {
     constructor(envelope = {
@@ -107,7 +105,7 @@ class GenericEnvelope {
     getDataBufferLengthAfterSig() {
         let length = 0;
         if (this.hasRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         if (this.hasCreatedAt()) {
             length += varuint_1.default.encodingLength(this.createdAt.toNumber());
@@ -134,7 +132,7 @@ class GenericEnvelope {
     getDataBufferAfterSig() {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getDataBufferLengthAfterSig()));
         if (this.hasRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         if (this.hasCreatedAt()) {
             writer.writeCompactSize(this.createdAt.toNumber());
@@ -197,7 +195,8 @@ class GenericEnvelope {
             this.signature = _sig;
         }
         if (this.hasRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.hasCreatedAt()) {
             this.createdAt = new bn_js_1.BN(reader.readCompactSize());
@@ -206,7 +205,7 @@ class GenericEnvelope {
             this.salt = reader.readVarSlice();
         }
         if (this.hasAppOrDelegatedID()) {
-            this.appOrDelegatedID = new CompactAddressObject_1.CompactAddressObject();
+            this.appOrDelegatedID = new CompactAddressObject_1.CompactIAddressObject();
             reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.hasMultiDetails()) {
@@ -239,10 +238,10 @@ class GenericEnvelope {
             version: this.version.toString(),
             flags: this.flags.toString(),
             signature: this.isSigned() ? this.signature.toJson() : undefined,
-            requestid: this.requestID,
+            requestid: this.hasRequestID() ? this.requestID.toJson() : undefined,
             createdat: this.hasCreatedAt() ? this.createdAt.toString() : undefined,
             salt: this.hasSalt() ? this.salt.toString('hex') : undefined,
-            appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toIAddress() : undefined,
+            appOrDelegatedID: this.hasAppOrDelegatedID() ? this.appOrDelegatedID.toJson() : undefined,
             details: details
         };
     }

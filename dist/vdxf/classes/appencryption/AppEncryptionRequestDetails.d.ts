@@ -17,13 +17,13 @@
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
+import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 export interface AppEncryptionRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    derivationID?: CompactAddressObject;
+    derivationID?: CompactIAddressObject;
     requestID?: string;
 }
 export interface AppEncryptionRequestJson {
@@ -54,7 +54,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     flags: BigNumber;
     encryptToZAddress: string;
     derivationNumber: BigNumber;
-    derivationID?: CompactAddressObject;
+    derivationID?: CompactIAddressObject;
     requestID?: string;
     constructor(data?: AppEncryptionRequestInterface);
     setFlags(): void;

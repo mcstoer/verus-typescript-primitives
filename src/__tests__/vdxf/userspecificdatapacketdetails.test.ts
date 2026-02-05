@@ -1,7 +1,8 @@
 import { BN } from "bn.js";
 import { 
   CompactAddressObject,
- UserSpecificDataPacketDetails, UserSpecificDataPacketDetailsJson
+  CompactIAddressObject,
+  UserSpecificDataPacketDetails
 } from "../../vdxf/classes";
 import { DataDescriptor } from "../../pbaas";
 import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureData";
@@ -20,8 +21,8 @@ describe("UserSpecificDataPacketDetails", () => {
           signatureAsVch: Buffer.from("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf", 'hex'),
           hashType: new BN(1),
           flags: new BN(0),
-          identityID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
-          systemID: new CompactAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
+          identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
+          systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
         }),
         detailsID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
       });

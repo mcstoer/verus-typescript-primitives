@@ -48,7 +48,12 @@ class CompactAddressObject {
         else if (this.isIaddress())
             return this.address;
         else if (this.isFQN()) {
-            return (0, address_1.toIAddress)(this.address, this.rootSystemName);
+            if (this.address.includes("::")) {
+                return (0, address_1.getDataKey)(this.address, this.nameSpace, (0, address_1.toIAddress)(this.rootSystemName), vdxf_1.I_ADDR_VERSION).id;
+            }
+            else {
+                return (0, address_1.toIAddress)(this.address, this.rootSystemName);
+            }
         }
         else
             throw new Error("Unknown type");
@@ -59,10 +64,25 @@ class CompactAddressObject {
         else if (this.isXaddress())
             return this.address;
         else if (this.isFQN()) {
-            return (0, address_1.getDataKey)(this.address, this.nameSpace, (0, address_1.toIAddress)(this.rootSystemName), vdxf_1.X_ADDR_VERSION).id;
+            if (this.address.includes("::")) {
+                return (0, address_1.getDataKey)(this.address, this.nameSpace, (0, address_1.toIAddress)(this.rootSystemName), vdxf_1.X_ADDR_VERSION).id;
+            }
+            else {
+                return (0, address_1.toXAddress)(this.address, this.rootSystemName);
+            }
         }
         else
             throw new Error("Unknown type");
+    }
+    toString() {
+        if (this.isIaddress()) {
+            return this.toIAddress();
+        }
+        else if (this.isXaddress()) {
+            return this.toXAddress();
+        }
+        else
+            return this.address;
     }
     static fromIAddress(iaddr) {
         return new CompactAddressObject({

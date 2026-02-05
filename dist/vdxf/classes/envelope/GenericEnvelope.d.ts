@@ -2,35 +2,35 @@ import { BigNumber } from "../../../utils/types/BigNumber";
 import { OrdinalVDXFObject, OrdinalVDXFObjectJson } from "../ordinals/OrdinalVDXFObject";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from "../VerifiableSignatureData";
-import { CompactAddressObject } from "../CompactAddressObject";
+import { CompactAddressObjectJson, CompactIAddressObject } from "../CompactAddressObject";
 export interface GenericEnvelopeInterface {
     version?: BigNumber;
     flags?: BigNumber;
     signature?: VerifiableSignatureData;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     createdAt?: BigNumber;
     salt?: Buffer;
-    appOrDelegatedID?: CompactAddressObject;
+    appOrDelegatedID?: CompactIAddressObject;
     details: Array<OrdinalVDXFObject>;
 }
 export type GenericEnvelopeJson = {
     version: string;
     flags?: string;
     signature?: VerifiableSignatureDataJson;
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
     createdat?: string;
     salt?: string;
-    appOrDelegatedID?: string;
+    appOrDelegatedID?: CompactAddressObjectJson;
     details: Array<OrdinalVDXFObjectJson>;
 };
 export declare class GenericEnvelope implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
     signature?: VerifiableSignatureData;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     createdAt?: BigNumber;
     salt?: Buffer;
-    appOrDelegatedID?: CompactAddressObject;
+    appOrDelegatedID?: CompactIAddressObject;
     details: Array<OrdinalVDXFObject>;
     static VERSION_CURRENT: import("bn.js");
     static VERSION_FIRSTVALID: import("bn.js");

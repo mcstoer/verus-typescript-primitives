@@ -18,15 +18,15 @@ import bufferutils from "../../../utils/bufferutils";
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
-import { CompactAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 import varuint from "../../../utils/varuint";
 
 export interface ProvisionIdentityDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;  
-  systemID?: CompactAddressObject; // system e.g. VRSC@
-  parentID?: CompactAddressObject; // parent e.g. Token@
-  identityID?: CompactAddressObject; // Full identity e.g. john.VRSC@
+  systemID?: CompactIAddressObject; // system e.g. VRSC@
+  parentID?: CompactIAddressObject; // parent e.g. Token@
+  identityID?: CompactIAddressObject; // Full identity e.g. john.VRSC@
 }
 
 export interface ProvisionIdentityDetailsJson {
@@ -40,9 +40,9 @@ export interface ProvisionIdentityDetailsJson {
 export class ProvisionIdentityDetails implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;  
-  systemID?: CompactAddressObject; // system e.g. VRSC@
-  parentID?: CompactAddressObject; // parent e.g. Token@
-  identityID?: CompactAddressObject; // Full identity e.g. john.VRSC@
+  systemID?: CompactIAddressObject; // system e.g. VRSC@
+  parentID?: CompactIAddressObject; // parent e.g. Token@
+  identityID?: CompactIAddressObject; // Full identity e.g. john.VRSC@
   
   // Version
   static DEFAULT_VERSION = new BN(1, 10)
@@ -122,19 +122,19 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
 
     if (this.hasSystemId()) {
-      const systemID = new CompactAddressObject();
+      const systemID = new CompactIAddressObject();
       reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
       this.systemID = systemID;
     }
 
     if (this.hasParentId()) {
-      const parentID = new CompactAddressObject();
+      const parentID = new CompactIAddressObject();
       reader.offset = parentID.fromBuffer(reader.buffer, reader.offset);
       this.parentID = parentID;
     }
 
     if (this.hasIdentityId()) {
-      const identityID = new CompactAddressObject();
+      const identityID = new CompactIAddressObject();
       reader.offset = identityID.fromBuffer(reader.buffer, reader.offset);
       this.identityID = identityID;
     }
@@ -160,15 +160,15 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     provision.flags = new BN(data?.flags || 0);
 
     if (provision.hasSystemId()) {
-      provision.systemID = CompactAddressObject.fromJson(data.systemid);
+      provision.systemID = CompactIAddressObject.fromCompactAddressObjectJson(data.systemid);
     }
 
     if (provision.hasParentId()) {
-      provision.parentID = CompactAddressObject.fromJson(data.parentid);
+      provision.parentID = CompactIAddressObject.fromCompactAddressObjectJson(data.parentid);
     }
 
     if (provision.hasIdentityId()) {
-      provision.identityID = CompactAddressObject.fromJson(data.identityid);
+      provision.identityID = CompactIAddressObject.fromCompactAddressObjectJson(data.identityid);
     }
 
     return provision;

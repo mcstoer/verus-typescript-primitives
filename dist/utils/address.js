@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decodeEthDestination = exports.decodeDestination = exports.toIAddress = exports.fqnToAddress = exports.nameAndParentAddrToIAddr = exports.nameAndParentAddrToAddr = exports.toBase58Check = exports.fromBase58Check = void 0;
+exports.decodeEthDestination = exports.decodeDestination = exports.toXAddress = exports.toIAddress = exports.fqnToAddress = exports.nameAndParentAddrToIAddr = exports.nameAndParentAddrToAddr = exports.toBase58Check = exports.fromBase58Check = void 0;
 exports.getDataKey = getDataKey;
 const pbaas_1 = require("../constants/pbaas");
 const vdxf_1 = require("../constants/vdxf");
@@ -96,6 +96,10 @@ const toIAddress = (fullyqualifiedname, rootSystemName = "") => {
     return (0, exports.fqnToAddress)(fullyqualifiedname, rootSystemName, vdxf_1.I_ADDR_VERSION);
 };
 exports.toIAddress = toIAddress;
+const toXAddress = (fullyqualifiedname, rootSystemName = "") => {
+    return (0, exports.fqnToAddress)(fullyqualifiedname, rootSystemName, vdxf_1.X_ADDR_VERSION);
+};
+exports.toXAddress = toXAddress;
 function trimSpaces(name, removeDuals) {
     // Unicode "dual spaces" — visually space-like but potentially problematic
     const dualSpaces = [

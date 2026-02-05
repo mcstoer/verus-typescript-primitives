@@ -1,6 +1,6 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
+import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 export type AuthenticationResponseDetailsJson = {
     flags: string;
     requestid?: CompactAddressObjectJson;

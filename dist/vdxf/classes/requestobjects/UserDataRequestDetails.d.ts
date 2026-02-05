@@ -20,14 +20,14 @@
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
+import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 export interface UserDataRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
     searchDataKey: Array<{
         [key: string]: string;
     }>;
-    signer?: CompactAddressObject;
+    signer?: CompactIAddressObject;
     requestedKeys?: string[];
     requestID?: string;
 }
@@ -60,7 +60,7 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     searchDataKey: Array<{
         [key: string]: string;
     }>;
-    signer?: CompactAddressObject;
+    signer?: CompactIAddressObject;
     requestedKeys?: string[];
     requestID?: string;
     constructor(data?: UserDataRequestInterface);

@@ -10,7 +10,7 @@ import createHash = require('create-hash');
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { VERUSPAY_VERSION_4, VERUSPAY_VERSION_CURRENT } from '../../../constants/vdxf/veruspay';
 import { SaplingPaymentAddress } from '../../../pbaas';
-import { CompactAddressObject, CompactAddressObjectJson, CompactAddressXVariant, CompactXAddressObject } from '../CompactAddressObject';
+import { CompactAddressObject, CompactAddressObjectJson, CompactXAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 // Added in V3

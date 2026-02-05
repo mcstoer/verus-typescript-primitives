@@ -4,7 +4,7 @@ import createHash = require('create-hash');
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
+import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export type AuthenticationResponseDetailsJson = {

@@ -19,7 +19,7 @@ class VerifiableSignatureData {
         this.version = data && data.version ? data.version : new bn_js_1.BN(0);
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN(0);
         this.signatureVersion = data && data.signatureVersion ? data.signatureVersion : new bn_js_1.BN(2, 10);
-        this.systemID = data && data.systemID ? data.systemID : new CompactAddressObject_1.CompactAddressObject({ type: CompactAddressObject_1.CompactAddressObject.TYPE_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
+        this.systemID = data && data.systemID ? data.systemID : new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
         this.hashType = data && data.hashType ? data.hashType : pbaas_1.HASH_TYPE_SHA256;
         this.identityID = data ? data.identityID : undefined;
         this.vdxfKeys = data ? data.vdxfKeys : undefined;
@@ -191,8 +191,8 @@ class VerifiableSignatureData {
         this.flags = new bn_js_1.BN(bufferReader.readCompactSize());
         this.signatureVersion = new bn_js_1.BN(bufferReader.readCompactSize());
         this.hashType = new bn_js_1.BN(bufferReader.readCompactSize());
-        this.systemID = new CompactAddressObject_1.CompactAddressObject();
-        this.identityID = new CompactAddressObject_1.CompactAddressObject();
+        this.systemID = new CompactAddressObject_1.CompactIAddressObject();
+        this.identityID = new CompactAddressObject_1.CompactIAddressObject();
         bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
         bufferReader.offset = this.identityID.fromBuffer(bufferReader.buffer, bufferReader.offset);
         if (this.hasVdxfKeys()) {
@@ -285,8 +285,8 @@ class VerifiableSignatureData {
         instance.flags = new bn_js_1.BN(json.flags);
         instance.signatureVersion = new bn_js_1.BN(json.signatureversion);
         instance.hashType = new bn_js_1.BN(json.hashtype);
-        instance.systemID = CompactAddressObject_1.CompactAddressObject.fromJson(json.systemid);
-        instance.identityID = CompactAddressObject_1.CompactAddressObject.fromJson(json.identityid);
+        instance.systemID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.systemid);
+        instance.identityID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.identityid);
         instance.vdxfKeys = json === null || json === void 0 ? void 0 : json.vdxfkeys;
         instance.vdxfKeyNames = json === null || json === void 0 ? void 0 : json.vdxfkeynames;
         instance.boundHashes = (_a = json.boundhashes) === null || _a === void 0 ? void 0 : _a.map(x => Buffer.from(x, 'hex'));
@@ -300,8 +300,8 @@ class VerifiableSignatureData {
         instance.version = new bn_js_1.BN(VerifiableSignatureData.TYPE_VERUSID_DEFAULT);
         instance.hashType = new bn_js_1.BN(json.signaturedata.hashtype);
         instance.signatureVersion = new bn_js_1.BN(json.signatureversion); //default Signature Version
-        instance.systemID = CompactAddressObject_1.CompactAddressObject.fromJson({ address: json.systemid, version: 1, type: CompactAddressObject_1.CompactAddressObject.TYPE_I_ADDRESS, rootSystemName });
-        instance.identityID = CompactAddressObject_1.CompactAddressObject.fromJson({ address: json.address, version: 1, type: CompactAddressObject_1.CompactAddressObject.TYPE_I_ADDRESS, rootSystemName });
+        instance.systemID = CompactAddressObject_1.CompactIAddressObject.fromAddress(json.systemid, rootSystemName);
+        instance.identityID = CompactAddressObject_1.CompactIAddressObject.fromAddress(json.address, rootSystemName);
         // Set optional fields
         instance.vdxfKeys = json.vdxfkeys;
         instance.vdxfKeyNames = json.vdxfkeynames;
