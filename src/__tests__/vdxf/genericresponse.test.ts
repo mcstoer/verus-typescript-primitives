@@ -4,7 +4,7 @@ import { DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256, NULL_I_ADDR } from '../../cons
 import { GenericResponse, IdentityID, IdentityUpdateResponseDetails } from '../../';
 import { createHash } from 'crypto';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
-import { CompactAddressObject, CompactIAddressObject } from '../../vdxf/classes/CompactAddressObject';
+import { CompactIAddressObject } from '../../vdxf/classes/CompactAddressObject';
 import { GeneralTypeOrdinalVDXFObject, IdentityUpdateResponseOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
 import { TEST_TXID } from '../constants/fixtures';
 
