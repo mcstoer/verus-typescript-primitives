@@ -2,7 +2,7 @@ import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey
 import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingPaymentAddress } from '../../pbaas/SaplingPaymentAddress';
 import { BN } from 'bn.js';
-import { AppEncryptionRequestDetails, AppEncryptionResponseDetails } from '../../vdxf/classes';
+import { AppEncryptionResponseDetails } from '../../vdxf/classes';
 
 describe('AppEncryptionResponseDetails', () => {
   const testViewingKey = 'zxviews1q0njl87fqqqqpq8vghkp6nz9wx48mwelukvhx3yfwg7msatglv4xy8rrh87k9z472edvlrt950qyy6r766dxnpqktxug7t2wy80s4ug325dwp9hf4vw9a6ethf2mwc9wan28p88dq8q2e8sdlw2mhffg6hy92tjyuquz7a8reqdz905x6xt6kqdx5wn7jvas0733hends8q6s8k87emn6m060xdnhgmvn4zmx0ssrwve84lzxkqu2dnfq5qsjwrtlject0an0k282rsnx0kq4';
