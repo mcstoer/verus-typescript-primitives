@@ -1,3 +1,11 @@
+import { BN } from "bn.js"
+import { ContentMultiMap, IDENTITY_VERSION_PBAAS, IdentityID, KeyID, SaplingPaymentAddress } from "../../pbaas"
+import { PartialIdentity } from "../../pbaas/PartialIdentity"
+import { PartialMMRData } from "../../pbaas/PartialMMRData"
+import { PartialSignData, PartialSignDataInitData } from "../../pbaas/PartialSignData"
+import { DATA_TYPE_MMRDATA } from "../../constants/pbaas"
+import { CompactIAddressObject } from "../../vdxf/classes"
+
 export const manyContentMultimapData = {
   "iGdWifeNFcN69JiFwmcZTYT1zPYpFumGhq": [
     // String
@@ -321,3 +329,130 @@ export const mmrDescriptorForRootProof = {
     ]
   }
 }
+
+export const TEST_IDENTITY_ID = "i8jHXEEYEQ7KEoYe6eKXBib8cUBZ6vjWSd"
+
+export const TEST_SYSTEMID = IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
+export const TEST_SIGNINGID = IdentityID.fromAddress("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j");
+export const TEST_REQUESTID = CompactIAddressObject.fromAddress("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j");
+export const TEST_CREATEDAT = new BN("1700000000", 10);
+export const TEST_EXPIRYHEIGHT = new BN("123456");
+export const TEST_SALT = Buffer.from('=H319X:)@H2Z');
+export const TEST_TXID = "2474d2c7b3586cedd8bf7f4a9af7c26e794ea2fc44853f17a30148e2ed857a95";
+
+export const TEST_CONTENTMAP = new Map();
+TEST_CONTENTMAP.set("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j", Buffer.alloc(32));
+TEST_CONTENTMAP.set("iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c", Buffer.alloc(32));
+
+export const TEST_CLI_ID_UPDATE_REQUEST_JSON = {
+  "name": "data",
+  "contentmultimap": {
+      "i5CXAPoCLothTntExgvc5kK38u2wyHtFCg": {
+          "data": {"createmmr":true, "mmrdata":[{"message": "{\"rail_transport\": 43326.71, \"public_bus_transport\": 83452.4, \"air_transport\": 1306.83, \"urban_public_transport\": -1, \"time\": 993945600}", "mimetype": "application/json", "label": "quarter_3_2001_transport_passenger_data_cz"}]}
+      }
+  }
+}
+
+export const TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX = {
+  "name":"[32][32]",
+  "parent":"iF6hHpRXpmhLq77eksQzqQrWuminKtzmxT",
+  "contentmultimap": {
+    "i4d7U1aZhmoxZbWx8AVezh6z1YewAnuw3V": [
+      {
+        "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv": {
+          "version": 1,
+          "flags": 32,
+          "label": "i3bgiLuaxTr6smF8q6xLG4jvvhF1mmrkM2",
+          "objectdata": {
+            "serializedhex": "08a2ebb2c55f83a8e2a426a53320ed4d42124f4d010c012001010776657273696f6e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011d01600a656d706c6f796d656e7404747970650a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011d016009446576656c6f706572057469746c650a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d0157016044426f6479206f6620636c61696d20676f657320686572652c207768617420796f75206861766520646f6e652c207768617420796f7520686176652061636869657665642e04626f64790a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011d016009323031392d323032300564617465730a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011f01600a323032352d30312d3330066973737565640a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d012f012020cc2b8109fb5566cf98297aaf5c80e2fb0a5051c3252a7957b13ba5433767e23a0b7265666572656e63654944"
+          }
+        }
+      },
+      {
+        "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv": {
+          "version": 1,
+          "flags": 32,
+          "label": "i3bgiLuaxTr6smF8q6xLG4jvvhF1mmrkM2",
+          "objectdata": {
+            "serializedhex": "08a2ebb2c55f83a8e2a426a53320ed4d42124f4d010c012001010776657273696f6e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011d01600a656d706c6f796d656e7404747970650a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d012301600f436869656620446576656c6f706572057469746c650a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d0157016044426f6479206f6620636c61696d20676f657320686572652c207768617420796f75206861766520646f6e652c207768617420796f7520686176652061636869657665642e04626f64790a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011d016009323032312d323032340564617465730a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d011f01600a323032352d30312d3239066973737565640a746578742f706c61696e08a2ebb2c55f83a8e2a426a53320ed4d42124f4d015a016040373962343830376333303465383035333831666438653165376234383865353062363032613033333366663266663633636264313564363362366163383835650b7265666572656e636549440a746578742f706c61696e"
+          }
+        }
+      }
+    ]
+  }
+}
+
+export const TEST_PARTIAL_IDENTITY = new PartialIdentity({
+  flags: new BN("0"),
+  version: IDENTITY_VERSION_PBAAS,
+  min_sigs: new BN(1),
+  primary_addresses: [
+    KeyID.fromAddress("RQVsJRf98iq8YmRQdehzRcbLGHEx6YfjdH"),
+    KeyID.fromAddress("RP4Qct9197i5vrS11qHVtdyRRoAHVNJS47")
+  ],
+  parent: IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"),
+  system_id: IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"),
+  name: "TestID",
+  content_map: TEST_CONTENTMAP,
+  content_multimap: ContentMultiMap.fromJson({
+    iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j: [
+      { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
+      { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
+      { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' },
+      { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' }
+    ],
+    iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq: '6868686868686868686868686868686868686868',
+    i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7: [
+      '6868686868686868686868686868686868686868',
+      '6868686868686868686868686868686868686868',
+      '6868686868686868686868686868686868686868'
+    ],
+    i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz: { iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c: 'Test String 123454321' }
+  }),
+  recovery_authority: IdentityID.fromAddress("i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz"),
+  revocation_authority: IdentityID.fromAddress("i5v3h9FWVdRFbNHU7DfcpGykQjRaHtMqu7"),
+  unlock_after: new BN("123456", 10),
+  private_addresses: [SaplingPaymentAddress.fromAddressString("zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa")]
+});
+
+export const TEST_MMR_DATA = new PartialMMRData({
+  flags: new BN('0', 10),
+  data: [
+    { type: new BN('2', 10), data: Buffer.from('src/__tests__/pbaas/partialmmrdata.test.ts', 'utf-8') },
+    { type: new BN('3', 10), data: Buffer.from('Hello test message 12345', 'utf-8') },
+  ],
+  salt: [Buffer.from('=H319X:)@H2Z'), Buffer.from('s*1UHmVr?feI')],
+  mmrhashtype: new BN('1', 10), // e.g. PartialMMRData.HASH_TYPE_SHA256
+  priormmr: [
+    Buffer.from('80a28cdff6bd91a2e96a473c234371fd8b67705a8c4956255ce7b8c7bf20470f02381c9a935f06cdf986a7c5facd77625befa11cf9fd4b59857b457394a8af979ab2830087a3b27041b37bc318484175'), 
+    Buffer.from('d97fd4bbd9e88ca0c5822c12d5c9b272b2044722aa48b1c8fde178be6b59ccea509f403d3acd226c16ba3c32f0cb92e2fcaaa02b40d0bc5257e0fbf2e6c3d3d7f1a1df066967b193d131158ba5bef732')
+  ],
+})
+
+export const TEST_BASE_SIGN_DATA_WITH_MMR_DATA: PartialSignDataInitData = {
+  flags: new BN('0', 10),
+  address: IdentityID.fromAddress('iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq'),
+  prefixString: Buffer.from('example prefix', 'utf8'),
+  vdxfKeys: [IdentityID.fromAddress('i81XL8ZpuCo9jmWLv5L5ikdxrGuHrrpQLz')],
+  vdxfKeyNames: [Buffer.from('VDXFNAME', 'utf8')],
+  boundHashes: [Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex'), Buffer.from('0873c6ba879ce87f5c207a4382b273cac164361af0b9fe63d6d7b0d7af401fec', 'hex')],
+  hashType: new BN('1', 10),
+  encryptToAddress: SaplingPaymentAddress.fromAddressString(
+    'zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa'
+  ),
+  createMMR: true,
+  signature: Buffer.from('AeNjMwABQSAPBEuajDkRyy+OBJsWmDP3EUoqN9UjCJK9nmoSQiNoZWBK19OgGCYdEqr1CiFfBf8SFHVoUv4r2tb5Q3qsMTrp', 'base64'),
+  dataType: DATA_TYPE_MMRDATA,
+  data: TEST_MMR_DATA, // This is the PartialMMRData object
+}
+
+export const TEST_SIGNDATA_MAP = new Map();
+TEST_SIGNDATA_MAP.set("iBvyi1nuCrTA4g44xN9N7EU1t6a7gwb4h8", new PartialSignData(TEST_BASE_SIGN_DATA_WITH_MMR_DATA))
+
+// Test constants with valid addresses from the codebase
+export const TEST_CHALLENGE_ID = "iMdf3BJ1mEtKMAJqNg8hj5fMnCUCc3bpFN";
+export const TEST_IDENTITY_ID_1 = "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW"; 
+export const TEST_IDENTITY_ID_2 = "i84T3MWcb6zWcwgNZoU3TXtrUn9EqM84A4";
+export const TEST_IDENTITY_ID_3 = "iJ5LnijKvp1wkL4hB3EsJ5kjcE4T8VL4hD";
+
+export const SERIALIZED_AUTHENTICATION_REQUEST_DETAILS = Buffer.from("070102c72c5b342995a2186f96271e91686c5e942d13e1030101022a5fc0e9dedf4f1e8351fe652a140e9dd38fa5a9020102324afad29f51859c54050db854d2c9bb52acd9bd030102a0276f355ad37d8e5d2d10f16c1d051b6f6ead62ff9982d02aac020000", 'hex');

@@ -34,15 +34,15 @@ class IdentityMultimapRef {
         this.setFlags();
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varint_1.default.encodingLength(this.flags);
-        byteLength += 20; // id_ID uint160
-        byteLength += 20; // key uint160
+        byteLength += vdxf_1.HASH160_BYTE_LENGTH; // id_ID
+        byteLength += vdxf_1.HASH160_BYTE_LENGTH; // vdxfkey 
         byteLength += varint_1.default.encodingLength(this.height_start); // height_start uint32
         byteLength += varint_1.default.encodingLength(this.height_end); // height_end uint32
         if (this.flags.and(IdentityMultimapRef.FLAG_HAS_DATAHASH).gt(new bn_js_1.BN(0))) {
-            byteLength += 32;
+            byteLength += vdxf_1.HASH256_BYTE_LENGTH;
         }
         if (this.flags.and(IdentityMultimapRef.FLAG_HAS_SYSTEM).gt(new bn_js_1.BN(0))) {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
         }
         return byteLength;
     }

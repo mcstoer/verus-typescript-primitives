@@ -1,0 +1,241 @@
+
+/**
+ * AuthenticationRequestDetails - Class for handling application login and authentication requests
+ * 
+ * This class is used when an application is requesting authentication or login from the user,
+ * including specific recipientConstraints and callback information. The request includes:
+ * - Request ID for tracking the authentication session
+ * - Permission sets defining what access the application is requesting
+ * - Optional expiry time for the authentication session
+ * 
+ * The user's wallet can use these parameters to present a clear authentication request
+ * to the user, showing exactly what recipientConstraints are being requested and where they will
+ * be redirected after successful authentication. This enables secure, user-controlled
+ * authentication flows with granular permission management.
+ */
+
+import bufferutils from "../../../utils/bufferutils";
+import { BigNumber } from "../../../utils/types/BigNumber";
+import { BN } from "bn.js";
+import { SerializableEntity } from "../../../utils/types/SerializableEntity";
+import varuint from "../../../utils/varuint";
+import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+
+export interface AuthenticationRequestDetailsInterface {
+  flags?: BigNumber;  
+  requestID?: CompactIAddressObject;
+  recipientConstraints?: Array<RecipientConstraint>;
+  expiryTime?: BigNumber; // UNIX Timestamp
+}
+
+export interface RecipientConstraintJson {
+  type: number;
+  identity: CompactAddressObjectJson;
+}
+
+export interface RecipientConstraint {
+  type: number;
+  identity: CompactIAddressObject;
+}
+
+export interface AuthenticationRequestDetailsJson {
+  requestid?: CompactAddressObjectJson;
+  flags: number;
+  recipientconstraints?: Array<RecipientConstraintJson>;
+  expirytime?: number;
+}
+
+export class AuthenticationRequestDetails implements SerializableEntity {
+  flags?: BigNumber;
+  requestID?: CompactIAddressObject;
+  recipientConstraints?: Array<RecipientConstraint>;
+  expiryTime?: BigNumber; // UNIX Timestamp
+
+  static FLAG_HAS_REQUEST_ID = new BN(1, 10);
+  static FLAG_HAS_RECIPIENT_CONSTRAINTS = new BN(2, 10);
+  static FLAG_HAS_EXPIRY_TIME = new BN(4, 10);
+
+  // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
+  static REQUIRED_ID = 1;
+  static REQUIRED_SYSTEM = 2;
+  static REQUIRED_PARENT = 3;
+
+  constructor(
+    request?: AuthenticationRequestDetailsInterface 
+  ) {
+    this.flags = request?.flags || new BN(0, 10);
+    this.requestID = request?.requestID || null;
+    this.recipientConstraints = request?.recipientConstraints || null;
+    this.expiryTime = request?.expiryTime || null;
+
+    this.setFlags();
+  }
+
+  hasRequestID(): boolean {
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID).eq(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
+  }
+
+  hasRecipentConstraints(): boolean {   
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS).eq(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
+  }
+
+  hasExpiryTime(): boolean {
+    return this.flags.and(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME).eq(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
+  }
+
+  calcFlags(flags: BigNumber = this.flags): BigNumber {
+    if (this.requestID) {
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID);
+    }
+    if (this.recipientConstraints) {
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS);
+    }
+    if (this.expiryTime) {
+      flags = flags.or(AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME);
+    } 
+    return flags;
+  }
+
+  getByteLength(): number {
+    let length = 0;
+
+    length += varuint.encodingLength(this.flags.toNumber());
+
+    if (this.hasRequestID()) {
+      length += this.requestID.getByteLength();
+    }
+
+    if (this.hasRecipentConstraints()) {
+      length += varuint.encodingLength(this.recipientConstraints.length);      
+      for (let i = 0; i < this.recipientConstraints.length; i++) {
+        length += varuint.encodingLength(this.recipientConstraints[i].type);
+        length += this.recipientConstraints[i].identity.getByteLength();
+      }      
+    }
+
+    if (this.hasExpiryTime()) {
+      length += varuint.encodingLength(this.expiryTime.toNumber());
+    }
+
+    return length;
+  }
+
+  toBuffer(): Buffer {
+    const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
+
+    writer.writeCompactSize(this.flags.toNumber());
+
+    if (this.hasRequestID()) {
+      writer.writeSlice(this.requestID.toBuffer());
+    }
+    
+    if (this.hasRecipentConstraints()) {
+      writer.writeCompactSize(this.recipientConstraints.length);   
+      for (let i = 0; i < this.recipientConstraints.length; i++) {
+        writer.writeCompactSize(this.recipientConstraints[i].type);
+        writer.writeSlice(this.recipientConstraints[i].identity.toBuffer());
+      }
+    }
+
+    if (this.hasExpiryTime()) {
+      writer.writeCompactSize(this.expiryTime.toNumber());
+    }
+
+    return writer.buffer;
+  }
+
+  fromBuffer(buffer: Buffer, offset?: number): number {
+    const reader = new bufferutils.BufferReader(buffer, offset);
+
+    this.flags = new BN(reader.readCompactSize());
+
+    if (this.hasRequestID()) {
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+    }
+
+    if (this.hasRecipentConstraints()) {
+      this.recipientConstraints = [];
+      const recipientConstraintsLength = reader.readCompactSize();
+
+      for (let i = 0; i < recipientConstraintsLength; i++) {
+        const compactId = new CompactIAddressObject();
+        const type = reader.readCompactSize();
+        const identityOffset = reader.offset;
+        reader.offset = compactId.fromBuffer(buffer, identityOffset);
+        this.recipientConstraints.push({
+          type: type,
+          identity: compactId
+        });
+      }
+    } 
+
+    if (this.hasExpiryTime()) {
+      this.expiryTime = new BN(reader.readCompactSize());
+    }
+
+    return reader.offset;
+  }
+
+  toJson(): AuthenticationRequestDetailsJson {
+    const flags = this.calcFlags();
+
+    const retval = {
+      flags: flags.toNumber(),
+      requestid: this.requestID.toJson(),
+      recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({type: p.type,
+          identity: p.identity.toJson()})) : undefined,
+      expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
+    };
+
+    return retval;
+  }
+
+  static fromJson(data: AuthenticationRequestDetailsJson): AuthenticationRequestDetails {
+    const loginDetails = new AuthenticationRequestDetails();
+
+    loginDetails.flags = new BN(data?.flags || 0);
+    loginDetails.requestID = data.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(data.requestid) : undefined;
+
+    if(loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
+      loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({type: p.type,
+        identity: CompactIAddressObject.fromCompactAddressObjectJson(p.identity)}));
+    }
+
+    if(loginDetails.hasExpiryTime() && data.expirytime) {
+      loginDetails.expiryTime = new BN(data.expirytime);
+    }
+
+    return loginDetails;
+  }
+
+  setFlags() {
+    this.flags = this.calcFlags();
+  }   
+
+  isValid(): boolean {
+    let valid = true;
+    valid &&= this.flags != null && this.flags.gte(new BN(0));
+    
+    if (this.hasRequestID()) {
+      if (!this.requestID || !this.requestID.isValid()) {
+        return false;
+      }
+    }
+
+    if (this.hasRecipentConstraints()) {
+      if (!this.recipientConstraints || this.recipientConstraints.length === 0) {
+        return false;
+      }
+    }
+
+    if (this.hasExpiryTime()) {
+      if (!this.expiryTime || this.expiryTime.isZero()) {
+        return false;
+      }
+    }
+
+    return valid;
+  }
+}

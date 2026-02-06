@@ -4,55 +4,40 @@ import createHash = require('create-hash');
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
-import varuint from '../../../utils/varuint';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export type IdentityUpdateResponseDetailsJson = {
   flags: string,
-  requestid: string,
-  createdat: string,
-  txid?: string,
-  salt?: string
+  requestid: CompactAddressObjectJson,
+  txid?: string
 }
 
 export class IdentityUpdateResponseDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestid?: BigNumber;              // ID of request, to be referenced in response
-  createdat?: BigNumber;              // Unix timestamp of request creation
+  requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
-  salt?: Buffer;                      // Optional salt
 
-  static IDENTITY_UPDATE_RESPONSE_VALID = new BN(0, 10);
   static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID = new BN(1, 10);
-  static IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT = new BN(2, 10);
+  static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID = new BN(2, 10);
 
   constructor (data?: {
     flags?: BigNumber,
-    requestid?: BigNumber,
-    createdat?: BigNumber,
-    txid?: Buffer,
-    salt?: Buffer
+    requestID?: CompactIAddressObject,
+    txid?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
 
-    if (data?.requestid) {
-      this.requestid = data.requestid;
-    } else this.requestid = new BN("0", 10);
-
-    if (data?.createdat) {
-      this.createdat = data.createdat;
+    if (data?.requestID) {
+      if (!this.containsRequestID()) this.toggleContainsRequestID();
+      this.requestID = data.requestID;
     }
 
     if (data?.txid) {
       if (!this.containsTxid()) this.toggleContainsTxid();
       this.txid = data.txid;
-    }
-
-    if (data?.salt) {
-      if (!this.containsSalt()) this.toggleContainsSalt();
-      this.salt = data.salt;
     }
   }
 
@@ -60,16 +45,16 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID).toNumber());
   }
 
-  containsSalt() {
-    return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT).toNumber());
+  containsRequestID() {
+    return !!(this.flags.and(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID).toNumber());
   }
 
   toggleContainsTxid() {
     this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID);
   }
 
-  toggleContainsSalt() {
-    this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT);
+  toggleContainsRequestID() {
+    this.flags = this.flags.xor(IdentityUpdateResponseDetails.IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
@@ -81,19 +66,12 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     length += varint.encodingLength(this.flags);
 
-    length += varint.encodingLength(this.requestid);
-
-    length += varint.encodingLength(this.createdat);
+    if (this.containsRequestID()) {
+      length += this.requestID.getByteLength();
+    }
 
     if (this.containsTxid()) {
       length += UINT_256_LENGTH;
-    }
-
-    if (this.containsSalt()) {
-      const saltLen = this.salt.length;
-
-      length += varuint.encodingLength(saltLen);
-      length += saltLen;
     }
 
     return length;
@@ -104,18 +82,14 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     writer.writeVarInt(this.flags);
 
-    writer.writeVarInt(this.requestid);
-
-    writer.writeVarInt(this.createdat);
+    if (this.containsRequestID()) {
+      writer.writeSlice(this.requestID.toBuffer());
+    }
 
     if (this.containsTxid()) {
       if (this.txid.length !== UINT_256_LENGTH) throw new Error("invalid txid length");
 
       writer.writeSlice(this.txid);
-    }
-
-    if (this.containsSalt()) {
-      writer.writeVarSlice(this.salt);
     }
 
     return writer.buffer;
@@ -126,16 +100,14 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
     this.flags = reader.readVarInt();
 
-    this.requestid = reader.readVarInt();
+    if (this.containsRequestID()) {
+      this.requestID = new CompactIAddressObject();
 
-    this.createdat = reader.readVarInt();
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
+    }
 
     if (this.containsTxid()) {
       this.txid = reader.readSlice(UINT_256_LENGTH);
-    }
-
-    if (this.containsSalt()) {
-      this.salt = reader.readVarSlice();
     }
 
     return reader.offset;
@@ -144,20 +116,16 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   toJson(): IdentityUpdateResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
-      requestid: this.requestid.toString(10),
-      createdat: this.createdat.toString(10),
-      txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
-      salt: this.containsSalt() ? this.salt.toString('hex') : undefined
+      requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
+      txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
     }
   }
 
   static fromJson(json: IdentityUpdateResponseDetailsJson): IdentityUpdateResponseDetails {
     return new IdentityUpdateResponseDetails({
       flags: new BN(json.flags, 10),
-      requestid: new BN(json.requestid, 10),
-      createdat: new BN(json.createdat, 10),
-      txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined,
-      salt: json.salt ? Buffer.from(json.salt, 'hex') : undefined
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
+      txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
     });
   }
 }

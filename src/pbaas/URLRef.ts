@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 
 const { BufferReader, BufferWriter } = bufferutils
@@ -52,7 +52,7 @@ export class URLRef implements SerializableEntity {
 
       if( this.flags.and(URLRef.FLAG_HAS_HASH).eq(URLRef.FLAG_HAS_HASH) ) {
         // If the FLAG_HAS_HASH is set, we include the data hash
-        byteLength += 32; // 32 bytes for the hash
+        byteLength += HASH256_BYTE_LENGTH; // 32 bytes for the hash
       }
     }
 

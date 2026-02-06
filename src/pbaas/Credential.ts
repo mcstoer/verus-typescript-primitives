@@ -3,7 +3,7 @@ import { BigNumber } from "../utils/types/BigNumber";
 import { SerializableEntity } from "../utils/types/SerializableEntity";
 import bufferutils from "../utils/bufferutils";
 import varuint from "../utils/varuint";
-import { I_ADDR_VERSION, NULL_ADDRESS } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION, NULL_ADDRESS } from '../constants/vdxf';
 import varint from '../utils/varint';
 import { readLimitedString } from '../utils/string';
 import { fromBase58Check, toBase58Check } from '../utils/address';
@@ -77,7 +77,7 @@ export class Credential implements SerializableEntity {
     length += varint.encodingLength(this.version);
     length += varint.encodingLength(this.flags);
     
-    length += 20 // Credential key
+    length += HASH160_BYTE_LENGTH; // Credential key
 
     // Both the credential and scopes are serialized as JSON strings.
     const credStr = JSON.stringify(this.credential);

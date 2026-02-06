@@ -1,0 +1,92 @@
+import { BigNumber } from '../../utils/types/BigNumber';
+import { SerializableEntity } from '../../utils/types/SerializableEntity';
+import { CompactIAddressObject, CompactAddressObjectJson } from './CompactAddressObject';
+import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
+export interface VerifiableSignatureDataJson {
+    version: number;
+    flags: number;
+    signatureversion: number;
+    hashtype: number;
+    systemid: CompactAddressObjectJson;
+    identityid: CompactAddressObjectJson;
+    vdxfkeys?: Array<string>;
+    vdxfkeynames?: Array<string>;
+    boundhashes?: Array<string>;
+    statements?: Array<string>;
+    signature: string;
+}
+export interface VerifiableSignatureDataInterface {
+    version?: BigNumber;
+    flags?: BigNumber;
+    signatureVersion?: BigNumber;
+    hashType?: BigNumber;
+    systemID?: CompactIAddressObject;
+    identityID: CompactIAddressObject;
+    vdxfKeys?: Array<string>;
+    vdxfKeyNames?: Array<string>;
+    boundHashes?: Array<Buffer>;
+    statements?: Array<Buffer>;
+    signatureAsVch?: Buffer;
+}
+export interface CliSignatureData {
+    signaturedata: SignatureJsonDataInterface;
+    system: string;
+    systemid: string;
+    hashtype: string;
+    hash: string;
+    identity: string;
+    canonicalname: string;
+    address: string;
+    signatureheight: number;
+    signature: string;
+    signatureversion: number;
+    vdxfkeys?: Array<string>;
+    vdxfkeynames?: Array<string>;
+    boundhashes?: Array<string>;
+}
+export declare class VerifiableSignatureData implements SerializableEntity {
+    version: BigNumber;
+    flags: BigNumber;
+    signatureVersion: BigNumber;
+    hashType: BigNumber;
+    identityID: CompactIAddressObject;
+    systemID: CompactIAddressObject;
+    vdxfKeys?: Array<string>;
+    vdxfKeyNames?: Array<string>;
+    boundHashes?: Array<Buffer>;
+    statements?: Array<Buffer>;
+    signatureAsVch: Buffer;
+    static VERSION_INVALID: import("bn.js");
+    static FIRST_VERSION: import("bn.js");
+    static LAST_VERSION: import("bn.js");
+    static DEFAULT_VERSION: import("bn.js");
+    static TYPE_VERUSID_DEFAULT: import("bn.js");
+    static FLAG_HAS_VDXF_KEYS: import("bn.js");
+    static FLAG_HAS_VDXF_KEY_NAMES: import("bn.js");
+    static FLAG_HAS_BOUND_HASHES: import("bn.js");
+    static FLAG_HAS_STATEMENTS: import("bn.js");
+    constructor(data?: VerifiableSignatureDataInterface);
+    private hasFlag;
+    private setFlag;
+    hasVdxfKeys(): boolean;
+    hasVdxfKeyNames(): boolean;
+    hasBoundHashes(): boolean;
+    hasStatements(): boolean;
+    setHasVdxfKeys(): void;
+    setHasVdxfKeyNames(): void;
+    setHasBoundHashes(): void;
+    setHasStatements(): void;
+    calcFlags(): BigNumber;
+    setFlags(): void;
+    private getBufferEncodingLength;
+    private getExtraHashDataByteLength;
+    private getExtraHashData;
+    getByteLength(): number;
+    toBuffer(): Buffer<ArrayBufferLike>;
+    fromBuffer(buffer: Buffer, offset?: number): number;
+    getIdentityHash(height: number, sigHash: Buffer): Buffer<ArrayBufferLike>;
+    toSignatureData(sigHash: Buffer): SignatureData;
+    toJson(): VerifiableSignatureDataJson;
+    static fromJson(json: VerifiableSignatureDataJson): VerifiableSignatureData;
+    static fromCLIJson(json: CliSignatureData, rootSystemName?: string): VerifiableSignatureData;
+}

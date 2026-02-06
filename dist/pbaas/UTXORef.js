@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UTXORef = void 0;
 const bufferutils_1 = require("../utils/bufferutils");
 const bn_js_1 = require("bn.js");
+const vdxf_1 = require("../constants/vdxf");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class UTXORef {
     constructor(data) {
@@ -11,7 +12,7 @@ class UTXORef {
     }
     getByteLength() {
         let byteLength = 0;
-        byteLength += 32; // hash uint256
+        byteLength += vdxf_1.HASH256_BYTE_LENGTH; // hash uint256
         byteLength += 4; // n uint32
         return byteLength;
     }

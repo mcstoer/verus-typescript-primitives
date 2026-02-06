@@ -1,32 +1,26 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 export type IdentityUpdateResponseDetailsJson = {
     flags: string;
-    requestid: string;
-    createdat: string;
+    requestid: CompactAddressObjectJson;
     txid?: string;
-    salt?: string;
 };
 export declare class IdentityUpdateResponseDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestid?: BigNumber;
-    createdat?: BigNumber;
+    requestID?: CompactIAddressObject;
     txid?: Buffer;
-    salt?: Buffer;
-    static IDENTITY_UPDATE_RESPONSE_VALID: import("bn.js");
     static IDENTITY_UPDATE_RESPONSE_CONTAINS_TXID: import("bn.js");
-    static IDENTITY_UPDATE_RESPONSE_CONTAINS_SALT: import("bn.js");
+    static IDENTITY_UPDATE_RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestid?: BigNumber;
-        createdat?: BigNumber;
+        requestID?: CompactIAddressObject;
         txid?: Buffer;
-        salt?: Buffer;
     });
     containsTxid(): boolean;
-    containsSalt(): boolean;
+    containsRequestID(): boolean;
     toggleContainsTxid(): void;
-    toggleContainsSalt(): void;
+    toggleContainsRequestID(): void;
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;

@@ -95,14 +95,14 @@ class Identity extends Principal_1.Principal {
             if (this.version.lt(exports.IDENTITY_VERSION_PBAAS)) {
                 length += varuint_1.default.encodingLength(this.content_map.size);
                 for (const m of this.content_map.entries()) {
-                    length += 20; //uint160 key
-                    length += 32; //uint256 hash
+                    length += vdxf_1.HASH160_BYTE_LENGTH; //uint160 key
+                    length += vdxf_1.HASH256_BYTE_LENGTH;
                 }
             }
             length += varuint_1.default.encodingLength(this.content_map.size);
             for (const m of this.content_map.entries()) {
-                length += 20; //uint160 key
-                length += 32; //uint256 hash
+                length += vdxf_1.HASH160_BYTE_LENGTH; //uint160 key
+                length += vdxf_1.HASH256_BYTE_LENGTH; //uint256 hash
             }
         }
         if (this.containsRevocation())
@@ -307,7 +307,7 @@ class Identity extends Principal_1.Principal {
         else if (unlockTime.gt(exports.IDENTITY_MAX_UNLOCK_DELAY)) {
             unlockAfter = exports.IDENTITY_MAX_UNLOCK_DELAY;
         }
-        this.flags = this.flags.xor(exports.IDENTITY_FLAG_LOCKED);
+        this.flags = this.flags.or(exports.IDENTITY_FLAG_LOCKED);
         this.unlock_after = unlockAfter;
     }
     unlock(height = new bn_js_1.BN(0), txExpiryHeight = new bn_js_1.BN(0)) {
@@ -327,7 +327,7 @@ class Identity extends Principal_1.Principal {
         }
     }
     revoke() {
-        this.flags = this.flags.xor(exports.IDENTITY_FLAG_REVOKED);
+        this.flags = this.flags.or(exports.IDENTITY_FLAG_REVOKED);
         this.unlock();
     }
     unrevoke() {

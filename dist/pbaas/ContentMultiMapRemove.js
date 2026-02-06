@@ -19,9 +19,9 @@ class ContentMultiMapRemove {
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varint_1.default.encodingLength(this.action);
         if (this.action != ContentMultiMapRemove.ACTION_CLEAR_MAP) {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
             if (this.action != ContentMultiMapRemove.ACTION_REMOVE_ALL_KEY) {
-                byteLength += 32;
+                byteLength += vdxf_1.HASH256_BYTE_LENGTH;
             }
         }
         return byteLength;

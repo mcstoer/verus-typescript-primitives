@@ -17,12 +17,13 @@ import base64url from "base64url";
 import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "./VerusPayInvoiceDetails";
 import { BN } from 'bn.js';
 import { BigNumber } from "../../../utils/types/BigNumber";
-
-export const VERUSPAY_VERSION_CURRENT = new BN(3, 10)
-export const VERUSPAY_VERSION_FIRSTVALID = new BN(3, 10)
-export const VERUSPAY_VERSION_LASTVALID = new BN(3, 10)
-export const VERUSPAY_VERSION_SIGNED = new BN('80000000', 16)
-export const VERUSPAY_VERSION_MASK = VERUSPAY_VERSION_SIGNED;
+import { 
+  VERUSPAY_VERSION_CURRENT, 
+  VERUSPAY_VERSION_FIRSTVALID, 
+  VERUSPAY_VERSION_LASTVALID, 
+  VERUSPAY_VERSION_MASK, 
+  VERUSPAY_VERSION_SIGNED 
+} from "../../../constants/vdxf/veruspay";
 
 export interface VerusPayInvoiceInterface {
   details: VerusPayInvoiceDetails;
@@ -63,10 +64,11 @@ export class VerusPayInvoice extends VDXFObject {
           false
         )
       : undefined;
-    this.details = new VerusPayInvoiceDetails(request.details);
 
     if (request.version) this.version = request.version;
     else this.version = VERUSPAY_VERSION_CURRENT;
+
+    this.details = new VerusPayInvoiceDetails(request.details, this.getVersionNoFlags());
   }
 
   getVersionNoFlags(): BigNumber {
@@ -82,7 +84,7 @@ export class VerusPayInvoice extends VDXFObject {
   }
 
   setSigned() {
-    this.version = this.version.xor(VERUSPAY_VERSION_SIGNED);
+    this.version = this.version.or(VERUSPAY_VERSION_SIGNED);
   }
 
   getDetailsHash(signedBlockheight: number, signatureVersion: number = 2) {
@@ -197,7 +199,7 @@ export class VerusPayInvoice extends VDXFObject {
       }
       
       const _details = new VerusPayInvoiceDetails();
-      reader.offset = _details.fromBuffer(reader.buffer, reader.offset);
+      reader.offset = _details.fromBuffer(reader.buffer, reader.offset, this.getVersionNoFlags());
       this.details = _details;
     }
 
@@ -235,7 +237,7 @@ export class VerusPayInvoice extends VDXFObject {
 
   static fromJson(data: VerusPayInvoiceJson): VerusPayInvoice {
     return new VerusPayInvoice({
-      details: VerusPayInvoiceDetails.fromJson(data.details),
+      details: VerusPayInvoiceDetails.fromJson(data.details, data.version ? new BN(data.version) : VERUSPAY_VERSION_CURRENT),
       signature: data.signature != null ? VerusIDSignature.fromJson(data.signature) : undefined,
       signing_id: data.signing_id,
       system_id: data.system_id,

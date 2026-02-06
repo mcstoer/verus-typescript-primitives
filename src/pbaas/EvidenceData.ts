@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import * as VDXF_Data from '../vdxf/vdxfdatakeys';
 
@@ -97,7 +97,7 @@ export class EvidenceData implements SerializableEntity {
     if (this.type.eq(new BN(ETypes.TYPE_MULTIPART_DATA))) {
       byteLength += this.md.getByteLength();
     } else {
-      byteLength += 20;
+      byteLength += HASH160_BYTE_LENGTH;
     }
     byteLength += varuint.encodingLength(this.data_vec.length);
     byteLength += this.data_vec.length;

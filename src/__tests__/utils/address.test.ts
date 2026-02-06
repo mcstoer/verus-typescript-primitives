@@ -1,3 +1,4 @@
+import { I_ADDR_VERSION, X_ADDR_VERSION } from "../../constants/vdxf";
 import { getDataKey, nameAndParentAddrToIAddr, toIAddress } from "../../utils/address";
 import { DATA_TYPE_DEFINEDKEY, IDENTITY_UPDATE_REQUEST_VDXF_KEY, VERUSPAY_INVOICE_VDXF_KEY, WALLET_VDXF_KEY } from "../../vdxf";
 
@@ -34,10 +35,13 @@ describe('Address tests', () => {
     ]
 
     for (const key of keys) {
-      const dataKey = getDataKey(key.qualifiedname.name);
+      const dataKeyI = getDataKey(key.qualifiedname.name, undefined, undefined, I_ADDR_VERSION);
+      const dataKeyX = getDataKey(key.qualifiedname.name, undefined, undefined, X_ADDR_VERSION);
 
-      expect(dataKey.id).toBe(key.vdxfid);
-      expect(dataKey.namespace).toBe(key.qualifiedname.namespace);
+      expect(dataKeyI.id).toBe(key.vdxfid);
+      expect(dataKeyI.namespace).toBe(key.qualifiedname.namespace);
+      expect(dataKeyX.id).toBe(key.indexid!);
+      expect(dataKeyX.namespace).toBe(key.qualifiedname.namespace);
     }
   });
 });

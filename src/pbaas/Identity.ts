@@ -3,14 +3,13 @@ import bufferutils from '../utils/bufferutils'
 import { BigNumber } from '../utils/types/BigNumber';
 import { Principal } from './Principal';
 import { fromBase58Check, nameAndParentAddrToIAddr, toBase58Check } from '../utils/address';
-import { I_ADDR_VERSION, R_ADDR_VERSION } from '../constants/vdxf';
+import { I_ADDR_VERSION, R_ADDR_VERSION, HASH160_BYTE_LENGTH, HASH256_BYTE_LENGTH } from '../constants/vdxf';
 import { BN } from 'bn.js';
 import { IdentityID } from './IdentityID';
 import { SaplingPaymentAddress } from './SaplingPaymentAddress';
 import { ContentMultiMap, ContentMultiMapJson } from './ContentMultiMap';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import { KeyID } from './KeyID';
-import { PartialSignDataCLIJson } from './PartialSignData';
 
 export const IDENTITY_VERSION_VAULT = new BN(2, 10);
 export const IDENTITY_VERSION_PBAAS = new BN(3, 10);
@@ -158,16 +157,16 @@ export class Identity extends Principal implements SerializableEntity {
         length += varuint.encodingLength(this.content_map.size);
   
         for (const m of this.content_map.entries()) {
-          length += 20;   //uint160 key
-          length += 32;   //uint256 hash
+          length += HASH160_BYTE_LENGTH;   //uint160 key
+          length += HASH256_BYTE_LENGTH;
         }
       }
   
       length += varuint.encodingLength(this.content_map.size);
   
       for (const m of this.content_map.entries()) {
-        length += 20;   //uint160 key
-        length += 32;   //uint256 hash
+        length += HASH160_BYTE_LENGTH;   //uint160 key
+        length += HASH256_BYTE_LENGTH;   //uint256 hash
       }
     }
 
@@ -425,7 +424,7 @@ export class Identity extends Principal implements SerializableEntity {
       unlockAfter = IDENTITY_MAX_UNLOCK_DELAY;
     }
 
-    this.flags = this.flags.xor(IDENTITY_FLAG_LOCKED);
+    this.flags = this.flags.or(IDENTITY_FLAG_LOCKED);
     this.unlock_after = unlockAfter;
   }
 
@@ -446,7 +445,7 @@ export class Identity extends Principal implements SerializableEntity {
   }
 
   revoke() {
-    this.flags = this.flags.xor(IDENTITY_FLAG_REVOKED);
+    this.flags = this.flags.or(IDENTITY_FLAG_REVOKED);
     this.unlock();
   }
 

@@ -4,7 +4,7 @@ import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
 import { BN } from 'bn.js';
 import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
+import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import { EHashTypes } from './DataDescriptor';
 const { BufferReader, BufferWriter } = bufferutils
@@ -115,11 +115,11 @@ export class SignatureData implements SerializableEntity {
     let byteLength = 0;
 
     byteLength += varint.encodingLength(this.version);
-    byteLength += 20; // system_ID uint160
+    byteLength += HASH160_BYTE_LENGTH; // system_ID uint160
     byteLength += varint.encodingLength(this.hash_type);
     byteLength += varuint.encodingLength(this.signature_hash.length);
     byteLength += this.signature_hash.length;
-    byteLength += 20; // identity_ID uint160
+    byteLength += HASH160_BYTE_LENGTH; // identity_ID uint160
     byteLength += varint.encodingLength(this.sig_type);
     byteLength += varuint.encodingLength(this.vdxf_keys.length);
     byteLength += this.vdxf_keys.length * 20;
@@ -240,7 +240,9 @@ export class SignatureData implements SerializableEntity {
     return returnObj;
   }
 
-  getIdentityHash(sigObject: { version: number, hash_type: number, height: number }) {
+  // To fully implement, refer to VerusCoin/src/pbaas/crosschainrpc.cpp line 337, IdentitySignatureHash
+  // missing bound hashes and vdxf keys
+  getIdentityHash(sigObject: { version: number, hash_type: number, height: number }): Buffer<ArrayBufferLike> {
     var heightBuffer = Buffer.allocUnsafe(4)
     heightBuffer.writeUInt32LE(sigObject.height);
 

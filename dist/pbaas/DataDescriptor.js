@@ -9,6 +9,7 @@ const { BufferReader, BufferWriter } = bufferutils_1.default;
 const _1 = require(".");
 const index_1 = require("../vdxf/index");
 const VDXF_Data = require("../vdxf/vdxfdatakeys");
+const pbaas_1 = require("../constants/pbaas");
 class DataDescriptor {
     constructor(data) {
         this.flags = new bn_js_1.BN(0);
@@ -323,12 +324,12 @@ exports.VDXFDataDescriptor = VDXFDataDescriptor;
 ;
 var EHashTypes;
 (function (EHashTypes) {
-    EHashTypes[EHashTypes["HASH_INVALID"] = 0] = "HASH_INVALID";
-    EHashTypes[EHashTypes["HASH_BLAKE2BMMR"] = 1] = "HASH_BLAKE2BMMR";
-    EHashTypes[EHashTypes["HASH_BLAKE2BMMR2"] = 2] = "HASH_BLAKE2BMMR2";
-    EHashTypes[EHashTypes["HASH_KECCAK"] = 3] = "HASH_KECCAK";
-    EHashTypes[EHashTypes["HASH_SHA256D"] = 4] = "HASH_SHA256D";
-    EHashTypes[EHashTypes["HASH_SHA256"] = 5] = "HASH_SHA256";
-    EHashTypes[EHashTypes["HASH_LASTTYPE"] = 5] = "HASH_LASTTYPE";
+    EHashTypes[EHashTypes["HASH_INVALID"] = pbaas_1.HASH_TYPE_INVALID.toNumber()] = "HASH_INVALID";
+    EHashTypes[EHashTypes["HASH_BLAKE2BMMR"] = pbaas_1.HASH_TYPE_BLAKE2B.toNumber()] = "HASH_BLAKE2BMMR";
+    EHashTypes[EHashTypes["HASH_BLAKE2BMMR2"] = pbaas_1.HASH_TYPE_BLAKE2BMMR2.toNumber()] = "HASH_BLAKE2BMMR2";
+    EHashTypes[EHashTypes["HASH_KECCAK"] = pbaas_1.HASH_TYPE_KECCAK256.toNumber()] = "HASH_KECCAK";
+    EHashTypes[EHashTypes["HASH_SHA256D"] = pbaas_1.HASH_TYPE_SHA256D.toNumber()] = "HASH_SHA256D";
+    EHashTypes[EHashTypes["HASH_SHA256"] = pbaas_1.HASH_TYPE_SHA256.toNumber()] = "HASH_SHA256";
+    EHashTypes[EHashTypes["HASH_LASTTYPE"] = pbaas_1.HASH_TYPE_SHA256.toNumber()] = "HASH_LASTTYPE";
 })(EHashTypes || (exports.EHashTypes = EHashTypes = {}));
 ;

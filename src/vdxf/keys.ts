@@ -13,11 +13,52 @@ export interface VDXFKeyInterface {
 
 export const VERUSPAY_INVOICE_VDXF_KEY: VDXFKeyInterface = {
   hash160result: "628efc28c2e2d40050e1a9de7a93e7ddf2aa0076",
+  indexid: "xK4aRumetZg2ecW4Z45qdDBH769xxnaiEH",
   qualifiedname: {
     name: "veruspay.vrsc::invoice",
     namespace: "iAisVse7piEiE2VsixZx4SARyHzSpxYxgq"
   },
   vdxfid: "iEETy7La3FTN2Sd2hNRgepek5S8x8eeUeQ"
+}
+
+export const VERUSPAY_INVOICE_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "743a23f19531686d70b26a2e220b50a9c70d78a3",
+  "indexid": "xPCyrdbnb89NftNSuPaVFENwzGDmAukVbS",
+  "qualifiedname": {
+    "name": "veruspay.vrsc::invoice.details",
+    "namespace": "iAisVse7piEiE2VsixZx4SARyHzSpxYxgq"
+  },
+  "vdxfid": "iJNsPqAhjovi3iVR3hvLGqrQxcCkHq9n9H"
+}
+
+export const GENERIC_ENVELOPE_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "bc05c4263031cc791296fa8bd15553ccef3de4ba",
+  "indexid": "xRLq15vpenCUGVpmZgqEtoygZW2b32oVgX",
+  "qualifiedname": {
+    "name": "vrsc::envelope.generic",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iLWiYHVjoTyoeKwji1B5vRT9Xr1aA9yyvX"
+}
+
+export const GENERIC_REQUEST_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "bc05c4263031cc791296fa8bd15553ccef3de4ba",
+  "indexid": "xRLq15vpenCUGVpmZgqEtoygZW2b32oVgX",
+  "qualifiedname": {
+    "name": "vrsc::request.generic",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iLWiYHVjoTyoeKwji1B5vRT9Xr1aA9yyvX"
+}
+
+export const GENERIC_RESPONSE_DEEPLINK_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "4eb641e76ca30947a0782a7c9b5d79e934300340",
+  "indexid": "xE96xgWEcUhxTuVAMr4TvW7mGpR5c2SFy4",
+  "qualifiedname": {
+    "name": "vrsc::response.generic",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "i9JzVt59mAVHqjc8WAQJx7bEFAQ4ffuhrC"
 }
 
 export const IDENTITY_UPDATE_REQUEST_VDXF_KEY: VDXFKeyInterface = {
@@ -34,8 +75,8 @@ export const IDENTITY_UPDATE_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
   "hash160result": "667802c74fbf3dd3a9693bb9aec9bef1250b2b14",
   "indexid": "xA9GyS1bt1WGERamNVqVrhuGvGJeYuWyNk",
   "qualifiedname": {
-      "name": "vrsc::identity.update.response",
-      "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+    "name": "vrsc::identity.update.response",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
   },
   "vdxfid": "i5KAWdaX2hHbcFhjWpBLtKNjtcHdeQFjuX"
 };
@@ -101,6 +142,7 @@ export const WALLET_VDXF_KEY: VDXFKeyInterface = {
     namespace: "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
     name: "vrsc::applications.wallet",
   },
+  indexid: "xA91QPpBrHZto92NCU5KEjCqRveS4dAPrf"
 };
 
 export const LOGIN_CONSENT_REDIRECT_VDXF_KEY: VDXFKeyInterface = {
@@ -130,7 +172,7 @@ export const LOGIN_CONSENT_ATTESTATION_WEBHOOK_VDXF_KEY: VDXFKeyInterface = {
   },
 };
 
-export const LOGIN_CONSENT_PERSONALINFO_WEBHOOK_VDXF_KEY: VDXFKeyInterface ={
+export const LOGIN_CONSENT_PERSONALINFO_WEBHOOK_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "i8RW9fcZHh1oaAqR2fWWLCB99mfNW6Q2mQ",
   indexid: "xDFccU3e91EUCLiStMAfJahgBRgPHfYq74",
   hash160result: "fe40712687cd6f9f288e535ced75b653624f4636",
@@ -375,11 +417,11 @@ export const SIGNED_SESSION_OBJECT: VDXFKeyInterface = {
 };
 
 export const CURRENCY_ADDRESS: VDXFKeyInterface = {
-  "vdxfid":"iBy2s9cQL9RadMVPjog6bbSV5ityBxTuNR",
-  "hash160result":"4fb4c86b8ce18e596e28f62bc9a78f43d738255d",
+  "vdxfid": "iBy2s9cQL9RadMVPjog6bbSV5ityBxTuNR",
+  "hash160result": "4fb4c86b8ce18e596e28f62bc9a78f43d738255d",
   "qualifiedname": {
-    "namespace":"i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-    "name":"vrsc::currency.address"
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::currency.address"
   }
 }
 
@@ -522,12 +564,12 @@ export const IDENTITY_SIGNDATA_REQUEST: VDXFKeyInterface = {
 
 // DATA TYPES
 export const DATA_TYPE_STRING: VDXFKeyInterface = {
-    "vdxfid": "iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c",
-    "hash160result": "e5c061641228a399169211e666de18448b7b8bab",
-    "qualifiedname": {
-      "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
-      "name": "vrsc::data.type.string"
-    },
+  "vdxfid": "iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c",
+  "hash160result": "e5c061641228a399169211e666de18448b7b8bab",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::data.type.string"
+  },
 };
 
 export const DATA_TYPE_DEFINEDKEY: VDXFKeyInterface = {
@@ -540,7 +582,7 @@ export const DATA_TYPE_DEFINEDKEY: VDXFKeyInterface = {
   }
 }
 
-export const DATA_TYPE_OBJECT_DATADESCRIPTOR: VDXFKeyInterface = {
+export const DATA_DESCRIPTOR_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
   hash160result: "4d4f12424ded2033a526a4e2a8835fc5b2eba208",
   qualifiedname: {
@@ -648,3 +690,93 @@ export const PROOFS_CONTROLLER_BLUESKY: VDXFKeyInterface = {
     name: "vrsc::system.proofs.controller.bluesky"
   }
 };
+
+export const ATTESTATION_VIEW_REQUEST_MULTIPLEATTESTATIONS: VDXFKeyInterface = {
+  "vdxfid": "i4BWC5Lr7gAT7KzyDx82Ye5DeFQD8ckcXe",
+  "indexid": "x91cesmvxzP7jVt15dnBX2bkfuRDya9TPq",
+  "hash160result": "3c520f0bde6be181461ebbff11bce396a604c007",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::attestation.view.request.multipleattestations"
+  }
+}
+
+export const AUTHENTICATION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "d989dfa450a2bcd597fff2409a62c00640644cba",
+  "indexid": "xRHh6LdgnyNjv5vhoUYbdPaDE5b1Asnykb",
+  "qualifiedname": {
+    "name": "vrsc::identity.authentication.request",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iLTadYCbwfA5Hv3fwntSf13gCRZzF8Qedv"
+}
+
+export const AUTHENTICATION_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "70db17c46d4aebbf0023ac0e23dd3d85c196eee8",
+  "indexid": "xVYGUq1veNvX7bQMPkysn77RwfXbLcjhnJ",
+  "qualifiedname": {
+    "name": "vrsc::identity.authentication.response",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iQiA22aqo4hrVRXKY5Kioiatv1WaSL2EEw"
+}
+
+export const PROVISION_IDENTITY_DETAILS_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "1ed843dce0f4d9a2bbb839994e3927807eb1878c",
+  "indexid": "xM7h3sXBovFXuwGQ3wvK2ibtUmMHn3mYkM",
+  "qualifiedname": {
+    "name": "vrsc::identity.provision.details",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iGHab566xc2sHmPNCGGA4L5MT7LGoJzmCa"
+}
+
+export const APP_ENCRYPTION_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iL5nfPuV8Ekiz1EeW5KE3pXHuUTfQf6QC9",
+  "indexid": "xQuu8CLZyYyPcB7gMkyP2D3pw8UgHevmcM",
+  "hash160result": "5f398b165b8ea8c547b5f473f951178fc5482db6",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::application.encryption.request"
+  }
+}
+
+export const DATA_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "db2cbacc271774fb775f6f9bfb01d9bf4f527f5f",
+  "indexid": "xH1acZD65uaXckjepFYr6oyiuVTHNAUqEf",
+  "qualifiedname": {
+    "name": "vrsc::data.response",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iCBU9kn1EbMrzarcxZth8RTBsqSGY3Gceh"
+}
+
+export const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "d1fba3d9bf18a5293ff912374fc64725db95cb5e",
+  "indexid": "xGwsJGZrWe7WGCZe5iVytMtbDtdQCPvmno",
+  "qualifiedname": {
+    "name": "vrsc::user.data.request",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iC7kqU8mfKtqe2gcE2qpuyN4CEcPFTxKGL"
+}
+
+export const DATA_PACKET_REQUEST_VDXF_KEY: VDXFKeyInterface = {
+  "hash160result": "d0bd86b07b5d970832cb9998f91aba2f47d156ec",
+  "indexid": "xVrHNLMBM5oBzgL6wNmPUnuFgo5iQQNkh5",
+  "qualifiedname": {
+    "name": "vrsc::data.packet.request",
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV"
+  },
+  "vdxfid": "iR2AuXv6VmaXNWT55h7EWQNif94hTsa7p3"
+}
+
+export const APP_ENCRYPTION_RESPONSE_VDXF_KEY: VDXFKeyInterface = {
+  "vdxfid": "iLgnRLninDtMa7f7EbH7zsDqHRknC4CUpB",
+  "indexid": "xRWtt9DodY72CHY96GwGyFkNK5mo1n7Jxe",
+  "hash160result": "0d3c42aec1d154f1678e0585e557e75202a4cbbc",
+  "qualifiedname": {
+    "namespace": "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV",
+    "name": "vrsc::application.encryption.response"
+  }
+}

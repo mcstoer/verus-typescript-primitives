@@ -64,7 +64,7 @@ class EvidenceData {
             byteLength += this.md.getByteLength();
         }
         else {
-            byteLength += 20;
+            byteLength += vdxf_1.HASH160_BYTE_LENGTH;
         }
         byteLength += varuint_1.default.encodingLength(this.data_vec.length);
         byteLength += this.data_vec.length;

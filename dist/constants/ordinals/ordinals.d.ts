@@ -1,0 +1,15 @@
+export declare const VDXF_OBJECT_RESERVED_BYTE_I_ADDR: import("bn.js");
+export declare const VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING: import("bn.js");
+export declare const VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY: import("bn.js");
+export declare const DATA_DESCRIPTOR_VDXF_ORDINAL: import("bn.js");
+export declare const VERUSPAY_INVOICE_DETAILS_VDXF_ORDINAL: import("bn.js");
+export declare const AUTHENTICATION_REQUEST_VDXF_ORDINAL: import("bn.js");
+export declare const AUTHENTICATION_RESPONSE_VDXF_ORDINAL: import("bn.js");
+export declare const IDENTITY_UPDATE_REQUEST_VDXF_ORDINAL: import("bn.js");
+export declare const IDENTITY_UPDATE_RESPONSE_VDXF_ORDINAL: import("bn.js");
+export declare const PROVISION_IDENTITY_DETAILS_VDXF_ORDINAL: import("bn.js");
+export declare const APP_ENCRYPTION_REQUEST_VDXF_ORDINAL: import("bn.js");
+export declare const APP_ENCRYPTION_RESPONSE_VDXF_ORDINAL: import("bn.js");
+export declare const DATA_PACKET_REQUEST_VDXF_ORDINAL: import("bn.js");
+export declare const USER_DATA_REQUEST_VDXF_ORDINAL: import("bn.js");
+export declare const DATA_RESPONSE_VDXF_ORDINAL: import("bn.js");
