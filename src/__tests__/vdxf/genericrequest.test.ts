@@ -207,7 +207,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     contentmap.set("iK7a5JNJnbeuYWVHCDRpJosj3irGJ5Qa8c", Buffer.alloc(32));
 
     const systemID = IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
-    const requestID = "iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j"
+    const requestID = CompactIAddressObject.fromAddress("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j");
     const createdAt = new BN("1700000000", 10);
     const expiryHeight = new BN("123456");
     const salt = Buffer.from('=H319X:)@H2Z');

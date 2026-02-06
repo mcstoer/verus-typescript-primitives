@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataPacketRequestOrdinalVDXFObject = void 0;
 const ordinals_1 = require("../../../constants/ordinals/ordinals");
 const SerializableEntityOrdinalVDXFObject_1 = require("./SerializableEntityOrdinalVDXFObject");
-const DataPacketRequestDetails_1 = require("../requestobjects/DataPacketRequestDetails");
+const DataPacketRequestDetails_1 = require("../data/DataPacketRequestDetails");
 class DataPacketRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject_1.SerializableEntityOrdinalVDXFObject {
     constructor(request = {
         data: new DataPacketRequestDetails_1.DataPacketRequestDetails()

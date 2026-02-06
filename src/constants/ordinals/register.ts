@@ -28,7 +28,6 @@ export const registerOrdinals = () => {
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(PROVISION_IDENTITY_DETAILS_VDXF_ORDINAL.toNumber(), PROVISION_IDENTITY_DETAILS_VDXF_KEY.vdxfid, ProvisionIdentityDetailsOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(APP_ENCRYPTION_REQUEST_VDXF_ORDINAL.toNumber(), APP_ENCRYPTION_REQUEST_VDXF_KEY.vdxfid, AppEncryptionRequestOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(APP_ENCRYPTION_RESPONSE_VDXF_ORDINAL.toNumber(), APP_ENCRYPTION_RESPONSE_VDXF_KEY.vdxfid, AppEncryptionResponseOrdinalVDXFObject, false);
-
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(DATA_PACKET_REQUEST_VDXF_ORDINAL.toNumber(), DATA_PACKET_REQUEST_VDXF_KEY.vdxfid, DataPacketRequestOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(USER_DATA_REQUEST_VDXF_ORDINAL.toNumber(), USER_DATA_REQUEST_VDXF_KEY.vdxfid, UserDataRequestOrdinalVDXFObject, false);
   OrdinalVDXFObjectOrdinalMap.registerOrdinal(DATA_RESPONSE_VDXF_ORDINAL.toNumber(), DATA_RESPONSE_VDXF_KEY.vdxfid, DataResponseOrdinalVDXFObject, false);

@@ -190,7 +190,12 @@ class CompactIAddressObject extends CompactAddressObject {
     }
     static fromCompactAddressObjectJson(json) {
         const inst = CompactAddressObject.fromJson(json);
-        return inst;
+        return new CompactIAddressObject({
+            address: inst.address,
+            nameSpace: inst.nameSpace,
+            type: new bn_js_1.BN(inst.type),
+            rootSystemName: inst.rootSystemName
+        });
     }
 }
 exports.CompactIAddressObject = CompactIAddressObject;

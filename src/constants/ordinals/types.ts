@@ -21,7 +21,7 @@ import {
   AppEncryptionResponseDetailsJson 
 } from "../../vdxf/classes";
 import { VerusPayInvoiceDetailsJson } from "../../vdxf/classes/payment/VerusPayInvoiceDetails";
-import { DataResponseDetails, DataResponseDetailsJson } from "../../vdxf/classes/datapacket/DataResponseDetails";
+import { DataResponseDetails, DataResponseDetailsJson } from "../../vdxf/classes/data/DataResponseDetails";
 
 export type OrdinalVDXFObjectReservedData = 
   DataDescriptor | 

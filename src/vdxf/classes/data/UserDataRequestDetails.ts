@@ -36,7 +36,7 @@ export interface UserDataRequestInterface {
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIAddressObject;
   requestedKeys?: string[];
-  requestID?: string;
+  requestID?: CompactIAddressObject;
 }
 
 export interface UserDataRequestJson {
@@ -45,7 +45,7 @@ export interface UserDataRequestJson {
   searchdatakey: Array<{[key: string]: string}>;   // ID object of the specific information requested
   signer?: CompactAddressObjectJson;
   requestedkeys?: string[]; // Specific keys within the data object being requested
-  requestid?: string;
+  requestid?: CompactAddressObjectJson;
 }
 
 export class UserDataRequestDetails implements SerializableEntity {
@@ -54,24 +54,25 @@ export class UserDataRequestDetails implements SerializableEntity {
   static LAST_VERSION = new BN(1);
   static DEFAULT_VERSION = new BN(1);
   
-  static FULL_DATA = new BN(1);
-  static PARTIAL_DATA = new BN(2);
-  static COLLECTION = new BN(4);
+  static HAS_REQUEST_ID = new BN(1);
 
-  static ATTESTATION = new BN(8);
-  static CLAIM = new BN(16);
-  static CREDENTIAL = new BN(32);
+  static FULL_DATA = new BN(2);
+  static PARTIAL_DATA = new BN(4);
+  static COLLECTION = new BN(8);
 
-  static HAS_SIGNER = new BN(64);
-  static HAS_REQUESTED_KEYS = new BN(128);
-  static HAS_REQUEST_ID = new BN(256);
+  static ATTESTATION = new BN(16);
+  static CLAIM = new BN(32);
+  static CREDENTIAL = new BN(64);
+
+  static HAS_SIGNER = new BN(128);
+  static HAS_REQUESTED_KEYS = new BN(256);
 
   version: BigNumber;
   flags: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIAddressObject;
   requestedKeys?: string[];
-  requestID?: string;
+  requestID?: CompactIAddressObject;
 
   constructor(data?: UserDataRequestInterface) {
     this.version = data?.version || UserDataRequestDetails.DEFAULT_VERSION;
@@ -182,7 +183,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      length += HASH160_BYTE_LENGTH; 
+      length += this.requestID.getByteLength(); 
     }
     
     return length;
@@ -213,7 +214,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
       
     return writer.buffer;
@@ -252,7 +253,10 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+      const requestID = new CompactIAddressObject();
+
+      reader.offset = requestID.fromBuffer(reader.buffer, reader.offset);
+      this.requestID = requestID;
     }
 
     return reader.offset;
@@ -267,7 +271,7 @@ export class UserDataRequestDetails implements SerializableEntity {
       searchdatakey: this.searchDataKey,
       signer: this.signer?.toJson(),
       requestedkeys: this.requestedKeys,
-      requestid: this.requestID
+      requestid: this.requestID?.toJson(),
     };
   }
 
@@ -278,7 +282,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     requestData.searchDataKey = json.searchdatakey;
     requestData.signer = json.signer ? CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
     requestData.requestedKeys = json.requestedkeys;
-    requestData.requestID = json.requestid;
+    requestData.requestID = json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined;
 
     return requestData;
   }

@@ -3,10 +3,11 @@ import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { SaplingPaymentAddress } from '../../../pbaas';
 import { SaplingExtendedSpendingKey } from '../../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingExtendedViewingKey } from '../../../pbaas/SaplingExtendedViewingKey';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 export interface AppEncryptionResponseDetailsInterface {
     version: BigNumber;
     flags?: BigNumber;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     incomingViewingKey: Buffer;
     extendedViewingKey: SaplingExtendedViewingKey;
     address: SaplingPaymentAddress;
@@ -15,7 +16,7 @@ export interface AppEncryptionResponseDetailsInterface {
 export interface AppEncryptionResponseDetailsJson {
     version: number;
     flags?: number;
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
     incomingviewingkey: string;
     extendedviewingkey: string;
     address: string;
@@ -24,7 +25,7 @@ export interface AppEncryptionResponseDetailsJson {
 export declare class AppEncryptionResponseDetails implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     incomingViewingKey: Buffer;
     extendedViewingKey: SaplingExtendedViewingKey;
     address: SaplingPaymentAddress;

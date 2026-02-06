@@ -4,6 +4,7 @@ import { PartialIdentity } from "../../pbaas/PartialIdentity"
 import { PartialMMRData } from "../../pbaas/PartialMMRData"
 import { PartialSignData, PartialSignDataInitData } from "../../pbaas/PartialSignData"
 import { DATA_TYPE_MMRDATA } from "../../constants/pbaas"
+import { CompactIAddressObject } from "../../vdxf/classes"
 
 export const manyContentMultimapData = {
   "iGdWifeNFcN69JiFwmcZTYT1zPYpFumGhq": [
@@ -333,7 +334,7 @@ export const TEST_IDENTITY_ID = "i8jHXEEYEQ7KEoYe6eKXBib8cUBZ6vjWSd"
 
 export const TEST_SYSTEMID = IdentityID.fromAddress("iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq");
 export const TEST_SIGNINGID = IdentityID.fromAddress("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j");
-export const TEST_REQUESTID = "iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j";
+export const TEST_REQUESTID = CompactIAddressObject.fromAddress("iPsFBfFoCcxtuZNzE8yxPQhXVn4dmytf8j");
 export const TEST_CREATEDAT = new BN("1700000000", 10);
 export const TEST_EXPIRYHEIGHT = new BN("123456");
 export const TEST_SALT = Buffer.from('=H319X:)@H2Z');

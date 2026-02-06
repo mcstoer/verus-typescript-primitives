@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataResponseOrdinalVDXFObject = void 0;
 const ordinals_1 = require("../../../constants/ordinals/ordinals");
 const SerializableEntityOrdinalVDXFObject_1 = require("./SerializableEntityOrdinalVDXFObject");
-const DataResponseDetails_1 = require("../datapacket/DataResponseDetails");
+const DataResponseDetails_1 = require("../data/DataResponseDetails");
 class DataResponseOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject_1.SerializableEntityOrdinalVDXFObject {
     constructor(request = {
         data: new DataResponseDetails_1.DataResponseDetails()

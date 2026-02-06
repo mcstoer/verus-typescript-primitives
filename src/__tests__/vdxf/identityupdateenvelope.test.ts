@@ -176,7 +176,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
       TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, 
       {
         systemid: TEST_SYSTEMID.toAddress() as string, 
-        requestid: TEST_REQUESTID.toString(),
+        requestid: TEST_REQUESTID.toJson(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(), 
         txid: TEST_TXID
       }
@@ -189,7 +189,7 @@ describe("IdentityUpdate request/response details Serialization", () => {
 
   test("Deserialize cli identity update details", () => {
     const detailsProps = {
-      requestID: TEST_REQUESTID.toString(),
+      requestID: TEST_REQUESTID.toJson(),
       expiryHeight: TEST_EXPIRYHEIGHT.toString(), 
       txid: TEST_TXID
     };

@@ -2,7 +2,7 @@ import { DATA_PACKET_REQUEST_VDXF_ORDINAL } from "../../../constants/ordinals/or
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
-import { DataPacketRequestDetails, DataPacketRequestDetailsJson } from "../requestobjects/DataPacketRequestDetails";
+import { DataPacketRequestDetails, DataPacketRequestDetailsJson } from "../data/DataPacketRequestDetails";
 
 export class DataPacketRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: DataPacketRequestDetails;

@@ -1,5 +1,5 @@
 
-import { ProvisionIdentityDetails } from "../../vdxf/classes/requestobjects/ProvisionIdentityDetails";
+import { ProvisionIdentityDetails } from "../../vdxf/classes/provisioning/ProvisionIdentityDetails";
 import { CompactIAddressObject, CompactAddressObject } from "../../vdxf/classes";
 import { BN } from "bn.js";
 import { TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2 } from "../constants/fixtures";

@@ -37,26 +37,23 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 export interface DataResponseDetailsInterface {
     flags?: BigNumber;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     data: DataDescriptor;
 }
 export interface DataResponseDetailsJson {
     flags?: number;
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
     data: DataDescriptorJson;
 }
 export declare class DataResponseDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     data: DataDescriptor;
     static RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
-    constructor(initialData?: {
-        flags?: BigNumber;
-        requestID?: string;
-        data: DataDescriptor;
-    });
+    constructor(initialData?: DataResponseDetailsInterface);
     containsRequestID(): boolean;
     toggleContainsRequestID(): void;
     toSha256(): Buffer<ArrayBufferLike>;

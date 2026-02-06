@@ -34,7 +34,7 @@ export interface AppEncryptionRequestDetailsInterface {
   encryptToZAddress: string;
   derivationNumber: BigNumber;
   derivationID?: CompactIAddressObject;
-  requestID?: string;
+  requestID?: CompactIAddressObject;
 }
 
 export interface AppEncryptionRequestDetailsJson {
@@ -43,7 +43,7 @@ export interface AppEncryptionRequestDetailsJson {
   encrypttozaddress: string;
   derivationnumber: number;
   derivationid?: CompactAddressObjectJson;
-  requestid?: string;
+  requestid?: CompactAddressObjectJson;
 }
 
 /**
@@ -70,7 +70,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   encryptToZAddress: string;                  // zaddress reply is encrypted to
   derivationNumber: BigNumber;
   derivationID?: CompactIAddressObject;      // Defaults to choosing the Z-address from the ID signing if not present
-  requestID?: string;                         // Unique identifier for the request
+  requestID?: CompactIAddressObject;                         // Unique identifier for the request
 
   constructor(data?: AppEncryptionRequestDetailsInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
@@ -135,7 +135,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID(flags)) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     return length;
@@ -160,8 +160,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID(flags)) {
-
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     return writer.buffer;
@@ -187,7 +186,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     return reader.offset;
@@ -203,7 +204,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
       encrypttozaddress: this.encryptToZAddress,
       derivationnumber: this.derivationNumber.toNumber(),
       derivationid: this.derivationID?.toJson(),
-      requestid: this.requestID
+      requestid: this.requestID?.toJson()
     };
   }
 
@@ -219,7 +220,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     }
     
     if(instance.hasRequestID()) {
-      instance.requestID = json?.requestid;
+      instance.requestID = CompactIAddressObject.fromCompactAddressObjectJson(json?.requestid);
     }
     
     return instance;

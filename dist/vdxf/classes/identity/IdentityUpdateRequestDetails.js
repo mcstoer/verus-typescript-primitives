@@ -11,6 +11,7 @@ const PartialSignData_1 = require("../../../pbaas/PartialSignData");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../pbaas");
 const pbaas_2 = require("../../../constants/pbaas");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateRequestDetails {
     constructor(data) {
@@ -95,7 +96,7 @@ class IdentityUpdateRequestDetails {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.containsRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         length += this.identity.getByteLength();
         if (this.expires())
@@ -118,7 +119,7 @@ class IdentityUpdateRequestDetails {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
         if (this.containsRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         writer.writeSlice(this.identity.toBuffer());
         if (this.expires())
@@ -143,7 +144,8 @@ class IdentityUpdateRequestDetails {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.containsRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         this.identity = new PartialIdentity_1.PartialIdentity();
         reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset, parseVdxfObjects);
@@ -179,7 +181,7 @@ class IdentityUpdateRequestDetails {
         }
         return {
             flags: this.flags ? this.flags.toString(10) : undefined,
-            requestid: this.containsRequestID() ? this.requestID : undefined,
+            requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
             identity: this.identity ? this.identity.toJson() : undefined,
             expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
             systemid: this.systemID ? this.systemID.toAddress() : undefined,
@@ -197,7 +199,7 @@ class IdentityUpdateRequestDetails {
         }
         return new IdentityUpdateRequestDetails({
             flags: json.flags ? new bn_js_1.BN(json.flags, 10) : undefined,
-            requestID: json.requestid,
+            requestID: json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
             identity: json.identity ? PartialIdentity_1.PartialIdentity.fromJson(json.identity) : undefined,
             expiryHeight: json.expiryheight ? new bn_js_1.BN(json.expiryheight, 10) : undefined,
             systemID: json.systemid ? pbaas_1.IdentityID.fromAddress(json.systemid) : undefined,
@@ -239,7 +241,7 @@ class IdentityUpdateRequestDetails {
             identity,
             signDataMap,
             systemID: (details === null || details === void 0 ? void 0 : details.systemid) ? pbaas_1.IdentityID.fromAddress(details.systemid) : undefined,
-            requestID: details === null || details === void 0 ? void 0 : details.requestid,
+            requestID: (details === null || details === void 0 ? void 0 : details.requestid) ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(details.requestid) : undefined,
             expiryHeight: (details === null || details === void 0 ? void 0 : details.expiryheight) ? new bn_js_1.BN(details.expiryheight, 10) : undefined,
             txid: (details === null || details === void 0 ? void 0 : details.txid) ? Buffer.from(details.txid, 'hex').reverse() : undefined,
         });

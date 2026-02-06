@@ -6,8 +6,7 @@ const bufferutils_1 = require("../../../utils/bufferutils");
 const createHash = require("create-hash");
 const bn_js_1 = require("bn.js");
 const pbaas_1 = require("../../../constants/pbaas");
-const vdxf_1 = require("../../../constants/vdxf");
-const address_1 = require("../../../utils/address");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 class IdentityUpdateResponseDetails {
     constructor(data) {
@@ -42,7 +41,7 @@ class IdentityUpdateResponseDetails {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
         if (this.containsRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         if (this.containsTxid()) {
             length += pbaas_1.UINT_256_LENGTH;
@@ -53,7 +52,7 @@ class IdentityUpdateResponseDetails {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
         if (this.containsRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         if (this.containsTxid()) {
             if (this.txid.length !== pbaas_1.UINT_256_LENGTH)
@@ -66,7 +65,8 @@ class IdentityUpdateResponseDetails {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
         if (this.containsRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.containsTxid()) {
             this.txid = reader.readSlice(pbaas_1.UINT_256_LENGTH);
@@ -76,14 +76,14 @@ class IdentityUpdateResponseDetails {
     toJson() {
         return {
             flags: this.flags.toString(10),
-            requestid: this.containsRequestID() ? this.requestID : undefined,
+            requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
             txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
         };
     }
     static fromJson(json) {
         return new IdentityUpdateResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestID: json.requestid,
+            requestID: json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
             txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
         });
     }

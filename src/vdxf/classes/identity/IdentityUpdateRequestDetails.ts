@@ -10,6 +10,7 @@ import { BN } from 'bn.js';
 import { ContentMultiMapJsonValue, IdentityID, VerusCLIVerusIDJson, VerusCLIVerusIDJsonBase } from '../../../pbaas';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 
 const { BufferReader, BufferWriter } = bufferutils;
 
@@ -19,7 +20,7 @@ export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{ [key: string
 
 export type IdentityUpdateRequestDetailsJson = {
   flags?: string;
-  requestid?: string;
+  requestid?: CompactAddressObjectJson;
   identity?: VerusCLIVerusIDJson;
   expiryheight?: string;
   systemid?: string;
@@ -29,7 +30,7 @@ export type IdentityUpdateRequestDetailsJson = {
 
 export class IdentityUpdateRequestDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: string;                 // ID of request, to be referenced in response
+  requestID?: CompactIAddressObject;                 // ID of request, to be referenced in response
   identity?: PartialIdentity;         // Parts of the identity to update
   expiryHeight?: BigNumber;           // Time after which update request will no longer be accepted
   systemID?: IdentityID;              // System that identity should be updated on (will default to VRSC/VRSCTEST if not present, depending on testnet flag)
@@ -46,7 +47,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: string,
+    requestID?: CompactIAddressObject,
     identity?: PartialIdentity,
     expiryHeight?: BigNumber,
     systemID?: IdentityID,
@@ -147,7 +148,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     length += varuint.encodingLength(this.flags.toNumber());
 
     if (this.containsRequestID()) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     length += this.identity.getByteLength();
@@ -177,7 +178,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     writer.writeCompactSize(this.flags.toNumber());
 
     if (this.containsRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
     
     writer.writeSlice(this.identity.toBuffer());
@@ -209,7 +210,9 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
 
     if (this.containsRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     this.identity = new PartialIdentity();
@@ -259,7 +262,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     return {
       flags: this.flags ? this.flags.toString(10) : undefined,
-      requestid: this.containsRequestID() ? this.requestID : undefined,
+      requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
       identity: this.identity ? this.identity.toJson() : undefined,
       expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
       systemid: this.systemID ? this.systemID.toAddress() : undefined,
@@ -281,7 +284,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
 
     return new IdentityUpdateRequestDetails({
       flags: json.flags ? new BN(json.flags, 10) : undefined,
-      requestID: json.requestid,
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
       identity: json.identity ? PartialIdentity.fromJson(json.identity) : undefined,
       expiryHeight: json.expiryheight ? new BN(json.expiryheight, 10) : undefined,
       systemID: json.systemid ? IdentityID.fromAddress(json.systemid) : undefined,
@@ -336,7 +339,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       identity,
       signDataMap,
       systemID: details?.systemid ? IdentityID.fromAddress(details.systemid) : undefined,
-      requestID: details?.requestid,
+      requestID: details?.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(details.requestid) : undefined,
       expiryHeight: details?.expiryheight ? new BN(details.expiryheight, 10) : undefined,
       txid: details?.txid ? Buffer.from(details.txid, 'hex').reverse() : undefined,
     })

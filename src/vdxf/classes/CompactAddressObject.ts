@@ -242,6 +242,11 @@ export class CompactIAddressObject extends CompactAddressObject<CompactAddressIV
   static fromCompactAddressObjectJson(json: any): CompactIAddressObject {
     const inst = CompactAddressObject.fromJson(json);
 
-    return inst as CompactIAddressObject;
+    return new CompactIAddressObject({
+      address: inst.address,
+      nameSpace: inst.nameSpace,
+      type: new BN(inst.type),
+      rootSystemName: inst.rootSystemName
+    })
   }
 };

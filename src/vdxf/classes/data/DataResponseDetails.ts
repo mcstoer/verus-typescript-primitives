@@ -48,36 +48,33 @@ import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import createHash = require("create-hash");
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 
 export interface DataResponseDetailsInterface {
   flags?: BigNumber;
-  requestID?: string;              // ID of request, to be referenced in response
+  requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
   data: DataDescriptor;   
 }
 
 export interface DataResponseDetailsJson {
   flags?: number;
-  requestid?: string;              // ID of request, to be referenced in response
+  requestid?: CompactAddressObjectJson;              // ID of request, to be referenced in response
   data: DataDescriptorJson;   
 }
 
 export class DataResponseDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: string;              // ID of request, to be referenced in response
+  requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
   data: DataDescriptor;    
 
   static RESPONSE_CONTAINS_REQUEST_ID = new BN(1, 10);
 
-  constructor (initialData?: {
-    flags?: BigNumber,
-    requestID?: string,
-    data: DataDescriptor
-  }) {
+  constructor (initialData?: DataResponseDetailsInterface) {
     this.flags = initialData && initialData.flags ? initialData.flags : new BN("0", 10);
 
     if (initialData?.requestID) {
       if (!this.containsRequestID()) this.toggleContainsRequestID();
-      this.requestID = initialData.requestID;
+      this.requestID = initialData?.requestID;
     }
 
     this.data = initialData && initialData.data ? initialData.data : new DataDescriptor();
@@ -101,7 +98,7 @@ export class DataResponseDetails implements SerializableEntity {
     length += varint.encodingLength(this.flags);
 
     if (this.containsRequestID()) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     length += this.data.getByteLength();
@@ -115,7 +112,7 @@ export class DataResponseDetails implements SerializableEntity {
     writer.writeVarInt(this.flags);
 
     if (this.containsRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     writer.writeSlice(this.data.toBuffer());
@@ -129,7 +126,9 @@ export class DataResponseDetails implements SerializableEntity {
     this.flags = reader.readVarInt();
 
     if (this.containsRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     this.data = new DataDescriptor();
@@ -142,7 +141,7 @@ export class DataResponseDetails implements SerializableEntity {
   toJson(): DataResponseDetailsJson {
     return {
       flags: this.flags.toNumber(),
-      requestid: this.containsRequestID() ? this.requestID : undefined,
+      requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
       data: this.data.toJson()
     }
   }
@@ -150,7 +149,7 @@ export class DataResponseDetails implements SerializableEntity {
   static fromJson(json: DataResponseDetailsJson): DataResponseDetails {
     return new DataResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: json.requestid,
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
       data: DataDescriptor.fromJson(json.data)
     });
   }

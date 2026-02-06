@@ -24,7 +24,7 @@ export interface AppEncryptionRequestDetailsInterface {
     encryptToZAddress: string;
     derivationNumber: BigNumber;
     derivationID?: CompactIAddressObject;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
 }
 export interface AppEncryptionRequestDetailsJson {
     version: number;
@@ -32,7 +32,7 @@ export interface AppEncryptionRequestDetailsJson {
     encrypttozaddress: string;
     derivationnumber: number;
     derivationid?: CompactAddressObjectJson;
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
 }
 /**
  * Checks if a string is a valid hexadecimal address
@@ -55,7 +55,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     encryptToZAddress: string;
     derivationNumber: BigNumber;
     derivationID?: CompactIAddressObject;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     constructor(data?: AppEncryptionRequestDetailsInterface);
     setFlags(): void;
     calcFlags(): BigNumber;

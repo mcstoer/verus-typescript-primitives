@@ -3,6 +3,7 @@ import { PartialSignData, PartialSignDataCLIJson, PartialSignDataJson } from '..
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { ContentMultiMapJsonValue, IdentityID, VerusCLIVerusIDJson, VerusCLIVerusIDJsonBase } from '../../../pbaas';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 export type SignDataMap = Map<string, PartialSignData>;
 export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{
     [key: string]: ContentMultiMapJsonValue | {
@@ -11,7 +12,7 @@ export type VerusCLIVerusIDJsonWithData = VerusCLIVerusIDJsonBase<{
 }>;
 export type IdentityUpdateRequestDetailsJson = {
     flags?: string;
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
     identity?: VerusCLIVerusIDJson;
     expiryheight?: string;
     systemid?: string;
@@ -22,7 +23,7 @@ export type IdentityUpdateRequestDetailsJson = {
 };
 export declare class IdentityUpdateRequestDetails implements SerializableEntity {
     flags?: BigNumber;
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     identity?: PartialIdentity;
     expiryHeight?: BigNumber;
     systemID?: IdentityID;
@@ -36,7 +37,7 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     static IDENTITY_UPDATE_REQUEST_CONTAINS_TXID: import("bn.js");
     constructor(data?: {
         flags?: BigNumber;
-        requestID?: string;
+        requestID?: CompactIAddressObject;
         identity?: PartialIdentity;
         expiryHeight?: BigNumber;
         systemID?: IdentityID;

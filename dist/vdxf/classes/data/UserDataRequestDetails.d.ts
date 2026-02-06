@@ -29,7 +29,7 @@ export interface UserDataRequestInterface {
     }>;
     signer?: CompactIAddressObject;
     requestedKeys?: string[];
-    requestID?: string;
+    requestID?: CompactIAddressObject;
 }
 export interface UserDataRequestJson {
     version: number;
@@ -39,13 +39,14 @@ export interface UserDataRequestJson {
     }>;
     signer?: CompactAddressObjectJson;
     requestedkeys?: string[];
-    requestid?: string;
+    requestid?: CompactAddressObjectJson;
 }
 export declare class UserDataRequestDetails implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
+    static HAS_REQUEST_ID: import("bn.js");
     static FULL_DATA: import("bn.js");
     static PARTIAL_DATA: import("bn.js");
     static COLLECTION: import("bn.js");
@@ -54,7 +55,6 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     static CREDENTIAL: import("bn.js");
     static HAS_SIGNER: import("bn.js");
     static HAS_REQUESTED_KEYS: import("bn.js");
-    static HAS_REQUEST_ID: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
     searchDataKey: Array<{
@@ -62,7 +62,7 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     }>;
     signer?: CompactIAddressObject;
     requestedKeys?: string[];
-    requestID?: string;
+    requestID?: CompactIAddressObject;
     constructor(data?: UserDataRequestInterface);
     calcFlags(): BigNumber;
     setFlags(): void;

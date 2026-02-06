@@ -38,7 +38,7 @@ import { VerusPayInvoiceDetailsOrdinalVDXFObject } from '../../vdxf/classes/ordi
 import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVDXFObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVDXFObject';
 import { BigNumber } from '../../utils/types/BigNumber';
-import { DataResponseDetails } from '../../vdxf/classes/datapacket/DataResponseDetails';
+import { DataResponseDetails } from '../../vdxf/classes/data/DataResponseDetails';
 import { VerifiableSignatureData } from '../../vdxf/classes/VerifiableSignatureData';
 import { SaplingExtendedSpendingKey } from '../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingExtendedViewingKey } from '../../pbaas/SaplingExtendedViewingKey';
@@ -275,7 +275,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
       TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX,
       {
         systemid: TEST_SYSTEMID.toAddress() as string,
-        requestid: TEST_REQUESTID.toString(),
+        requestid: TEST_REQUESTID.toJson(),
         expiryheight: TEST_EXPIRYHEIGHT.toString(),
         txid: TEST_TXID
       }
@@ -416,7 +416,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
       encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
       derivationNumber: new BN(42),
       derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
-      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+      requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
     });
 
     const obj = new AppEncryptionRequestOrdinalVDXFObject({ data: details });
@@ -428,7 +428,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d2.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
-    expect(d2.requestID).toEqual(details.requestID);
+    expect(d2.requestID?.toAddress()).toEqual(details.requestID?.toAddress());
 
     const json = obj.toJson();
     expect(json.data).toBeDefined();
@@ -439,7 +439,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
     expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d3.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
-    expect(d3.requestID).toEqual(details.requestID);
+    expect(d3.requestID?.toAddress()).toEqual(details.requestID?.toAddress());
   });
 
   it('getOrdinalVDXFObjectClassForType should map to correct classes', () => {
@@ -483,7 +483,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a DataResponseDetails via buffer', () => {
     const details = new DataResponseDetails({
       flags: new BN(0),
-      requestID: TEST_CHALLENGE_ID,
+      requestID: CompactIAddressObject.fromAddress(TEST_CHALLENGE_ID),
       data: new DataDescriptor({
         version: new BN(1, 10),
         "flags": new BN(2, 10),
@@ -515,7 +515,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
       flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.HAS_SIGNER),
       searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
-      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+      requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
     });
 
     const obj = new UserDataRequestOrdinalVDXFObject({ data: details });
@@ -553,7 +553,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
         identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "i7LaXD2cdy1zeh33eHzZaEPyueT4yQmBfW", rootSystemName: "VRSC" }),
         systemID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_FQN, address: "VRSC", rootSystemName: "VRSC" }),
       }),
-      detailsID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+      requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
     });
 
     const obj = new DataPacketRequestOrdinalVDXFObject({ data: details });
@@ -562,7 +562,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(DataPacketRequestOrdinalVDXFObject);
 
     const d2 = (round as DataPacketRequestOrdinalVDXFObject).data;
-    expect(d2.detailsID!.toString()).toEqual(details.detailsID!.toString());
+    expect(d2.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d2.signableObjects.length).toBe(1);
     expect(d2.statements?.length).toBe(2);
     expect(d2.signature?.signatureAsVch.toString('hex')).toBe("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf");
@@ -573,7 +573,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(roundJ).toBeInstanceOf(DataPacketRequestOrdinalVDXFObject);
 
     const d3 = (roundJ as DataPacketRequestOrdinalVDXFObject).data;
-    expect(d3.detailsID!.toString()).toEqual(details.detailsID!.toString());
+    expect(d3.requestID!.toString()).toEqual(details.requestID!.toString());
     expect(d3.signableObjects.length).toBe(1);
     expect(d3.statements?.length).toBe(2);
     expect(d3.signature?.signatureAsVch.toString('hex')).toBe("efc8d6b60c5b6efaeb3fce4b2c0749c317f2167549ec22b1bee411b8802d5aaf");
@@ -589,7 +589,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     const details = new AppEncryptionResponseDetails({
       version: new BN(1),
       flags: AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID.or(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY),
-      requestID: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ",
+      requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"),
       incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
       extendedSpendingKey: SaplingExtendedSpendingKey.fromKeyString(testSpendingKey),

@@ -41,17 +41,16 @@ const bn_js_1 = require("bn.js");
 const varint_1 = require("../../../utils/varint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
 const pbaas_1 = require("../../../pbaas");
 const createHash = require("create-hash");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 class DataResponseDetails {
     constructor(initialData) {
         this.flags = initialData && initialData.flags ? initialData.flags : new bn_js_1.BN("0", 10);
         if (initialData === null || initialData === void 0 ? void 0 : initialData.requestID) {
             if (!this.containsRequestID())
                 this.toggleContainsRequestID();
-            this.requestID = initialData.requestID;
+            this.requestID = initialData === null || initialData === void 0 ? void 0 : initialData.requestID;
         }
         this.data = initialData && initialData.data ? initialData.data : new pbaas_1.DataDescriptor();
     }
@@ -68,7 +67,7 @@ class DataResponseDetails {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
         if (this.containsRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         length += this.data.getByteLength();
         return length;
@@ -77,7 +76,7 @@ class DataResponseDetails {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
         if (this.containsRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         writer.writeSlice(this.data.toBuffer());
         return writer.buffer;
@@ -86,7 +85,8 @@ class DataResponseDetails {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
         if (this.containsRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         this.data = new pbaas_1.DataDescriptor();
         this.data.fromBuffer(reader.buffer, reader.offset);
@@ -96,14 +96,14 @@ class DataResponseDetails {
     toJson() {
         return {
             flags: this.flags.toNumber(),
-            requestid: this.containsRequestID() ? this.requestID : undefined,
+            requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
             data: this.data.toJson()
         };
     }
     static fromJson(json) {
         return new DataResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestID: json.requestid,
+            requestID: json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
             data: pbaas_1.DataDescriptor.fromJson(json.data)
         });
     }

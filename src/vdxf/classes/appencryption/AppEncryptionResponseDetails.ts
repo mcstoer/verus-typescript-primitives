@@ -11,11 +11,12 @@ import { SaplingPaymentAddress } from '../../../pbaas';
 import createHash = require("create-hash");
 import { SaplingExtendedSpendingKey } from '../../../pbaas/SaplingExtendedSpendingKey';
 import { SaplingExtendedViewingKey } from '../../../pbaas/SaplingExtendedViewingKey';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 
 export interface AppEncryptionResponseDetailsInterface {
   version: BigNumber;
   flags?: BigNumber;
-  requestID?: string;
+  requestID?: CompactIAddressObject;
   incomingViewingKey: Buffer;
   extendedViewingKey: SaplingExtendedViewingKey;
   address: SaplingPaymentAddress;
@@ -25,7 +26,7 @@ export interface AppEncryptionResponseDetailsInterface {
 export interface AppEncryptionResponseDetailsJson {    
   version: number;
   flags?: number;
-  requestid?: string;
+  requestid?: CompactAddressObjectJson;
   incomingviewingkey: string;
   extendedviewingkey: string;
   address: string;
@@ -35,7 +36,7 @@ export interface AppEncryptionResponseDetailsJson {
 export class AppEncryptionResponseDetails implements SerializableEntity {
   version: BigNumber;
   flags: BigNumber;
-  requestID?: string;
+  requestID?: CompactIAddressObject;
   incomingViewingKey: Buffer;
   extendedViewingKey: SaplingExtendedViewingKey;
   address: SaplingPaymentAddress;
@@ -88,7 +89,7 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     length += varint.encodingLength(this.flags);
 
     if (this.containsRequestID()) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     length += 32; // incomingViewingKey
@@ -108,7 +109,7 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     writer.writeVarInt(this.flags);
 
     if (this.containsRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     writer.writeSlice(this.incomingViewingKey);
@@ -128,7 +129,9 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     this.flags = reader.readVarInt();
 
     if (this.containsRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     this.incomingViewingKey = reader.readSlice(32);
@@ -151,7 +154,7 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: this.flags.toNumber(),
-      requestid: this.containsRequestID() ? this.requestID : undefined,
+      requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
       incomingviewingkey: this.incomingViewingKey.toString('hex'),
       extendedviewingkey: this.extendedViewingKey.toKeyString(),
       address: this.address.toAddressString(),
@@ -163,7 +166,7 @@ export class AppEncryptionResponseDetails implements SerializableEntity {
     return new AppEncryptionResponseDetails({
       version: new BN(json.version, 10),
       flags: new BN(json.flags ?? 0, 10),
-      requestID: json.requestid,
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
       incomingViewingKey: Buffer.from(json.incomingviewingkey, 'hex'),
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(json.extendedviewingkey),
       address: SaplingPaymentAddress.fromAddressString(json.address),

@@ -26,8 +26,7 @@ const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
 const pbaas_1 = require("../../../pbaas");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 class DataPacketRequestDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || DataPacketRequestDetails.DEFAULT_VERSION;
@@ -35,7 +34,7 @@ class DataPacketRequestDetails {
         this.signableObjects = (data === null || data === void 0 ? void 0 : data.signableObjects) || [];
         this.statements = (data === null || data === void 0 ? void 0 : data.statements) || [];
         this.signature = (data === null || data === void 0 ? void 0 : data.signature) || undefined;
-        this.detailsID = data === null || data === void 0 ? void 0 : data.detailsID;
+        this.requestID = data === null || data === void 0 ? void 0 : data.requestID;
         this.setFlags();
     }
     setFlags() {
@@ -49,8 +48,8 @@ class DataPacketRequestDetails {
         if (this.signature) {
             flags = flags.or(DataPacketRequestDetails.HAS_SIGNATURE);
         }
-        if (this.detailsID) {
-            flags = flags.or(DataPacketRequestDetails.HAS_DETAILS_ID);
+        if (this.requestID) {
+            flags = flags.or(DataPacketRequestDetails.HAS_REQUEST_ID);
         }
         return flags;
     }
@@ -60,8 +59,8 @@ class DataPacketRequestDetails {
     hasSignature() {
         return this.flags.and(DataPacketRequestDetails.HAS_SIGNATURE).eq(DataPacketRequestDetails.HAS_SIGNATURE);
     }
-    hasDetailsID() {
-        return this.flags.and(DataPacketRequestDetails.HAS_DETAILS_ID).eq(DataPacketRequestDetails.HAS_DETAILS_ID);
+    hasRequestID() {
+        return this.flags.and(DataPacketRequestDetails.HAS_REQUEST_ID).eq(DataPacketRequestDetails.HAS_REQUEST_ID);
     }
     isValid() {
         let valid = this.version.gte(DataPacketRequestDetails.FIRST_VERSION) &&
@@ -95,8 +94,8 @@ class DataPacketRequestDetails {
         if (this.hasSignature() && this.signature) {
             length += this.signature.getByteLength();
         }
-        if (this.hasDetailsID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+        if (this.hasRequestID()) {
+            length += this.requestID.getByteLength();
         }
         return length;
     }
@@ -118,8 +117,8 @@ class DataPacketRequestDetails {
         if (this.hasSignature() && this.signature) {
             writer.writeSlice(this.signature.toBuffer());
         }
-        if (this.hasDetailsID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.detailsID).hash);
+        if (this.hasRequestID()) {
+            writer.writeSlice(this.requestID.toBuffer());
         }
         return writer.buffer;
     }
@@ -148,8 +147,9 @@ class DataPacketRequestDetails {
             reader.offset = signature.fromBuffer(reader.buffer, reader.offset);
             this.signature = signature;
         }
-        if (this.hasDetailsID()) {
-            this.detailsID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+        if (this.hasRequestID()) {
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;
     }
@@ -161,7 +161,7 @@ class DataPacketRequestDetails {
             signableobjects: this.signableObjects.map(obj => obj.toJson()),
             statements: this.statements,
             signature: this.signature ? this.signature.toJson() : undefined,
-            detailsid: this.detailsID
+            requestid: this.requestID ? this.requestID.toJson() : undefined,
         };
     }
     static fromJson(json) {
@@ -176,7 +176,7 @@ class DataPacketRequestDetails {
         instance.signableObjects = dataDescriptorObjects;
         instance.statements = json.statements || [];
         instance.signature = json.signature ? VerifiableSignatureData_1.VerifiableSignatureData.fromJson(json.signature) : undefined;
-        instance.detailsID = json.detailsid;
+        instance.requestID = json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined;
         return instance;
     }
 }
@@ -186,9 +186,9 @@ DataPacketRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 DataPacketRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 DataPacketRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
 // types of data to sign
-DataPacketRequestDetails.HAS_STATEMENTS = new bn_js_1.BN(1);
-DataPacketRequestDetails.HAS_SIGNATURE = new bn_js_1.BN(2);
-DataPacketRequestDetails.FOR_USERS_SIGNATURE = new bn_js_1.BN(4);
-DataPacketRequestDetails.FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(8);
-DataPacketRequestDetails.HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(16);
-DataPacketRequestDetails.HAS_DETAILS_ID = new bn_js_1.BN(32);
+DataPacketRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(1);
+DataPacketRequestDetails.HAS_STATEMENTS = new bn_js_1.BN(2);
+DataPacketRequestDetails.HAS_SIGNATURE = new bn_js_1.BN(4);
+DataPacketRequestDetails.FOR_USERS_SIGNATURE = new bn_js_1.BN(8);
+DataPacketRequestDetails.FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(16);
+DataPacketRequestDetails.HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(32);

@@ -5,12 +5,11 @@ const bn_js_1 = require("bn.js");
 const varint_1 = require("../../../utils/varint");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
 const pbaas_1 = require("../../../pbaas");
 const createHash = require("create-hash");
 const SaplingExtendedSpendingKey_1 = require("../../../pbaas/SaplingExtendedSpendingKey");
 const SaplingExtendedViewingKey_1 = require("../../../pbaas/SaplingExtendedViewingKey");
+const CompactAddressObject_1 = require("../CompactAddressObject");
 class AppEncryptionResponseDetails {
     constructor(data) {
         var _a, _b, _c, _d, _e;
@@ -49,7 +48,7 @@ class AppEncryptionResponseDetails {
         let length = 0;
         length += varint_1.default.encodingLength(this.flags);
         if (this.containsRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         length += 32; // incomingViewingKey
         length += this.extendedViewingKey.getByteLength();
@@ -63,7 +62,7 @@ class AppEncryptionResponseDetails {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeVarInt(this.flags);
         if (this.containsRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         writer.writeSlice(this.incomingViewingKey);
         writer.writeSlice(this.extendedViewingKey.toBuffer());
@@ -77,7 +76,8 @@ class AppEncryptionResponseDetails {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
         if (this.containsRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(vdxf_1.HASH160_BYTE_LENGTH), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         this.incomingViewingKey = reader.readSlice(32);
         this.extendedViewingKey = new SaplingExtendedViewingKey_1.SaplingExtendedViewingKey();
@@ -94,7 +94,7 @@ class AppEncryptionResponseDetails {
         return {
             version: this.version.toNumber(),
             flags: this.flags.toNumber(),
-            requestid: this.containsRequestID() ? this.requestID : undefined,
+            requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
             incomingviewingkey: this.incomingViewingKey.toString('hex'),
             extendedviewingkey: this.extendedViewingKey.toKeyString(),
             address: this.address.toAddressString(),
@@ -106,7 +106,7 @@ class AppEncryptionResponseDetails {
         return new AppEncryptionResponseDetails({
             version: new bn_js_1.BN(json.version, 10),
             flags: new bn_js_1.BN((_a = json.flags) !== null && _a !== void 0 ? _a : 0, 10),
-            requestID: json.requestid,
+            requestID: json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
             incomingViewingKey: Buffer.from(json.incomingviewingkey, 'hex'),
             extendedViewingKey: SaplingExtendedViewingKey_1.SaplingExtendedViewingKey.fromKeyString(json.extendedviewingkey),
             address: pbaas_1.SaplingPaymentAddress.fromAddressString(json.address),

@@ -28,6 +28,7 @@ import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../VerifiableSignatureData';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 
 export interface DataPacketRequestDetailsInterface {
   version?: BigNumber;
@@ -35,7 +36,7 @@ export interface DataPacketRequestDetailsInterface {
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
-  detailsID?: string;
+  requestID?: CompactIAddressObject;
 }
 
 export interface DataPacketRequestDetailsJson {
@@ -44,9 +45,8 @@ export interface DataPacketRequestDetailsJson {
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
   statements?: Array<string>;
   signature?: VerifiableSignatureDataJson;
-  detailsid?: string;
+  requestid?: CompactAddressObjectJson;
 }
-
 
 export class DataPacketRequestDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
@@ -55,19 +55,19 @@ export class DataPacketRequestDetails implements SerializableEntity {
   static DEFAULT_VERSION = new BN(1);
 
   // types of data to sign
-  static HAS_STATEMENTS = new BN(1);
-  static HAS_SIGNATURE = new BN(2);
-  static FOR_USERS_SIGNATURE = new BN(4);
-  static FOR_TRANSMITTAL_TO_USER = new BN(8);
-  static HAS_URL_FOR_DOWNLOAD = new BN(16);
-  static HAS_DETAILS_ID = new BN(32);
+  static HAS_REQUEST_ID = new BN(1);
+  static HAS_STATEMENTS = new BN(2);
+  static HAS_SIGNATURE = new BN(4);
+  static FOR_USERS_SIGNATURE = new BN(8);
+  static FOR_TRANSMITTAL_TO_USER = new BN(16);
+  static HAS_URL_FOR_DOWNLOAD = new BN(32);
 
   version: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
   statements?: Array<string>;
   signature?: VerifiableSignatureData;
-  detailsID?: string;
+  requestID?: CompactIAddressObject;
 
   constructor(data?: DataPacketRequestDetailsInterface) {
     this.version = data?.version || DataPacketRequestDetails.DEFAULT_VERSION;
@@ -75,7 +75,7 @@ export class DataPacketRequestDetails implements SerializableEntity {
     this.signableObjects = data?.signableObjects || [];
     this.statements = data?.statements || [];
     this.signature = data?.signature || undefined;
-    this.detailsID = data?.detailsID;
+    this.requestID = data?.requestID;
 
     this.setFlags();
   }
@@ -95,8 +95,8 @@ export class DataPacketRequestDetails implements SerializableEntity {
       flags = flags.or(DataPacketRequestDetails.HAS_SIGNATURE);
     }
 
-    if (this.detailsID) {
-      flags = flags.or(DataPacketRequestDetails.HAS_DETAILS_ID);
+    if (this.requestID) {
+      flags = flags.or(DataPacketRequestDetails.HAS_REQUEST_ID);
     }
 
     return flags;
@@ -110,8 +110,8 @@ export class DataPacketRequestDetails implements SerializableEntity {
     return this.flags.and(DataPacketRequestDetails.HAS_SIGNATURE).eq(DataPacketRequestDetails.HAS_SIGNATURE);
   }
 
-  hasDetailsID(): boolean {
-    return this.flags.and(DataPacketRequestDetails.HAS_DETAILS_ID).eq(DataPacketRequestDetails.HAS_DETAILS_ID);
+  hasRequestID(): boolean {
+    return this.flags.and(DataPacketRequestDetails.HAS_REQUEST_ID).eq(DataPacketRequestDetails.HAS_REQUEST_ID);
   }
 
   isValid(): boolean {
@@ -156,8 +156,8 @@ export class DataPacketRequestDetails implements SerializableEntity {
       length += this.signature.getByteLength();
     }
 
-    if (this.hasDetailsID()) {
-      length += HASH160_BYTE_LENGTH;
+    if (this.hasRequestID()) {
+      length += this.requestID.getByteLength();
     }
 
     return length;
@@ -187,8 +187,8 @@ export class DataPacketRequestDetails implements SerializableEntity {
       writer.writeSlice(this.signature.toBuffer());
     }
 
-    if (this.hasDetailsID()) {
-      writer.writeSlice(fromBase58Check(this.detailsID).hash);
+    if (this.hasRequestID()) {
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     return writer.buffer;
@@ -225,8 +225,10 @@ export class DataPacketRequestDetails implements SerializableEntity {
       this.signature = signature;
     }
 
-    if (this.hasDetailsID()) {
-      this.detailsID = toBase58Check(reader.readSlice(20), I_ADDR_VERSION);
+    if (this.hasRequestID()) {
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     return reader.offset;
@@ -241,7 +243,7 @@ export class DataPacketRequestDetails implements SerializableEntity {
       signableobjects: this.signableObjects.map(obj => obj.toJson()),
       statements: this.statements,
       signature: this.signature ? this.signature.toJson() : undefined,
-      detailsid: this.detailsID
+      requestid: this.requestID ? this.requestID.toJson() : undefined,
     };
   }
 
@@ -260,7 +262,7 @@ export class DataPacketRequestDetails implements SerializableEntity {
     instance.signableObjects = dataDescriptorObjects;
     instance.statements = json.statements || [];
     instance.signature = json.signature ? VerifiableSignatureData.fromJson(json.signature) : undefined;
-    instance.detailsID = json.detailsid;
+    instance.requestID = json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined;
     return instance;
   }
 }

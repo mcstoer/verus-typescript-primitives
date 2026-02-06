@@ -2,7 +2,7 @@ import { USER_DATA_REQUEST_VDXF_ORDINAL } from "../../../constants/ordinals/ordi
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
-import { UserDataRequestDetails, UserDataRequestJson } from "../requestobjects/UserDataRequestDetails";
+import { UserDataRequestDetails, UserDataRequestJson } from "../data/UserDataRequestDetails";
 
 export class UserDataRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: UserDataRequestDetails;

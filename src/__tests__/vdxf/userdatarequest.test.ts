@@ -1,5 +1,5 @@
 
-import { CompactAddressObject, UserDataRequestDetails, UserDataRequestJson } from "../../vdxf/classes";
+import { CompactAddressObject, CompactIAddressObject, UserDataRequestDetails, UserDataRequestJson } from "../../vdxf/classes";
 
 describe('Serializes and deserializes UserDataRequestDetails', () => {
   test('(de)serialize UserDataRequestDetails', () => {
@@ -9,7 +9,7 @@ describe('Serializes and deserializes UserDataRequestDetails', () => {
       flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.HAS_SIGNER).toNumber(),
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: { version: 1, type: CompactAddressObject.TYPE_I_ADDRESS.toNumber(), address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC" },
-      requestid: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+      requestid: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ").toJson()
     }
 
     const e = UserDataRequestDetails.fromJson(provisionJson);
@@ -27,7 +27,7 @@ describe('Serializes and deserializes UserDataRequestDetails', () => {
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: { version: 1, type: CompactAddressObject.TYPE_FQN.toNumber(), address: "bob@", rootsystemname: "VRSC" },
       requestedkeys: ["iLB8SG7ErJtTYcG1f4w9RLuMJPpAsjFkiL"],
-      requestid: "iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"
+      requestid: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ").toJson()
     }
 
     const e = UserDataRequestDetails.fromJson(provisionJson);

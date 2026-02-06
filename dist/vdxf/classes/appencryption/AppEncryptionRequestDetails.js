@@ -24,8 +24,6 @@ const { BufferReader, BufferWriter } = bufferutils_1.default;
 const sapling_1 = require("../../../utils/sapling");
 const CompactAddressObject_1 = require("../CompactAddressObject");
 const varuint_1 = require("../../../utils/varuint");
-const address_1 = require("../../../utils/address");
-const vdxf_1 = require("../../../constants/vdxf");
 /**
  * Checks if a string is a valid hexadecimal address
  * @param flags - Optional flags for the request
@@ -80,7 +78,7 @@ class AppEncryptionRequestDetails {
             length += this.derivationID.getByteLength();
         }
         if (this.hasRequestID(flags)) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         return length;
     }
@@ -98,7 +96,7 @@ class AppEncryptionRequestDetails {
             writer.writeSlice(this.derivationID.toBuffer());
         }
         if (this.hasRequestID(flags)) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         return writer.buffer;
     }
@@ -117,12 +115,13 @@ class AppEncryptionRequestDetails {
             this.derivationID = derivationIDObj;
         }
         if (this.hasRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;
     }
     toJson() {
-        var _a;
+        var _a, _b;
         // Set flags before serialization
         const flags = this.calcFlags();
         return {
@@ -131,7 +130,7 @@ class AppEncryptionRequestDetails {
             encrypttozaddress: this.encryptToZAddress,
             derivationnumber: this.derivationNumber.toNumber(),
             derivationid: (_a = this.derivationID) === null || _a === void 0 ? void 0 : _a.toJson(),
-            requestid: this.requestID
+            requestid: (_b = this.requestID) === null || _b === void 0 ? void 0 : _b.toJson()
         };
     }
     static fromJson(json) {
@@ -144,7 +143,7 @@ class AppEncryptionRequestDetails {
             instance.derivationID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json === null || json === void 0 ? void 0 : json.derivationid);
         }
         if (instance.hasRequestID()) {
-            instance.requestID = json === null || json === void 0 ? void 0 : json.requestid;
+            instance.requestID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json === null || json === void 0 ? void 0 : json.requestid);
         }
         return instance;
     }

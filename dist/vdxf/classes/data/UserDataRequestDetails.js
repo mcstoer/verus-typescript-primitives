@@ -116,7 +116,7 @@ class UserDataRequestDetails {
             }
         }
         if (this.hasRequestID()) {
-            length += vdxf_1.HASH160_BYTE_LENGTH;
+            length += this.requestID.getByteLength();
         }
         return length;
     }
@@ -140,7 +140,7 @@ class UserDataRequestDetails {
             }
         }
         if (this.hasRequestID()) {
-            writer.writeSlice((0, address_1.fromBase58Check)(this.requestID).hash);
+            writer.writeSlice(this.requestID.toBuffer());
         }
         return writer.buffer;
     }
@@ -171,12 +171,14 @@ class UserDataRequestDetails {
             }
         }
         if (this.hasRequestID()) {
-            this.requestID = (0, address_1.toBase58Check)(reader.readSlice(20), vdxf_1.I_ADDR_VERSION);
+            const requestID = new CompactAddressObject_1.CompactIAddressObject();
+            reader.offset = requestID.fromBuffer(reader.buffer, reader.offset);
+            this.requestID = requestID;
         }
         return reader.offset;
     }
     toJson() {
-        var _a;
+        var _a, _b;
         const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
@@ -184,7 +186,7 @@ class UserDataRequestDetails {
             searchdatakey: this.searchDataKey,
             signer: (_a = this.signer) === null || _a === void 0 ? void 0 : _a.toJson(),
             requestedkeys: this.requestedKeys,
-            requestid: this.requestID
+            requestid: (_b = this.requestID) === null || _b === void 0 ? void 0 : _b.toJson(),
         };
     }
     static fromJson(json) {
@@ -194,7 +196,7 @@ class UserDataRequestDetails {
         requestData.searchDataKey = json.searchdatakey;
         requestData.signer = json.signer ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
         requestData.requestedKeys = json.requestedkeys;
-        requestData.requestID = json.requestid;
+        requestData.requestID = json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined;
         return requestData;
     }
 }
@@ -203,12 +205,12 @@ UserDataRequestDetails.VERSION_INVALID = new bn_js_1.BN(0);
 UserDataRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
-UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(1);
-UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(2);
-UserDataRequestDetails.COLLECTION = new bn_js_1.BN(4);
-UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(8);
-UserDataRequestDetails.CLAIM = new bn_js_1.BN(16);
-UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(32);
-UserDataRequestDetails.HAS_SIGNER = new bn_js_1.BN(64);
-UserDataRequestDetails.HAS_REQUESTED_KEYS = new bn_js_1.BN(128);
-UserDataRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(256);
+UserDataRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(1);
+UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(2);
+UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(4);
+UserDataRequestDetails.COLLECTION = new bn_js_1.BN(8);
+UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(16);
+UserDataRequestDetails.CLAIM = new bn_js_1.BN(32);
+UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(64);
+UserDataRequestDetails.HAS_SIGNER = new bn_js_1.BN(128);
+UserDataRequestDetails.HAS_REQUESTED_KEYS = new bn_js_1.BN(256);

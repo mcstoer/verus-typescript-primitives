@@ -7,17 +7,18 @@ import { UINT_256_LENGTH } from '../../../constants/pbaas';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
+import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 
 export type IdentityUpdateResponseDetailsJson = {
   flags: string,
-  requestid: string,
+  requestid: CompactAddressObjectJson,
   txid?: string
 }
 
 export class IdentityUpdateResponseDetails implements SerializableEntity {
   flags?: BigNumber;
-  requestID?: string;              // ID of request, to be referenced in response
+  requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
   txid?: Buffer;                      // 32 byte transaction ID of identity update tx posted to blockchain, on same system asked for in request
                                       // stored in natural order, if displayed as text make sure to reverse!
 
@@ -26,7 +27,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
 
   constructor (data?: {
     flags?: BigNumber,
-    requestID?: string,
+    requestID?: CompactIAddressObject,
     txid?: Buffer
   }) {
     this.flags = data && data.flags ? data.flags : new BN("0", 10);
@@ -68,7 +69,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     length += varint.encodingLength(this.flags);
 
     if (this.containsRequestID()) {
-      length += HASH160_BYTE_LENGTH;
+      length += this.requestID.getByteLength();
     }
 
     if (this.containsTxid()) {
@@ -84,7 +85,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     writer.writeVarInt(this.flags);
 
     if (this.containsRequestID()) {
-      writer.writeSlice(fromBase58Check(this.requestID).hash);
+      writer.writeSlice(this.requestID.toBuffer());
     }
 
     if (this.containsTxid()) {
@@ -102,7 +103,9 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     this.flags = reader.readVarInt();
 
     if (this.containsRequestID()) {
-      this.requestID = toBase58Check(reader.readSlice(HASH160_BYTE_LENGTH), I_ADDR_VERSION);
+      this.requestID = new CompactIAddressObject();
+
+      reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
 
     if (this.containsTxid()) {
@@ -115,7 +118,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   toJson(): IdentityUpdateResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
-      requestid: this.containsRequestID() ? this.requestID : undefined,
+      requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
       txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
     }
   }
@@ -123,7 +126,7 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
   static fromJson(json: IdentityUpdateResponseDetailsJson): IdentityUpdateResponseDetails {
     return new IdentityUpdateResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: json.requestid,
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined,
       txid: json.txid ? Buffer.from(json.txid, 'hex').reverse() : undefined
     });
   }
