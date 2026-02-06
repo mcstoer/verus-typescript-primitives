@@ -88,7 +88,7 @@ export class AuthenticationResponseDetails implements SerializableEntity {
   toJson(): AuthenticationResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
-      requestid: this.requestID.toJson(),
+      requestid: this.hasRequestID() ? this.requestID.toJson() : undefined
     }
   }
 
