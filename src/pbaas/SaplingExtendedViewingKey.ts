@@ -1,10 +1,10 @@
 import bufferutils from '../utils/bufferutils';
-import { decodeSaplingExtendedViewingKey, encodeSaplingExtendedViewingKey } from '../utils/sapling';
+import { decodeSaplingExtendedViewingKey, encodeSaplingExtendedViewingKey, SaplingExtendedViewingKeyData } from '../utils/sapling';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 
 const { BufferReader, BufferWriter } = bufferutils;
 
-export class SaplingExtendedViewingKey implements SerializableEntity {
+export class SaplingExtendedViewingKey implements SerializableEntity, SaplingExtendedViewingKeyData {
   depth: number;
   parentFVKTag: Buffer; // 4 bytes
   childIndex: Buffer; // 4 bytes
@@ -14,16 +14,7 @@ export class SaplingExtendedViewingKey implements SerializableEntity {
   ovk: Buffer; // 32 bytes
   dk: Buffer; // 32 bytes
 
-  constructor(data?: {
-    depth?: number;
-    parentFVKTag?: Buffer;
-    childIndex?: Buffer;
-    chainCode?: Buffer;
-    ak?: Buffer;
-    nk?: Buffer;
-    ovk?: Buffer;
-    dk?: Buffer;
-  }) {
+  constructor(data?: SaplingExtendedViewingKeyData) {
     if (data != null) {
       this.depth = data.depth ?? 0;
       this.parentFVKTag = data.parentFVKTag ?? Buffer.alloc(4);
