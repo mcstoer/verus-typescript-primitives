@@ -5,8 +5,6 @@ import varint from '../../../utils/varint';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { SaplingPaymentAddress } from '../../../pbaas';
 import createHash = require("create-hash");
 import { SaplingExtendedSpendingKey } from '../../../pbaas/SaplingExtendedSpendingKey';

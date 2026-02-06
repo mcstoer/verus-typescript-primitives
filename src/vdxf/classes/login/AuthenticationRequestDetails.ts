@@ -196,7 +196,7 @@ export class AuthenticationRequestDetails implements SerializableEntity {
     const loginDetails = new AuthenticationRequestDetails();
 
     loginDetails.flags = new BN(data?.flags || 0);
-    loginDetails.requestID = CompactIAddressObject.fromCompactAddressObjectJson(data.requestid);
+    loginDetails.requestID = data.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(data.requestid) : undefined;
 
     if(loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
       loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({type: p.type,

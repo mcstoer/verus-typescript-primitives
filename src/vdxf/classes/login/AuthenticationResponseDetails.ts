@@ -95,7 +95,7 @@ export class AuthenticationResponseDetails implements SerializableEntity {
   static fromJson(json: AuthenticationResponseDetailsJson): AuthenticationResponseDetails {
     return new AuthenticationResponseDetails({
       flags: new BN(json.flags, 10),
-      requestID: CompactIAddressObject.fromCompactAddressObjectJson(json.requestid)
+      requestID: json.requestid ? CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined
     });
   }
 }

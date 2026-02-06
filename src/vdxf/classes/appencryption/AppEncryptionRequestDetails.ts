@@ -25,8 +25,6 @@ import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 import varuint from '../../../utils/varuint';
-import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
 export interface AppEncryptionRequestDetailsInterface {
   version?: BigNumber;

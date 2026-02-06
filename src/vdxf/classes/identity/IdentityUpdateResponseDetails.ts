@@ -5,8 +5,6 @@ import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import { UINT_256_LENGTH } from '../../../constants/pbaas';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
-import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
-import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 const { BufferReader, BufferWriter } = bufferutils;
 

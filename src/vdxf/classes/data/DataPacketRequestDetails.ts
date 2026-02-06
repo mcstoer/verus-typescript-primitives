@@ -26,8 +26,6 @@ const { BufferReader, BufferWriter } = bufferutils;
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../VerifiableSignatureData';
-import { fromBase58Check, toBase58Check } from '../../../utils/address';
-import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 import { CompactAddressObjectJson, CompactIAddressObject } from '../CompactAddressObject';
 
 export interface DataPacketRequestDetailsInterface {

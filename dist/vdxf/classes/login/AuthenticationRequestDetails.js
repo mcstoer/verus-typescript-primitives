@@ -124,7 +124,7 @@ class AuthenticationRequestDetails {
     static fromJson(data) {
         const loginDetails = new AuthenticationRequestDetails();
         loginDetails.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
-        loginDetails.requestID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.requestid);
+        loginDetails.requestID = data.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.requestid) : undefined;
         if (loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
             loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({ type: p.type,
                 identity: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(p.identity) }));

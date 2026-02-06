@@ -62,7 +62,7 @@ class AuthenticationResponseDetails {
     static fromJson(json) {
         return new AuthenticationResponseDetails({
             flags: new bn_js_1.BN(json.flags, 10),
-            requestID: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid)
+            requestID: json.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.requestid) : undefined
         });
     }
 }
