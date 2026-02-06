@@ -30,7 +30,7 @@ const getOrdinalVDXFObjectClassForType = (type) => {
 exports.getOrdinalVDXFObjectClassForType = getOrdinalVDXFObjectClassForType;
 class OrdinalVDXFObject {
     constructor(request = {
-        type: ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR
+        type: ordinals_1.DATA_DESCRIPTOR_VDXF_ORDINAL
     }) {
         if (request.key) {
             this.type = request.type ? request.type : ordinals_1.VDXF_OBJECT_RESERVED_BYTE_I_ADDR;
@@ -42,7 +42,7 @@ class OrdinalVDXFObject {
                 this.data = Buffer.alloc(0);
         }
         else if (request.type == null) {
-            this.type = ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR;
+            this.type = ordinals_1.DATA_DESCRIPTOR_VDXF_ORDINAL;
         }
         else {
             this.type = request.type;

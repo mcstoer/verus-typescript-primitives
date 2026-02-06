@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE } from "../../../constants/ordinals/ordinals";
+import { APP_ENCRYPTION_RESPONSE_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
@@ -14,7 +14,7 @@ export class AppEncryptionResponseOrdinalVDXFObject extends SerializableEntityOr
   ) {
     super(
       {
-        type: VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE,
+        type: APP_ENCRYPTION_RESPONSE_VDXF_ORDINAL,
         data: request.data
       },
       AppEncryptionResponseDetails

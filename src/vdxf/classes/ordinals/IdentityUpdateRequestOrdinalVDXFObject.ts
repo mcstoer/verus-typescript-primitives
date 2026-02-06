@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST } from "../../../constants/ordinals/ordinals";
+import { IDENTITY_UPDATE_REQUEST_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { IdentityUpdateRequestDetails, IdentityUpdateRequestDetailsJson } from "../identity/IdentityUpdateRequestDetails";
@@ -14,7 +14,7 @@ export class IdentityUpdateRequestOrdinalVDXFObject extends SerializableEntityOr
   ) {
     super(
       {
-        type: VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST,
+        type: IDENTITY_UPDATE_REQUEST_VDXF_ORDINAL,
         data: request.data
       },
       IdentityUpdateRequestDetails

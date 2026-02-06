@@ -9,7 +9,7 @@ class DataDescriptorOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObjec
         data: new pbaas_1.DataDescriptor()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_DATA_DESCRIPTOR,
+            type: ordinals_1.DATA_DESCRIPTOR_VDXF_ORDINAL,
             data: request.data
         }, pbaas_1.DataDescriptor);
     }

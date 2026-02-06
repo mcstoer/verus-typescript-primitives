@@ -28,7 +28,7 @@ import varuint from '../../../utils/varuint';
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
-export interface AppEncryptionRequestInterface {
+export interface AppEncryptionRequestDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;
   encryptToZAddress: string;
@@ -37,7 +37,7 @@ export interface AppEncryptionRequestInterface {
   requestID?: string;
 }
 
-export interface AppEncryptionRequestJson {
+export interface AppEncryptionRequestDetailsJson {
   version: number;
   flags: number;
   encrypttozaddress: string;
@@ -72,7 +72,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   derivationID?: CompactIAddressObject;      // Defaults to choosing the Z-address from the ID signing if not present
   requestID?: string;                         // Unique identifier for the request
 
-  constructor(data?: AppEncryptionRequestInterface) {
+  constructor(data?: AppEncryptionRequestDetailsInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.encryptToZAddress = data?.encryptToZAddress || '';
@@ -193,7 +193,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): AppEncryptionRequestJson {
+  toJson(): AppEncryptionRequestDetailsJson {
     // Set flags before serialization
     const flags = this.calcFlags();
 
@@ -207,7 +207,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     };
   }
 
-  static fromJson(json: AppEncryptionRequestJson): AppEncryptionRequestDetails {
+  static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails {
     const instance = new AppEncryptionRequestDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);

@@ -1,5 +1,5 @@
 /**
- * UserSpecificDataPacketDetails - Class for sending personal data to user or requesting the user
+ * DataPacketRequestDetails - Class for sending personal data to user or requesting the user
  * signature on personal data
  * 
  * This class is used when an application is requesting to transfer or receive personal
@@ -29,7 +29,7 @@ import { VerifiableSignatureData, VerifiableSignatureDataJson } from '../Verifia
 import { fromBase58Check, toBase58Check } from '../../../utils/address';
 import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 
-export interface UserSpecificDataPacketDetailsInterface {
+export interface DataPacketRequestDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;
   signableObjects: Array<DataDescriptor>;
@@ -38,7 +38,7 @@ export interface UserSpecificDataPacketDetailsInterface {
   detailsID?: string;
 }
 
-export interface UserSpecificDataPacketDetailsJson {
+export interface DataPacketRequestDetailsJson {
   version: number;
   flags: number;
   signableobjects: Array<DataDescriptorJson>;   // Array of signable data objects
@@ -48,8 +48,7 @@ export interface UserSpecificDataPacketDetailsJson {
 }
 
 
-// User_specific_data_packet
-export class UserSpecificDataPacketDetails implements SerializableEntity {
+export class DataPacketRequestDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
@@ -70,8 +69,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
   signature?: VerifiableSignatureData;
   detailsID?: string;
 
-  constructor(data?: UserSpecificDataPacketDetailsInterface) {
-    this.version = data?.version || UserSpecificDataPacketDetails.DEFAULT_VERSION;
+  constructor(data?: DataPacketRequestDetailsInterface) {
+    this.version = data?.version || DataPacketRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
     this.signableObjects = data?.signableObjects || [];
     this.statements = data?.statements || [];
@@ -89,35 +88,35 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     let flags = new BN(0);
     
     if (this.statements && this.statements.length > 0) {
-      flags = flags.or(UserSpecificDataPacketDetails.HAS_STATEMENTS);
+      flags = flags.or(DataPacketRequestDetails.HAS_STATEMENTS);
     }
 
     if (this.signature ) {
-      flags = flags.or(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+      flags = flags.or(DataPacketRequestDetails.HAS_SIGNATURE);
     }
 
     if (this.detailsID) {
-      flags = flags.or(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
+      flags = flags.or(DataPacketRequestDetails.HAS_DETAILS_ID);
     }
 
     return flags;
   }
 
   hasStatements(): boolean {
-    return this.flags.and(UserSpecificDataPacketDetails.HAS_STATEMENTS).eq(UserSpecificDataPacketDetails.HAS_STATEMENTS);
+    return this.flags.and(DataPacketRequestDetails.HAS_STATEMENTS).eq(DataPacketRequestDetails.HAS_STATEMENTS);
   }
 
   hasSignature(): boolean {
-    return this.flags.and(UserSpecificDataPacketDetails.HAS_SIGNATURE).eq(UserSpecificDataPacketDetails.HAS_SIGNATURE);
+    return this.flags.and(DataPacketRequestDetails.HAS_SIGNATURE).eq(DataPacketRequestDetails.HAS_SIGNATURE);
   }
 
   hasDetailsID(): boolean {
-    return this.flags.and(UserSpecificDataPacketDetails.HAS_DETAILS_ID).eq(UserSpecificDataPacketDetails.HAS_DETAILS_ID);
+    return this.flags.and(DataPacketRequestDetails.HAS_DETAILS_ID).eq(DataPacketRequestDetails.HAS_DETAILS_ID);
   }
 
   isValid(): boolean {
-    let valid = this.version.gte(UserSpecificDataPacketDetails.FIRST_VERSION) &&
-      this.version.lte(UserSpecificDataPacketDetails.LAST_VERSION);
+    let valid = this.version.gte(DataPacketRequestDetails.FIRST_VERSION) &&
+      this.version.lte(DataPacketRequestDetails.LAST_VERSION);
 
     // Check that we have signable objects
     valid &&= this.signableObjects.length > 0;
@@ -233,7 +232,7 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): UserSpecificDataPacketDetailsJson {
+  toJson(): DataPacketRequestDetailsJson {
     const flags = this.calcFlags();
 
     return {
@@ -246,8 +245,8 @@ export class UserSpecificDataPacketDetails implements SerializableEntity {
     };
   }
 
-  static fromJson(json: UserSpecificDataPacketDetailsJson): UserSpecificDataPacketDetails {
-    const instance = new UserSpecificDataPacketDetails();
+  static fromJson(json: DataPacketRequestDetailsJson): DataPacketRequestDetails {
+    const instance = new DataPacketRequestDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
 

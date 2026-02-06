@@ -3,19 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataPacketRequestOrdinalVDXFObject = void 0;
 const ordinals_1 = require("../../../constants/ordinals/ordinals");
 const SerializableEntityOrdinalVDXFObject_1 = require("./SerializableEntityOrdinalVDXFObject");
-const UserSpecificDataPacketDetails_1 = require("../requestobjects/DataPacketRequestDetails");
+const DataPacketRequestDetails_1 = require("../requestobjects/DataPacketRequestDetails");
 class DataPacketRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject_1.SerializableEntityOrdinalVDXFObject {
     constructor(request = {
-        data: new UserSpecificDataPacketDetails_1.DataPacketRequestDetails()
+        data: new DataPacketRequestDetails_1.DataPacketRequestDetails()
     }) {
         super({
             type: ordinals_1.DATA_PACKET_REQUEST_VDXF_ORDINAL,
             data: request.data
-        }, UserSpecificDataPacketDetails_1.DataPacketRequestDetails);
+        }, DataPacketRequestDetails_1.DataPacketRequestDetails);
     }
     static fromJson(details) {
         return new DataPacketRequestOrdinalVDXFObject({
-            data: UserSpecificDataPacketDetails_1.DataPacketRequestDetails.fromJson(details.data)
+            data: DataPacketRequestDetails_1.DataPacketRequestDetails.fromJson(details.data)
         });
     }
 }

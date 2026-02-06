@@ -37,6 +37,6 @@ export * from './login/AuthenticationRequestDetails';
 export * from './login/AuthenticationResponseDetails';
 export * from './requestobjects/ProvisionIdentityDetails';
 export * from './appencryption/AppEncryptionRequestDetails';
-export * from './requestobjects/UserSpecificDataPacketDetails';
+export * from './requestobjects/DataPacketRequestDetails';
 export * from './CompactAddressObject';
 export * from './VerifiableSignatureData';

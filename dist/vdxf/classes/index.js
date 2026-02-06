@@ -69,6 +69,6 @@ __exportStar(require("./login/AuthenticationRequestDetails"), exports);
 __exportStar(require("./login/AuthenticationResponseDetails"), exports);
 __exportStar(require("./requestobjects/ProvisionIdentityDetails"), exports);
 __exportStar(require("./appencryption/AppEncryptionRequestDetails"), exports);
-__exportStar(require("./requestobjects/UserSpecificDataPacketDetails"), exports);
+__exportStar(require("./requestobjects/DataPacketRequestDetails"), exports);
 __exportStar(require("./CompactAddressObject"), exports);
 __exportStar(require("./VerifiableSignatureData"), exports);

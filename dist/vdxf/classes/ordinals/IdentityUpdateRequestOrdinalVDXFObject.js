@@ -9,7 +9,7 @@ class IdentityUpdateRequestOrdinalVDXFObject extends SerializableEntityOrdinalVD
         data: new IdentityUpdateRequestDetails_1.IdentityUpdateRequestDetails()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST,
+            type: ordinals_1.IDENTITY_UPDATE_REQUEST_VDXF_ORDINAL,
             data: request.data
         }, IdentityUpdateRequestDetails_1.IdentityUpdateRequestDetails);
     }

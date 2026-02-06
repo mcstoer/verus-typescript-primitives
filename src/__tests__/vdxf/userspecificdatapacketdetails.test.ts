@@ -2,18 +2,18 @@ import { BN } from "bn.js";
 import { 
   CompactAddressObject,
   CompactIAddressObject,
-  UserSpecificDataPacketDetails
+  DataPacketRequestDetails
 } from "../../vdxf/classes";
 import { DataDescriptor } from "../../pbaas";
 import { VerifiableSignatureData } from "../../vdxf/classes/VerifiableSignatureData";
 
 
-describe("UserSpecificDataPacketDetails", () => {
+describe("DataPacketRequestDetails", () => {
   describe("constructor and basic properties", () => {
     test("creates instance with custom values", () => {
-      const item = new UserSpecificDataPacketDetails({
-        version: new BN(UserSpecificDataPacketDetails.DEFAULT_VERSION),
-        flags: UserSpecificDataPacketDetails.HAS_STATEMENTS.or(UserSpecificDataPacketDetails.HAS_SIGNATURE).or(UserSpecificDataPacketDetails.HAS_DETAILS_ID),
+      const item = new DataPacketRequestDetails({
+        version: new BN(DataPacketRequestDetails.DEFAULT_VERSION),
+        flags: DataPacketRequestDetails.HAS_STATEMENTS.or(DataPacketRequestDetails.HAS_SIGNATURE).or(DataPacketRequestDetails.HAS_DETAILS_ID),
         signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
         statements: ["Statement 1", "Statement 2"],
         signature: new VerifiableSignatureData({
@@ -29,7 +29,7 @@ describe("UserSpecificDataPacketDetails", () => {
 
       const detailsBuffer = item.toBuffer();
 
-      const newDetails = new UserSpecificDataPacketDetails();
+      const newDetails = new DataPacketRequestDetails();
       newDetails.fromBuffer(detailsBuffer);
 
       expect(newDetails.toJson()).toEqual(item.toJson());

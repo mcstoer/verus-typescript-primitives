@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE } from "../../../constants/ordinals/ordinals";
+import { IDENTITY_UPDATE_RESPONSE_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { IdentityUpdateResponseDetails, IdentityUpdateResponseDetailsJson } from "../identity/IdentityUpdateResponseDetails";
@@ -14,7 +14,7 @@ export class IdentityUpdateResponseOrdinalVDXFObject extends SerializableEntityO
   ) {
     super(
       {
-        type: VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE,
+        type: IDENTITY_UPDATE_RESPONSE_VDXF_ORDINAL,
         data: response.data
       },
       IdentityUpdateResponseDetails

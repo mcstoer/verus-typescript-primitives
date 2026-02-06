@@ -1,7 +1,7 @@
 import { DataDescriptor, DataDescriptorJson } from "../../pbaas";
 import { 
   AppEncryptionRequestDetails, 
-  AppEncryptionRequestJson, 
+  AppEncryptionRequestDetailsJson, 
   IdentityUpdateRequestDetails, 
   IdentityUpdateRequestDetailsJson, 
   IdentityUpdateResponseDetails, 
@@ -14,14 +14,14 @@ import {
   ProvisionIdentityDetailsJson, 
   UserDataRequestDetails,
   UserDataRequestJson,
-  UserSpecificDataPacketDetails,
-  UserSpecificDataPacketDetailsJson,
+  DataPacketRequestDetails,
+  DataPacketRequestDetailsJson,
   VerusPayInvoiceDetails,
   AppEncryptionResponseDetails,
   AppEncryptionResponseDetailsJson 
 } from "../../vdxf/classes";
 import { VerusPayInvoiceDetailsJson } from "../../vdxf/classes/payment/VerusPayInvoiceDetails";
-import { DataPacketResponse, DataResponseJson } from "../../vdxf/classes/datapacket/DataPacketResponse";
+import { DataResponseDetails, DataResponseDetailsJson } from "../../vdxf/classes/datapacket/DataResponseDetails";
 
 export type OrdinalVDXFObjectReservedData = 
   DataDescriptor | 
@@ -32,9 +32,9 @@ export type OrdinalVDXFObjectReservedData =
   AuthenticationResponseDetails |
   ProvisionIdentityDetails |
   AppEncryptionRequestDetails |
-  DataPacketResponse |
+  DataResponseDetails |
   UserDataRequestDetails |
-  UserSpecificDataPacketDetails |
+  DataPacketRequestDetails |
   AppEncryptionResponseDetails;
 
 export type OrdinalVDXFObjectReservedDataJson = 
@@ -45,9 +45,9 @@ export type OrdinalVDXFObjectReservedDataJson =
   AuthenticationRequestDetailsJson | 
   AuthenticationResponseDetailsJson |
   ProvisionIdentityDetailsJson |
-  AppEncryptionRequestJson |
-  DataResponseJson |
+  AppEncryptionRequestDetailsJson |
+  DataResponseDetailsJson |
   UserDataRequestJson |
-  UserSpecificDataPacketDetailsJson |
+  DataPacketRequestDetailsJson |
   AppEncryptionResponseDetailsJson;
 

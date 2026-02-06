@@ -9,7 +9,7 @@ class AuthenticationResponseOrdinalVDXFObject extends SerializableEntityOrdinalV
         data: new AuthenticationResponseDetails_1.AuthenticationResponseDetails()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_AUTHENTICATION_RESPONSE,
+            type: ordinals_1.AUTHENTICATION_RESPONSE_VDXF_ORDINAL,
             data: response.data
         }, AuthenticationResponseDetails_1.AuthenticationResponseDetails);
     }

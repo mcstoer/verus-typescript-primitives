@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_DATA_DESCRIPTOR } from "../../../constants/ordinals/ordinals";
+import { DATA_DESCRIPTOR_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { DataDescriptor, DataDescriptorJson } from "../../../pbaas";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
@@ -14,7 +14,7 @@ export class DataDescriptorOrdinalVDXFObject extends SerializableEntityOrdinalVD
   ) {
     super(
       {
-        type: VDXF_ORDINAL_DATA_DESCRIPTOR,
+        type: DATA_DESCRIPTOR_VDXF_ORDINAL,
         data: request.data
       },
       DataDescriptor

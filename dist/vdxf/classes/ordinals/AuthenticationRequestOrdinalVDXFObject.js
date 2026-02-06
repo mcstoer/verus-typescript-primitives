@@ -9,7 +9,7 @@ class AuthenticationRequestOrdinalVDXFObject extends SerializableEntityOrdinalVD
         data: new AuthenticationRequestDetails_1.AuthenticationRequestDetails()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_AUTHENTICATION_REQUEST,
+            type: ordinals_1.AUTHENTICATION_REQUEST_VDXF_ORDINAL,
             data: request.data
         }, AuthenticationRequestDetails_1.AuthenticationRequestDetails);
     }

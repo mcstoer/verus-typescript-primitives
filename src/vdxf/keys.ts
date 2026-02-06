@@ -582,7 +582,7 @@ export const DATA_TYPE_DEFINEDKEY: VDXFKeyInterface = {
   }
 }
 
-export const DATA_TYPE_OBJECT_DATADESCRIPTOR: VDXFKeyInterface = {
+export const DATA_DESCRIPTOR_VDXF_KEY: VDXFKeyInterface = {
   vdxfid: "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv",
   hash160result: "4d4f12424ded2033a526a4e2a8835fc5b2eba208",
   qualifiedname: {
@@ -761,7 +761,7 @@ export const USER_DATA_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   }
 }
 
-export const USER_SPECIFIC_DATA_PACKET_VDXF_KEY: VDXFKeyInterface = {
+export const DATA_PACKET_REQUEST_VDXF_KEY: VDXFKeyInterface = {
   "vdxfid": "i6JYTdVNLz4Sb6515B73BSX6C1Xba63tNQ",
   "indexid": "xB8evRvTCJH7DFx2vrmC9q3dDfYcXW1F15",
   "hash160result": "34dfdf234ec37a8451790a19538dbd162913051f",

@@ -28,7 +28,6 @@ const pbaas_1 = require("../../../pbaas");
 const VerifiableSignatureData_1 = require("../VerifiableSignatureData");
 const address_1 = require("../../../utils/address");
 const vdxf_1 = require("../../../constants/vdxf");
-// User_specific_data_packet
 class DataPacketRequestDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || DataPacketRequestDetails.DEFAULT_VERSION;

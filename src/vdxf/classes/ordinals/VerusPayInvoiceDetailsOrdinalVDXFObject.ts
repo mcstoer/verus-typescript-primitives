@@ -1,10 +1,10 @@
-import { VDXF_ORDINAL_VERUSPAY_INVOICE } from "../../../constants/ordinals/ordinals";
+import { VERUSPAY_INVOICE_DETAILS_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { VerusPayInvoiceDetails, VerusPayInvoiceDetailsJson } from "../payment/VerusPayInvoiceDetails";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
 
-export class VerusPayInvoiceOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
+export class VerusPayInvoiceDetailsOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
   data: VerusPayInvoiceDetails;
 
   constructor(
@@ -14,15 +14,15 @@ export class VerusPayInvoiceOrdinalVDXFObject extends SerializableEntityOrdinalV
   ) {
     super(
       {
-        type: VDXF_ORDINAL_VERUSPAY_INVOICE,
+        type: VERUSPAY_INVOICE_DETAILS_VDXF_ORDINAL,
         data: request.data
       },
       VerusPayInvoiceDetails
     );
   }
 
-  static fromJson(details: OrdinalVDXFObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceOrdinalVDXFObject {
-    return new VerusPayInvoiceOrdinalVDXFObject({
+  static fromJson(details: OrdinalVDXFObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceDetailsOrdinalVDXFObject {
+    return new VerusPayInvoiceDetailsOrdinalVDXFObject({
       data: VerusPayInvoiceDetails.fromJson(details.data)
     })
   }

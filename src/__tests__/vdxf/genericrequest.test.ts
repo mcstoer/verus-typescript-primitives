@@ -4,7 +4,7 @@ import { DATA_TYPE_MMRDATA, DEFAULT_VERUS_CHAINID, HASH_TYPE_SHA256, NULL_I_ADDR
 import { ContentMultiMap, DEST_PKH, fromBase58Check, GenericRequest, IDENTITY_VERSION_PBAAS, IdentityID, IdentityUpdateRequestDetails, KeyID, PartialIdentity, PartialMMRData, PartialSignData, PartialSignDataInitData, ResponseURI, SaplingPaymentAddress, TransferDestination, VerusPayInvoiceDetails } from '../../';
 import { VerifiableSignatureData, VerifiableSignatureDataInterface } from '../../vdxf/classes/VerifiableSignatureData';
 import { CompactIAddressObject } from '../../vdxf/classes/CompactAddressObject';
-import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject, VerusPayInvoiceOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
+import { GeneralTypeOrdinalVDXFObject, IdentityUpdateRequestOrdinalVDXFObject, VerusPayInvoiceDetailsOrdinalVDXFObject } from '../../vdxf/classes/ordinals';
 import { DEEPLINK_PROTOCOL_URL_CURRENT_VERSION, DEEPLINK_PROTOCOL_URL_STRING } from '../../constants/deeplink';
 
 describe('GenericRequest — buffer / URI / QR operations', () => {
@@ -177,7 +177,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     const saplingAddr = "zs1wczplx4kegw32h8g0f7xwl57p5tvnprwdmnzmdnsw50chcl26f7tws92wk2ap03ykaq6jyyztfa"
 
     const req = new GenericRequest({
-      details: [new VerusPayInvoiceOrdinalVDXFObject({
+      details: [new VerusPayInvoiceDetailsOrdinalVDXFObject({
         data: details,
       })],
       signature: sig,
@@ -197,7 +197,7 @@ describe('GenericRequest — buffer / URI / QR operations', () => {
     expect(round.hasEncryptResponseToAddress()).toBe(true)
     expect(round.encryptResponseToAddress?.toAddressString()).toBe(saplingAddr)
     const d2 = round.getDetails(0);
-    expect((d2 as VerusPayInvoiceOrdinalVDXFObject).data).toEqual(details);
+    expect((d2 as VerusPayInvoiceDetailsOrdinalVDXFObject).data).toEqual(details);
     expect(round.toBuffer().toString('hex')).toEqual(req.toBuffer().toString('hex'));
   });
 

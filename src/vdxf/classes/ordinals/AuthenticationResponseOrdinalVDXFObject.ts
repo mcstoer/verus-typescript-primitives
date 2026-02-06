@@ -1,4 +1,4 @@
-import { VDXF_ORDINAL_AUTHENTICATION_RESPONSE } from "../../../constants/ordinals/ordinals";
+import { AUTHENTICATION_RESPONSE_VDXF_ORDINAL } from "../../../constants/ordinals/ordinals";
 import { SerializableDataEntity } from "../../../utils/types/SerializableEntity";
 import { OrdinalVDXFObjectInterfaceTemplate, OrdinalVDXFObjectJsonTemplate } from "./OrdinalVDXFObject";
 import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinalVDXFObject";
@@ -14,7 +14,7 @@ export class AuthenticationResponseOrdinalVDXFObject extends SerializableEntityO
   ) {
     super(
       {
-        type: VDXF_ORDINAL_AUTHENTICATION_RESPONSE,
+        type: AUTHENTICATION_RESPONSE_VDXF_ORDINAL,
         data: response.data
       },
       AuthenticationResponseDetails

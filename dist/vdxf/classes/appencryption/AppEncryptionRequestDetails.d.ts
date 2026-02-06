@@ -18,7 +18,7 @@
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
-export interface AppEncryptionRequestInterface {
+export interface AppEncryptionRequestDetailsInterface {
     version?: BigNumber;
     flags: BigNumber;
     encryptToZAddress: string;
@@ -26,7 +26,7 @@ export interface AppEncryptionRequestInterface {
     derivationID?: CompactIAddressObject;
     requestID?: string;
 }
-export interface AppEncryptionRequestJson {
+export interface AppEncryptionRequestDetailsJson {
     version: number;
     flags: number;
     encrypttozaddress: string;
@@ -56,7 +56,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     derivationNumber: BigNumber;
     derivationID?: CompactIAddressObject;
     requestID?: string;
-    constructor(data?: AppEncryptionRequestInterface);
+    constructor(data?: AppEncryptionRequestDetailsInterface);
     setFlags(): void;
     calcFlags(): BigNumber;
     isValid(): boolean;
@@ -65,6 +65,6 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    toJson(): AppEncryptionRequestJson;
-    static fromJson(json: AppEncryptionRequestJson): AppEncryptionRequestDetails;
+    toJson(): AppEncryptionRequestDetailsJson;
+    static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails;
 }

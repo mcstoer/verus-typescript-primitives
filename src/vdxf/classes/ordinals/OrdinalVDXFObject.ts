@@ -13,7 +13,7 @@ import {
   VDXF_OBJECT_RESERVED_BYTE_I_ADDR, 
   VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY, 
   VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, 
-  VDXF_ORDINAL_DATA_DESCRIPTOR 
+  DATA_DESCRIPTOR_VDXF_ORDINAL 
 } from "../../../constants/ordinals/ordinals";
 
 export interface OrdinalVDXFObjectInterfaceTemplate<T> {
@@ -69,7 +69,7 @@ export class OrdinalVDXFObject implements SerializableEntity {
 
   constructor(
     request: OrdinalVDXFObjectInterfaceTemplate<BufferOrOrdinalVDXFObjectReservedData> = {
-      type: VDXF_ORDINAL_DATA_DESCRIPTOR
+      type: DATA_DESCRIPTOR_VDXF_ORDINAL
     }
   ) {
     if (request.key) {
@@ -80,7 +80,7 @@ export class OrdinalVDXFObject implements SerializableEntity {
         this.data = request.data;
       } else this.data = Buffer.alloc(0);
     } else if (request.type == null) {
-      this.type = VDXF_ORDINAL_DATA_DESCRIPTOR;
+      this.type = DATA_DESCRIPTOR_VDXF_ORDINAL;
     } else {
       this.type = request.type;
     }

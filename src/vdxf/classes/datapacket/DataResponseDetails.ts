@@ -2,7 +2,7 @@
 
 
 /**
- * DataPacketResponse - Class for providing structured responses to various request types
+ * DataResponseDetails - Class for providing structured responses to various request types
  * 
  * This class serves as a universal response mechanism that can be used to reply to multiple
  * types of requests. It packages response data within a DataDescriptor along with metadata
@@ -20,9 +20,9 @@
  *    - The requestID references the original UserDataRequestDetails.requestID
  *    - Allows selective disclosure of personal information
  * 
- * 3. UserSpecificDataPacketDetails Response:
+ * 3. DataPacketRequestDetails Response:
  *    - The DataDescriptor 'data' field contains the response data or signed content
- *    - The requestID references the original UserSpecificDataPacketDetails.requestID
+ *    - The requestID references the original DataPacketRequestDetails.requestID
  *    - Supports bidirectional data exchange with signatures and statements
  * 
  * REQUEST-RESPONSE CORRELATION:
@@ -49,19 +49,19 @@ import { HASH160_BYTE_LENGTH, I_ADDR_VERSION } from '../../../constants/vdxf';
 import { DataDescriptor, DataDescriptorJson } from '../../../pbaas';
 import createHash = require("create-hash");
 
-export interface DataResponseInterface {
+export interface DataResponseDetailsInterface {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
   data: DataDescriptor;   
 }
 
-export interface  DataResponseJson {
+export interface DataResponseDetailsJson {
   flags?: number;
   requestid?: string;              // ID of request, to be referenced in response
   data: DataDescriptorJson;   
 }
 
-export class DataPacketResponse implements SerializableEntity {
+export class DataResponseDetails implements SerializableEntity {
   flags?: BigNumber;
   requestID?: string;              // ID of request, to be referenced in response
   data: DataDescriptor;    
@@ -84,11 +84,11 @@ export class DataPacketResponse implements SerializableEntity {
   }
 
   containsRequestID() {
-    return !!(this.flags.and(DataPacketResponse.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    return !!(this.flags.and(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
   }
 
   toggleContainsRequestID() {
-    this.flags = this.flags.xor(DataPacketResponse.RESPONSE_CONTAINS_REQUEST_ID);
+    this.flags = this.flags.xor(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID);
   }
 
   toSha256() {
@@ -139,7 +139,7 @@ export class DataPacketResponse implements SerializableEntity {
     return reader.offset;
   }
 
-  toJson(): DataResponseJson {
+  toJson(): DataResponseDetailsJson {
     return {
       flags: this.flags.toNumber(),
       requestid: this.containsRequestID() ? this.requestID : undefined,
@@ -147,8 +147,8 @@ export class DataPacketResponse implements SerializableEntity {
     }
   }
 
-  static fromJson(json: DataResponseJson): DataPacketResponse {
-    return new DataPacketResponse({
+  static fromJson(json: DataResponseDetailsJson): DataResponseDetails {
+    return new DataResponseDetails({
       flags: new BN(json.flags, 10),
       requestID: json.requestid,
       data: DataDescriptor.fromJson(json.data)

@@ -9,7 +9,7 @@ class UserDataRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObje
         data: new UserDataRequestDetails_1.UserDataRequestDetails()
     }) {
         super({
-            type: ordinals_1.VDXF_ORDINAL_USER_DATA_REQUEST,
+            type: ordinals_1.USER_DATA_REQUEST_VDXF_ORDINAL,
             data: request.data
         }, UserDataRequestDetails_1.UserDataRequestDetails);
     }
