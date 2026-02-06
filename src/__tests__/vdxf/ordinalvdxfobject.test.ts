@@ -35,7 +35,7 @@ import { DEFAULT_VERUS_CHAINID } from '../../constants/pbaas';
 import { fromBase58Check } from '../../utils/address';
 import { VDXF_OBJECT_RESERVED_BYTE_I_ADDR, VDXF_ORDINAL_APP_ENCRYPTION_REQUEST, VDXF_ORDINAL_APP_ENCRYPTION_RESPONSE, VDXF_ORDINAL_DATA_DESCRIPTOR, VDXF_ORDINAL_IDENTITY_UPDATE_REQUEST, VDXF_ORDINAL_IDENTITY_UPDATE_RESPONSE, VDXF_ORDINAL_AUTHENTICATION_REQUEST, VDXF_ORDINAL_PROVISION_IDENTITY_DETAILS, VDXF_ORDINAL_VERUSPAY_INVOICE, VDXF_OBJECT_RESERVED_BYTE_VDXF_ID_STRING, VDXF_OBJECT_RESERVED_BYTE_ID_OR_CURRENCY } from '../../constants/ordinals/ordinals';
 import { VerusPayInvoiceOrdinalVDXFObject } from '../../vdxf/classes/ordinals/VerusPayInvoiceOrdinalVDXFObject';
-import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SALT, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
+import { TEST_CHALLENGE_ID, TEST_CLI_ID_UPDATE_REQUEST_JSON_HEX, TEST_EXPIRYHEIGHT, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_REQUESTID, TEST_SYSTEMID, TEST_TXID } from '../constants/fixtures';
 import { ProvisionIdentityDetailsOrdinalVDXFObject } from '../../vdxf/classes/ordinals/ProvisionIdentityDetailsOrdinalVDXFObject';
 import { BigNumber } from '../../utils/types/BigNumber';
 import { DataPacketResponse } from '../../vdxf/classes/datapacket/DataPacketResponse';
@@ -99,7 +99,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     } else if (obj instanceof AppEncryptionResponseOrdinalVDXFObject) {
       newObj = AppEncryptionResponseOrdinalVDXFObject.fromJson(json as any);
     } else {
-      throw new Error("Unrecognized type")
+      throw new Error("Unrecognized type");
     }
 
     return newObj as T;
@@ -248,7 +248,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
         destination_bytes: fromBase58Check("R9J8E2no2HVjQmzX6Ntes2ShSGcn7WiRcx").hash
       }),
       requestedcurrencyid: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-    })
+    });
 
     details.amount = new BN(12345);
     details.requestedcurrencyid = DEFAULT_VERUS_CHAINID;

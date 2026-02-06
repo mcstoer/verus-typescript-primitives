@@ -33,7 +33,7 @@ describe('Serializes and deserializes VerusPay invoice', () => {
         destination_bytes: fromBase58Check("R9J8E2no2HVjQmzX6Ntes2ShSGcn7WiRcx").hash
       }),
       requestedcurrencyid: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq"
-    })
+    });
 
     const inv2 = new VerusPayInvoice({
       details: details2,

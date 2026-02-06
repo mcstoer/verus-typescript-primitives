@@ -321,7 +321,7 @@ export class GenericEnvelope implements SerializableEntity {
       const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
 
       reader.offset = ord.offset;
-      this.details = [ord.obj]
+      this.details = [ord.obj];
     }
 
     return reader.offset;

@@ -158,7 +158,7 @@ export class Identity extends Principal implements SerializableEntity {
   
         for (const m of this.content_map.entries()) {
           length += HASH160_BYTE_LENGTH;   //uint160 key
-          length += HASH256_BYTE_LENGTH
+          length += HASH256_BYTE_LENGTH;
         }
       }
   

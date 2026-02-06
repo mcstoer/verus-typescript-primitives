@@ -77,7 +77,7 @@ export class Credential implements SerializableEntity {
     length += varint.encodingLength(this.version);
     length += varint.encodingLength(this.flags);
     
-    length += HASH160_BYTE_LENGTH // Credential key
+    length += HASH160_BYTE_LENGTH; // Credential key
 
     // Both the credential and scopes are serialized as JSON strings.
     const credStr = JSON.stringify(this.credential);

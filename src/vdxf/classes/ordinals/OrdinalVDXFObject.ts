@@ -188,7 +188,7 @@ export class OrdinalVDXFObject implements SerializableEntity {
         this.key = reader.readVarSlice().toString('utf8');
       }
     } else {
-      this.key = key
+      this.key = key;
     }
 
     this.version = reader.readVarInt();
