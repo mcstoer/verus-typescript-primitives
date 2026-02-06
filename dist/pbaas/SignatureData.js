@@ -174,6 +174,7 @@ class SignatureData {
         return returnObj;
     }
     // To fully implement, refer to VerusCoin/src/pbaas/crosschainrpc.cpp line 337, IdentitySignatureHash
+    // missing bound hashes and vdxf keys
     getIdentityHash(sigObject) {
         var heightBuffer = Buffer.allocUnsafe(4);
         heightBuffer.writeUInt32LE(sigObject.height);
