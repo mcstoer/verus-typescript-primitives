@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { CompactAddressObject, CompactXAddressObject, VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
+import { CompactXAddressObject, VerusPayInvoice, VerusPayInvoiceDetails } from "../../vdxf/classes";
 import { DEST_PKH, TransferDestination } from "../../pbaas/TransferDestination";
 import { fromBase58Check } from "../../utils/address";
 import { VERUSPAY_VERSION_3, VERUSPAY_VERSION_4, VERUSPAY_VERSION_FIRSTVALID, VERUSPAY_VERSION_LASTVALID } from "../../constants/vdxf/veruspay";
