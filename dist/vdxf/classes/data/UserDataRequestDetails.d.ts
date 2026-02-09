@@ -46,15 +46,15 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
-    static HAS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
     static FULL_DATA: import("bn.js");
     static PARTIAL_DATA: import("bn.js");
     static COLLECTION: import("bn.js");
     static ATTESTATION: import("bn.js");
     static CLAIM: import("bn.js");
     static CREDENTIAL: import("bn.js");
-    static HAS_SIGNER: import("bn.js");
-    static HAS_REQUESTED_KEYS: import("bn.js");
+    static FLAG_HAS_SIGNER: import("bn.js");
+    static FLAG_HAS_REQUESTED_KEYS: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
     searchDataKey: Array<{

@@ -43,24 +43,24 @@ class DataPacketRequestDetails {
     calcFlags() {
         let flags = new bn_js_1.BN(0);
         if (this.statements && this.statements.length > 0) {
-            flags = flags.or(DataPacketRequestDetails.HAS_STATEMENTS);
+            flags = flags.or(DataPacketRequestDetails.FLAG_HAS_STATEMENTS);
         }
         if (this.signature) {
-            flags = flags.or(DataPacketRequestDetails.HAS_SIGNATURE);
+            flags = flags.or(DataPacketRequestDetails.FLAG_HAS_SIGNATURE);
         }
         if (this.requestID) {
-            flags = flags.or(DataPacketRequestDetails.HAS_REQUEST_ID);
+            flags = flags.or(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID);
         }
         return flags;
     }
     hasStatements() {
-        return this.flags.and(DataPacketRequestDetails.HAS_STATEMENTS).eq(DataPacketRequestDetails.HAS_STATEMENTS);
+        return this.flags.and(DataPacketRequestDetails.FLAG_HAS_STATEMENTS).eq(DataPacketRequestDetails.FLAG_HAS_STATEMENTS);
     }
     hasSignature() {
-        return this.flags.and(DataPacketRequestDetails.HAS_SIGNATURE).eq(DataPacketRequestDetails.HAS_SIGNATURE);
+        return this.flags.and(DataPacketRequestDetails.FLAG_HAS_SIGNATURE).eq(DataPacketRequestDetails.FLAG_HAS_SIGNATURE);
     }
     hasRequestID() {
-        return this.flags.and(DataPacketRequestDetails.HAS_REQUEST_ID).eq(DataPacketRequestDetails.HAS_REQUEST_ID);
+        return this.flags.and(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID).eq(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID);
     }
     isValid() {
         let valid = this.version.gte(DataPacketRequestDetails.FIRST_VERSION) &&
@@ -186,9 +186,9 @@ DataPacketRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 DataPacketRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 DataPacketRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
 // types of data to sign
-DataPacketRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(1);
-DataPacketRequestDetails.HAS_STATEMENTS = new bn_js_1.BN(2);
-DataPacketRequestDetails.HAS_SIGNATURE = new bn_js_1.BN(4);
-DataPacketRequestDetails.FOR_USERS_SIGNATURE = new bn_js_1.BN(8);
-DataPacketRequestDetails.FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(16);
-DataPacketRequestDetails.HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(32);
+DataPacketRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1);
+DataPacketRequestDetails.FLAG_HAS_STATEMENTS = new bn_js_1.BN(2);
+DataPacketRequestDetails.FLAG_HAS_SIGNATURE = new bn_js_1.BN(4);
+DataPacketRequestDetails.FLAG_FOR_USERS_SIGNATURE = new bn_js_1.BN(8);
+DataPacketRequestDetails.FLAG_FOR_TRANSMITTAL_TO_USER = new bn_js_1.BN(16);
+DataPacketRequestDetails.FLAG_HAS_URL_FOR_DOWNLOAD = new bn_js_1.BN(32);

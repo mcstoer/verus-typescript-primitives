@@ -13,15 +13,16 @@
  * and encrypt it using the provided encryption key, ensuring the application receives only
  * the specific derived seed it needs without exposing the master seed.
  *
- * The RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
+ * The FLAG_RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
+import { SaplingPaymentAddress } from '../../../pbaas';
 export interface AppEncryptionRequestDetailsInterface {
     version?: BigNumber;
     flags: BigNumber;
-    encryptToZAddress: string;
+    encryptResponseToAddress?: SaplingPaymentAddress;
     derivationNumber: BigNumber;
     derivationID?: CompactIAddressObject;
     requestID?: CompactIAddressObject;
@@ -34,25 +35,18 @@ export interface AppEncryptionRequestDetailsJson {
     derivationid?: CompactAddressObjectJson;
     requestid?: CompactAddressObjectJson;
 }
-/**
- * Checks if a string is a valid hexadecimal address
- * @param flags - Optional flags for the request
- * @flag HAS_REQUEST_ID - Indicates if a request ID is included
- *
- * @param encryptToZAddress - The encryption key to use for encrypting to
- * @param derivationNumber - The derivation number to validate
- */
 export declare class AppEncryptionRequestDetails implements SerializableEntity {
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
-    static HAS_DERIVATION_ID: import("bn.js");
-    static HAS_REQUEST_ID: import("bn.js");
-    static RETURN_ESK: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS: import("bn.js");
+    static FLAG_HAS_DERIVATION_ID: import("bn.js");
+    static FLAG_RETURN_ESK: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
-    encryptToZAddress: string;
+    encryptResponseToAddress?: SaplingPaymentAddress;
     derivationNumber: BigNumber;
     derivationID?: CompactIAddressObject;
     requestID?: CompactIAddressObject;
@@ -62,6 +56,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     isValid(): boolean;
     hasDerivationID(flags?: BigNumber): boolean;
     hasRequestID(flags?: BigNumber): boolean;
+    hasEncryptResponseToAddress(flags?: BigNumber): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;

@@ -53,12 +53,12 @@ export class DataPacketRequestDetails implements SerializableEntity {
   static DEFAULT_VERSION = new BN(1);
 
   // types of data to sign
-  static HAS_REQUEST_ID = new BN(1);
-  static HAS_STATEMENTS = new BN(2);
-  static HAS_SIGNATURE = new BN(4);
-  static FOR_USERS_SIGNATURE = new BN(8);
-  static FOR_TRANSMITTAL_TO_USER = new BN(16);
-  static HAS_URL_FOR_DOWNLOAD = new BN(32);
+  static FLAG_HAS_REQUEST_ID = new BN(1);
+  static FLAG_HAS_STATEMENTS = new BN(2);
+  static FLAG_HAS_SIGNATURE = new BN(4);
+  static FLAG_FOR_USERS_SIGNATURE = new BN(8);
+  static FLAG_FOR_TRANSMITTAL_TO_USER = new BN(16);
+  static FLAG_HAS_URL_FOR_DOWNLOAD = new BN(32);
 
   version: BigNumber;
   flags: BigNumber;
@@ -86,30 +86,30 @@ export class DataPacketRequestDetails implements SerializableEntity {
     let flags = new BN(0);
     
     if (this.statements && this.statements.length > 0) {
-      flags = flags.or(DataPacketRequestDetails.HAS_STATEMENTS);
+      flags = flags.or(DataPacketRequestDetails.FLAG_HAS_STATEMENTS);
     }
 
     if (this.signature ) {
-      flags = flags.or(DataPacketRequestDetails.HAS_SIGNATURE);
+      flags = flags.or(DataPacketRequestDetails.FLAG_HAS_SIGNATURE);
     }
 
     if (this.requestID) {
-      flags = flags.or(DataPacketRequestDetails.HAS_REQUEST_ID);
+      flags = flags.or(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID);
     }
 
     return flags;
   }
 
   hasStatements(): boolean {
-    return this.flags.and(DataPacketRequestDetails.HAS_STATEMENTS).eq(DataPacketRequestDetails.HAS_STATEMENTS);
+    return this.flags.and(DataPacketRequestDetails.FLAG_HAS_STATEMENTS).eq(DataPacketRequestDetails.FLAG_HAS_STATEMENTS);
   }
 
   hasSignature(): boolean {
-    return this.flags.and(DataPacketRequestDetails.HAS_SIGNATURE).eq(DataPacketRequestDetails.HAS_SIGNATURE);
+    return this.flags.and(DataPacketRequestDetails.FLAG_HAS_SIGNATURE).eq(DataPacketRequestDetails.FLAG_HAS_SIGNATURE);
   }
 
   hasRequestID(): boolean {
-    return this.flags.and(DataPacketRequestDetails.HAS_REQUEST_ID).eq(DataPacketRequestDetails.HAS_REQUEST_ID);
+    return this.flags.and(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID).eq(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID);
   }
 
   isValid(): boolean {

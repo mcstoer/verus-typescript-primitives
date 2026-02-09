@@ -411,9 +411,9 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize an AppEncryptionRequestOrdinalVDXFObject', () => {
     const details = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
-        .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      flags: AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID
+        .or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID),
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4"),
       derivationNumber: new BN(42),
       derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
@@ -425,7 +425,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(round).toBeInstanceOf(AppEncryptionRequestOrdinalVDXFObject);
 
     const d2 = (round as AppEncryptionRequestOrdinalVDXFObject).data;
-    expect(d2.encryptToZAddress!).toEqual(details.encryptToZAddress);
+    expect(d2.encryptResponseToAddress!.toAddressString()).toEqual(details.encryptResponseToAddress!.toAddressString());
     expect(d2.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d2.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d2.requestID?.toAddress()).toEqual(details.requestID?.toAddress());
@@ -436,7 +436,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     expect(roundJ).toBeInstanceOf(AppEncryptionRequestOrdinalVDXFObject);
 
     const d3 = (roundJ as AppEncryptionRequestOrdinalVDXFObject).data;
-    expect(d3.encryptToZAddress!).toEqual(details.encryptToZAddress);
+    expect(d3.encryptResponseToAddress!.toAddressString()).toEqual(details.encryptResponseToAddress!.toAddressString());
     expect(d3.derivationNumber!.toString()).toEqual(details.derivationNumber!.toString());
     expect(d3.derivationID!.toIAddress()).toEqual(details.derivationID!.toIAddress());
     expect(d3.requestID?.toAddress()).toEqual(details.requestID?.toAddress());
@@ -512,7 +512,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a UserDataRequestOrdinalVDXFObject via buffer', () => {
     const details = new UserDataRequestDetails({
       version: new BN(1),
-      flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.HAS_SIGNER),
+      flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.FLAG_HAS_SIGNER),
       searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
@@ -542,7 +542,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a DataPacketRequestOrdinalVDXFObject via buffer', () => {
     const details = new DataPacketRequestDetails({
       version: new BN(1),
-      flags: DataPacketRequestDetails.HAS_STATEMENTS.or(DataPacketRequestDetails.HAS_SIGNATURE),
+      flags: DataPacketRequestDetails.FLAG_HAS_STATEMENTS.or(DataPacketRequestDetails.FLAG_HAS_SIGNATURE),
       signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
       statements: ["Statement 1", "Statement 2"],
       signature: new VerifiableSignatureData({

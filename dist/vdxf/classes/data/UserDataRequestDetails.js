@@ -41,13 +41,13 @@ class UserDataRequestDetails {
     calcFlags() {
         let flags = new bn_js_1.BN(0);
         if (this.requestedKeys && this.requestedKeys.length > 0) {
-            flags = flags.or(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+            flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
         }
         if (this.signer) {
-            flags = flags.or(UserDataRequestDetails.HAS_SIGNER);
+            flags = flags.or(UserDataRequestDetails.FLAG_HAS_SIGNER);
         }
         if (this.requestID) {
-            flags = flags.or(UserDataRequestDetails.HAS_REQUEST_ID);
+            flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUEST_ID);
         }
         return flags;
     }
@@ -55,13 +55,13 @@ class UserDataRequestDetails {
         this.flags = this.calcFlags();
     }
     hasSigner() {
-        return this.flags.and(UserDataRequestDetails.HAS_SIGNER).eq(UserDataRequestDetails.HAS_SIGNER);
+        return this.flags.and(UserDataRequestDetails.FLAG_HAS_SIGNER).eq(UserDataRequestDetails.FLAG_HAS_SIGNER);
     }
     hasRequestedKeys() {
-        return this.flags.and(UserDataRequestDetails.HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+        return this.flags.and(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
     }
     hasRequestID() {
-        return this.flags.and(UserDataRequestDetails.HAS_REQUEST_ID).eq(UserDataRequestDetails.HAS_REQUEST_ID);
+        return this.flags.and(UserDataRequestDetails.FLAG_HAS_REQUEST_ID).eq(UserDataRequestDetails.FLAG_HAS_REQUEST_ID);
     }
     /**
      * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
@@ -205,12 +205,12 @@ UserDataRequestDetails.VERSION_INVALID = new bn_js_1.BN(0);
 UserDataRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
-UserDataRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(1);
+UserDataRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1);
 UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(2);
 UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(4);
 UserDataRequestDetails.COLLECTION = new bn_js_1.BN(8);
 UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(16);
 UserDataRequestDetails.CLAIM = new bn_js_1.BN(32);
 UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(64);
-UserDataRequestDetails.HAS_SIGNER = new bn_js_1.BN(128);
-UserDataRequestDetails.HAS_REQUESTED_KEYS = new bn_js_1.BN(256);
+UserDataRequestDetails.FLAG_HAS_SIGNER = new bn_js_1.BN(128);
+UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS = new bn_js_1.BN(256);

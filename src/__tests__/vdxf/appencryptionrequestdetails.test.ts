@@ -1,6 +1,7 @@
 import { BN } from "bn.js";
 import { AppEncryptionRequestDetails, CompactIAddressObject, CompactAddressObject } from "../../vdxf/classes";
 import { BigNumber } from "../../utils/types/BigNumber";
+import { SaplingPaymentAddress } from "../../pbaas";
 
 // Helper function to create TransferDestination from address string
 function createCompactAddressObject(type: BigNumber, address: string): CompactIAddressObject {
@@ -13,12 +14,11 @@ function createCompactAddressObject(type: BigNumber, address: string): CompactIA
 }
 
 describe("AppEncryptionRequestDetails serialization tests", () => {
-  test("creates valid AppEncryptionRequestDetails with zaddress", () => {
+  test("creates valid AppEncryptionRequestDetails without zaddress", () => {
     const details = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
-        .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      flags: AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID
+        .or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID),
       derivationNumber: new BN(42),
       derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
@@ -31,10 +31,32 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     const deserializedBuffer = newDetails.toBuffer();
     expect(originalBuffer.toString('hex')).toBe(deserializedBuffer.toString('hex'));
 
+    expect(details.isValid()).toBe(true);
+    expect(details.derivationNumber.toNumber()).toBe(42);
+    expect(details.derivationID?.address).toBe("i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
+    expect(details.requestID?.toAddress()).toBe("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ");
+  });
+
+  test("creates valid AppEncryptionRequestDetails with zaddress", () => {
+    const details = new AppEncryptionRequestDetails({
+      version: AppEncryptionRequestDetails.DEFAULT_VERSION,
+      flags: AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID
+        .or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID),
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4"),
+      derivationNumber: new BN(42),
+      derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
+      requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
+    });
+
+    const newDetails = new AppEncryptionRequestDetails();
+    const buffer = details.toBuffer();
+    newDetails.fromBuffer(buffer);
+    const originalBuffer = details.toBuffer();
+    const deserializedBuffer = newDetails.toBuffer();
+    expect(originalBuffer.toString('hex')).toBe(deserializedBuffer.toString('hex'));
 
     expect(details.isValid()).toBe(true);
-    expect(details.encryptToZAddress).toBe("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4");
-    expect(details.flags.toNumber()).toBe(1+2); // HAS_DERIVATION_ID + HAS_REQUEST_ID
+    expect(details.encryptResponseToAddress!.toAddressString()).toBe("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4");
     expect(details.derivationNumber.toNumber()).toBe(42);
     expect(details.derivationID?.address).toBe("i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X");
     expect(details.requestID?.toAddress()).toBe("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ");
@@ -44,9 +66,9 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     // Create the first AppEncryptionRequestDetails
     const originalDetails = new AppEncryptionRequestDetails({
       version: AppEncryptionRequestDetails.DEFAULT_VERSION,
-      flags: AppEncryptionRequestDetails.HAS_DERIVATION_ID
-      .or(AppEncryptionRequestDetails.HAS_REQUEST_ID),
-      encryptToZAddress: "zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4",
+      flags: AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID
+      .or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID),
+      encryptResponseToAddress: SaplingPaymentAddress.fromAddressString("zs1sthrnsx5vmpmdl3pcd0paltcq9jf56hjjzu87shf90mt54y3szde6zaauvxw5sfuqh565arhmh4"),
       derivationNumber: new BN(42),
       derivationID: createCompactAddressObject(CompactAddressObject.TYPE_I_ADDRESS, "i9nwxtKuVYX4MSbeULLiK2ttVi6rUEhh4X"),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")
@@ -66,7 +88,7 @@ describe("AppEncryptionRequestDetails serialization tests", () => {
     // Verify all properties match
     expect(deserializedDetails.version.toNumber()).toBe(originalDetails.version.toNumber());
     expect(deserializedDetails.flags.toNumber()).toBe(originalDetails.flags.toNumber());
-    expect(deserializedDetails.encryptToZAddress).toBe(originalDetails.encryptToZAddress);
+    expect(deserializedDetails.encryptResponseToAddress!.toAddressString()).toBe(originalDetails.encryptResponseToAddress!.toAddressString());
     expect(deserializedDetails.derivationNumber.toNumber()).toBe(originalDetails.derivationNumber.toNumber());
     expect(deserializedDetails.derivationID?.BNType.toNumber()).toBe(originalDetails.derivationID?.BNType.toNumber());
     expect(deserializedDetails.derivationID?.address).toBe(originalDetails.derivationID?.address);

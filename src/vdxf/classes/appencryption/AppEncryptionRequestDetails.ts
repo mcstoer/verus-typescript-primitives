@@ -14,22 +14,22 @@
  * and encrypt it using the provided encryption key, ensuring the application receives only
  * the specific derived seed it needs without exposing the master seed.
  * 
- * The RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
+ * The FLAG_RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
  */
 
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { BN } from 'bn.js';
 import bufferutils from '../../../utils/bufferutils';
 const { BufferReader, BufferWriter } = bufferutils;
-import { decodeSaplingAddress, toBech32 } from '../../../utils/sapling';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
 import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddressObject';
 import varuint from '../../../utils/varuint';
+import { SaplingPaymentAddress } from '../../../pbaas';
 
 export interface AppEncryptionRequestDetailsInterface {
   version?: BigNumber;
   flags: BigNumber;
-  encryptToZAddress: string;
+  encryptResponseToAddress?: SaplingPaymentAddress;
   derivationNumber: BigNumber;
   derivationID?: CompactIAddressObject;
   requestID?: CompactIAddressObject;
@@ -44,28 +44,20 @@ export interface AppEncryptionRequestDetailsJson {
   requestid?: CompactAddressObjectJson;
 }
 
-/**
- * Checks if a string is a valid hexadecimal address
- * @param flags - Optional flags for the request
- * @flag HAS_REQUEST_ID - Indicates if a request ID is included
- * 
- * @param encryptToZAddress - The encryption key to use for encrypting to
- * @param derivationNumber - The derivation number to validate
- */
-
 export class AppEncryptionRequestDetails implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
   static LAST_VERSION = new BN(1);
   static DEFAULT_VERSION = new BN(1);
 
-  static HAS_DERIVATION_ID = new BN(1);
-  static HAS_REQUEST_ID = new BN(2);
-  static RETURN_ESK = new BN(4); //flag to signal to return the Extended Spending Key
+  static FLAG_HAS_REQUEST_ID = new BN(1);
+  static FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new BN(2);
+  static FLAG_HAS_DERIVATION_ID = new BN(4);
+  static FLAG_RETURN_ESK = new BN(8); //flag to signal to return the Extended Spending Key
 
   version: BigNumber;
   flags: BigNumber;
-  encryptToZAddress: string;                  // zaddress reply is encrypted to
+  encryptResponseToAddress?: SaplingPaymentAddress;                  // zaddress reply is encrypted to
   derivationNumber: BigNumber;
   derivationID?: CompactIAddressObject;      // Defaults to choosing the Z-address from the ID signing if not present
   requestID?: CompactIAddressObject;                         // Unique identifier for the request
@@ -73,7 +65,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   constructor(data?: AppEncryptionRequestDetailsInterface) {
     this.version = data?.version || AppEncryptionRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
-    this.encryptToZAddress = data?.encryptToZAddress || '';
+    this.encryptResponseToAddress = data?.encryptResponseToAddress || null;
     this.derivationNumber = data?.derivationNumber || new BN(0);
     this.derivationID = data?.derivationID;
     this.requestID = data?.requestID;
@@ -88,12 +80,16 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   calcFlags(): BigNumber {
     let flags = new BN(0);
 
-    if (this.derivationID != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_DERIVATION_ID);
+    if (this.requestID != null) {
+      flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID);
     }
 
-    if (this.requestID != null) {
-      flags = flags.or(AppEncryptionRequestDetails.HAS_REQUEST_ID);
+    if (this.encryptResponseToAddress != null) {
+      flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS);
+    }
+
+    if (this.derivationID != null) {
+      flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID);
     }
 
     return flags;
@@ -101,18 +97,22 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
   isValid(): boolean {
     let valid = true;
-    valid &&= this.encryptToZAddress != null && this.encryptToZAddress.length > 0;
+    
     valid &&= this.derivationNumber != null && this.derivationNumber.gte(new BN(0));
 
     return valid;
   }
 
   hasDerivationID(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_DERIVATION_ID).gt(new BN(0));
+    return flags.and(AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID).gt(new BN(0));
   }
 
   hasRequestID(flags: BigNumber = this.flags): boolean {
-    return flags.and(AppEncryptionRequestDetails.HAS_REQUEST_ID).gt(new BN(0));
+    return flags.and(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID).gt(new BN(0));
+  }
+
+  hasEncryptResponseToAddress(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).gt(new BN(0));
   }
 
   getByteLength(): number {
@@ -123,8 +123,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     length += varuint.encodingLength(flags.toNumber());
 
-    // encryptToKey - zaddress encoding (43 bytes for sapling address data)
-    length += 43; // Sapling address decoded data (11 + 32 bytes)
+    if (this.hasEncryptResponseToAddress()) {
+      length += this.encryptResponseToAddress.getByteLength();
+    }
 
     length += varuint.encodingLength(this.derivationNumber.toNumber());
 
@@ -146,9 +147,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     // Write flags
     writer.writeCompactSize(flags.toNumber());
 
-    // Write encryptToAddress as decoded sapling address data
-    const saplingData = decodeSaplingAddress(this.encryptToZAddress);
-    writer.writeSlice(Buffer.concat([saplingData.d, saplingData.pk_d]));
+    if (this.hasEncryptResponseToAddress()) {
+      writer.writeSlice(this.encryptResponseToAddress.toBuffer());
+    }
 
     // Write mandatory derivation number
     writer.writeVarInt(this.derivationNumber);
@@ -171,8 +172,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     this.flags = new BN(reader.readCompactSize());
 
     // Read encryptToAddress as 43-byte sapling data and encode as sapling address
-    const saplingData = reader.readSlice(43);
-    this.encryptToZAddress = toBech32('zs', saplingData);
+    if (this.hasEncryptResponseToAddress()) {
+      this.encryptResponseToAddress = new SaplingPaymentAddress();
+
+      reader.offset = this.encryptResponseToAddress.fromBuffer(reader.buffer, reader.offset);
+    }
 
     // Read mandatory derivation number
     this.derivationNumber = reader.readVarInt();
@@ -199,7 +203,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
-      encrypttozaddress: this.encryptToZAddress,
+      encrypttozaddress: this.encryptResponseToAddress.toAddressString(),
       derivationnumber: this.derivationNumber.toNumber(),
       derivationid: this.derivationID?.toJson(),
       requestid: this.requestID?.toJson()
@@ -210,7 +214,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     const instance = new AppEncryptionRequestDetails();
     instance.version = new BN(json.version);
     instance.flags = new BN(json.flags);
-    instance.encryptToZAddress = json.encrypttozaddress;
+
+    if (instance.hasEncryptResponseToAddress()) {
+      instance.encryptResponseToAddress = SaplingPaymentAddress.fromAddressString(json.encrypttozaddress);
+    }
+  
     instance.derivationNumber = new BN(json.derivationnumber);
     
     if(instance.hasDerivationID()) {

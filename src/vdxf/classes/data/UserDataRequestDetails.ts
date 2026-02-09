@@ -54,7 +54,7 @@ export class UserDataRequestDetails implements SerializableEntity {
   static LAST_VERSION = new BN(1);
   static DEFAULT_VERSION = new BN(1);
   
-  static HAS_REQUEST_ID = new BN(1);
+  static FLAG_HAS_REQUEST_ID = new BN(1);
 
   static FULL_DATA = new BN(2);
   static PARTIAL_DATA = new BN(4);
@@ -64,8 +64,8 @@ export class UserDataRequestDetails implements SerializableEntity {
   static CLAIM = new BN(32);
   static CREDENTIAL = new BN(64);
 
-  static HAS_SIGNER = new BN(128);
-  static HAS_REQUESTED_KEYS = new BN(256);
+  static FLAG_HAS_SIGNER = new BN(128);
+  static FLAG_HAS_REQUESTED_KEYS = new BN(256);
 
   version: BigNumber;
   flags: BigNumber;
@@ -88,13 +88,13 @@ export class UserDataRequestDetails implements SerializableEntity {
   calcFlags(): BigNumber {
     let flags = new BN(0);
     if (this.requestedKeys && this.requestedKeys.length > 0) {
-      flags = flags.or(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+      flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
     }
     if (this.signer) {
-      flags = flags.or(UserDataRequestDetails.HAS_SIGNER);
+      flags = flags.or(UserDataRequestDetails.FLAG_HAS_SIGNER);
     }
     if (this.requestID) {
-      flags = flags.or(UserDataRequestDetails.HAS_REQUEST_ID);
+      flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUEST_ID);
     }
 
     return flags;
@@ -105,15 +105,15 @@ export class UserDataRequestDetails implements SerializableEntity {
   }
 
   hasSigner(): boolean {
-    return this.flags.and(UserDataRequestDetails.HAS_SIGNER).eq(UserDataRequestDetails.HAS_SIGNER);
+    return this.flags.and(UserDataRequestDetails.FLAG_HAS_SIGNER).eq(UserDataRequestDetails.FLAG_HAS_SIGNER);
   }
 
   hasRequestedKeys(): boolean {
-    return this.flags.and(UserDataRequestDetails.HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.HAS_REQUESTED_KEYS);
+    return this.flags.and(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS).eq(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
   }
 
   hasRequestID(): boolean {
-    return this.flags.and(UserDataRequestDetails.HAS_REQUEST_ID).eq(UserDataRequestDetails.HAS_REQUEST_ID);
+    return this.flags.and(UserDataRequestDetails.FLAG_HAS_REQUEST_ID).eq(UserDataRequestDetails.FLAG_HAS_REQUEST_ID);
   }
 
   /**

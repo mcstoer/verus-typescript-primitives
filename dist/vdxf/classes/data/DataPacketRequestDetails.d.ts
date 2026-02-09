@@ -43,12 +43,12 @@ export declare class DataPacketRequestDetails implements SerializableEntity {
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
-    static HAS_REQUEST_ID: import("bn.js");
-    static HAS_STATEMENTS: import("bn.js");
-    static HAS_SIGNATURE: import("bn.js");
-    static FOR_USERS_SIGNATURE: import("bn.js");
-    static FOR_TRANSMITTAL_TO_USER: import("bn.js");
-    static HAS_URL_FOR_DOWNLOAD: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_STATEMENTS: import("bn.js");
+    static FLAG_HAS_SIGNATURE: import("bn.js");
+    static FLAG_FOR_USERS_SIGNATURE: import("bn.js");
+    static FLAG_FOR_TRANSMITTAL_TO_USER: import("bn.js");
+    static FLAG_HAS_URL_FOR_DOWNLOAD: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
     signableObjects: Array<DataDescriptor>;

@@ -14,29 +14,21 @@
  * and encrypt it using the provided encryption key, ensuring the application receives only
  * the specific derived seed it needs without exposing the master seed.
  *
- * The RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
+ * The FLAG_RETURN_ESK flag can be set to signal that the Extended Spending Key should be returned.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppEncryptionRequestDetails = void 0;
 const bn_js_1 = require("bn.js");
 const bufferutils_1 = require("../../../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
-const sapling_1 = require("../../../utils/sapling");
 const CompactAddressObject_1 = require("../CompactAddressObject");
 const varuint_1 = require("../../../utils/varuint");
-/**
- * Checks if a string is a valid hexadecimal address
- * @param flags - Optional flags for the request
- * @flag HAS_REQUEST_ID - Indicates if a request ID is included
- *
- * @param encryptToZAddress - The encryption key to use for encrypting to
- * @param derivationNumber - The derivation number to validate
- */
+const pbaas_1 = require("../../../pbaas");
 class AppEncryptionRequestDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || AppEncryptionRequestDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0);
-        this.encryptToZAddress = (data === null || data === void 0 ? void 0 : data.encryptToZAddress) || '';
+        this.encryptResponseToAddress = (data === null || data === void 0 ? void 0 : data.encryptResponseToAddress) || null;
         this.derivationNumber = (data === null || data === void 0 ? void 0 : data.derivationNumber) || new bn_js_1.BN(0);
         this.derivationID = data === null || data === void 0 ? void 0 : data.derivationID;
         this.requestID = data === null || data === void 0 ? void 0 : data.requestID;
@@ -47,32 +39,38 @@ class AppEncryptionRequestDetails {
     }
     calcFlags() {
         let flags = new bn_js_1.BN(0);
-        if (this.derivationID != null) {
-            flags = flags.or(AppEncryptionRequestDetails.HAS_DERIVATION_ID);
-        }
         if (this.requestID != null) {
-            flags = flags.or(AppEncryptionRequestDetails.HAS_REQUEST_ID);
+            flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID);
+        }
+        if (this.encryptResponseToAddress != null) {
+            flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS);
+        }
+        if (this.derivationID != null) {
+            flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID);
         }
         return flags;
     }
     isValid() {
         let valid = true;
-        valid && (valid = this.encryptToZAddress != null && this.encryptToZAddress.length > 0);
         valid && (valid = this.derivationNumber != null && this.derivationNumber.gte(new bn_js_1.BN(0)));
         return valid;
     }
     hasDerivationID(flags = this.flags) {
-        return flags.and(AppEncryptionRequestDetails.HAS_DERIVATION_ID).gt(new bn_js_1.BN(0));
+        return flags.and(AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID).gt(new bn_js_1.BN(0));
     }
     hasRequestID(flags = this.flags) {
-        return flags.and(AppEncryptionRequestDetails.HAS_REQUEST_ID).gt(new bn_js_1.BN(0));
+        return flags.and(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID).gt(new bn_js_1.BN(0));
+    }
+    hasEncryptResponseToAddress(flags = this.flags) {
+        return flags.and(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).gt(new bn_js_1.BN(0));
     }
     getByteLength() {
         const flags = this.calcFlags();
         let length = 0;
         length += varuint_1.default.encodingLength(flags.toNumber());
-        // encryptToKey - zaddress encoding (43 bytes for sapling address data)
-        length += 43; // Sapling address decoded data (11 + 32 bytes)
+        if (this.hasEncryptResponseToAddress()) {
+            length += this.encryptResponseToAddress.getByteLength();
+        }
         length += varuint_1.default.encodingLength(this.derivationNumber.toNumber());
         if (this.hasDerivationID(flags)) {
             length += this.derivationID.getByteLength();
@@ -87,9 +85,9 @@ class AppEncryptionRequestDetails {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         // Write flags
         writer.writeCompactSize(flags.toNumber());
-        // Write encryptToAddress as decoded sapling address data
-        const saplingData = (0, sapling_1.decodeSaplingAddress)(this.encryptToZAddress);
-        writer.writeSlice(Buffer.concat([saplingData.d, saplingData.pk_d]));
+        if (this.hasEncryptResponseToAddress()) {
+            writer.writeSlice(this.encryptResponseToAddress.toBuffer());
+        }
         // Write mandatory derivation number
         writer.writeVarInt(this.derivationNumber);
         if (this.hasDerivationID(flags)) {
@@ -105,8 +103,10 @@ class AppEncryptionRequestDetails {
         // Read flags
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         // Read encryptToAddress as 43-byte sapling data and encode as sapling address
-        const saplingData = reader.readSlice(43);
-        this.encryptToZAddress = (0, sapling_1.toBech32)('zs', saplingData);
+        if (this.hasEncryptResponseToAddress()) {
+            this.encryptResponseToAddress = new pbaas_1.SaplingPaymentAddress();
+            reader.offset = this.encryptResponseToAddress.fromBuffer(reader.buffer, reader.offset);
+        }
         // Read mandatory derivation number
         this.derivationNumber = reader.readVarInt();
         if (this.hasDerivationID()) {
@@ -127,7 +127,7 @@ class AppEncryptionRequestDetails {
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
-            encrypttozaddress: this.encryptToZAddress,
+            encrypttozaddress: this.encryptResponseToAddress.toAddressString(),
             derivationnumber: this.derivationNumber.toNumber(),
             derivationid: (_a = this.derivationID) === null || _a === void 0 ? void 0 : _a.toJson(),
             requestid: (_b = this.requestID) === null || _b === void 0 ? void 0 : _b.toJson()
@@ -137,7 +137,9 @@ class AppEncryptionRequestDetails {
         const instance = new AppEncryptionRequestDetails();
         instance.version = new bn_js_1.BN(json.version);
         instance.flags = new bn_js_1.BN(json.flags);
-        instance.encryptToZAddress = json.encrypttozaddress;
+        if (instance.hasEncryptResponseToAddress()) {
+            instance.encryptResponseToAddress = pbaas_1.SaplingPaymentAddress.fromAddressString(json.encrypttozaddress);
+        }
         instance.derivationNumber = new bn_js_1.BN(json.derivationnumber);
         if (instance.hasDerivationID()) {
             instance.derivationID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json === null || json === void 0 ? void 0 : json.derivationid);
@@ -153,6 +155,7 @@ AppEncryptionRequestDetails.VERSION_INVALID = new bn_js_1.BN(0);
 AppEncryptionRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 AppEncryptionRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 AppEncryptionRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
-AppEncryptionRequestDetails.HAS_DERIVATION_ID = new bn_js_1.BN(1);
-AppEncryptionRequestDetails.HAS_REQUEST_ID = new bn_js_1.BN(2);
-AppEncryptionRequestDetails.RETURN_ESK = new bn_js_1.BN(4); //flag to signal to return the Extended Spending Key
+AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1);
+AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS = new bn_js_1.BN(2);
+AppEncryptionRequestDetails.FLAG_HAS_DERIVATION_ID = new bn_js_1.BN(4);
+AppEncryptionRequestDetails.FLAG_RETURN_ESK = new bn_js_1.BN(8); //flag to signal to return the Extended Spending Key

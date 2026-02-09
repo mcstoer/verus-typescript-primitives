@@ -13,7 +13,7 @@ describe("DataPacketRequestDetails", () => {
     test("creates instance with custom values", () => {
       const item = new DataPacketRequestDetails({
         version: new BN(DataPacketRequestDetails.DEFAULT_VERSION),
-        flags: DataPacketRequestDetails.HAS_STATEMENTS.or(DataPacketRequestDetails.HAS_SIGNATURE).or(DataPacketRequestDetails.HAS_REQUEST_ID),
+        flags: DataPacketRequestDetails.FLAG_HAS_STATEMENTS.or(DataPacketRequestDetails.FLAG_HAS_SIGNATURE).or(DataPacketRequestDetails.FLAG_HAS_REQUEST_ID),
         signableObjects: [DataDescriptor.fromJson({ version: new BN(1), label: "123", objectdata: "0011223344aabbcc", flags: DataDescriptor.FLAG_LABEL_PRESENT })],
         statements: ["Statement 1", "Statement 2"],
         signature: new VerifiableSignatureData({
