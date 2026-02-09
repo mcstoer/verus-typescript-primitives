@@ -512,7 +512,9 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
   it('should serialize / deserialize a UserDataRequestOrdinalVDXFObject via buffer', () => {
     const details = new UserDataRequestDetails({
       version: new BN(1),
-      flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.FLAG_HAS_SIGNER),
+      flags: UserDataRequestDetails.FLAG_HAS_SIGNER,
+      dataType: UserDataRequestDetails.FULL_DATA,
+      requestType: UserDataRequestDetails.ATTESTATION,
       searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootSystemName: "VRSC" }),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ")

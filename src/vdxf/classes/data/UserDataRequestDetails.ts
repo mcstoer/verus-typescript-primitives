@@ -13,11 +13,12 @@
  * it to the user for approval before sharing with the requesting application. This enables
  * selective disclosure of personal information while maintaining user privacy and control.
  * 
- * Flags determine the type and scope of the request:
- * - FULL_DATA vs PARTIAL_DATA: Whether complete objects or specific fields are requested
- * - COLLECTION: Whether multiple data objects are being requested
- * - HAS_STATEMENT: Whether the request includes an attestation statement
+ * Request type and data type are encoded as varuints (not flags):
+ * - FULL_DATA vs PARTIAL_DATA vs COLLECTION: Whether complete objects, specific fields,
+ *   or multiple objects are requested
  * - ATTESTATION/CLAIM/CREDENTIAL: Type of verification being requested
+ *
+ * Flags are reserved for optional fields only (signer, requested keys, request ID).
  */
 
 import { BigNumber } from '../../../utils/types/BigNumber';
@@ -33,6 +34,8 @@ import { I_ADDR_VERSION, HASH160_BYTE_LENGTH } from '../../../constants/vdxf';
 export interface UserDataRequestInterface {
   version?: BigNumber;
   flags: BigNumber;
+  dataType: BigNumber;
+  requestType: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIAddressObject;
   requestedKeys?: string[];
@@ -42,6 +45,8 @@ export interface UserDataRequestInterface {
 export interface UserDataRequestJson {
   version: number;
   flags: number;
+  datatype: number;
+  requesttype: number;
   searchdatakey: Array<{[key: string]: string}>;   // ID object of the specific information requested
   signer?: CompactAddressObjectJson;
   requestedkeys?: string[]; // Specific keys within the data object being requested
@@ -55,20 +60,23 @@ export class UserDataRequestDetails implements SerializableEntity {
   static DEFAULT_VERSION = new BN(1);
   
   static FLAG_HAS_REQUEST_ID = new BN(1);
+  static FLAG_HAS_SIGNER = new BN(2);
+  static FLAG_HAS_REQUESTED_KEYS = new BN(4);
 
-  static FULL_DATA = new BN(2);
-  static PARTIAL_DATA = new BN(4);
-  static COLLECTION = new BN(8);
+  // Data type values (varuints, not flags)
+  static FULL_DATA = new BN(1);
+  static PARTIAL_DATA = new BN(2);
+  static COLLECTION = new BN(3);
 
-  static ATTESTATION = new BN(16);
-  static CLAIM = new BN(32);
-  static CREDENTIAL = new BN(64);
-
-  static FLAG_HAS_SIGNER = new BN(128);
-  static FLAG_HAS_REQUESTED_KEYS = new BN(256);
+  // Request type values (varuints, not flags)
+  static ATTESTATION = new BN(1);
+  static CLAIM = new BN(2);
+  static CREDENTIAL = new BN(3);
 
   version: BigNumber;
   flags: BigNumber;
+  dataType: BigNumber;
+  requestType: BigNumber;
   searchDataKey: Array<{[key: string]: string}>; 
   signer?: CompactIAddressObject;
   requestedKeys?: string[];
@@ -77,6 +85,8 @@ export class UserDataRequestDetails implements SerializableEntity {
   constructor(data?: UserDataRequestInterface) {
     this.version = data?.version || UserDataRequestDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0);
+    this.dataType = data?.dataType || UserDataRequestDetails.FULL_DATA;
+    this.requestType = data?.requestType || UserDataRequestDetails.ATTESTATION;
     this.searchDataKey = data?.searchDataKey || [];
     this.signer = data?.signer;
     this.requestedKeys = data?.requestedKeys;
@@ -117,27 +127,23 @@ export class UserDataRequestDetails implements SerializableEntity {
   }
 
   /**
-   * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
-   * @returns True if exactly one data type flag is set
+   * Checks if dataType is one of the supported values (FULL_DATA, PARTIAL_DATA, COLLECTION)
+   * @returns True if dataType is valid
    */
   hasDataTypeSet(): boolean {
-    const dataTypeFlags = UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.PARTIAL_DATA).or(UserDataRequestDetails.COLLECTION);
-    const setDataFlags = this.flags.and(dataTypeFlags);
-    
-    // Check if exactly one flag is set by verifying it's a power of 2
-    return !setDataFlags.isZero() && setDataFlags.and(setDataFlags.sub(new BN(1))).isZero();
+    return this.dataType.eq(UserDataRequestDetails.FULL_DATA) ||
+      this.dataType.eq(UserDataRequestDetails.PARTIAL_DATA) ||
+      this.dataType.eq(UserDataRequestDetails.COLLECTION);
   }
 
   /**
-   * Checks if exactly one request type flag is set (ATTESTATION, CLAIM, or CREDENTIAL)
-   * @returns True if exactly one request type flag is set
+   * Checks if requestType is one of the supported values (ATTESTATION, CLAIM, CREDENTIAL)
+   * @returns True if requestType is valid
    */
   hasRequestTypeSet(): boolean {
-    const requestTypeFlags = UserDataRequestDetails.ATTESTATION.or(UserDataRequestDetails.CLAIM).or(UserDataRequestDetails.CREDENTIAL);
-    const setRequestFlags = this.flags.and(requestTypeFlags);
-    
-    // Check if exactly one flag is set by verifying it's a power of 2
-    return !setRequestFlags.isZero() && setRequestFlags.and(setRequestFlags.sub(new BN(1))).isZero();
+    return this.requestType.eq(UserDataRequestDetails.ATTESTATION) ||
+      this.requestType.eq(UserDataRequestDetails.CLAIM) ||
+      this.requestType.eq(UserDataRequestDetails.CREDENTIAL);
   }
 
   isValid(): boolean {
@@ -159,6 +165,8 @@ export class UserDataRequestDetails implements SerializableEntity {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
+    length += varuint.encodingLength(this.dataType.toNumber());
+    length += varuint.encodingLength(this.requestType.toNumber());
     length += varuint.encodingLength(this.searchDataKey.length);
 
     for (const item of this.searchDataKey) {
@@ -192,6 +200,8 @@ export class UserDataRequestDetails implements SerializableEntity {
   toBuffer(): Buffer {
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
     writer.writeCompactSize(this.flags.toNumber());
+    writer.writeCompactSize(this.dataType.toNumber());
+    writer.writeCompactSize(this.requestType.toNumber());
 
     writer.writeCompactSize(this.searchDataKey.length);
 
@@ -223,6 +233,8 @@ export class UserDataRequestDetails implements SerializableEntity {
   fromBuffer(buffer: Buffer, offset?: number): number {
     const reader = new BufferReader(buffer, offset);
     this.flags = new BN(reader.readCompactSize());
+    this.dataType = new BN(reader.readCompactSize());
+    this.requestType = new BN(reader.readCompactSize());
     
     const searchDataKeyLength = reader.readCompactSize();    
     this.searchDataKey = [];
@@ -268,6 +280,8 @@ export class UserDataRequestDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
+      datatype: this.dataType.toNumber(),
+      requesttype: this.requestType.toNumber(),
       searchdatakey: this.searchDataKey,
       signer: this.signer?.toJson(),
       requestedkeys: this.requestedKeys,
@@ -279,6 +293,8 @@ export class UserDataRequestDetails implements SerializableEntity {
     const requestData = new UserDataRequestDetails();
     requestData.version = new BN(json.version);
     requestData.flags = new BN(json.flags);
+    requestData.dataType = new BN(json.datatype);
+    requestData.requestType = new BN(json.requesttype);
     requestData.searchDataKey = json.searchdatakey;
     requestData.signer = json.signer ? CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
     requestData.requestedKeys = json.requestedkeys;

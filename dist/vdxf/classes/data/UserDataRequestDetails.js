@@ -13,11 +13,12 @@
  * it to the user for approval before sharing with the requesting application. This enables
  * selective disclosure of personal information while maintaining user privacy and control.
  *
- * Flags determine the type and scope of the request:
- * - FULL_DATA vs PARTIAL_DATA: Whether complete objects or specific fields are requested
- * - COLLECTION: Whether multiple data objects are being requested
- * - HAS_STATEMENT: Whether the request includes an attestation statement
+ * Request type and data type are encoded as varuints (not flags):
+ * - FULL_DATA vs PARTIAL_DATA vs COLLECTION: Whether complete objects, specific fields,
+ *   or multiple objects are requested
  * - ATTESTATION/CLAIM/CREDENTIAL: Type of verification being requested
+ *
+ * Flags are reserved for optional fields only (signer, requested keys, request ID).
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDataRequestDetails = void 0;
@@ -32,6 +33,8 @@ class UserDataRequestDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || UserDataRequestDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0);
+        this.dataType = (data === null || data === void 0 ? void 0 : data.dataType) || UserDataRequestDetails.FULL_DATA;
+        this.requestType = (data === null || data === void 0 ? void 0 : data.requestType) || UserDataRequestDetails.ATTESTATION;
         this.searchDataKey = (data === null || data === void 0 ? void 0 : data.searchDataKey) || [];
         this.signer = data === null || data === void 0 ? void 0 : data.signer;
         this.requestedKeys = data === null || data === void 0 ? void 0 : data.requestedKeys;
@@ -64,24 +67,22 @@ class UserDataRequestDetails {
         return this.flags.and(UserDataRequestDetails.FLAG_HAS_REQUEST_ID).eq(UserDataRequestDetails.FLAG_HAS_REQUEST_ID);
     }
     /**
-     * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
-     * @returns True if exactly one data type flag is set
+     * Checks if dataType is one of the supported values (FULL_DATA, PARTIAL_DATA, COLLECTION)
+     * @returns True if dataType is valid
      */
     hasDataTypeSet() {
-        const dataTypeFlags = UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.PARTIAL_DATA).or(UserDataRequestDetails.COLLECTION);
-        const setDataFlags = this.flags.and(dataTypeFlags);
-        // Check if exactly one flag is set by verifying it's a power of 2
-        return !setDataFlags.isZero() && setDataFlags.and(setDataFlags.sub(new bn_js_1.BN(1))).isZero();
+        return this.dataType.eq(UserDataRequestDetails.FULL_DATA) ||
+            this.dataType.eq(UserDataRequestDetails.PARTIAL_DATA) ||
+            this.dataType.eq(UserDataRequestDetails.COLLECTION);
     }
     /**
-     * Checks if exactly one request type flag is set (ATTESTATION, CLAIM, or CREDENTIAL)
-     * @returns True if exactly one request type flag is set
+     * Checks if requestType is one of the supported values (ATTESTATION, CLAIM, CREDENTIAL)
+     * @returns True if requestType is valid
      */
     hasRequestTypeSet() {
-        const requestTypeFlags = UserDataRequestDetails.ATTESTATION.or(UserDataRequestDetails.CLAIM).or(UserDataRequestDetails.CREDENTIAL);
-        const setRequestFlags = this.flags.and(requestTypeFlags);
-        // Check if exactly one flag is set by verifying it's a power of 2
-        return !setRequestFlags.isZero() && setRequestFlags.and(setRequestFlags.sub(new bn_js_1.BN(1))).isZero();
+        return this.requestType.eq(UserDataRequestDetails.ATTESTATION) ||
+            this.requestType.eq(UserDataRequestDetails.CLAIM) ||
+            this.requestType.eq(UserDataRequestDetails.CREDENTIAL);
     }
     isValid() {
         let valid = this.version.gte(UserDataRequestDetails.FIRST_VERSION) && this.version.lte(UserDataRequestDetails.LAST_VERSION);
@@ -96,6 +97,8 @@ class UserDataRequestDetails {
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
+        length += varuint_1.default.encodingLength(this.dataType.toNumber());
+        length += varuint_1.default.encodingLength(this.requestType.toNumber());
         length += varuint_1.default.encodingLength(this.searchDataKey.length);
         for (const item of this.searchDataKey) {
             const key = Object.keys(item)[0];
@@ -123,6 +126,8 @@ class UserDataRequestDetails {
     toBuffer() {
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
+        writer.writeCompactSize(this.dataType.toNumber());
+        writer.writeCompactSize(this.requestType.toNumber());
         writer.writeCompactSize(this.searchDataKey.length);
         for (const item of this.searchDataKey) {
             const key = Object.keys(item)[0];
@@ -147,6 +152,8 @@ class UserDataRequestDetails {
     fromBuffer(buffer, offset) {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
+        this.dataType = new bn_js_1.BN(reader.readCompactSize());
+        this.requestType = new bn_js_1.BN(reader.readCompactSize());
         const searchDataKeyLength = reader.readCompactSize();
         this.searchDataKey = [];
         for (let i = 0; i < searchDataKeyLength; i++) {
@@ -183,6 +190,8 @@ class UserDataRequestDetails {
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
+            datatype: this.dataType.toNumber(),
+            requesttype: this.requestType.toNumber(),
             searchdatakey: this.searchDataKey,
             signer: (_a = this.signer) === null || _a === void 0 ? void 0 : _a.toJson(),
             requestedkeys: this.requestedKeys,
@@ -193,6 +202,8 @@ class UserDataRequestDetails {
         const requestData = new UserDataRequestDetails();
         requestData.version = new bn_js_1.BN(json.version);
         requestData.flags = new bn_js_1.BN(json.flags);
+        requestData.dataType = new bn_js_1.BN(json.datatype);
+        requestData.requestType = new bn_js_1.BN(json.requesttype);
         requestData.searchDataKey = json.searchdatakey;
         requestData.signer = json.signer ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(json.signer) : undefined;
         requestData.requestedKeys = json.requestedkeys;
@@ -206,11 +217,13 @@ UserDataRequestDetails.FIRST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.LAST_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.DEFAULT_VERSION = new bn_js_1.BN(1);
 UserDataRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1);
-UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(2);
-UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(4);
-UserDataRequestDetails.COLLECTION = new bn_js_1.BN(8);
-UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(16);
-UserDataRequestDetails.CLAIM = new bn_js_1.BN(32);
-UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(64);
-UserDataRequestDetails.FLAG_HAS_SIGNER = new bn_js_1.BN(128);
-UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS = new bn_js_1.BN(256);
+UserDataRequestDetails.FLAG_HAS_SIGNER = new bn_js_1.BN(2);
+UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS = new bn_js_1.BN(4);
+// Data type values (varuints, not flags)
+UserDataRequestDetails.FULL_DATA = new bn_js_1.BN(1);
+UserDataRequestDetails.PARTIAL_DATA = new bn_js_1.BN(2);
+UserDataRequestDetails.COLLECTION = new bn_js_1.BN(3);
+// Request type values (varuints, not flags)
+UserDataRequestDetails.ATTESTATION = new bn_js_1.BN(1);
+UserDataRequestDetails.CLAIM = new bn_js_1.BN(2);
+UserDataRequestDetails.CREDENTIAL = new bn_js_1.BN(3);

@@ -6,7 +6,9 @@ describe('Serializes and deserializes UserDataRequestDetails', () => {
 
     const provisionJson: UserDataRequestJson = {
       version: 1,
-      flags: UserDataRequestDetails.FULL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.FLAG_HAS_SIGNER).toNumber(),
+      flags: UserDataRequestDetails.FLAG_HAS_SIGNER.toNumber(),
+      datatype: UserDataRequestDetails.FULL_DATA.toNumber(),
+      requesttype: UserDataRequestDetails.ATTESTATION.toNumber(),
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: { version: 1, type: CompactAddressObject.TYPE_I_ADDRESS.toNumber(), address: "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq", rootsystemname: "VRSC" },
       requestid: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ").toJson()
@@ -23,7 +25,9 @@ describe('Serializes and deserializes UserDataRequestDetails', () => {
 
     const provisionJson: UserDataRequestJson = {
       version: 1,
-      flags: UserDataRequestDetails.PARTIAL_DATA.or(UserDataRequestDetails.ATTESTATION).or(UserDataRequestDetails.FLAG_HAS_SIGNER).toNumber(),
+      flags: UserDataRequestDetails.FLAG_HAS_SIGNER.toNumber(),
+      datatype: UserDataRequestDetails.PARTIAL_DATA.toNumber(),
+      requesttype: UserDataRequestDetails.ATTESTATION.toNumber(),
       searchdatakey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Attestation Name" }],
       signer: { version: 1, type: CompactAddressObject.TYPE_FQN.toNumber(), address: "bob@", rootsystemname: "VRSC" },
       requestedkeys: ["iLB8SG7ErJtTYcG1f4w9RLuMJPpAsjFkiL"],

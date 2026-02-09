@@ -12,11 +12,12 @@
  * it to the user for approval before sharing with the requesting application. This enables
  * selective disclosure of personal information while maintaining user privacy and control.
  *
- * Flags determine the type and scope of the request:
- * - FULL_DATA vs PARTIAL_DATA: Whether complete objects or specific fields are requested
- * - COLLECTION: Whether multiple data objects are being requested
- * - HAS_STATEMENT: Whether the request includes an attestation statement
+ * Request type and data type are encoded as varuints (not flags):
+ * - FULL_DATA vs PARTIAL_DATA vs COLLECTION: Whether complete objects, specific fields,
+ *   or multiple objects are requested
  * - ATTESTATION/CLAIM/CREDENTIAL: Type of verification being requested
+ *
+ * Flags are reserved for optional fields only (signer, requested keys, request ID).
  */
 import { BigNumber } from '../../../utils/types/BigNumber';
 import { SerializableEntity } from '../../../utils/types/SerializableEntity';
@@ -24,6 +25,8 @@ import { CompactIAddressObject, CompactAddressObjectJson } from '../CompactAddre
 export interface UserDataRequestInterface {
     version?: BigNumber;
     flags: BigNumber;
+    dataType: BigNumber;
+    requestType: BigNumber;
     searchDataKey: Array<{
         [key: string]: string;
     }>;
@@ -34,6 +37,8 @@ export interface UserDataRequestInterface {
 export interface UserDataRequestJson {
     version: number;
     flags: number;
+    datatype: number;
+    requesttype: number;
     searchdatakey: Array<{
         [key: string]: string;
     }>;
@@ -47,16 +52,18 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     static LAST_VERSION: import("bn.js");
     static DEFAULT_VERSION: import("bn.js");
     static FLAG_HAS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_SIGNER: import("bn.js");
+    static FLAG_HAS_REQUESTED_KEYS: import("bn.js");
     static FULL_DATA: import("bn.js");
     static PARTIAL_DATA: import("bn.js");
     static COLLECTION: import("bn.js");
     static ATTESTATION: import("bn.js");
     static CLAIM: import("bn.js");
     static CREDENTIAL: import("bn.js");
-    static FLAG_HAS_SIGNER: import("bn.js");
-    static FLAG_HAS_REQUESTED_KEYS: import("bn.js");
     version: BigNumber;
     flags: BigNumber;
+    dataType: BigNumber;
+    requestType: BigNumber;
     searchDataKey: Array<{
         [key: string]: string;
     }>;
@@ -70,13 +77,13 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     hasRequestedKeys(): boolean;
     hasRequestID(): boolean;
     /**
-     * Checks if exactly one data type flag is set (FULL_DATA, PARTIAL_DATA, or COLLECTION)
-     * @returns True if exactly one data type flag is set
+     * Checks if dataType is one of the supported values (FULL_DATA, PARTIAL_DATA, COLLECTION)
+     * @returns True if dataType is valid
      */
     hasDataTypeSet(): boolean;
     /**
-     * Checks if exactly one request type flag is set (ATTESTATION, CLAIM, or CREDENTIAL)
-     * @returns True if exactly one request type flag is set
+     * Checks if requestType is one of the supported values (ATTESTATION, CLAIM, CREDENTIAL)
+     * @returns True if requestType is valid
      */
     hasRequestTypeSet(): boolean;
     isValid(): boolean;
