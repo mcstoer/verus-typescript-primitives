@@ -25,6 +25,8 @@ export declare class IdentityUpdateResponseDetails implements SerializableEntity
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
+    getTxidString(): string;
+    setTxidFromString(txid: string): void;
     toJson(): IdentityUpdateResponseDetailsJson;
     static fromJson(json: IdentityUpdateResponseDetailsJson): IdentityUpdateResponseDetails;
 }

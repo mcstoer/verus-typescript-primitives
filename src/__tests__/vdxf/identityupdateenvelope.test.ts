@@ -165,6 +165,30 @@ describe("IdentityUpdate request/response details Serialization", () => {
     testJsonSerialization(contentMultiMap);
   });
 
+  test("Set txid from string sets buffer and flag", () => {
+    const requestDetails = new IdentityUpdateRequestDetails({ 
+      identity: TEST_PARTIAL_IDENTITY
+    });
+
+    requestDetails.setTxidFromString(TEST_TXID);
+
+    expect(requestDetails.containsTxid()).toBe(true);
+    expect(requestDetails.getTxidString()).toBe(TEST_TXID);
+    expect(requestDetails.txid?.toString("hex")).toBe(Buffer.from(TEST_TXID, "hex").reverse().toString("hex"));
+  });
+
+  test("Set response txid from string sets buffer and flag", () => {
+    const responseDetails = new IdentityUpdateResponseDetails({ 
+      requestID: TEST_REQUESTID
+    });
+
+    responseDetails.setTxidFromString(TEST_TXID);
+
+    expect(responseDetails.containsTxid()).toBe(true);
+    expect(responseDetails.getTxidString()).toBe(TEST_TXID);
+    expect(responseDetails.txid?.toString("hex")).toBe(Buffer.from(TEST_TXID, "hex").reverse().toString("hex"));
+  });
+
   test("Deserialize cli identity update details", () => {
     const req = IdentityUpdateRequestDetails.fromCLIJson(TEST_CLI_ID_UPDATE_REQUEST_JSON);
 

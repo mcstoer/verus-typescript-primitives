@@ -249,6 +249,15 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return reader.offset;
   }
 
+  getTxidString(): string {
+    return (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex');
+  }
+
+  setTxidFromString(txid: string) {
+    this.txid = Buffer.from(txid, 'hex').reverse();
+    if (!this.containsTxid()) this.toggleContainsTxid();
+  }
+
   toJson(): IdentityUpdateRequestDetailsJson {
     let signDataJson: { [key: string]: PartialSignDataJson };
     
@@ -266,7 +275,7 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
       identity: this.identity ? this.identity.toJson() : undefined,
       expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
       systemid: this.systemID ? this.systemID.toAddress() : undefined,
-      txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
+      txid: this.txid ? this.getTxidString() : undefined,
       signdatamap: signDataJson
     }
   }

@@ -113,11 +113,20 @@ export class IdentityUpdateResponseDetails implements SerializableEntity {
     return reader.offset;
   }
 
+  getTxidString(): string {
+    return (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex');
+  }
+
+  setTxidFromString(txid: string) {
+    this.txid = Buffer.from(txid, 'hex').reverse();
+    if (!this.containsTxid()) this.toggleContainsTxid();
+  }
+
   toJson(): IdentityUpdateResponseDetailsJson {
     return {
       flags: this.flags.toString(10),
       requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
-      txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
+      txid: this.containsTxid() ? this.getTxidString() : undefined
     }
   }
 

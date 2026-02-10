@@ -171,6 +171,14 @@ class IdentityUpdateRequestDetails {
         }
         return reader.offset;
     }
+    getTxidString() {
+        return (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex');
+    }
+    setTxidFromString(txid) {
+        this.txid = Buffer.from(txid, 'hex').reverse();
+        if (!this.containsTxid())
+            this.toggleContainsTxid();
+    }
     toJson() {
         let signDataJson;
         if (this.signDataMap) {
@@ -185,7 +193,7 @@ class IdentityUpdateRequestDetails {
             identity: this.identity ? this.identity.toJson() : undefined,
             expiryheight: this.expiryHeight ? this.expiryHeight.toString(10) : undefined,
             systemid: this.systemID ? this.systemID.toAddress() : undefined,
-            txid: this.txid ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined,
+            txid: this.txid ? this.getTxidString() : undefined,
             signdatamap: signDataJson
         };
     }

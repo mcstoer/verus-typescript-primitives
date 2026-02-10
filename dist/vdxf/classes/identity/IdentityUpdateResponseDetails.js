@@ -73,11 +73,19 @@ class IdentityUpdateResponseDetails {
         }
         return reader.offset;
     }
+    getTxidString() {
+        return (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex');
+    }
+    setTxidFromString(txid) {
+        this.txid = Buffer.from(txid, 'hex').reverse();
+        if (!this.containsTxid())
+            this.toggleContainsTxid();
+    }
     toJson() {
         return {
             flags: this.flags.toString(10),
             requestid: this.containsRequestID() ? this.requestID.toJson() : undefined,
-            txid: this.containsTxid() ? (Buffer.from(this.txid.toString('hex'), 'hex').reverse()).toString('hex') : undefined
+            txid: this.containsTxid() ? this.getTxidString() : undefined
         };
     }
     static fromJson(json) {

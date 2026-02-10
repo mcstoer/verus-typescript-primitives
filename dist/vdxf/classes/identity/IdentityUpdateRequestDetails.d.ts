@@ -59,6 +59,8 @@ export declare class IdentityUpdateRequestDetails implements SerializableEntity 
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number, parseVdxfObjects?: boolean): number;
+    getTxidString(): string;
+    setTxidFromString(txid: string): void;
     toJson(): IdentityUpdateRequestDetailsJson;
     static fromJson(json: IdentityUpdateRequestDetailsJson): IdentityUpdateRequestDetails;
     toCLIJson(): VerusCLIVerusIDJsonWithData;
