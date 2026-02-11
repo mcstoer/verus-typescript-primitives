@@ -58,5 +58,5 @@ class ResponseURI {
 }
 exports.ResponseURI = ResponseURI;
 ResponseURI.TYPE_INVALID = new bn_js_1.BN(0, 10);
-ResponseURI.TYPE_REDIRECT = new bn_js_1.BN(1, 10);
-ResponseURI.TYPE_POST = new bn_js_1.BN(2, 10);
+ResponseURI.TYPE_POST = new bn_js_1.BN(1, 10);
+ResponseURI.TYPE_REDIRECT = new bn_js_1.BN(2, 10);

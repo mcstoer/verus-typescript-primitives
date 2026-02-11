@@ -8,8 +8,8 @@ export declare class ResponseURI implements SerializableEntity {
     uri: Buffer;
     type: BigNumber;
     static TYPE_INVALID: import("bn.js");
-    static TYPE_REDIRECT: import("bn.js");
     static TYPE_POST: import("bn.js");
+    static TYPE_REDIRECT: import("bn.js");
     constructor(data?: {
         uri?: Buffer;
         type?: BigNumber;

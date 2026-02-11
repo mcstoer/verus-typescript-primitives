@@ -20,10 +20,12 @@ const bufferutils_1 = require("../../../utils/bufferutils");
 const bn_js_1 = require("bn.js");
 const CompactAddressObject_1 = require("../CompactAddressObject");
 const varuint_1 = require("../../../utils/varuint");
+const RequestURI_1 = require("../RequestURI");
 class ProvisionIdentityDetails {
     constructor(data) {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || ProvisionIdentityDetails.DEFAULT_VERSION;
         this.flags = (data === null || data === void 0 ? void 0 : data.flags) || new bn_js_1.BN(0, 10);
+        this.uri = data === null || data === void 0 ? void 0 : data.uri;
         this.systemID = data === null || data === void 0 ? void 0 : data.systemID;
         this.parentID = data === null || data === void 0 ? void 0 : data.parentID;
         this.identityID = data === null || data === void 0 ? void 0 : data.identityID;
@@ -38,9 +40,17 @@ class ProvisionIdentityDetails {
     hasIdentityId() {
         return this.flags.and(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
     }
+    hasUri() {
+        return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_URI).eq(ProvisionIdentityDetails.FLAG_HAS_URI);
+    }
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());
+        if (this.hasUri()) {
+            if (this.uri == null)
+                throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+            length += this.uri.getByteLength();
+        }
         if (this.hasSystemId()) {
             length += this.systemID.getByteLength();
         }
@@ -55,6 +65,11 @@ class ProvisionIdentityDetails {
     toBuffer() {
         const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLength()));
         writer.writeCompactSize(this.flags.toNumber());
+        if (this.hasUri()) {
+            if (this.uri == null)
+                throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+            writer.writeSlice(this.uri.toBuffer());
+        }
         if (this.hasSystemId()) {
             writer.writeSlice(this.systemID.toBuffer());
         }
@@ -71,6 +86,13 @@ class ProvisionIdentityDetails {
         if (buffer.length == 0)
             throw new Error("Cannot create provision identity from empty buffer");
         this.flags = new bn_js_1.BN(reader.readCompactSize());
+        if (this.hasUri()) {
+            this.uri = new RequestURI_1.RequestURI();
+            reader.offset = this.uri.fromBuffer(reader.buffer, reader.offset);
+        }
+        else {
+            this.uri = undefined;
+        }
         if (this.hasSystemId()) {
             const systemID = new CompactAddressObject_1.CompactIAddressObject();
             reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
@@ -93,6 +115,7 @@ class ProvisionIdentityDetails {
         return {
             version: this.version.toNumber(),
             flags: flags.toNumber(),
+            uri: this.uri ? this.uri.toJson() : null,
             systemid: this.systemID ? this.systemID.toJson() : null,
             parentid: this.parentID ? this.parentID.toJson() : null,
             identityid: this.identityID ? this.identityID.toJson() : null,
@@ -102,6 +125,12 @@ class ProvisionIdentityDetails {
         const provision = new ProvisionIdentityDetails();
         provision.version = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.version) || 0);
         provision.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
+        if (provision.hasUri()) {
+            if ((data === null || data === void 0 ? void 0 : data.uri) == null) {
+                throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+            }
+            provision.uri = RequestURI_1.RequestURI.fromJson(data.uri);
+        }
         if (provision.hasSystemId()) {
             provision.systemID = CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.systemid);
         }
@@ -124,6 +153,9 @@ class ProvisionIdentityDetails {
         if (this.identityID) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
         }
+        if (this.uri) {
+            flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_URI);
+        }
         return flags;
     }
     setFlags() {
@@ -132,6 +164,9 @@ class ProvisionIdentityDetails {
     isValid() {
         let valid = this.flags != null && this.flags.gte(new bn_js_1.BN(0));
         valid && (valid = this.version != null);
+        if (this.hasUri()) {
+            valid && (valid = this.uri != null);
+        }
         return valid;
     }
 }
@@ -144,3 +179,4 @@ ProvisionIdentityDetails.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
 ProvisionIdentityDetails.FLAG_HAS_SYSTEMID = new bn_js_1.BN(1, 10);
 ProvisionIdentityDetails.FLAG_HAS_PARENTID = new bn_js_1.BN(2, 10);
 ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new bn_js_1.BN(4, 10);
+ProvisionIdentityDetails.FLAG_HAS_URI = new bn_js_1.BN(8, 10);

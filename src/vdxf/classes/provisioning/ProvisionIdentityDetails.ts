@@ -20,10 +20,12 @@ import { BN } from "bn.js";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
 import varuint from "../../../utils/varuint";
+import { RequestURI, RequestURIJson } from "../RequestURI";
 
 export interface ProvisionIdentityDetailsInterface {
   version?: BigNumber;
-  flags: BigNumber;  
+  flags: BigNumber;
+  uri?: RequestURI;
   systemID?: CompactIAddressObject; // system e.g. VRSC@
   parentID?: CompactIAddressObject; // parent e.g. Token@
   identityID?: CompactIAddressObject; // Full identity e.g. john.VRSC@
@@ -31,7 +33,8 @@ export interface ProvisionIdentityDetailsInterface {
 
 export interface ProvisionIdentityDetailsJson {
   version?: number;
-  flags: number;  
+  flags: number;
+  uri?: RequestURIJson;
   systemid?: CompactAddressObjectJson;
   parentid?: CompactAddressObjectJson;
   identityid?: CompactAddressObjectJson;
@@ -39,7 +42,8 @@ export interface ProvisionIdentityDetailsJson {
 
 export class ProvisionIdentityDetails implements SerializableEntity {
   version: BigNumber;
-  flags: BigNumber;  
+  flags: BigNumber;
+  uri?: RequestURI;
   systemID?: CompactIAddressObject; // system e.g. VRSC@
   parentID?: CompactIAddressObject; // parent e.g. Token@
   identityID?: CompactIAddressObject; // Full identity e.g. john.VRSC@
@@ -53,10 +57,12 @@ export class ProvisionIdentityDetails implements SerializableEntity {
   static FLAG_HAS_SYSTEMID = new BN(1, 10);
   static FLAG_HAS_PARENTID = new BN(2, 10);
   static FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new BN(4, 10);
+  static FLAG_HAS_URI = new BN(8, 10);
 
   constructor(data?: ProvisionIdentityDetailsInterface) {
     this.version = data?.version || ProvisionIdentityDetails.DEFAULT_VERSION;
     this.flags = data?.flags || new BN(0, 10);
+    this.uri = data?.uri;
     this.systemID = data?.systemID;
     this.parentID = data?.parentID;
     this.identityID = data?.identityID;
@@ -76,10 +82,20 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     return this.flags.and(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
   }
 
+  hasUri(): boolean {
+    return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_URI).eq(ProvisionIdentityDetails.FLAG_HAS_URI);
+  }
+
   getByteLength(): number {
     let length = 0;
 
     length += varuint.encodingLength(this.flags.toNumber());
+
+    if (this.hasUri()) {
+      if (this.uri == null) throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+      length += this.uri.getByteLength();
+    }
+
     if (this.hasSystemId()) {
       length += this.systemID.getByteLength();
     }
@@ -99,6 +115,11 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     const writer = new bufferutils.BufferWriter(Buffer.alloc(this.getByteLength()))
 
     writer.writeCompactSize(this.flags.toNumber());
+
+    if (this.hasUri()) {
+      if (this.uri == null) throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+      writer.writeSlice(this.uri.toBuffer());
+    }
 
     if (this.hasSystemId()) {
       writer.writeSlice(this.systemID.toBuffer());
@@ -120,6 +141,13 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     if (buffer.length == 0) throw new Error("Cannot create provision identity from empty buffer");
 
     this.flags = new BN(reader.readCompactSize());
+
+    if (this.hasUri()) {
+      this.uri = new RequestURI();
+      reader.offset = this.uri.fromBuffer(reader.buffer, reader.offset);
+    } else {
+      this.uri = undefined;
+    }
 
     if (this.hasSystemId()) {
       const systemID = new CompactIAddressObject();
@@ -147,6 +175,7 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     return {
       version: this.version.toNumber(),
       flags: flags.toNumber(),
+      uri: this.uri ? this.uri.toJson() : null,
       systemid: this.systemID ? this.systemID.toJson() : null,
       parentid: this.parentID ? this.parentID.toJson() : null,
       identityid: this.identityID ? this.identityID.toJson() : null,
@@ -158,6 +187,13 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     const provision = new ProvisionIdentityDetails();
     provision.version = new BN(data?.version || 0);
     provision.flags = new BN(data?.flags || 0);
+
+    if (provision.hasUri()) {
+      if (data?.uri == null) {
+        throw new Error("Missing uri for ProvisionIdentityDetails with FLAG_HAS_URI set");
+      }
+      provision.uri = RequestURI.fromJson(data.uri);
+    }
 
     if (provision.hasSystemId()) {
       provision.systemID = CompactIAddressObject.fromCompactAddressObjectJson(data.systemid);
@@ -189,6 +225,10 @@ export class ProvisionIdentityDetails implements SerializableEntity {
       flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
     }
 
+    if (this.uri) {
+      flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_URI);
+    }
+
     return flags;
   }
 
@@ -201,6 +241,9 @@ export class ProvisionIdentityDetails implements SerializableEntity {
     let valid = this.flags != null && this.flags.gte(new BN(0));
 
     valid &&= this.version != null;
+    if (this.hasUri()) {
+      valid &&= this.uri != null;
+    }
      
     return valid;
   }

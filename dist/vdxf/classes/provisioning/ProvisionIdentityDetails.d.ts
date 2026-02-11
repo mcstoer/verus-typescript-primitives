@@ -16,9 +16,11 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { RequestURI, RequestURIJson } from "../RequestURI";
 export interface ProvisionIdentityDetailsInterface {
     version?: BigNumber;
     flags: BigNumber;
+    uri?: RequestURI;
     systemID?: CompactIAddressObject;
     parentID?: CompactIAddressObject;
     identityID?: CompactIAddressObject;
@@ -26,6 +28,7 @@ export interface ProvisionIdentityDetailsInterface {
 export interface ProvisionIdentityDetailsJson {
     version?: number;
     flags: number;
+    uri?: RequestURIJson;
     systemid?: CompactAddressObjectJson;
     parentid?: CompactAddressObjectJson;
     identityid?: CompactAddressObjectJson;
@@ -33,6 +36,7 @@ export interface ProvisionIdentityDetailsJson {
 export declare class ProvisionIdentityDetails implements SerializableEntity {
     version: BigNumber;
     flags: BigNumber;
+    uri?: RequestURI;
     systemID?: CompactIAddressObject;
     parentID?: CompactIAddressObject;
     identityID?: CompactIAddressObject;
@@ -42,10 +46,12 @@ export declare class ProvisionIdentityDetails implements SerializableEntity {
     static FLAG_HAS_SYSTEMID: import("bn.js");
     static FLAG_HAS_PARENTID: import("bn.js");
     static FLAG_IS_A_DEFINED_NAME_TO_PROVISION: import("bn.js");
+    static FLAG_HAS_URI: import("bn.js");
     constructor(data?: ProvisionIdentityDetailsInterface);
     hasSystemId(): boolean;
     hasParentId(): boolean;
     hasIdentityId(): boolean;
+    hasUri(): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;

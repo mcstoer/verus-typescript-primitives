@@ -15,8 +15,8 @@ export class ResponseURI implements SerializableEntity {
   type: BigNumber;  // type of place to send response
 
   static TYPE_INVALID = new BN(0, 10);
-  static TYPE_REDIRECT = new BN(1, 10);
-  static TYPE_POST = new BN(2, 10);
+  static TYPE_POST = new BN(1, 10);
+  static TYPE_REDIRECT = new BN(2, 10);
   // TODO: Add TYPE_Z_ADDR_REF where response is encrypted and sent to encoded sapling address, 
   // with optional amount specified
 
