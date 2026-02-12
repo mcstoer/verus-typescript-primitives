@@ -24,7 +24,7 @@ import { RequestURI, RequestURIJson } from "../RequestURI";
 
 export interface ProvisionIdentityDetailsInterface {
   version?: BigNumber;
-  flags: BigNumber;
+  flags?: BigNumber;
   uri?: RequestURI;
   systemID?: CompactIAddressObject; // system e.g. VRSC@
   parentID?: CompactIAddressObject; // parent e.g. Token@

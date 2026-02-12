@@ -19,7 +19,7 @@ import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddre
 import { RequestURI, RequestURIJson } from "../RequestURI";
 export interface ProvisionIdentityDetailsInterface {
     version?: BigNumber;
-    flags: BigNumber;
+    flags?: BigNumber;
     uri?: RequestURI;
     systemID?: CompactIAddressObject;
     parentID?: CompactIAddressObject;
