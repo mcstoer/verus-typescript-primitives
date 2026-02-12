@@ -155,7 +155,3 @@ exports.AuthenticationRequestDetails = AuthenticationRequestDetails;
 AuthenticationRequestDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1, 10);
 AuthenticationRequestDetails.FLAG_HAS_RECIPIENT_CONSTRAINTS = new bn_js_1.BN(2, 10);
 AuthenticationRequestDetails.FLAG_HAS_EXPIRY_TIME = new bn_js_1.BN(4, 10);
-// Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
-AuthenticationRequestDetails.REQUIRED_ID = 1;
-AuthenticationRequestDetails.REQUIRED_SYSTEM = 2;
-AuthenticationRequestDetails.REQUIRED_PARENT = 3;

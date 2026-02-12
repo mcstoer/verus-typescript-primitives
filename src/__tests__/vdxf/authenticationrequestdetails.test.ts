@@ -2,7 +2,8 @@ import { BN } from "bn.js";
 import { 
   AuthenticationRequestDetails,
   CompactAddressObject,
-  CompactIAddressObject
+  CompactIAddressObject,
+  RecipientConstraint
 } from "../../vdxf/classes";
 import { SERIALIZED_AUTHENTICATION_REQUEST_DETAILS, TEST_CHALLENGE_ID, TEST_IDENTITY_ID_1, TEST_IDENTITY_ID_2, TEST_IDENTITY_ID_3, TEST_SYSTEMID } from "../constants/fixtures";
 
@@ -25,9 +26,9 @@ describe("AuthenticationRequestDetails", () => {
       const details = new AuthenticationRequestDetails({
         requestID: CompactIAddressObject.fromAddress(TEST_CHALLENGE_ID, TEST_SYSTEMID.toAddress()!),
         recipientConstraints: [
-          { type: AuthenticationRequestDetails.REQUIRED_ID, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
-          { type: AuthenticationRequestDetails.REQUIRED_SYSTEM, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
-          { type: AuthenticationRequestDetails.REQUIRED_PARENT, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
+          { type: RecipientConstraint.REQUIRED_ID, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" }) },
+          { type: RecipientConstraint.REQUIRED_SYSTEM, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_2, rootSystemName: "VRSC" }) },
+          { type: RecipientConstraint.REQUIRED_PARENT, identity: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_3, rootSystemName: "VRSC" }) }
         ],
         expiryTime: new BN(2938475938457) // 1 hour from now
       });

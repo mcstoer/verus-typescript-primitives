@@ -47,5 +47,27 @@ class RecipientConstraint {
             identity: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.identity),
         });
     }
+    static requiredIDFromAddress(iaddr) {
+        return new RecipientConstraint({
+            type: RecipientConstraint.REQUIRED_ID,
+            identity: CompactAddressObject_1.CompactIAddressObject.fromAddress(iaddr),
+        });
+    }
+    static requiredSystemFromAddress(iaddr) {
+        return new RecipientConstraint({
+            type: RecipientConstraint.REQUIRED_SYSTEM,
+            identity: CompactAddressObject_1.CompactIAddressObject.fromAddress(iaddr),
+        });
+    }
+    static requiredParentFromAddress(iaddr) {
+        return new RecipientConstraint({
+            type: RecipientConstraint.REQUIRED_PARENT,
+            identity: CompactAddressObject_1.CompactIAddressObject.fromAddress(iaddr),
+        });
+    }
 }
 exports.RecipientConstraint = RecipientConstraint;
+// Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
+RecipientConstraint.REQUIRED_ID = 1;
+RecipientConstraint.REQUIRED_SYSTEM = 2;
+RecipientConstraint.REQUIRED_PARENT = 3;

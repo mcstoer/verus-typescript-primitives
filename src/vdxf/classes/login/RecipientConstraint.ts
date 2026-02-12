@@ -17,6 +17,11 @@ export class RecipientConstraint implements SerializableEntity {
   type: number;
   identity: CompactIAddressObject;
 
+  // Recipient Constraint Types - What types of Identity can login, e.g. REQUIRED_SYSTEM and "VRSC" means only identities on the Verus chain can login
+  static REQUIRED_ID = 1;
+  static REQUIRED_SYSTEM = 2;
+  static REQUIRED_PARENT = 3;
+
   constructor(data?: RecipientConstraintInterface) {
     this.type = data?.type ?? 0;
     this.identity = data?.identity || new CompactIAddressObject();
@@ -67,6 +72,27 @@ export class RecipientConstraint implements SerializableEntity {
     return new RecipientConstraint({
       type: data.type,
       identity: CompactIAddressObject.fromCompactAddressObjectJson(data.identity),
+    });
+  }
+
+  static requiredIDFromAddress(iaddr: string): RecipientConstraint {
+    return new RecipientConstraint({
+      type: RecipientConstraint.REQUIRED_ID,
+      identity: CompactIAddressObject.fromAddress(iaddr),
+    });
+  }
+
+  static requiredSystemFromAddress(iaddr: string): RecipientConstraint {
+    return new RecipientConstraint({
+      type: RecipientConstraint.REQUIRED_SYSTEM,
+      identity: CompactIAddressObject.fromAddress(iaddr),
+    });
+  }
+
+  static requiredParentFromAddress(iaddr: string): RecipientConstraint {
+    return new RecipientConstraint({
+      type: RecipientConstraint.REQUIRED_PARENT,
+      identity: CompactIAddressObject.fromAddress(iaddr),
     });
   }
 }

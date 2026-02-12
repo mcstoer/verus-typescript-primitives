@@ -36,9 +36,6 @@ export declare class AuthenticationRequestDetails implements SerializableEntity 
     static FLAG_HAS_REQUEST_ID: import("bn.js");
     static FLAG_HAS_RECIPIENT_CONSTRAINTS: import("bn.js");
     static FLAG_HAS_EXPIRY_TIME: import("bn.js");
-    static REQUIRED_ID: number;
-    static REQUIRED_SYSTEM: number;
-    static REQUIRED_PARENT: number;
     constructor(request?: AuthenticationRequestDetailsInterface);
     hasRequestID(): boolean;
     hasRecipentConstraints(): boolean;
