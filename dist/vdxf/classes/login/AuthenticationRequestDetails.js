@@ -19,11 +19,12 @@ const bufferutils_1 = require("../../../utils/bufferutils");
 const bn_js_1 = require("bn.js");
 const varuint_1 = require("../../../utils/varuint");
 const CompactAddressObject_1 = require("../CompactAddressObject");
+const RecipientConstraint_1 = require("./RecipientConstraint");
 class AuthenticationRequestDetails {
     constructor(request) {
         this.flags = (request === null || request === void 0 ? void 0 : request.flags) || new bn_js_1.BN(0, 10);
         this.requestID = (request === null || request === void 0 ? void 0 : request.requestID) || null;
-        this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) || null;
+        this.recipientConstraints = (request === null || request === void 0 ? void 0 : request.recipientConstraints) ? request.recipientConstraints.map(RecipientConstraint_1.RecipientConstraint.fromData) : null;
         this.expiryTime = (request === null || request === void 0 ? void 0 : request.expiryTime) || null;
         this.setFlags();
     }
@@ -57,8 +58,7 @@ class AuthenticationRequestDetails {
         if (this.hasRecipentConstraints()) {
             length += varuint_1.default.encodingLength(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
-                length += varuint_1.default.encodingLength(this.recipientConstraints[i].type);
-                length += this.recipientConstraints[i].identity.getByteLength();
+                length += this.recipientConstraints[i].getByteLength();
             }
         }
         if (this.hasExpiryTime()) {
@@ -75,8 +75,7 @@ class AuthenticationRequestDetails {
         if (this.hasRecipentConstraints()) {
             writer.writeCompactSize(this.recipientConstraints.length);
             for (let i = 0; i < this.recipientConstraints.length; i++) {
-                writer.writeCompactSize(this.recipientConstraints[i].type);
-                writer.writeSlice(this.recipientConstraints[i].identity.toBuffer());
+                writer.writeSlice(this.recipientConstraints[i].toBuffer());
             }
         }
         if (this.hasExpiryTime()) {
@@ -95,14 +94,9 @@ class AuthenticationRequestDetails {
             this.recipientConstraints = [];
             const recipientConstraintsLength = reader.readCompactSize();
             for (let i = 0; i < recipientConstraintsLength; i++) {
-                const compactId = new CompactAddressObject_1.CompactIAddressObject();
-                const type = reader.readCompactSize();
-                const identityOffset = reader.offset;
-                reader.offset = compactId.fromBuffer(buffer, identityOffset);
-                this.recipientConstraints.push({
-                    type: type,
-                    identity: compactId
-                });
+                const recipientConstraint = new RecipientConstraint_1.RecipientConstraint();
+                reader.offset = recipientConstraint.fromBuffer(buffer, reader.offset);
+                this.recipientConstraints.push(recipientConstraint);
             }
         }
         if (this.hasExpiryTime()) {
@@ -115,8 +109,7 @@ class AuthenticationRequestDetails {
         const retval = {
             flags: flags.toNumber(),
             requestid: this.requestID.toJson(),
-            recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => ({ type: p.type,
-                identity: p.identity.toJson() })) : undefined,
+            recipientConstraints: this.recipientConstraints ? this.recipientConstraints.map(p => p.toJson()) : undefined,
             expirytime: this.expiryTime ? this.expiryTime.toNumber() : undefined
         };
         return retval;
@@ -125,9 +118,9 @@ class AuthenticationRequestDetails {
         const loginDetails = new AuthenticationRequestDetails();
         loginDetails.flags = new bn_js_1.BN((data === null || data === void 0 ? void 0 : data.flags) || 0);
         loginDetails.requestID = data.requestid ? CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(data.requestid) : undefined;
-        if (loginDetails.hasRecipentConstraints() && data.recipientconstraints) {
-            loginDetails.recipientConstraints = data.recipientconstraints.map(p => ({ type: p.type,
-                identity: CompactAddressObject_1.CompactIAddressObject.fromCompactAddressObjectJson(p.identity) }));
+        const recipientConstraints = data.recipientconstraints || data.recipientconstraints;
+        if (loginDetails.hasRecipentConstraints() && recipientConstraints) {
+            loginDetails.recipientConstraints = recipientConstraints.map(p => RecipientConstraint_1.RecipientConstraint.fromJson(p));
         }
         if (loginDetails.hasExpiryTime() && data.expirytime) {
             loginDetails.expiryTime = new bn_js_1.BN(data.expirytime);

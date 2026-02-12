@@ -68,6 +68,7 @@ Object.defineProperty(exports, "DataCategory", { enumerable: true, get: function
 __exportStar(require("./data/UserDataRequestDetails"), exports);
 __exportStar(require("./login/AuthenticationRequestDetails"), exports);
 __exportStar(require("./login/AuthenticationResponseDetails"), exports);
+__exportStar(require("./login/RecipientConstraint"), exports);
 __exportStar(require("./provisioning/ProvisionIdentityDetails"), exports);
 __exportStar(require("./appencryption/AppEncryptionRequestDetails"), exports);
 __exportStar(require("./data/DataPacketRequestDetails"), exports);

@@ -36,6 +36,7 @@ export { DataCategory } from './PersonalProfile';
 export * from './data/UserDataRequestDetails';
 export * from './login/AuthenticationRequestDetails';
 export * from './login/AuthenticationResponseDetails';
+export * from './login/RecipientConstraint';
 export * from './provisioning/ProvisionIdentityDetails';
 export * from './appencryption/AppEncryptionRequestDetails';
 export * from './data/DataPacketRequestDetails';

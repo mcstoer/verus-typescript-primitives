@@ -15,19 +15,12 @@
 import { BigNumber } from "../../../utils/types/BigNumber";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import { CompactIAddressObject, CompactAddressObjectJson } from "../CompactAddressObject";
+import { RecipientConstraint, RecipientConstraintInterface, RecipientConstraintJson } from "./RecipientConstraint";
 export interface AuthenticationRequestDetailsInterface {
     flags?: BigNumber;
     requestID?: CompactIAddressObject;
-    recipientConstraints?: Array<RecipientConstraint>;
+    recipientConstraints?: Array<RecipientConstraint | RecipientConstraintInterface>;
     expiryTime?: BigNumber;
-}
-export interface RecipientConstraintJson {
-    type: number;
-    identity: CompactAddressObjectJson;
-}
-export interface RecipientConstraint {
-    type: number;
-    identity: CompactIAddressObject;
 }
 export interface AuthenticationRequestDetailsJson {
     requestid?: CompactAddressObjectJson;
