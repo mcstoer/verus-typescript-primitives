@@ -52,7 +52,7 @@ export declare class DataResponseDetails implements SerializableEntity {
     flags?: BigNumber;
     requestID?: CompactIAddressObject;
     data: DataDescriptor;
-    static RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
     constructor(initialData?: DataResponseDetailsInterface);
     containsRequestID(): boolean;
     toggleContainsRequestID(): void;

@@ -55,10 +55,10 @@ class DataResponseDetails {
         this.data = initialData && initialData.data ? initialData.data : new pbaas_1.DataDescriptor();
     }
     containsRequestID() {
-        return !!(this.flags.and(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+        return !!(this.flags.and(DataResponseDetails.FLAG_HAS_REQUEST_ID).toNumber());
     }
     toggleContainsRequestID() {
-        this.flags = this.flags.xor(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID);
+        this.flags = this.flags.xor(DataResponseDetails.FLAG_HAS_REQUEST_ID);
     }
     toSha256() {
         return createHash("sha256").update(this.toBuffer()).digest();
@@ -109,4 +109,4 @@ class DataResponseDetails {
     }
 }
 exports.DataResponseDetails = DataResponseDetails;
-DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID = new bn_js_1.BN(1, 10);
+DataResponseDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1, 10);

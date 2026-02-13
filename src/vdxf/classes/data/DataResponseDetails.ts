@@ -65,7 +65,7 @@ export class DataResponseDetails implements SerializableEntity {
   requestID?: CompactIAddressObject;              // ID of request, to be referenced in response
   data: DataDescriptor;    
 
-  static RESPONSE_CONTAINS_REQUEST_ID = new BN(1, 10);
+  static FLAG_HAS_REQUEST_ID = new BN(1, 10);
 
   constructor (initialData?: DataResponseDetailsInterface) {
     this.flags = initialData && initialData.flags ? initialData.flags : new BN("0", 10);
@@ -79,11 +79,11 @@ export class DataResponseDetails implements SerializableEntity {
   }
 
   containsRequestID() {
-    return !!(this.flags.and(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+    return !!(this.flags.and(DataResponseDetails.FLAG_HAS_REQUEST_ID).toNumber());
   }
 
   toggleContainsRequestID() {
-    this.flags = this.flags.xor(DataResponseDetails.RESPONSE_CONTAINS_REQUEST_ID);
+    this.flags = this.flags.xor(DataResponseDetails.FLAG_HAS_REQUEST_ID);
   }
 
   toSha256() {

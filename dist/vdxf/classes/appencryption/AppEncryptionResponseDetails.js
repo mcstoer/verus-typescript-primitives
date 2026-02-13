@@ -30,16 +30,16 @@ class AppEncryptionResponseDetails {
         }
     }
     containsRequestID() {
-        return !!(this.flags.and(AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID).toNumber());
+        return !!(this.flags.and(AppEncryptionResponseDetails.FLAG_HAS_REQUEST_ID).toNumber());
     }
     toggleContainsRequestID() {
-        this.flags = this.flags.xor(AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID);
+        this.flags = this.flags.xor(AppEncryptionResponseDetails.FLAG_HAS_REQUEST_ID);
     }
     containsExtendedSpendingKey() {
-        return !!(this.flags.and(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY).toNumber());
+        return !!(this.flags.and(AppEncryptionResponseDetails.FLAG_HAS_EXTENDED_SPENDING_KEY).toNumber());
     }
     toggleContainsExtendedSpendingKey() {
-        this.flags = this.flags.xor(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY);
+        this.flags = this.flags.xor(AppEncryptionResponseDetails.FLAG_HAS_EXTENDED_SPENDING_KEY);
     }
     toSha256() {
         return createHash("sha256").update(this.toBuffer()).digest();
@@ -115,5 +115,5 @@ class AppEncryptionResponseDetails {
     }
 }
 exports.AppEncryptionResponseDetails = AppEncryptionResponseDetails;
-AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID = new bn_js_1.BN(1, 10);
-AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY = new bn_js_1.BN(2, 10);
+AppEncryptionResponseDetails.FLAG_HAS_REQUEST_ID = new bn_js_1.BN(1, 10);
+AppEncryptionResponseDetails.FLAG_HAS_EXTENDED_SPENDING_KEY = new bn_js_1.BN(2, 10);

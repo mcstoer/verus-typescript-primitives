@@ -30,8 +30,8 @@ export declare class AppEncryptionResponseDetails implements SerializableEntity 
     extendedViewingKey: SaplingExtendedViewingKey;
     address: SaplingPaymentAddress;
     extendedSpendingKey?: SaplingExtendedSpendingKey;
-    static RESPONSE_CONTAINS_REQUEST_ID: import("bn.js");
-    static RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY: import("bn.js");
+    static FLAG_HAS_REQUEST_ID: import("bn.js");
+    static FLAG_HAS_EXTENDED_SPENDING_KEY: import("bn.js");
     constructor(data?: AppEncryptionResponseDetailsInterface);
     containsRequestID(): boolean;
     toggleContainsRequestID(): void;

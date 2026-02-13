@@ -600,7 +600,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
 
     const details = new AppEncryptionResponseDetails({
       version: new BN(1),
-      flags: AppEncryptionResponseDetails.RESPONSE_CONTAINS_REQUEST_ID.or(AppEncryptionResponseDetails.RESPONSE_CONTAINS_EXTENDED_SPENDING_KEY),
+      flags: AppEncryptionResponseDetails.FLAG_HAS_REQUEST_ID.or(AppEncryptionResponseDetails.FLAG_HAS_EXTENDED_SPENDING_KEY),
       requestID: CompactIAddressObject.fromAddress("iD4CrjbJBZmwEZQ4bCWgbHx9tBHGP9mdSQ"),
       incomingViewingKey: testIncomingViewingKey,
       extendedViewingKey: SaplingExtendedViewingKey.fromKeyString(testViewingKey),
