@@ -215,6 +215,14 @@ export class CompactXAddressObject extends CompactAddressObject<CompactAddressXV
     })
   }
 
+  static fromDataKey(xaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactXAddressObject {
+    return new CompactXAddressObject({
+      address: xaddr,
+      nameSpace: nameSpace,
+      type: CompactAddressObject.TYPE_FQN
+    })
+  }
+
   toAddress() {
     return this.toXAddress();
   }
@@ -232,6 +240,14 @@ export class CompactIAddressObject extends CompactAddressObject<CompactAddressIV
       address: iaddr,
       nameSpace: nameSpace,
       type: CompactAddressObject.TYPE_I_ADDRESS
+    })
+  }
+
+  static fromFQN(iaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactIAddressObject {
+    return new CompactIAddressObject({
+      address: iaddr,
+      nameSpace: nameSpace,
+      type: CompactAddressObject.TYPE_FQN
     })
   }
 

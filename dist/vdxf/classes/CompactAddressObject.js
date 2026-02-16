@@ -167,6 +167,13 @@ class CompactXAddressObject extends CompactAddressObject {
             type: CompactAddressObject.TYPE_X_ADDRESS
         });
     }
+    static fromDataKey(xaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+        return new CompactXAddressObject({
+            address: xaddr,
+            nameSpace: nameSpace,
+            type: CompactAddressObject.TYPE_FQN
+        });
+    }
     toAddress() {
         return this.toXAddress();
     }
@@ -183,6 +190,13 @@ class CompactIAddressObject extends CompactAddressObject {
             address: iaddr,
             nameSpace: nameSpace,
             type: CompactAddressObject.TYPE_I_ADDRESS
+        });
+    }
+    static fromFQN(iaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+        return new CompactIAddressObject({
+            address: iaddr,
+            nameSpace: nameSpace,
+            type: CompactAddressObject.TYPE_FQN
         });
     }
     toAddress() {
