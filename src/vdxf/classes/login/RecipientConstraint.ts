@@ -1,7 +1,7 @@
 import bufferutils from "../../../utils/bufferutils";
 import { SerializableEntity } from "../../../utils/types/SerializableEntity";
 import varuint from "../../../utils/varuint";
-import { CompactAddressObjectJson, CompactIAddressObject } from "../CompactAddressObject";
+import { CompactAddressObject, CompactAddressObjectJson, CompactIAddressObject } from "../CompactAddressObject";
 
 export interface RecipientConstraintJson {
   type: number;
@@ -93,6 +93,26 @@ export class RecipientConstraint implements SerializableEntity {
     return new RecipientConstraint({
       type: RecipientConstraint.REQUIRED_PARENT,
       identity: CompactIAddressObject.fromAddress(iaddr),
+    });
+  }
+
+  static requiredSystemFromFQN(fqn: string): RecipientConstraint {
+    return new RecipientConstraint({
+      type: RecipientConstraint.REQUIRED_SYSTEM,
+      identity: new CompactIAddressObject({
+        type: CompactAddressObject.TYPE_FQN,
+        address: fqn
+      }),
+    });
+  }
+
+  static requiredParentFromFQN(fqn: string): RecipientConstraint {
+    return new RecipientConstraint({
+      type: RecipientConstraint.REQUIRED_PARENT,
+      identity: new CompactIAddressObject({
+        type: CompactAddressObject.TYPE_FQN,
+        address: fqn
+      }),
     });
   }
 }
