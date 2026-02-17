@@ -65,7 +65,7 @@ class RecipientConstraint {
             identity: CompactAddressObject_1.CompactIAddressObject.fromAddress(iaddr),
         });
     }
-    static requiredSystemFromFQN(fqn, rootSystemName) {
+    static requiredSystemFromFQN(fqn, rootSystemName = "VRSC") {
         return new RecipientConstraint({
             type: RecipientConstraint.REQUIRED_SYSTEM,
             identity: new CompactAddressObject_1.CompactIAddressObject({
@@ -75,7 +75,7 @@ class RecipientConstraint {
             }),
         });
     }
-    static requiredParentFromFQN(fqn, rootSystemName) {
+    static requiredParentFromFQN(fqn, rootSystemName = "VRSC") {
         return new RecipientConstraint({
             type: RecipientConstraint.REQUIRED_PARENT,
             identity: new CompactAddressObject_1.CompactIAddressObject({

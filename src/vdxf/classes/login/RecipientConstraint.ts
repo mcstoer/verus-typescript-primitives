@@ -96,7 +96,7 @@ export class RecipientConstraint implements SerializableEntity {
     });
   }
 
-  static requiredSystemFromFQN(fqn: string, rootSystemName: "VRSC"): RecipientConstraint {
+  static requiredSystemFromFQN(fqn: string, rootSystemName: string = "VRSC"): RecipientConstraint {
     return new RecipientConstraint({
       type: RecipientConstraint.REQUIRED_SYSTEM,
       identity: new CompactIAddressObject({
@@ -107,7 +107,7 @@ export class RecipientConstraint implements SerializableEntity {
     });
   }
 
-  static requiredParentFromFQN(fqn: string, rootSystemName: "VRSC"): RecipientConstraint {
+  static requiredParentFromFQN(fqn: string, rootSystemName: string = "VRSC"): RecipientConstraint {
     return new RecipientConstraint({
       type: RecipientConstraint.REQUIRED_PARENT,
       identity: new CompactIAddressObject({
