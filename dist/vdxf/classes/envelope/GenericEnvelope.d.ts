@@ -66,9 +66,9 @@ export declare class GenericEnvelope implements SerializableEntity {
     protected getDataBufferLengthAfterSig(): number;
     protected getDataBufferAfterSig(): Buffer;
     private internalGetByteLength;
-    protected getByteLengthOptionalSig(includeSig?: boolean): number;
+    protected getByteLengthOptionalSig(includeSig?: boolean, forHashing?: boolean): number;
     getByteLength(): number;
-    protected toBufferOptionalSig(includeSig?: boolean): Buffer<ArrayBufferLike>;
+    protected toBufferOptionalSig(includeSig?: boolean, forHashing?: boolean): Buffer<ArrayBufferLike>;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toString(): string;

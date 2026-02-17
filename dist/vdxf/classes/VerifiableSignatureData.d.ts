@@ -21,12 +21,13 @@ export interface VerifiableSignatureDataInterface {
     signatureVersion?: BigNumber;
     hashType?: BigNumber;
     systemID?: CompactIAddressObject;
-    identityID: CompactIAddressObject;
+    identityID?: CompactIAddressObject;
     vdxfKeys?: Array<string>;
     vdxfKeyNames?: Array<string>;
     boundHashes?: Array<Buffer>;
     statements?: Array<Buffer>;
     signatureAsVch?: Buffer;
+    isTestnet?: boolean;
 }
 export interface CliSignatureData {
     signaturedata: SignatureJsonDataInterface;
@@ -56,6 +57,7 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     boundHashes?: Array<Buffer>;
     statements?: Array<Buffer>;
     signatureAsVch: Buffer;
+    isTestnet: boolean;
     static VERSION_INVALID: import("bn.js");
     static FIRST_VERSION: import("bn.js");
     static LAST_VERSION: import("bn.js");
@@ -65,6 +67,7 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     static FLAG_HAS_VDXF_KEY_NAMES: import("bn.js");
     static FLAG_HAS_BOUND_HASHES: import("bn.js");
     static FLAG_HAS_STATEMENTS: import("bn.js");
+    static FLAG_HAS_SYSTEM: import("bn.js");
     constructor(data?: VerifiableSignatureDataInterface);
     private hasFlag;
     private setFlag;
@@ -72,17 +75,23 @@ export declare class VerifiableSignatureData implements SerializableEntity {
     hasVdxfKeyNames(): boolean;
     hasBoundHashes(): boolean;
     hasStatements(): boolean;
+    hasSystem(): boolean;
     setHasVdxfKeys(): void;
     setHasVdxfKeyNames(): void;
     setHasBoundHashes(): void;
     setHasStatements(): void;
+    setHasSystem(): void;
     calcFlags(): BigNumber;
     setFlags(): void;
     private getBufferEncodingLength;
     private getExtraHashDataByteLength;
     private getExtraHashData;
+    private _getByteLength;
     getByteLength(): number;
+    getByteLengthForHashing(): number;
+    private _toBuffer;
     toBuffer(): Buffer<ArrayBufferLike>;
+    toBufferForHashing(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;
     getIdentityHash(height: number, sigHash: Buffer): Buffer<ArrayBufferLike>;
     toSignatureData(sigHash: Buffer): SignatureData;

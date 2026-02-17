@@ -74,8 +74,8 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
     if (this.encryptResponseToAddress) this.setHasEncryptResponseToAddress();
   }
 
-  getByteLengthOptionalSig(includeSig = true): number {
-    let length = super.getByteLengthOptionalSig(includeSig);
+  protected getByteLengthOptionalSig(includeSig = true, forHashing = false): number {
+    let length = super.getByteLengthOptionalSig(includeSig, forHashing);
 
     if (this.hasResponseURIs()) {
       length += varuint.encodingLength(this.responseURIs.length);
@@ -92,12 +92,12 @@ export class GenericRequest extends GenericEnvelope implements SerializableEntit
     return length;
   }
 
-  toBufferOptionalSig(includeSig = true) {
+  protected toBufferOptionalSig(includeSig = true, forHashing = false) {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.getByteLengthOptionalSig(includeSig))
+      Buffer.alloc(this.getByteLengthOptionalSig(includeSig, forHashing))
     );
 
-    const superBuf = super.toBufferOptionalSig(includeSig);
+    const superBuf = super.toBufferOptionalSig(includeSig, forHashing);
 
     writer.writeSlice(superBuf);
 

@@ -10,7 +10,7 @@ const { BufferReader, BufferWriter } = bufferutils
 const createHash = require("create-hash");
 import { VERUS_DATA_SIGNATURE_PREFIX } from "../../constants/vdxf";
 import { CompactIAddressObject, CompactAddressObjectJson } from './CompactAddressObject';
-import { DEFAULT_VERUS_CHAINNAME, HASH_TYPE_SHA256 } from '../../constants/pbaas';
+import { DEFAULT_VERUS_CHAINNAME, DEFAULT_VERUS_CHAINID, TESTNET_VERUS_CHAINID, HASH_TYPE_SHA256 } from '../../constants/pbaas';
 import varint from '../../utils/varint';
 import { SignatureData, SignatureJsonDataInterface } from '../../pbaas';
 
@@ -34,12 +34,13 @@ export interface VerifiableSignatureDataInterface {
   signatureVersion?: BigNumber;
   hashType?: BigNumber;
   systemID?: CompactIAddressObject;
-  identityID: CompactIAddressObject;
+  identityID?: CompactIAddressObject;
   vdxfKeys?: Array<string>;
   vdxfKeyNames?: Array<string>;
   boundHashes?: Array<Buffer>;
   statements?: Array<Buffer>;
   signatureAsVch?: Buffer;
+  isTestnet?: boolean;
 }
 
 export interface CliSignatureData {
@@ -71,6 +72,7 @@ export class VerifiableSignatureData implements SerializableEntity {
   boundHashes?: Array<Buffer>;
   statements?: Array<Buffer>;
   signatureAsVch: Buffer;
+  isTestnet: boolean;
 
   static VERSION_INVALID = new BN(0);
   static FIRST_VERSION = new BN(1);
@@ -82,12 +84,23 @@ export class VerifiableSignatureData implements SerializableEntity {
   static FLAG_HAS_VDXF_KEY_NAMES = new BN(2);
   static FLAG_HAS_BOUND_HASHES = new BN(4);
   static FLAG_HAS_STATEMENTS = new BN(8);
+  static FLAG_HAS_SYSTEM = new BN(16);
 
   constructor(data?: VerifiableSignatureDataInterface) {
     this.version = data && data.version ? data.version : new BN(0);
     this.flags = data && data.flags ? data.flags : new BN(0);
     this.signatureVersion = data && data.signatureVersion ? data.signatureVersion : new BN(2, 10);
-    this.systemID = data && data.systemID ? data.systemID : new CompactIAddressObject({ type: CompactIAddressObject.TYPE_FQN, address: DEFAULT_VERUS_CHAINNAME });
+    this.isTestnet = data && data.isTestnet ? data.isTestnet : false;
+
+    // If systemID is provided, use it and set the FLAG_HAS_SYSTEM. Otherwise, default based on isTestnet
+    if (data && data.systemID) {
+      this.systemID = data.systemID;
+      this.setHasSystem();
+    } else {
+      const defaultChainId = this.isTestnet ? TESTNET_VERUS_CHAINID : DEFAULT_VERUS_CHAINID;
+      this.systemID = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: defaultChainId });
+    }
+
     this.hashType = data && data.hashType ? data.hashType : HASH_TYPE_SHA256;
     this.identityID = data ? data.identityID : undefined;
     this.vdxfKeys = data ? data.vdxfKeys : undefined;
@@ -123,6 +136,10 @@ export class VerifiableSignatureData implements SerializableEntity {
     return this.hasFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
   }
 
+  hasSystem() {
+    return this.hasFlag(VerifiableSignatureData.FLAG_HAS_SYSTEM);
+  }
+
   setHasVdxfKeys() {
     this.setFlag(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
   }
@@ -139,12 +156,17 @@ export class VerifiableSignatureData implements SerializableEntity {
     this.setFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
   }
 
+  setHasSystem() {
+    this.setFlag(VerifiableSignatureData.FLAG_HAS_SYSTEM);
+  }
+
   calcFlags(): BigNumber {
     let flags = new BN(0);
     if (this.hasVdxfKeys()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
     if (this.hasVdxfKeyNames()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEY_NAMES);
     if (this.hasBoundHashes()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_BOUND_HASHES);
     if (this.hasStatements()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
+    if (this.hasSystem()) flags = flags.or(VerifiableSignatureData.FLAG_HAS_SYSTEM);
     return flags;
   }
 
@@ -216,7 +238,7 @@ export class VerifiableSignatureData implements SerializableEntity {
     return bufferWriter.buffer;
   }
 
-  getByteLength() {
+  private _getByteLength(forHashing: boolean): number {
     let byteLength = 0;
 
     byteLength += varint.encodingLength(this.version);
@@ -227,7 +249,11 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     byteLength += varuint.encodingLength(this.hashType.toNumber());
 
-    byteLength += this.systemID.getByteLength();
+    // For hashing, always include systemID even if !hasSystem, so signature remains valid if defaults change
+    // For serialization, only include systemID if hasSystem flag is set
+    if (forHashing || this.hasSystem()) {
+      byteLength += this.systemID.getByteLength();
+    }
     byteLength += this.identityID.getByteLength();
 
     if (this.hasVdxfKeys()) {
@@ -267,8 +293,16 @@ export class VerifiableSignatureData implements SerializableEntity {
     return byteLength
   }
 
-  toBuffer() {
-    const bufferWriter = new BufferWriter(Buffer.alloc(this.getByteLength()));
+  getByteLength() {
+    return this._getByteLength(false);
+  }
+
+  getByteLengthForHashing() {
+    return this._getByteLength(true);
+  }
+
+  private _toBuffer(forHashing: boolean): Buffer {
+    const bufferWriter = new BufferWriter(Buffer.alloc(this._getByteLength(forHashing)));
 
     bufferWriter.writeVarInt(this.version);
 
@@ -278,7 +312,11 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     bufferWriter.writeCompactSize(this.hashType.toNumber());
 
-    bufferWriter.writeSlice(this.systemID.toBuffer());
+    // For hashing, always include systemID even if !hasSystem, so signature remains valid if defaults change
+    // For serialization, only include systemID if hasSystem flag is set
+    if (forHashing || this.hasSystem()) {
+      bufferWriter.writeSlice(this.systemID.toBuffer());
+    }
     bufferWriter.writeSlice(this.identityID.toBuffer());
 
     if (this.hasVdxfKeys()) {
@@ -302,6 +340,14 @@ export class VerifiableSignatureData implements SerializableEntity {
     return bufferWriter.buffer;
   }
 
+  toBuffer() {
+    return this._toBuffer(false);
+  }
+
+  toBufferForHashing() {
+    return this._toBuffer(true);
+  }
+
   fromBuffer(buffer: Buffer, offset: number = 0) {
     const bufferReader = new BufferReader(buffer, offset);
 
@@ -313,10 +359,12 @@ export class VerifiableSignatureData implements SerializableEntity {
 
     this.hashType = new BN(bufferReader.readCompactSize());
 
-    this.systemID = new CompactIAddressObject();
-    this.identityID = new CompactIAddressObject();
+    if (this.hasSystem()) {
+      this.systemID = new CompactIAddressObject();
+      bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
+    }
 
-    bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
+    this.identityID = new CompactIAddressObject();
     bufferReader.offset = this.identityID.fromBuffer(bufferReader.buffer, bufferReader.offset);
 
     if (this.hasVdxfKeys()) {

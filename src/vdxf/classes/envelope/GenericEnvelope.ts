@@ -146,7 +146,7 @@ export class GenericEnvelope implements SerializableEntity {
   }
 
   getRawDataSha256(includeSig = false) {
-    return createHash("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
+    return createHash("sha256").update(this.toBufferOptionalSig(includeSig, true)).digest();
   }
 
   getDetailsIdentitySignatureHash(signedBlockheight: number): Buffer<ArrayBufferLike> {
@@ -228,39 +228,39 @@ export class GenericEnvelope implements SerializableEntity {
     return writer.buffer;
   }
 
-  private internalGetByteLength(includeSig = true): number {
+  private internalGetByteLength(includeSig = true, forHashing = false): number {
     let length = 0;
 
     length += varuint.encodingLength(this.version.toNumber());
     length += varuint.encodingLength(this.flags.toNumber());
 
-    if (this.isSigned() && includeSig) {  
-      length += this.signature!.getByteLength();
+    if (this.isSigned() && includeSig) {
+      length += forHashing ? this.signature!.getByteLengthForHashing() : this.signature!.getByteLength();
     }
-    
+
     length += this.getDataBufferLengthAfterSig();
 
     return length;
   }
 
-  protected getByteLengthOptionalSig(includeSig?: boolean): number {
-    return this.internalGetByteLength(includeSig);
+  protected getByteLengthOptionalSig(includeSig?: boolean, forHashing?: boolean): number {
+    return this.internalGetByteLength(includeSig, forHashing);
   }
 
   getByteLength(): number {
     return this.getByteLengthOptionalSig(true);
   }
 
-  protected toBufferOptionalSig(includeSig = true) {
+  protected toBufferOptionalSig(includeSig = true, forHashing = false) {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.internalGetByteLength(includeSig))
+      Buffer.alloc(this.internalGetByteLength(includeSig, forHashing))
     );
 
     writer.writeCompactSize(this.version.toNumber());
     writer.writeCompactSize(this.flags.toNumber());
 
     if (this.isSigned() && includeSig) {
-      writer.writeSlice(this.signature!.toBuffer());
+      writer.writeSlice(forHashing ? this.signature!.toBufferForHashing() : this.signature!.toBuffer());
     }
 
     writer.writeSlice(this.getDataBufferAfterSig());
@@ -274,14 +274,14 @@ export class GenericEnvelope implements SerializableEntity {
 
   fromBuffer(buffer: Buffer, offset?: number): number {
     if (buffer.length == 0) throw new Error("Cannot create envelope from empty buffer");
-    
+
     const reader = new bufferutils.BufferReader(buffer, offset);
-    
+
     this.version = new BN(reader.readCompactSize());
     this.flags = new BN(reader.readCompactSize());
 
     if (this.isSigned()) {
-      const _sig = new VerifiableSignatureData();
+      const _sig = new VerifiableSignatureData({ isTestnet: this.isTestnet() });
       reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
       this.signature = _sig;
     }

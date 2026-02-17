@@ -90,7 +90,7 @@ class GenericEnvelope {
             this.setHasMultiDetails();
     }
     getRawDataSha256(includeSig = false) {
-        return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(includeSig)).digest();
+        return (0, crypto_1.createHash)("sha256").update(this.toBufferOptionalSig(includeSig, true)).digest();
     }
     getDetailsIdentitySignatureHash(signedBlockheight) {
         if (this.isSigned()) {
@@ -154,28 +154,28 @@ class GenericEnvelope {
         }
         return writer.buffer;
     }
-    internalGetByteLength(includeSig = true) {
+    internalGetByteLength(includeSig = true, forHashing = false) {
         let length = 0;
         length += varuint_1.default.encodingLength(this.version.toNumber());
         length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.isSigned() && includeSig) {
-            length += this.signature.getByteLength();
+            length += forHashing ? this.signature.getByteLengthForHashing() : this.signature.getByteLength();
         }
         length += this.getDataBufferLengthAfterSig();
         return length;
     }
-    getByteLengthOptionalSig(includeSig) {
-        return this.internalGetByteLength(includeSig);
+    getByteLengthOptionalSig(includeSig, forHashing) {
+        return this.internalGetByteLength(includeSig, forHashing);
     }
     getByteLength() {
         return this.getByteLengthOptionalSig(true);
     }
-    toBufferOptionalSig(includeSig = true) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.internalGetByteLength(includeSig)));
+    toBufferOptionalSig(includeSig = true, forHashing = false) {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.internalGetByteLength(includeSig, forHashing)));
         writer.writeCompactSize(this.version.toNumber());
         writer.writeCompactSize(this.flags.toNumber());
         if (this.isSigned() && includeSig) {
-            writer.writeSlice(this.signature.toBuffer());
+            writer.writeSlice(forHashing ? this.signature.toBufferForHashing() : this.signature.toBuffer());
         }
         writer.writeSlice(this.getDataBufferAfterSig());
         return writer.buffer;
@@ -190,7 +190,7 @@ class GenericEnvelope {
         this.version = new bn_js_1.BN(reader.readCompactSize());
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.isSigned()) {
-            const _sig = new VerifiableSignatureData_1.VerifiableSignatureData();
+            const _sig = new VerifiableSignatureData_1.VerifiableSignatureData({ isTestnet: this.isTestnet() });
             reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
             this.signature = _sig;
         }

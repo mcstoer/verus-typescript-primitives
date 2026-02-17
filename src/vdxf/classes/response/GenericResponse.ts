@@ -66,8 +66,8 @@ export class GenericResponse extends GenericEnvelope implements SerializableEnti
     if (this.requestHash) this.setHasRequestHash();
   }
 
-  getByteLengthOptionalSig(includeSig = true): number {
-    let length = super.getByteLengthOptionalSig(includeSig);
+  protected getByteLengthOptionalSig(includeSig = true, forHashing = false): number {
+    let length = super.getByteLengthOptionalSig(includeSig, forHashing);
 
     if (this.hasRequestHash()) {
       const hashLen = this.requestHash.length;
@@ -81,12 +81,12 @@ export class GenericResponse extends GenericEnvelope implements SerializableEnti
     return length;
   }
 
-  protected toBufferOptionalSig(includeSig = true) {
+  protected toBufferOptionalSig(includeSig = true, forHashing = false) {
     const writer = new bufferutils.BufferWriter(
-      Buffer.alloc(this.getByteLengthOptionalSig(includeSig))
+      Buffer.alloc(this.getByteLengthOptionalSig(includeSig, forHashing))
     );
 
-    const superBuf = super.toBufferOptionalSig(includeSig);
+    const superBuf = super.toBufferOptionalSig(includeSig, forHashing);
 
     writer.writeSlice(superBuf);
 
@@ -94,7 +94,7 @@ export class GenericResponse extends GenericEnvelope implements SerializableEnti
       writer.writeCompactSize(this.requestHashType.toNumber());
       writer.writeVarSlice(this.requestHash);
     }
-    
+
     return writer.buffer;
   }
 

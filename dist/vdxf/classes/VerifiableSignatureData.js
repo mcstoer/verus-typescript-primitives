@@ -19,7 +19,16 @@ class VerifiableSignatureData {
         this.version = data && data.version ? data.version : new bn_js_1.BN(0);
         this.flags = data && data.flags ? data.flags : new bn_js_1.BN(0);
         this.signatureVersion = data && data.signatureVersion ? data.signatureVersion : new bn_js_1.BN(2, 10);
-        this.systemID = data && data.systemID ? data.systemID : new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_FQN, address: pbaas_1.DEFAULT_VERUS_CHAINNAME });
+        this.isTestnet = data && data.isTestnet ? data.isTestnet : false;
+        // If systemID is provided, use it and set the FLAG_HAS_SYSTEM. Otherwise, default based on isTestnet
+        if (data && data.systemID) {
+            this.systemID = data.systemID;
+            this.setHasSystem();
+        }
+        else {
+            const defaultChainId = this.isTestnet ? pbaas_1.TESTNET_VERUS_CHAINID : pbaas_1.DEFAULT_VERUS_CHAINID;
+            this.systemID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: defaultChainId });
+        }
         this.hashType = data && data.hashType ? data.hashType : pbaas_1.HASH_TYPE_SHA256;
         this.identityID = data ? data.identityID : undefined;
         this.vdxfKeys = data ? data.vdxfKeys : undefined;
@@ -47,6 +56,9 @@ class VerifiableSignatureData {
     hasStatements() {
         return this.hasFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
     }
+    hasSystem() {
+        return this.hasFlag(VerifiableSignatureData.FLAG_HAS_SYSTEM);
+    }
     setHasVdxfKeys() {
         this.setFlag(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
     }
@@ -59,6 +71,9 @@ class VerifiableSignatureData {
     setHasStatements() {
         this.setFlag(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
     }
+    setHasSystem() {
+        this.setFlag(VerifiableSignatureData.FLAG_HAS_SYSTEM);
+    }
     calcFlags() {
         let flags = new bn_js_1.BN(0);
         if (this.hasVdxfKeys())
@@ -69,6 +84,8 @@ class VerifiableSignatureData {
             flags = flags.or(VerifiableSignatureData.FLAG_HAS_BOUND_HASHES);
         if (this.hasStatements())
             flags = flags.or(VerifiableSignatureData.FLAG_HAS_STATEMENTS);
+        if (this.hasSystem())
+            flags = flags.or(VerifiableSignatureData.FLAG_HAS_SYSTEM);
         return flags;
     }
     setFlags() {
@@ -127,13 +144,17 @@ class VerifiableSignatureData {
         }
         return bufferWriter.buffer;
     }
-    getByteLength() {
+    _getByteLength(forHashing) {
         let byteLength = 0;
         byteLength += varint_1.default.encodingLength(this.version);
         byteLength += varuint_1.default.encodingLength(this.flags.toNumber());
         byteLength += varuint_1.default.encodingLength(this.signatureVersion.toNumber());
         byteLength += varuint_1.default.encodingLength(this.hashType.toNumber());
-        byteLength += this.systemID.getByteLength();
+        // For hashing, always include systemID even if !hasSystem, so signature remains valid if defaults change
+        // For serialization, only include systemID if hasSystem flag is set
+        if (forHashing || this.hasSystem()) {
+            byteLength += this.systemID.getByteLength();
+        }
         byteLength += this.identityID.getByteLength();
         if (this.hasVdxfKeys()) {
             byteLength += varuint_1.default.encodingLength(this.vdxfKeys.length);
@@ -162,13 +183,23 @@ class VerifiableSignatureData {
         byteLength += this.getBufferEncodingLength(this.signatureAsVch);
         return byteLength;
     }
-    toBuffer() {
-        const bufferWriter = new BufferWriter(Buffer.alloc(this.getByteLength()));
+    getByteLength() {
+        return this._getByteLength(false);
+    }
+    getByteLengthForHashing() {
+        return this._getByteLength(true);
+    }
+    _toBuffer(forHashing) {
+        const bufferWriter = new BufferWriter(Buffer.alloc(this._getByteLength(forHashing)));
         bufferWriter.writeVarInt(this.version);
         bufferWriter.writeCompactSize(this.flags.toNumber());
         bufferWriter.writeCompactSize(this.signatureVersion.toNumber());
         bufferWriter.writeCompactSize(this.hashType.toNumber());
-        bufferWriter.writeSlice(this.systemID.toBuffer());
+        // For hashing, always include systemID even if !hasSystem, so signature remains valid if defaults change
+        // For serialization, only include systemID if hasSystem flag is set
+        if (forHashing || this.hasSystem()) {
+            bufferWriter.writeSlice(this.systemID.toBuffer());
+        }
         bufferWriter.writeSlice(this.identityID.toBuffer());
         if (this.hasVdxfKeys()) {
             bufferWriter.writeArray(this.vdxfKeys.map(x => (0, address_1.fromBase58Check)(x).hash));
@@ -185,15 +216,23 @@ class VerifiableSignatureData {
         bufferWriter.writeVarSlice(this.signatureAsVch);
         return bufferWriter.buffer;
     }
+    toBuffer() {
+        return this._toBuffer(false);
+    }
+    toBufferForHashing() {
+        return this._toBuffer(true);
+    }
     fromBuffer(buffer, offset = 0) {
         const bufferReader = new BufferReader(buffer, offset);
         this.version = bufferReader.readVarInt();
         this.flags = new bn_js_1.BN(bufferReader.readCompactSize());
         this.signatureVersion = new bn_js_1.BN(bufferReader.readCompactSize());
         this.hashType = new bn_js_1.BN(bufferReader.readCompactSize());
-        this.systemID = new CompactAddressObject_1.CompactIAddressObject();
+        if (this.hasSystem()) {
+            this.systemID = new CompactAddressObject_1.CompactIAddressObject();
+            bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
+        }
         this.identityID = new CompactAddressObject_1.CompactIAddressObject();
-        bufferReader.offset = this.systemID.fromBuffer(bufferReader.buffer, bufferReader.offset);
         bufferReader.offset = this.identityID.fromBuffer(bufferReader.buffer, bufferReader.offset);
         if (this.hasVdxfKeys()) {
             this.vdxfKeys = bufferReader.readArray(vdxf_1.HASH160_BYTE_LENGTH).map(x => (0, address_1.toBase58Check)(x, vdxf_1.I_ADDR_VERSION));
@@ -322,3 +361,4 @@ VerifiableSignatureData.FLAG_HAS_VDXF_KEYS = new bn_js_1.BN(1);
 VerifiableSignatureData.FLAG_HAS_VDXF_KEY_NAMES = new bn_js_1.BN(2);
 VerifiableSignatureData.FLAG_HAS_BOUND_HASHES = new bn_js_1.BN(4);
 VerifiableSignatureData.FLAG_HAS_STATEMENTS = new bn_js_1.BN(8);
+VerifiableSignatureData.FLAG_HAS_SYSTEM = new bn_js_1.BN(16);

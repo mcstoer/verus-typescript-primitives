@@ -38,8 +38,8 @@ class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
         if (this.encryptResponseToAddress)
             this.setHasEncryptResponseToAddress();
     }
-    getByteLengthOptionalSig(includeSig = true) {
-        let length = super.getByteLengthOptionalSig(includeSig);
+    getByteLengthOptionalSig(includeSig = true, forHashing = false) {
+        let length = super.getByteLengthOptionalSig(includeSig, forHashing);
         if (this.hasResponseURIs()) {
             length += varuint_1.default.encodingLength(this.responseURIs.length);
             for (let i = 0; i < this.responseURIs.length; i++) {
@@ -51,9 +51,9 @@ class GenericRequest extends GenericEnvelope_1.GenericEnvelope {
         }
         return length;
     }
-    toBufferOptionalSig(includeSig = true) {
-        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLengthOptionalSig(includeSig)));
-        const superBuf = super.toBufferOptionalSig(includeSig);
+    toBufferOptionalSig(includeSig = true, forHashing = false) {
+        const writer = new bufferutils_1.default.BufferWriter(Buffer.alloc(this.getByteLengthOptionalSig(includeSig, forHashing)));
+        const superBuf = super.toBufferOptionalSig(includeSig, forHashing);
         writer.writeSlice(superBuf);
         if (this.hasResponseURIs()) {
             writer.writeCompactSize(this.responseURIs.length);
