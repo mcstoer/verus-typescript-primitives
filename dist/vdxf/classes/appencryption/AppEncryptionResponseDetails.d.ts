@@ -40,7 +40,7 @@ export declare class AppEncryptionResponseDetails implements SerializableEntity 
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): AppEncryptionResponseDetailsJson;
     static fromJson(json: AppEncryptionResponseDetailsJson): AppEncryptionResponseDetails;
 }

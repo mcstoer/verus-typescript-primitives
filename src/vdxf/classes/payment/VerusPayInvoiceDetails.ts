@@ -268,7 +268,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     return writer.buffer;
   }
 
-  fromBuffer (buffer: Buffer, offset: number = 0, verusPayVersion: BigNumber = VERUSPAY_VERSION_CURRENT) {
+  fromBuffer (buffer: Buffer, offset: number = 0, verusPayVersion: BigNumber = VERUSPAY_VERSION_CURRENT, rootSystemName: string = 'VRSC') {
     const reader = new BufferReader(buffer, offset);
 
     this.verusPayVersion = verusPayVersion;
@@ -302,7 +302,7 @@ export class VerusPayInvoiceDetails implements SerializableEntity {
     }
 
     if (this.isTagged()) {
-      this.tag = new CompactXAddressObject();
+      this.tag = new CompactXAddressObject({ type: CompactAddressObject.TYPE_X_ADDRESS, address: '', rootSystemName });
 
       reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
     }

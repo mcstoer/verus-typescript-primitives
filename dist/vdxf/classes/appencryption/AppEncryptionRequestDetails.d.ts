@@ -59,7 +59,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     hasEncryptResponseToAddress(flags?: BigNumber): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): AppEncryptionRequestDetailsJson;
     static fromJson(json: AppEncryptionRequestDetailsJson): AppEncryptionRequestDetails;
 }

@@ -204,13 +204,13 @@ export class IdentityUpdateRequestDetails implements SerializableEntity {
     return writer.buffer;
   }
 
-  fromBuffer(buffer: Buffer, offset: number = 0, parseVdxfObjects: boolean = true) {
+  fromBuffer(buffer: Buffer, offset: number = 0, parseVdxfObjects: boolean = true, rootSystemName: string = 'VRSC') {
     const reader = new BufferReader(buffer, offset);
 
     this.flags = new BN(reader.readCompactSize());
 
     if (this.containsRequestID()) {
-      this.requestID = new CompactIAddressObject();
+      this.requestID = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
 
       reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }

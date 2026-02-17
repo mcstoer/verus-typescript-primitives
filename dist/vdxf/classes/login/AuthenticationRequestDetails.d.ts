@@ -43,7 +43,7 @@ export declare class AuthenticationRequestDetails implements SerializableEntity 
     calcFlags(flags?: BigNumber): BigNumber;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): AuthenticationRequestDetailsJson;
     static fromJson(data: AuthenticationRequestDetailsJson): AuthenticationRequestDetails;
     setFlags(): void;

@@ -122,7 +122,7 @@ class DataPacketRequestDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset) {
+    fromBuffer(buffer, offset, rootSystemName = 'VRSC') {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         // Read signableObjects array
@@ -148,7 +148,7 @@ class DataPacketRequestDetails {
             this.signature = signature;
         }
         if (this.hasRequestID()) {
-            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;

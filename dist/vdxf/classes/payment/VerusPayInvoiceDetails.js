@@ -203,7 +203,7 @@ class VerusPayInvoiceDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset = 0, verusPayVersion = veruspay_1.VERUSPAY_VERSION_CURRENT) {
+    fromBuffer(buffer, offset = 0, verusPayVersion = veruspay_1.VERUSPAY_VERSION_CURRENT, rootSystemName = 'VRSC') {
         const reader = new BufferReader(buffer, offset);
         this.verusPayVersion = verusPayVersion;
         this.flags = this.readVarUInt(reader);
@@ -229,7 +229,7 @@ class VerusPayInvoiceDetails {
             this.acceptedsystems = acceptedSystemsBuffers.map(x => (0, address_1.toBase58Check)(x, vdxf_1.I_ADDR_VERSION));
         }
         if (this.isTagged()) {
-            this.tag = new CompactAddressObject_1.CompactXAddressObject();
+            this.tag = new CompactAddressObject_1.CompactXAddressObject({ type: CompactAddressObject_1.CompactAddressObject.TYPE_X_ADDRESS, address: '', rootSystemName });
             reader.offset = this.tag.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;

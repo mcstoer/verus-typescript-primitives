@@ -140,11 +140,11 @@ class IdentityUpdateRequestDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset = 0, parseVdxfObjects = true) {
+    fromBuffer(buffer, offset = 0, parseVdxfObjects = true, rootSystemName = 'VRSC') {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.containsRequestID()) {
-            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         this.identity = new PartialIdentity_1.PartialIdentity();

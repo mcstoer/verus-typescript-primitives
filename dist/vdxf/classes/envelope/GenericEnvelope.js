@@ -194,8 +194,9 @@ class GenericEnvelope {
             reader.offset = _sig.fromBuffer(reader.buffer, reader.offset);
             this.signature = _sig;
         }
+        const rootSystemName = this.isTestnet() ? 'VRSCTEST' : 'VRSC';
         if (this.hasRequestID()) {
-            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.hasCreatedAt()) {
@@ -205,20 +206,20 @@ class GenericEnvelope {
             this.salt = reader.readVarSlice();
         }
         if (this.hasAppOrDelegatedID()) {
-            this.appOrDelegatedID = new CompactAddressObject_1.CompactIAddressObject();
+            this.appOrDelegatedID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.hasMultiDetails()) {
             this.details = [];
             const numItems = reader.readCompactSize();
             for (let i = 0; i < numItems; i++) {
-                const ord = OrdinalVDXFObject_1.OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
+                const ord = OrdinalVDXFObject_1.OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset, false, rootSystemName);
                 reader.offset = ord.offset;
                 this.details.push(ord.obj);
             }
         }
         else {
-            const ord = OrdinalVDXFObject_1.OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
+            const ord = OrdinalVDXFObject_1.OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset, false, rootSystemName);
             reader.offset = ord.offset;
             this.details = [ord.obj];
         }

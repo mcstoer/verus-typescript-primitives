@@ -78,7 +78,7 @@ export declare class VerusPayInvoiceDetails implements SerializableEntity {
     private readVarUInt;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
-    fromBuffer(buffer: Buffer, offset?: number, verusPayVersion?: BigNumber): number;
+    fromBuffer(buffer: Buffer, offset?: number, verusPayVersion?: BigNumber, rootSystemName?: string): number;
     static fromJson(data: VerusPayInvoiceDetailsJson, verusPayVersion?: BigNumber): VerusPayInvoiceDetails;
     toJson(): VerusPayInvoiceDetailsJson;
 }

@@ -41,4 +41,126 @@ describe('Serializes and deserializes UserDataRequestDetails', () => {
 
     expect(rFromBuf.toBuffer().toString('hex')).toBe(r.toString('hex'))
   });
+
+  describe('rootSystemName propagation and FQN suffix optimization', () => {
+    test('FQN with .vrsc suffix is stripped when rootSystemName is VRSC', () => {
+      const details = new UserDataRequestDetails({
+        version: UserDataRequestDetails.DEFAULT_VERSION,
+        flags: UserDataRequestDetails.FLAG_HAS_SIGNER,
+        dataType: UserDataRequestDetails.FULL_DATA,
+        requestType: UserDataRequestDetails.ATTESTATION,
+        searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Test" }],
+        signer: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "alice.vrsc",
+          rootSystemName: "VRSC"
+        })
+      });
+
+      const buffer = details.toBuffer();
+      const deserialized = new UserDataRequestDetails();
+      deserialized.fromBuffer(buffer, 0, 'VRSC');
+
+      // The suffix should be stripped during serialization
+      expect(deserialized.signer!.address).toBe('alice');
+      expect(deserialized.signer!.rootSystemName).toBe('VRSC');
+    });
+
+    test('FQN with .vrsctest suffix is stripped when rootSystemName is VRSCTEST', () => {
+      const details = new UserDataRequestDetails({
+        version: UserDataRequestDetails.DEFAULT_VERSION,
+        flags: UserDataRequestDetails.FLAG_HAS_SIGNER,
+        dataType: UserDataRequestDetails.FULL_DATA,
+        requestType: UserDataRequestDetails.ATTESTATION,
+        searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Test" }],
+        signer: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "bob.vrsctest",
+          rootSystemName: "VRSCTEST"
+        })
+      });
+
+      const buffer = details.toBuffer();
+      const deserialized = new UserDataRequestDetails();
+      deserialized.fromBuffer(buffer, 0, 'VRSCTEST');
+
+      // The suffix should be stripped during serialization
+      expect(deserialized.signer!.address).toBe('bob');
+      expect(deserialized.signer!.rootSystemName).toBe('VRSCTEST');
+    });
+
+    test('FQN with @ symbol preserves @ after suffix stripping', () => {
+      const details = new UserDataRequestDetails({
+        version: UserDataRequestDetails.DEFAULT_VERSION,
+        flags: UserDataRequestDetails.FLAG_HAS_SIGNER,
+        dataType: UserDataRequestDetails.FULL_DATA,
+        requestType: UserDataRequestDetails.ATTESTATION,
+        searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Test" }],
+        signer: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "charlie.vrsc@",
+          rootSystemName: "VRSC"
+        })
+      });
+
+      const buffer = details.toBuffer();
+      const deserialized = new UserDataRequestDetails();
+      deserialized.fromBuffer(buffer, 0, 'VRSC');
+
+      // The suffix should be stripped but @ should remain
+      expect(deserialized.signer!.address).toBe('charlie@');
+      expect(deserialized.signer!.rootSystemName).toBe('VRSC');
+    });
+
+    test('requestID CompactAddressObject receives correct rootSystemName', () => {
+      const details = new UserDataRequestDetails({
+        version: UserDataRequestDetails.DEFAULT_VERSION,
+        flags: UserDataRequestDetails.FLAG_HAS_REQUEST_ID,
+        dataType: UserDataRequestDetails.FULL_DATA,
+        requestType: UserDataRequestDetails.ATTESTATION,
+        searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Test" }],
+        requestID: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "request.vrsctest",
+          rootSystemName: "VRSCTEST"
+        })
+      });
+
+      const buffer = details.toBuffer();
+      const deserialized = new UserDataRequestDetails();
+      deserialized.fromBuffer(buffer, 0, 'VRSCTEST');
+
+      expect(deserialized.requestID!.address).toBe('request');
+      expect(deserialized.requestID!.rootSystemName).toBe('VRSCTEST');
+    });
+
+    test('both signer and requestID receive correct rootSystemName', () => {
+      const details = new UserDataRequestDetails({
+        version: UserDataRequestDetails.DEFAULT_VERSION,
+        flags: UserDataRequestDetails.FLAG_HAS_SIGNER.or(UserDataRequestDetails.FLAG_HAS_REQUEST_ID),
+        dataType: UserDataRequestDetails.FULL_DATA,
+        requestType: UserDataRequestDetails.ATTESTATION,
+        searchDataKey: [{ "iEEjVkvM9Niz4u2WCr6QQzx1zpVSvDFub1": "Test" }],
+        signer: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "signer.vrsc",
+          rootSystemName: "VRSC"
+        }),
+        requestID: new CompactIAddressObject({
+          type: CompactAddressObject.TYPE_FQN,
+          address: "request.vrsc",
+          rootSystemName: "VRSC"
+        })
+      });
+
+      const buffer = details.toBuffer();
+      const deserialized = new UserDataRequestDetails();
+      deserialized.fromBuffer(buffer, 0, 'VRSC');
+
+      expect(deserialized.signer!.address).toBe('signer');
+      expect(deserialized.signer!.rootSystemName).toBe('VRSC');
+      expect(deserialized.requestID!.address).toBe('request');
+      expect(deserialized.requestID!.rootSystemName).toBe('VRSC');
+    });
+  });
 });

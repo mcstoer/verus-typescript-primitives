@@ -59,7 +59,7 @@ export declare class DataResponseDetails implements SerializableEntity {
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): DataResponseDetailsJson;
     static fromJson(json: DataResponseDetailsJson): DataResponseDetails;
 }

@@ -81,7 +81,7 @@ class ProvisionIdentityDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset) {
+    fromBuffer(buffer, offset, rootSystemName = 'VRSC') {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         if (buffer.length == 0)
             throw new Error("Cannot create provision identity from empty buffer");
@@ -94,17 +94,17 @@ class ProvisionIdentityDetails {
             this.uri = undefined;
         }
         if (this.hasSystemId()) {
-            const systemID = new CompactAddressObject_1.CompactIAddressObject();
+            const systemID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = systemID.fromBuffer(reader.buffer, reader.offset);
             this.systemID = systemID;
         }
         if (this.hasParentId()) {
-            const parentID = new CompactAddressObject_1.CompactIAddressObject();
+            const parentID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = parentID.fromBuffer(reader.buffer, reader.offset);
             this.parentID = parentID;
         }
         if (this.hasIdentityId()) {
-            const identityID = new CompactAddressObject_1.CompactIAddressObject();
+            const identityID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = identityID.fromBuffer(reader.buffer, reader.offset);
             this.identityID = identityID;
         }

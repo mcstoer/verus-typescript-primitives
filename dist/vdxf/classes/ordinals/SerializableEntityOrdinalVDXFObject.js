@@ -18,9 +18,10 @@ class SerializableEntityOrdinalVDXFObject extends OrdinalVDXFObject_1.OrdinalVDX
     toDataBuffer() {
         return this.data.toBuffer();
     }
-    fromDataBuffer(buffer) {
+    fromDataBuffer(buffer, rootSystemName) {
         this.data = new this.entity();
-        this.data.fromBuffer(buffer);
+        // Type cast needed because different Details classes have rootSystemName in different parameter positions
+        this.data.fromBuffer(buffer, 0, rootSystemName);
     }
 }
 exports.SerializableEntityOrdinalVDXFObject = SerializableEntityOrdinalVDXFObject;

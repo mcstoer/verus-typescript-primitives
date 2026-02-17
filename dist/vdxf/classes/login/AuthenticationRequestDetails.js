@@ -83,11 +83,11 @@ class AuthenticationRequestDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset) {
+    fromBuffer(buffer, offset, rootSystemName = 'VRSC') {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         if (this.hasRequestID()) {
-            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         if (this.hasRecipentConstraints()) {
@@ -95,7 +95,7 @@ class AuthenticationRequestDetails {
             const recipientConstraintsLength = reader.readCompactSize();
             for (let i = 0; i < recipientConstraintsLength; i++) {
                 const recipientConstraint = new RecipientConstraint_1.RecipientConstraint();
-                reader.offset = recipientConstraint.fromBuffer(buffer, reader.offset);
+                reader.offset = recipientConstraint.fromBuffer(buffer, reader.offset, rootSystemName);
                 this.recipientConstraints.push(recipientConstraint);
             }
         }

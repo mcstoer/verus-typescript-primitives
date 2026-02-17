@@ -19,7 +19,7 @@ export declare class AuthenticationResponseDetails implements SerializableEntity
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): AuthenticationResponseDetailsJson;
     static fromJson(json: AuthenticationResponseDetailsJson): AuthenticationResponseDetails;
 }

@@ -54,7 +54,7 @@ export declare class ProvisionIdentityDetails implements SerializableEntity {
     hasUri(): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): ProvisionIdentityDetailsJson;
     static fromJson(data: any): ProvisionIdentityDetails;
     calcFlags(): BigNumber;

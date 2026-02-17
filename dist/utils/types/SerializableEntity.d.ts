@@ -1,6 +1,6 @@
 export interface SerializableEntity {
     toBuffer(): Buffer;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, ...additionalArgs: any[]): number;
     getByteLength(): number;
 }
 export interface SerializableDataEntity {

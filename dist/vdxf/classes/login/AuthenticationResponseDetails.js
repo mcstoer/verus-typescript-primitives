@@ -44,11 +44,11 @@ class AuthenticationResponseDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset = 0) {
+    fromBuffer(buffer, offset = 0, rootSystemName = 'VRSC') {
         const reader = new BufferReader(buffer, offset);
         this.flags = reader.readVarInt();
         if (this.hasRequestID()) {
-            this.requestID = new CompactAddressObject_1.CompactIAddressObject();
+            this.requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         return reader.offset;

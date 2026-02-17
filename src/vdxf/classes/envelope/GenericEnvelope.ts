@@ -286,8 +286,10 @@ export class GenericEnvelope implements SerializableEntity {
       this.signature = _sig;
     }
 
+    const rootSystemName = this.isTestnet() ? 'VRSCTEST' : 'VRSC';
+
     if (this.hasRequestID()) {
-      this.requestID = new CompactIAddressObject();
+      this.requestID = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
 
       reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
     }
@@ -301,7 +303,7 @@ export class GenericEnvelope implements SerializableEntity {
     }
 
     if (this.hasAppOrDelegatedID()) {
-      this.appOrDelegatedID = new CompactIAddressObject();
+      this.appOrDelegatedID = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
 
       reader.offset = this.appOrDelegatedID.fromBuffer(reader.buffer, reader.offset);
     }
@@ -312,13 +314,13 @@ export class GenericEnvelope implements SerializableEntity {
       const numItems = reader.readCompactSize();
 
       for (let i = 0; i < numItems; i++) {
-        const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
+        const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset, false, rootSystemName);
 
         reader.offset = ord.offset;
         this.details.push(ord.obj);
       }
     } else {
-      const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset);
+      const ord = OrdinalVDXFObject.createFromBuffer(reader.buffer, reader.offset, false, rootSystemName);
 
       reader.offset = ord.offset;
       this.details = [ord.obj];

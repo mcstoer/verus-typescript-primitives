@@ -7,5 +7,5 @@ export declare class SerializableEntityOrdinalVDXFObject extends OrdinalVDXFObje
     constructor(request: OrdinalVDXFObjectInterfaceTemplate<OrdinalVDXFObjectReservedData>, entity: OrdinalVDXFObjectDataClass);
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
-    fromDataBuffer(buffer: Buffer): void;
+    fromDataBuffer(buffer: Buffer, rootSystemName?: string): void;
 }

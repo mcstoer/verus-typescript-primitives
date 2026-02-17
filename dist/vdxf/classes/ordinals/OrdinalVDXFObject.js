@@ -87,7 +87,7 @@ class OrdinalVDXFObject {
     toDataBuffer() {
         return Buffer.alloc(0);
     }
-    fromDataBuffer(buffer) { }
+    fromDataBuffer(buffer, rootSystemName) { }
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.type.toNumber());
@@ -118,7 +118,7 @@ class OrdinalVDXFObject {
         writer.writeVarSlice(this.toDataBuffer());
         return writer.buffer;
     }
-    fromBufferOptionalType(buffer, offset, type, key) {
+    fromBufferOptionalType(buffer, offset, type, key, rootSystemName) {
         if (buffer.length == 0)
             throw new Error("Cannot create request from empty buffer");
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
@@ -140,7 +140,7 @@ class OrdinalVDXFObject {
         }
         this.version = reader.readVarInt();
         const dataBuf = reader.readVarSlice();
-        this.fromDataBuffer(dataBuf);
+        this.fromDataBuffer(dataBuf, rootSystemName);
         return reader.offset;
     }
     fromBuffer(buffer, offset) {
@@ -182,7 +182,7 @@ class OrdinalVDXFObject {
                 type = new bn_js_1.BN(OrdinalVDXFObjectOrdinalMap_1.OrdinalVDXFObjectOrdinalMap.getOrdinalForVdxfKey(vdxfKey));
             }
         }
-        reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type, key);
+        reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type, key, rootSystemName);
         return { offset: reader.offset, obj: ord };
     }
 }
@@ -209,7 +209,7 @@ class GeneralTypeOrdinalVDXFObject extends OrdinalVDXFObject {
     toDataBuffer() {
         return this.data;
     }
-    fromDataBuffer(buffer) {
+    fromDataBuffer(buffer, rootSystemName) {
         this.data = Buffer.from(buffer);
     }
     static fromJson(details) {

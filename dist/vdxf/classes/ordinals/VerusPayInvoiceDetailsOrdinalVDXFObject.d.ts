@@ -5,5 +5,6 @@ import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinal
 export declare class VerusPayInvoiceDetailsOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
     data: VerusPayInvoiceDetails;
     constructor(request?: OrdinalVDXFObjectInterfaceTemplate<VerusPayInvoiceDetails>);
+    fromDataBuffer(buffer: Buffer, rootSystemName?: string): void;
     static fromJson(details: OrdinalVDXFObjectJsonTemplate<VerusPayInvoiceDetailsJson>): VerusPayInvoiceDetailsOrdinalVDXFObject;
 }

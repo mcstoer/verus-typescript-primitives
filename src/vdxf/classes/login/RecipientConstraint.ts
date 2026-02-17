@@ -51,11 +51,11 @@ export class RecipientConstraint implements SerializableEntity {
     return writer.buffer;
   }
 
-  fromBuffer(buffer: Buffer, offset?: number): number {
+  fromBuffer(buffer: Buffer, offset?: number, rootSystemName: string = 'VRSC'): number {
     const reader = new bufferutils.BufferReader(buffer, offset);
 
     this.type = reader.readCompactSize();
-    this.identity = new CompactIAddressObject();
+    this.identity = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
     reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset);
 
     return reader.offset;

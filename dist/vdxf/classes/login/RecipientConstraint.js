@@ -28,10 +28,10 @@ class RecipientConstraint {
         writer.writeSlice(this.identity.toBuffer());
         return writer.buffer;
     }
-    fromBuffer(buffer, offset) {
+    fromBuffer(buffer, offset, rootSystemName = 'VRSC') {
         const reader = new bufferutils_1.default.BufferReader(buffer, offset);
         this.type = reader.readCompactSize();
-        this.identity = new CompactAddressObject_1.CompactIAddressObject();
+        this.identity = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
         reader.offset = this.identity.fromBuffer(reader.buffer, reader.offset);
         return reader.offset;
     }

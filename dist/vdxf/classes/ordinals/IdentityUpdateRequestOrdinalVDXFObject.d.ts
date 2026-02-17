@@ -5,5 +5,6 @@ import { SerializableEntityOrdinalVDXFObject } from "./SerializableEntityOrdinal
 export declare class IdentityUpdateRequestOrdinalVDXFObject extends SerializableEntityOrdinalVDXFObject implements SerializableDataEntity {
     data: IdentityUpdateRequestDetails;
     constructor(request?: OrdinalVDXFObjectInterfaceTemplate<IdentityUpdateRequestDetails>);
+    fromDataBuffer(buffer: Buffer, rootSystemName?: string): void;
     static fromJson(details: OrdinalVDXFObjectJsonTemplate<IdentityUpdateRequestDetailsJson>): IdentityUpdateRequestOrdinalVDXFObject;
 }

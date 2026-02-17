@@ -126,7 +126,7 @@ export class OrdinalVDXFObject implements SerializableEntity {
     return Buffer.alloc(0);
   }
 
-  fromDataBuffer(buffer: Buffer): void {}
+  fromDataBuffer(buffer: Buffer, rootSystemName?: string): void {}
 
   getByteLength(): number {
     let length = 0;
@@ -172,9 +172,9 @@ export class OrdinalVDXFObject implements SerializableEntity {
     return writer.buffer;
   }
 
-  fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber, key?: string): number {
+  fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber, key?: string, rootSystemName?: string): number {
     if (buffer.length == 0) throw new Error("Cannot create request from empty buffer");
-    
+
     const reader = new bufferutils.BufferReader(buffer, offset);
 
     if (!type) {
@@ -193,8 +193,8 @@ export class OrdinalVDXFObject implements SerializableEntity {
 
     this.version = reader.readVarInt();
     const dataBuf = reader.readVarSlice();
-    
-    this.fromDataBuffer(dataBuf);
+
+    this.fromDataBuffer(dataBuf, rootSystemName);
 
     return reader.offset;
   }
@@ -250,7 +250,7 @@ export class OrdinalVDXFObject implements SerializableEntity {
       }
     }
 
-    reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type, key);
+    reader.offset = ord.fromBufferOptionalType(buffer, reader.offset, type, key, rootSystemName);
 
     return { offset: reader.offset, obj: ord };
   }
@@ -282,7 +282,7 @@ export class GeneralTypeOrdinalVDXFObject extends OrdinalVDXFObject implements S
     return this.data;
   }
 
-  fromDataBuffer(buffer: Buffer): void {
+  fromDataBuffer(buffer: Buffer, rootSystemName?: string): void {
     this.data = Buffer.from(buffer)
   }
 

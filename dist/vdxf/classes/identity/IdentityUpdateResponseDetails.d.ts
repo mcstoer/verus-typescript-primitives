@@ -24,7 +24,7 @@ export declare class IdentityUpdateResponseDetails implements SerializableEntity
     toSha256(): Buffer<ArrayBufferLike>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     getTxidString(): string;
     setTxidFromString(txid: string): void;
     toJson(): IdentityUpdateResponseDetailsJson;

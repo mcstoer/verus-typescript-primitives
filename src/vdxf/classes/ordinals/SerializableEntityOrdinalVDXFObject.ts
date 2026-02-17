@@ -28,8 +28,9 @@ export class SerializableEntityOrdinalVDXFObject extends OrdinalVDXFObject imple
     return this.data.toBuffer();
   }
 
-  fromDataBuffer(buffer: Buffer): void {
+  fromDataBuffer(buffer: Buffer, rootSystemName?: string): void {
     this.data = new this.entity();
-    this.data.fromBuffer(buffer);
+    // Type cast needed because different Details classes have rootSystemName in different parameter positions
+    (this.data as any).fromBuffer(buffer, 0, rootSystemName);
   }
 }

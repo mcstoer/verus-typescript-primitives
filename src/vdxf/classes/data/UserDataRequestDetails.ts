@@ -230,7 +230,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     return writer.buffer;
   }
 
-  fromBuffer(buffer: Buffer, offset?: number): number {
+  fromBuffer(buffer: Buffer, offset?: number, rootSystemName: string = 'VRSC'): number {
     const reader = new BufferReader(buffer, offset);
     this.flags = new BN(reader.readCompactSize());
     this.dataType = new BN(reader.readCompactSize());
@@ -248,7 +248,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
     
     if (this.hasSigner()) {
-      const signer = new CompactIAddressObject();
+      const signer = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
 
       reader.offset = signer.fromBuffer(reader.buffer, reader.offset);
       this.signer = signer;
@@ -265,7 +265,7 @@ export class UserDataRequestDetails implements SerializableEntity {
     }
 
     if (this.hasRequestID()) {
-      const requestID = new CompactIAddressObject();
+      const requestID = new CompactIAddressObject({ type: CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
 
       reader.offset = requestID.fromBuffer(reader.buffer, reader.offset);
       this.requestID = requestID;

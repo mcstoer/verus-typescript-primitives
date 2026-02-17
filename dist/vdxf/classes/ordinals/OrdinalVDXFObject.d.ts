@@ -37,10 +37,10 @@ export declare class OrdinalVDXFObject implements SerializableEntity {
     getIAddressKey(): string;
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
-    fromDataBuffer(buffer: Buffer): void;
+    fromDataBuffer(buffer: Buffer, rootSystemName?: string): void;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber, key?: string): number;
+    fromBufferOptionalType(buffer: Buffer, offset?: number, type?: BigNumber, key?: string, rootSystemName?: string): number;
     fromBuffer(buffer: Buffer, offset?: number): number;
     toJson(): OrdinalVDXFObjectJson;
     static createFromBuffer(buffer: Buffer, offset?: number, optimizeWithOrdinal?: boolean, rootSystemName?: string): {
@@ -54,6 +54,6 @@ export declare class GeneralTypeOrdinalVDXFObject extends OrdinalVDXFObject impl
     constructor(request?: OrdinalVDXFObjectInterfaceTemplate<Buffer>);
     getDataByteLength(): number;
     toDataBuffer(): Buffer;
-    fromDataBuffer(buffer: Buffer): void;
+    fromDataBuffer(buffer: Buffer, rootSystemName?: string): void;
     static fromJson(details: OrdinalVDXFObjectJson): GeneralTypeOrdinalVDXFObject;
 }

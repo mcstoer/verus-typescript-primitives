@@ -51,6 +51,7 @@ export declare class CompactAddressObject<V extends CompactAddressVariantName = 
     toString(): string;
     static fromIAddress(iaddr: string): CompactAddressObject<CompactAddressIVariant>;
     static fromXAddress(xaddr: string, nameSpace?: string): CompactAddressObject<CompactAddressXVariant>;
+    private getFQNWithoutSuffix;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;

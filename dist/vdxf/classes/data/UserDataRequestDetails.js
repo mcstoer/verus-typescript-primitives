@@ -149,7 +149,7 @@ class UserDataRequestDetails {
         }
         return writer.buffer;
     }
-    fromBuffer(buffer, offset) {
+    fromBuffer(buffer, offset, rootSystemName = 'VRSC') {
         const reader = new BufferReader(buffer, offset);
         this.flags = new bn_js_1.BN(reader.readCompactSize());
         this.dataType = new bn_js_1.BN(reader.readCompactSize());
@@ -164,7 +164,7 @@ class UserDataRequestDetails {
             this.searchDataKey.push({ [key]: value });
         }
         if (this.hasSigner()) {
-            const signer = new CompactAddressObject_1.CompactIAddressObject();
+            const signer = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = signer.fromBuffer(reader.buffer, reader.offset);
             this.signer = signer;
         }
@@ -178,7 +178,7 @@ class UserDataRequestDetails {
             }
         }
         if (this.hasRequestID()) {
-            const requestID = new CompactAddressObject_1.CompactIAddressObject();
+            const requestID = new CompactAddressObject_1.CompactIAddressObject({ type: CompactAddressObject_1.CompactIAddressObject.TYPE_I_ADDRESS, address: '', rootSystemName });
             reader.offset = requestID.fromBuffer(reader.buffer, reader.offset);
             this.requestID = requestID;
         }

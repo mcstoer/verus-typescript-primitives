@@ -89,7 +89,7 @@ export declare class UserDataRequestDetails implements SerializableEntity {
     isValid(): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
-    fromBuffer(buffer: Buffer, offset?: number): number;
+    fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;
     toJson(): UserDataRequestJson;
     static fromJson(json: UserDataRequestJson): UserDataRequestDetails;
 }
