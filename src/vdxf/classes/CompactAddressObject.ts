@@ -241,18 +241,20 @@ export class CompactAddressObject<V extends CompactAddressVariantName = CompactA
 }
 
 export class CompactXAddressObject extends CompactAddressObject<CompactAddressXVariant> {
-  static fromAddress(xaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactXAddressObject {
+  static fromAddress(xaddr: string, rootSystemName: string = "VRSC", nameSpace?: string): CompactXAddressObject {
     return new CompactXAddressObject({
       address: xaddr,
       nameSpace: nameSpace,
+      rootSystemName: rootSystemName,
       type: CompactAddressObject.TYPE_X_ADDRESS
     })
   }
 
-  static fromDataKey(xaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactXAddressObject {
+  static fromDataKey(xaddr: string, rootSystemName: "VRSC", nameSpace?: string): CompactXAddressObject {
     return new CompactXAddressObject({
       address: xaddr,
       nameSpace: nameSpace,
+      rootSystemName: rootSystemName,
       type: CompactAddressObject.TYPE_FQN
     })
   }
@@ -269,17 +271,19 @@ export class CompactXAddressObject extends CompactAddressObject<CompactAddressXV
 };
 
 export class CompactIAddressObject extends CompactAddressObject<CompactAddressIVariant> {
-  static fromAddress(iaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactIAddressObject {
+  static fromAddress(iaddr: string, rootSystemName: string = "VRSC", nameSpace?: string): CompactIAddressObject {
     return new CompactIAddressObject({
       address: iaddr,
+      rootSystemName: rootSystemName,
       nameSpace: nameSpace,
       type: CompactAddressObject.TYPE_I_ADDRESS
     })
   }
 
-  static fromFQN(iaddr: string, nameSpace: string = DEFAULT_VERUS_CHAINID): CompactIAddressObject {
+  static fromFQN(iaddr: string, rootSystemName: string = "VRSC", nameSpace?: string): CompactIAddressObject {
     return new CompactIAddressObject({
       address: iaddr,
+      rootSystemName: rootSystemName,
       nameSpace: nameSpace,
       type: CompactAddressObject.TYPE_FQN
     })

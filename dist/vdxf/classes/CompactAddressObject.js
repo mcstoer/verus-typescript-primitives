@@ -189,17 +189,19 @@ CompactAddressObject.TYPE_FQN = new bn_js_1.BN(1);
 CompactAddressObject.TYPE_I_ADDRESS = new bn_js_1.BN(2);
 CompactAddressObject.TYPE_X_ADDRESS = new bn_js_1.BN(3);
 class CompactXAddressObject extends CompactAddressObject {
-    static fromAddress(xaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+    static fromAddress(xaddr, rootSystemName = "VRSC", nameSpace) {
         return new CompactXAddressObject({
             address: xaddr,
             nameSpace: nameSpace,
+            rootSystemName: rootSystemName,
             type: CompactAddressObject.TYPE_X_ADDRESS
         });
     }
-    static fromDataKey(xaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+    static fromDataKey(xaddr, rootSystemName, nameSpace) {
         return new CompactXAddressObject({
             address: xaddr,
             nameSpace: nameSpace,
+            rootSystemName: rootSystemName,
             type: CompactAddressObject.TYPE_FQN
         });
     }
@@ -214,16 +216,18 @@ class CompactXAddressObject extends CompactAddressObject {
 exports.CompactXAddressObject = CompactXAddressObject;
 ;
 class CompactIAddressObject extends CompactAddressObject {
-    static fromAddress(iaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+    static fromAddress(iaddr, rootSystemName = "VRSC", nameSpace) {
         return new CompactIAddressObject({
             address: iaddr,
+            rootSystemName: rootSystemName,
             nameSpace: nameSpace,
             type: CompactAddressObject.TYPE_I_ADDRESS
         });
     }
-    static fromFQN(iaddr, nameSpace = pbaas_1.DEFAULT_VERUS_CHAINID) {
+    static fromFQN(iaddr, rootSystemName = "VRSC", nameSpace) {
         return new CompactIAddressObject({
             address: iaddr,
+            rootSystemName: rootSystemName,
             nameSpace: nameSpace,
             type: CompactAddressObject.TYPE_FQN
         });
