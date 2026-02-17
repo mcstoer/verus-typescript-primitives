@@ -65,21 +65,23 @@ class RecipientConstraint {
             identity: CompactAddressObject_1.CompactIAddressObject.fromAddress(iaddr),
         });
     }
-    static requiredSystemFromFQN(fqn) {
+    static requiredSystemFromFQN(fqn, rootSystemName) {
         return new RecipientConstraint({
             type: RecipientConstraint.REQUIRED_SYSTEM,
             identity: new CompactAddressObject_1.CompactIAddressObject({
                 type: CompactAddressObject_1.CompactAddressObject.TYPE_FQN,
-                address: fqn
+                address: fqn,
+                rootSystemName: rootSystemName
             }),
         });
     }
-    static requiredParentFromFQN(fqn) {
+    static requiredParentFromFQN(fqn, rootSystemName) {
         return new RecipientConstraint({
             type: RecipientConstraint.REQUIRED_PARENT,
             identity: new CompactAddressObject_1.CompactIAddressObject({
                 type: CompactAddressObject_1.CompactAddressObject.TYPE_FQN,
-                address: fqn
+                address: fqn,
+                rootSystemName: rootSystemName
             }),
         });
     }

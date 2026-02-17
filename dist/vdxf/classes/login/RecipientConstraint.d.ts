@@ -24,6 +24,6 @@ export declare class RecipientConstraint implements SerializableEntity {
     static requiredIDFromAddress(iaddr: string): RecipientConstraint;
     static requiredSystemFromAddress(iaddr: string): RecipientConstraint;
     static requiredParentFromAddress(iaddr: string): RecipientConstraint;
-    static requiredSystemFromFQN(fqn: string): RecipientConstraint;
-    static requiredParentFromFQN(fqn: string): RecipientConstraint;
+    static requiredSystemFromFQN(fqn: string, rootSystemName: "VRSC"): RecipientConstraint;
+    static requiredParentFromFQN(fqn: string, rootSystemName: "VRSC"): RecipientConstraint;
 }
