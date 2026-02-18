@@ -4,7 +4,7 @@ import varint from '../utils/varint'
 import varuint from '../utils/varuint'
 import bufferutils from '../utils/bufferutils'
 const { BufferReader, BufferWriter } = bufferutils
-import { VdxfUniValue } from '.';
+import { VdxfUniValue } from './VdxfUniValue';
 import { BufferDataVdxfObject } from '../vdxf/index';
 import * as VDXF_Data from '../vdxf/vdxfdatakeys';
 import { SerializableEntity } from '../utils/types/SerializableEntity';

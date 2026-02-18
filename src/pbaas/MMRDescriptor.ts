@@ -6,7 +6,6 @@ import bufferutils from '../utils/bufferutils'
 const { BufferReader, BufferWriter } = bufferutils
 import { DataDescriptor, DataDescriptorJson } from './DataDescriptor';
 import { EHashTypes } from './DataDescriptor';
-import { VdxfUniValue } from '.';
 import { BufferDataVdxfObject } from '../vdxf/index';
 import * as VDXF_Data from '../vdxf/vdxfdatakeys';
 import { SerializableEntity } from '../utils/types/SerializableEntity';

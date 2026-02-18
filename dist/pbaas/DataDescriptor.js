@@ -6,7 +6,7 @@ const varint_1 = require("../utils/varint");
 const varuint_1 = require("../utils/varuint");
 const bufferutils_1 = require("../utils/bufferutils");
 const { BufferReader, BufferWriter } = bufferutils_1.default;
-const _1 = require(".");
+const VdxfUniValue_1 = require("./VdxfUniValue");
 const index_1 = require("../vdxf/index");
 const VDXF_Data = require("../vdxf/vdxfdatakeys");
 const pbaas_1 = require("../constants/pbaas");
@@ -51,7 +51,7 @@ class DataDescriptor {
             if (data.version != null)
                 newDataDescriptor.version = new bn_js_1.BN(data.version);
             if (data.objectdata != null)
-                newDataDescriptor.objectdata = _1.VdxfUniValue.fromJson(data.objectdata).toBuffer();
+                newDataDescriptor.objectdata = VdxfUniValue_1.VdxfUniValue.fromJson(data.objectdata).toBuffer();
             if (data.label != null)
                 newDataDescriptor.label = data.label;
             if (data.mimetype != null)
@@ -218,7 +218,7 @@ class DataDescriptor {
             if (this.mimeType.startsWith("text/"))
                 isText = true;
         }
-        let processedObject = new _1.VdxfUniValue();
+        let processedObject = new VdxfUniValue_1.VdxfUniValue();
         processedObject.fromBuffer(this.objectdata);
         if ((_a = processedObject.values[0]) === null || _a === void 0 ? void 0 : _a[""]) {
             const keys = Object.keys(processedObject.values[0]);
