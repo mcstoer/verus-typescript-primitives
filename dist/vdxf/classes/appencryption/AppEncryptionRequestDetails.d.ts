@@ -57,6 +57,7 @@ export declare class AppEncryptionRequestDetails implements SerializableEntity {
     hasDerivationID(flags?: BigNumber): boolean;
     hasRequestID(flags?: BigNumber): boolean;
     hasEncryptResponseToAddress(flags?: BigNumber): boolean;
+    returnESK(flags?: BigNumber): boolean;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number, rootSystemName?: string): number;

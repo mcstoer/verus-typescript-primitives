@@ -64,6 +64,9 @@ class AppEncryptionRequestDetails {
     hasEncryptResponseToAddress(flags = this.flags) {
         return flags.and(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).gt(new bn_js_1.BN(0));
     }
+    returnESK(flags = this.flags) {
+        return flags.and(AppEncryptionRequestDetails.FLAG_RETURN_ESK).gt(new bn_js_1.BN(0));
+    }
     getByteLength() {
         let length = 0;
         length += varuint_1.default.encodingLength(this.flags.toNumber());

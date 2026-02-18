@@ -115,6 +115,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     return flags.and(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).gt(new BN(0));
   }
 
+  returnESK(flags: BigNumber = this.flags): boolean {
+    return flags.and(AppEncryptionRequestDetails.FLAG_RETURN_ESK).gt(new BN(0));
+  }
+
   getByteLength(): number {
     let length = 0;
 
