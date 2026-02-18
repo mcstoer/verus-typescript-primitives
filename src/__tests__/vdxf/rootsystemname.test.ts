@@ -191,7 +191,7 @@ describe('rootSystemName propagation through object tree', () => {
       const details = new ProvisionIdentityDetails({
         flags: ProvisionIdentityDetails.FLAG_HAS_SYSTEMID
           .or(ProvisionIdentityDetails.FLAG_HAS_PARENTID)
-          .or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION),
+          .or(ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID),
         systemID: new CompactIAddressObject({
           type: CompactAddressObject.TYPE_FQN,
           address: "vrsctest",

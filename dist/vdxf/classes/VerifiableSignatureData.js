@@ -75,7 +75,7 @@ class VerifiableSignatureData {
         this.setFlag(VerifiableSignatureData.FLAG_HAS_SYSTEM);
     }
     calcFlags() {
-        let flags = new bn_js_1.BN(0);
+        let flags = new bn_js_1.BN(this.flags);
         if (this.hasVdxfKeys())
             flags = flags.or(VerifiableSignatureData.FLAG_HAS_VDXF_KEYS);
         if (this.hasVdxfKeyNames())
@@ -302,10 +302,9 @@ class VerifiableSignatureData {
     }
     toJson() {
         var _a, _b;
-        const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
-            flags: flags.toNumber(),
+            flags: this.flags.toNumber(),
             signatureversion: this.signatureVersion.toNumber(),
             hashtype: this.hashType.toNumber(),
             systemid: this.systemID.toJson(),

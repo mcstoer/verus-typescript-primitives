@@ -78,7 +78,7 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   calcFlags(): BigNumber {
-    let flags = new BN(0);
+    let flags = new BN(this.flags);
 
     if (this.requestID != null) {
       flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID);
@@ -116,12 +116,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   getByteLength(): number {
-
-    const flags = this.calcFlags();
-
     let length = 0;
 
-    length += varuint.encodingLength(flags.toNumber());
+    length += varuint.encodingLength(this.flags.toNumber());
 
     if (this.hasEncryptResponseToAddress()) {
       length += this.encryptResponseToAddress.getByteLength();
@@ -129,11 +126,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
 
     length += varuint.encodingLength(this.derivationNumber.toNumber());
 
-    if (this.hasDerivationID(flags)) {
+    if (this.hasDerivationID()) {
       length += this.derivationID.getByteLength();
     }
 
-    if (this.hasRequestID(flags)) {
+    if (this.hasRequestID()) {
       length += this.requestID.getByteLength();
     }
 
@@ -141,11 +138,10 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   toBuffer(): Buffer {
-    const flags = this.calcFlags();
     const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
 
     // Write flags
-    writer.writeCompactSize(flags.toNumber());
+    writer.writeCompactSize(this.flags.toNumber());
 
     if (this.hasEncryptResponseToAddress()) {
       writer.writeSlice(this.encryptResponseToAddress.toBuffer());
@@ -154,11 +150,11 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
     // Write mandatory derivation number
     writer.writeVarInt(this.derivationNumber);
 
-    if (this.hasDerivationID(flags)) {
+    if (this.hasDerivationID()) {
       writer.writeSlice(this.derivationID.toBuffer());
     }
 
-    if (this.hasRequestID(flags)) {
+    if (this.hasRequestID()) {
       writer.writeSlice(this.requestID.toBuffer());
     }
 
@@ -197,12 +193,9 @@ export class AppEncryptionRequestDetails implements SerializableEntity {
   }
 
   toJson(): AppEncryptionRequestDetailsJson {
-    // Set flags before serialization
-    const flags = this.calcFlags();
-
     return {
       version: this.version.toNumber(),
-      flags: flags.toNumber(),
+      flags: this.flags.toNumber(),
       encrypttozaddress: this.encryptResponseToAddress.toAddressString(),
       derivationnumber: this.derivationNumber.toNumber(),
       derivationid: this.derivationID?.toJson(),

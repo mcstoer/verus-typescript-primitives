@@ -26,7 +26,7 @@ describe('Serializes and deserializes ProvisionIdentityDetails', () => {
   test('(de)serialize ProvisionIdentity with fqn', async () => {
     const e = new ProvisionIdentityDetails({
       version: new BN(1, 10),
-      flags: ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION,
+      flags: ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID,
       uri: RequestURI.fromUriString("https://127.0.0.1/provision"),
       identityID: new CompactIAddressObject({ version: CompactAddressObject.DEFAULT_VERSION, type: CompactAddressObject.TYPE_I_ADDRESS, address: TEST_IDENTITY_ID_1, rootSystemName: "VRSC" })
     })

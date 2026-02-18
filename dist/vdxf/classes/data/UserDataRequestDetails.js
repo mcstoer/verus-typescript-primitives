@@ -42,7 +42,7 @@ class UserDataRequestDetails {
         this.setFlags();
     }
     calcFlags() {
-        let flags = new bn_js_1.BN(0);
+        let flags = new bn_js_1.BN(this.flags);
         if (this.requestedKeys && this.requestedKeys.length > 0) {
             flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
         }
@@ -186,10 +186,9 @@ class UserDataRequestDetails {
     }
     toJson() {
         var _a, _b;
-        const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
-            flags: flags.toNumber(),
+            flags: this.flags.toNumber(),
             datatype: this.dataType.toNumber(),
             requesttype: this.requestType.toNumber(),
             searchdatakey: this.searchDataKey,

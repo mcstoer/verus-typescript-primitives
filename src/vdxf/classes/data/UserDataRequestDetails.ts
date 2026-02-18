@@ -96,7 +96,7 @@ export class UserDataRequestDetails implements SerializableEntity {
   }
 
   calcFlags(): BigNumber {
-    let flags = new BN(0);
+    let flags = new BN(this.flags);
     if (this.requestedKeys && this.requestedKeys.length > 0) {
       flags = flags.or(UserDataRequestDetails.FLAG_HAS_REQUESTED_KEYS);
     }
@@ -275,11 +275,9 @@ export class UserDataRequestDetails implements SerializableEntity {
   }
 
   toJson(): UserDataRequestJson {
-    const flags = this.calcFlags();
-
     return {
       version: this.version.toNumber(),
-      flags: flags.toNumber(),
+      flags: this.flags.toNumber(),
       datatype: this.dataType.toNumber(),
       requesttype: this.requestType.toNumber(),
       searchdatakey: this.searchDataKey,

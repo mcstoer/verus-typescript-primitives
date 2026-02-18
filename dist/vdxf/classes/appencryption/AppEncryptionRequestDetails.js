@@ -38,7 +38,7 @@ class AppEncryptionRequestDetails {
         this.flags = this.calcFlags();
     }
     calcFlags() {
-        let flags = new bn_js_1.BN(0);
+        let flags = new bn_js_1.BN(this.flags);
         if (this.requestID != null) {
             flags = flags.or(AppEncryptionRequestDetails.FLAG_HAS_REQUEST_ID);
         }
@@ -65,35 +65,33 @@ class AppEncryptionRequestDetails {
         return flags.and(AppEncryptionRequestDetails.FLAG_HAS_ENCRYPT_RESPONSE_TO_ADDRESS).gt(new bn_js_1.BN(0));
     }
     getByteLength() {
-        const flags = this.calcFlags();
         let length = 0;
-        length += varuint_1.default.encodingLength(flags.toNumber());
+        length += varuint_1.default.encodingLength(this.flags.toNumber());
         if (this.hasEncryptResponseToAddress()) {
             length += this.encryptResponseToAddress.getByteLength();
         }
         length += varuint_1.default.encodingLength(this.derivationNumber.toNumber());
-        if (this.hasDerivationID(flags)) {
+        if (this.hasDerivationID()) {
             length += this.derivationID.getByteLength();
         }
-        if (this.hasRequestID(flags)) {
+        if (this.hasRequestID()) {
             length += this.requestID.getByteLength();
         }
         return length;
     }
     toBuffer() {
-        const flags = this.calcFlags();
         const writer = new BufferWriter(Buffer.alloc(this.getByteLength()));
         // Write flags
-        writer.writeCompactSize(flags.toNumber());
+        writer.writeCompactSize(this.flags.toNumber());
         if (this.hasEncryptResponseToAddress()) {
             writer.writeSlice(this.encryptResponseToAddress.toBuffer());
         }
         // Write mandatory derivation number
         writer.writeVarInt(this.derivationNumber);
-        if (this.hasDerivationID(flags)) {
+        if (this.hasDerivationID()) {
             writer.writeSlice(this.derivationID.toBuffer());
         }
-        if (this.hasRequestID(flags)) {
+        if (this.hasRequestID()) {
             writer.writeSlice(this.requestID.toBuffer());
         }
         return writer.buffer;
@@ -122,11 +120,9 @@ class AppEncryptionRequestDetails {
     }
     toJson() {
         var _a, _b;
-        // Set flags before serialization
-        const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
-            flags: flags.toNumber(),
+            flags: this.flags.toNumber(),
             encrypttozaddress: this.encryptResponseToAddress.toAddressString(),
             derivationnumber: this.derivationNumber.toNumber(),
             derivationid: (_a = this.derivationID) === null || _a === void 0 ? void 0 : _a.toJson(),

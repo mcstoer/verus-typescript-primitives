@@ -41,7 +41,7 @@ class DataPacketRequestDetails {
         this.flags = this.calcFlags();
     }
     calcFlags() {
-        let flags = new bn_js_1.BN(0);
+        let flags = new bn_js_1.BN(this.flags);
         if (this.statements && this.statements.length > 0) {
             flags = flags.or(DataPacketRequestDetails.FLAG_HAS_STATEMENTS);
         }
@@ -154,10 +154,9 @@ class DataPacketRequestDetails {
         return reader.offset;
     }
     toJson() {
-        const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
-            flags: flags.toNumber(),
+            flags: this.flags.toNumber(),
             signableobjects: this.signableObjects.map(obj => obj.toJson()),
             statements: this.statements,
             signature: this.signature ? this.signature.toJson() : undefined,

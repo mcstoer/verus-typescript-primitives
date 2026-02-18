@@ -38,7 +38,7 @@ class ProvisionIdentityDetails {
         return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_PARENTID).eq(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
     }
     hasIdentityId() {
-        return this.flags.and(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION).eq(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+        return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID).eq(ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID);
     }
     hasUri() {
         return this.flags.and(ProvisionIdentityDetails.FLAG_HAS_URI).eq(ProvisionIdentityDetails.FLAG_HAS_URI);
@@ -111,10 +111,9 @@ class ProvisionIdentityDetails {
         return reader.offset;
     }
     toJson() {
-        const flags = this.calcFlags();
         return {
             version: this.version.toNumber(),
-            flags: flags.toNumber(),
+            flags: this.flags.toNumber(),
             uri: this.uri ? this.uri.toJson() : null,
             systemid: this.systemID ? this.systemID.toJson() : null,
             parentid: this.parentID ? this.parentID.toJson() : null,
@@ -143,7 +142,7 @@ class ProvisionIdentityDetails {
         return provision;
     }
     calcFlags() {
-        let flags = new bn_js_1.BN(0, 10);
+        let flags = new bn_js_1.BN(this.flags);
         if (this.systemID) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_SYSTEMID);
         }
@@ -151,7 +150,7 @@ class ProvisionIdentityDetails {
             flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_PARENTID);
         }
         if (this.identityID) {
-            flags = flags.or(ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION);
+            flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID);
         }
         if (this.uri) {
             flags = flags.or(ProvisionIdentityDetails.FLAG_HAS_URI);
@@ -178,5 +177,5 @@ ProvisionIdentityDetails.VERSION_LASTVALID = new bn_js_1.BN(1, 10);
 // flags include params // parent same as signer
 ProvisionIdentityDetails.FLAG_HAS_SYSTEMID = new bn_js_1.BN(1, 10);
 ProvisionIdentityDetails.FLAG_HAS_PARENTID = new bn_js_1.BN(2, 10);
-ProvisionIdentityDetails.FLAG_IS_A_DEFINED_NAME_TO_PROVISION = new bn_js_1.BN(4, 10);
+ProvisionIdentityDetails.FLAG_HAS_IDENTITY_ID = new bn_js_1.BN(4, 10);
 ProvisionIdentityDetails.FLAG_HAS_URI = new bn_js_1.BN(8, 10);
