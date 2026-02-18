@@ -40,7 +40,7 @@ class DataDescriptor {
             if (this.mimeType && this.mimeType.length > 128) {
                 this.mimeType = this.mimeType.slice(0, 128);
             }
-            this.SetFlags();
+            this.setFlags();
         }
     }
     static fromJson(data) {
@@ -72,10 +72,10 @@ class DataDescriptor {
             }
         }
         ;
-        newDataDescriptor.SetFlags();
+        newDataDescriptor.setFlags();
         return newDataDescriptor;
     }
-    DecodeHashVector() {
+    decodeHashVector() {
         const vdxfData = new index_1.BufferDataVdxfObject();
         vdxfData.fromBuffer(this.objectdata);
         const hashes = [];
@@ -94,33 +94,33 @@ class DataDescriptor {
         length += varint_1.default.encodingLength(this.flags);
         length += varuint_1.default.encodingLength(this.objectdata.length);
         length += this.objectdata.length;
-        if (this.HasLabel()) {
+        if (this.hasLabel()) {
             if (this.label.length > 64) {
                 throw new Error("Label too long");
             }
             length += varuint_1.default.encodingLength(this.label.length);
             length += this.label.length;
         }
-        if (this.HasMIME()) {
+        if (this.hasMIME()) {
             if (this.mimeType.length > 128) {
                 throw new Error("MIME type too long");
             }
             length += varuint_1.default.encodingLength(this.mimeType.length);
             length += this.mimeType.length;
         }
-        if (this.HasSalt()) {
+        if (this.hasSalt()) {
             length += varuint_1.default.encodingLength(this.salt.length);
             length += this.salt.length;
         }
-        if (this.HasEPK()) {
+        if (this.hasEPK()) {
             length += varuint_1.default.encodingLength(this.epk.length);
             length += this.epk.length;
         }
-        if (this.HasIVK()) {
+        if (this.hasIVK()) {
             length += varuint_1.default.encodingLength(this.ivk.length);
             length += this.ivk.length;
         }
-        if (this.HasSSK()) {
+        if (this.hasSSK()) {
             length += varuint_1.default.encodingLength(this.ssk.length);
             length += this.ssk.length;
         }
@@ -131,22 +131,22 @@ class DataDescriptor {
         writer.writeVarInt(this.version);
         writer.writeVarInt(this.flags);
         writer.writeVarSlice(this.objectdata);
-        if (this.HasLabel()) {
+        if (this.hasLabel()) {
             writer.writeVarSlice(Buffer.from(this.label));
         }
-        if (this.HasMIME()) {
+        if (this.hasMIME()) {
             writer.writeVarSlice(Buffer.from(this.mimeType));
         }
-        if (this.HasSalt()) {
+        if (this.hasSalt()) {
             writer.writeVarSlice(this.salt);
         }
-        if (this.HasEPK()) {
+        if (this.hasEPK()) {
             writer.writeVarSlice(this.epk);
         }
-        if (this.HasIVK()) {
+        if (this.hasIVK()) {
             writer.writeVarSlice(this.ivk);
         }
-        if (this.HasSSK()) {
+        if (this.hasSSK()) {
             writer.writeVarSlice(this.ssk);
         }
         return writer.buffer;
@@ -156,52 +156,52 @@ class DataDescriptor {
         this.version = reader.readVarInt();
         this.flags = reader.readVarInt();
         this.objectdata = reader.readVarSlice();
-        if (this.HasLabel()) {
+        if (this.hasLabel()) {
             this.label = reader.readVarSlice().toString();
         }
-        if (this.HasMIME()) {
+        if (this.hasMIME()) {
             this.mimeType = reader.readVarSlice().toString();
         }
-        if (this.HasSalt()) {
+        if (this.hasSalt()) {
             this.salt = reader.readVarSlice();
         }
-        if (this.HasEPK()) {
+        if (this.hasEPK()) {
             this.epk = reader.readVarSlice();
         }
-        if (this.HasIVK()) {
+        if (this.hasIVK()) {
             this.ivk = reader.readVarSlice();
         }
-        if (this.HasSSK()) {
+        if (this.hasSSK()) {
             this.ssk = reader.readVarSlice();
         }
         return reader.offset;
     }
-    HasEncryptedData() {
+    hasEncryptedData() {
         return this.flags.and(DataDescriptor.FLAG_ENCRYPTED_DATA).gt(new bn_js_1.BN(0));
     }
-    HasSalt() {
+    hasSalt() {
         return this.flags.and(DataDescriptor.FLAG_SALT_PRESENT).gt(new bn_js_1.BN(0));
     }
-    HasEPK() {
+    hasEPK() {
         return this.flags.and(DataDescriptor.FLAG_ENCRYPTION_PUBLIC_KEY_PRESENT).gt(new bn_js_1.BN(0));
     }
-    HasMIME() {
+    hasMIME() {
         return this.flags.and(DataDescriptor.FLAG_MIME_TYPE_PRESENT).gt(new bn_js_1.BN(0));
     }
-    HasIVK() {
+    hasIVK() {
         return this.flags.and(DataDescriptor.FLAG_INCOMING_VIEWING_KEY_PRESENT).gt(new bn_js_1.BN(0));
     }
-    HasSSK() {
+    hasSSK() {
         return this.flags.and(DataDescriptor.FLAG_SYMMETRIC_ENCRYPTION_KEY_PRESENT).gt(new bn_js_1.BN(0));
     }
-    HasLabel() {
+    hasLabel() {
         return this.flags.and(DataDescriptor.FLAG_LABEL_PRESENT).gt(new bn_js_1.BN(0));
     }
-    CalcFlags() {
+    calcFlags() {
         return this.flags.and(DataDescriptor.FLAG_ENCRYPTED_DATA).add(this.label ? DataDescriptor.FLAG_LABEL_PRESENT : new bn_js_1.BN(0)).add(this.mimeType ? DataDescriptor.FLAG_MIME_TYPE_PRESENT : new bn_js_1.BN(0)).add(this.salt ? DataDescriptor.FLAG_SALT_PRESENT : new bn_js_1.BN(0)).add(this.epk ? DataDescriptor.FLAG_ENCRYPTION_PUBLIC_KEY_PRESENT : new bn_js_1.BN(0)).add(this.ivk ? DataDescriptor.FLAG_INCOMING_VIEWING_KEY_PRESENT : new bn_js_1.BN(0)).add(this.ssk ? DataDescriptor.FLAG_SYMMETRIC_ENCRYPTION_KEY_PRESENT : new bn_js_1.BN(0));
     }
-    SetFlags() {
-        this.flags = this.CalcFlags();
+    setFlags() {
+        this.flags = this.calcFlags();
     }
     isValid() {
         return !!(this.version.gte(DataDescriptor.FIRST_VERSION) && this.version.lte(DataDescriptor.LAST_VERSION) && this.flags.and(DataDescriptor.FLAG_MASK.notn(DataDescriptor.FLAG_MASK.bitLength())));
@@ -295,29 +295,29 @@ class VDXFDataDescriptor extends index_1.BufferDataVdxfObject {
         delete this.data;
         return reader.offset;
     }
-    HasEncryptedData() {
-        return this.dataDescriptor.HasEncryptedData();
+    hasEncryptedData() {
+        return this.dataDescriptor.hasEncryptedData();
     }
-    HasLabel() {
-        return this.dataDescriptor.HasLabel();
+    hasLabel() {
+        return this.dataDescriptor.hasLabel();
     }
-    HasSalt() {
-        return this.dataDescriptor.HasSalt();
+    hasSalt() {
+        return this.dataDescriptor.hasSalt();
     }
-    HasEPK() {
-        return this.dataDescriptor.HasEPK();
+    hasEPK() {
+        return this.dataDescriptor.hasEPK();
     }
-    HasIVK() {
-        return this.dataDescriptor.HasIVK();
+    hasIVK() {
+        return this.dataDescriptor.hasIVK();
     }
-    HasSSK() {
-        return this.dataDescriptor.HasSSK();
+    hasSSK() {
+        return this.dataDescriptor.hasSSK();
     }
-    CalcFlags() {
-        return this.dataDescriptor.CalcFlags();
+    calcFlags() {
+        return this.dataDescriptor.calcFlags();
     }
-    SetFlags() {
-        return this.dataDescriptor.SetFlags();
+    setFlags() {
+        return this.dataDescriptor.setFlags();
     }
 }
 exports.VDXFDataDescriptor = VDXFDataDescriptor;

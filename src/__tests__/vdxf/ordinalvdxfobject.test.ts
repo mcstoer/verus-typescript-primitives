@@ -214,7 +214,7 @@ describe('OrdinalVDXFObject and subclasses round-trip serialization', () => {
     });
 
     // Force flags, etc.
-    dd.SetFlags();
+    dd.setFlags();
 
     const obj = new DataDescriptorOrdinalVDXFObject({ data: dd });
 

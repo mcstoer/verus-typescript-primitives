@@ -45,7 +45,7 @@ export class CrossChainProof implements SerializableEntity {
     this.chain_objects = data?.chain_objects || [];    
   }
 
-  static KnownVDXFKeys(): Map<string, CHAIN_OBJECT_TYPES> {
+  static knownVDXFKeys(): Map<string, CHAIN_OBJECT_TYPES> {
     const keys = new Map();
     keys.set(VDXF_Data.EvidenceDataKey.vdxfid, CHAIN_OBJECT_TYPES.CHAINOBJ_EVIDENCEDATA);
     return keys;
@@ -128,8 +128,8 @@ export class CrossChainProof implements SerializableEntity {
 
     let chainObjects = [];
     for (let i = 0; i < data.chainobjects.length; i++) {
-      if (!CrossChainProof.KnownVDXFKeys().get(data.chainobjects[i].vdxftype)) throw new Error("Invalid chain object type");
-      const vdxftype = CrossChainProof.KnownVDXFKeys().get(data.chainobjects[i].vdxftype);
+      if (!CrossChainProof.knownVDXFKeys().get(data.chainobjects[i].vdxftype)) throw new Error("Invalid chain object type");
+      const vdxftype = CrossChainProof.knownVDXFKeys().get(data.chainobjects[i].vdxftype);
       switch (vdxftype) {
         case CHAIN_OBJECT_TYPES.CHAINOBJ_EVIDENCEDATA:
           chainObjects.push(EvidenceData.fromJson({hex: data.chainobjects[i].value.hex}));

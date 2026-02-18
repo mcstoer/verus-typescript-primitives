@@ -1,10 +1,4 @@
-import varint from '../utils/varint'
-import varuint from '../utils/varuint'
-import { fromBase58Check, toBase58Check } from "../utils/address";
 import bufferutils from '../utils/bufferutils'
-import { BN } from 'bn.js';
-import { BigNumber } from '../utils/types/BigNumber';
-import { I_ADDR_VERSION } from '../constants/vdxf';
 import { SerializableEntity } from '../utils/types/SerializableEntity';
 import { PBaaSEvidenceRef, PBaaSEvidenceRefJson } from './PBaaSEvidenceRef';
 import { IdentityMultimapRef, IdentityMultimapRefJson } from './IdentityMultimapRef';

@@ -145,7 +145,7 @@ describe('Serializes and deserializes dataDescriptors', () => {
     expect(initialDescriptor).toStrictEqual(newDescriptor.toBuffer().toString('hex'));
 
     // test to see if the hashed object is the correct size
-    const hashes = mmrhashes.DecodeHashVector();
+    const hashes = mmrhashes.decodeHashVector();
     expect(typeof hashes).toStrictEqual('object')
     expect(hashes.length).toStrictEqual(2);
     expect(hashes[0].length).toStrictEqual(32);

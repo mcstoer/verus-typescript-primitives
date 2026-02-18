@@ -27,7 +27,7 @@ class CrossChainProof {
         this.version = (data === null || data === void 0 ? void 0 : data.version) || new bn_js_1.BN(1, 10);
         this.chain_objects = (data === null || data === void 0 ? void 0 : data.chain_objects) || [];
     }
-    static KnownVDXFKeys() {
+    static knownVDXFKeys() {
         const keys = new Map();
         keys.set(VDXF_Data.EvidenceDataKey.vdxfid, CHAIN_OBJECT_TYPES.CHAINOBJ_EVIDENCEDATA);
         return keys;
@@ -92,9 +92,9 @@ class CrossChainProof {
     static fromJson(data) {
         let chainObjects = [];
         for (let i = 0; i < data.chainobjects.length; i++) {
-            if (!CrossChainProof.KnownVDXFKeys().get(data.chainobjects[i].vdxftype))
+            if (!CrossChainProof.knownVDXFKeys().get(data.chainobjects[i].vdxftype))
                 throw new Error("Invalid chain object type");
-            const vdxftype = CrossChainProof.KnownVDXFKeys().get(data.chainobjects[i].vdxftype);
+            const vdxftype = CrossChainProof.knownVDXFKeys().get(data.chainobjects[i].vdxftype);
             switch (vdxftype) {
                 case CHAIN_OBJECT_TYPES.CHAINOBJ_EVIDENCEDATA:
                     chainObjects.push(EvidenceData_1.EvidenceData.fromJson({ hex: data.chainobjects[i].value.hex }));

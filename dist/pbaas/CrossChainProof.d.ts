@@ -29,7 +29,7 @@ export declare class CrossChainProof implements SerializableEntity {
         version: any;
         chain_objects: any;
     });
-    static KnownVDXFKeys(): Map<string, CHAIN_OBJECT_TYPES>;
+    static knownVDXFKeys(): Map<string, CHAIN_OBJECT_TYPES>;
     getByteLength(): number;
     toBuffer(): Buffer<ArrayBufferLike>;
     fromBuffer(buffer: Buffer, offset?: number): number;

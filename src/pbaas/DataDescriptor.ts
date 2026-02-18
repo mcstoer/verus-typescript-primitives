@@ -21,8 +21,8 @@ export interface DataDescriptorJson {
   ivk?: string;
   ssk?: string;
 }
-export class DataDescriptor implements SerializableEntity {
 
+export class DataDescriptor implements SerializableEntity {
   static VERSION_INVALID = new BN(0);
   static VERSION_FIRST = new BN(1);
   static FIRST_VERSION = new BN(1);
@@ -88,13 +88,12 @@ export class DataDescriptor implements SerializableEntity {
         this.mimeType = this.mimeType.slice(0, 128);
       }
 
-      this.SetFlags();
+      this.setFlags();
 
     }
   }
 
   static fromJson(data: any): DataDescriptor {
-
     const newDataDescriptor = new DataDescriptor();
 
     if (data != null) {
@@ -116,14 +115,12 @@ export class DataDescriptor implements SerializableEntity {
       }
     };
 
-    newDataDescriptor.SetFlags();
+    newDataDescriptor.setFlags();
 
     return newDataDescriptor;
-
   }
 
-  DecodeHashVector(): Array<Buffer> {
-
+  decodeHashVector(): Array<Buffer> {
     const vdxfData = new BufferDataVdxfObject();
     vdxfData.fromBuffer(this.objectdata);
     const hashes = [];
@@ -136,7 +133,6 @@ export class DataDescriptor implements SerializableEntity {
       }
     }
     return hashes;
-
   }
 
   getByteLength(): number {
@@ -148,7 +144,7 @@ export class DataDescriptor implements SerializableEntity {
     length += varuint.encodingLength(this.objectdata.length);
     length += this.objectdata.length;
 
-    if (this.HasLabel()) {
+    if (this.hasLabel()) {
       if (this.label.length > 64) {
         throw new Error("Label too long");
       }
@@ -156,7 +152,7 @@ export class DataDescriptor implements SerializableEntity {
       length += this.label.length;
     }
 
-    if (this.HasMIME()) {
+    if (this.hasMIME()) {
       if (this.mimeType.length > 128) {
         throw new Error("MIME type too long");
       }
@@ -164,22 +160,22 @@ export class DataDescriptor implements SerializableEntity {
       length += this.mimeType.length;
     }
 
-    if (this.HasSalt()) {
+    if (this.hasSalt()) {
       length += varuint.encodingLength(this.salt.length);
       length += this.salt.length;
     }
 
-    if (this.HasEPK()) {
+    if (this.hasEPK()) {
       length += varuint.encodingLength(this.epk.length);
       length += this.epk.length;
     }
 
-    if (this.HasIVK()) {
+    if (this.hasIVK()) {
       length += varuint.encodingLength(this.ivk.length);
       length += this.ivk.length;
     }
 
-    if (this.HasSSK()) {
+    if (this.hasSSK()) {
       length += varuint.encodingLength(this.ssk.length);
       length += this.ssk.length;
     }
@@ -193,27 +189,27 @@ export class DataDescriptor implements SerializableEntity {
     writer.writeVarInt(this.flags);
     writer.writeVarSlice(this.objectdata);
 
-    if (this.HasLabel()) {
+    if (this.hasLabel()) {
       writer.writeVarSlice(Buffer.from(this.label));
     }
 
-    if (this.HasMIME()) {
+    if (this.hasMIME()) {
       writer.writeVarSlice(Buffer.from(this.mimeType));
     }
 
-    if (this.HasSalt()) {
+    if (this.hasSalt()) {
       writer.writeVarSlice(this.salt);
     }
 
-    if (this.HasEPK()) {
+    if (this.hasEPK()) {
       writer.writeVarSlice(this.epk);
     }
 
-    if (this.HasIVK()) {
+    if (this.hasIVK()) {
       writer.writeVarSlice(this.ivk);
     }
 
-    if (this.HasSSK()) {
+    if (this.hasSSK()) {
       writer.writeVarSlice(this.ssk);
     }
 
@@ -226,62 +222,62 @@ export class DataDescriptor implements SerializableEntity {
     this.flags = reader.readVarInt();
     this.objectdata = reader.readVarSlice();
 
-    if (this.HasLabel()) {
+    if (this.hasLabel()) {
       this.label = reader.readVarSlice().toString();
     }
 
-    if (this.HasMIME()) {
+    if (this.hasMIME()) {
       this.mimeType = reader.readVarSlice().toString();
     }
 
-    if (this.HasSalt()) {
+    if (this.hasSalt()) {
       this.salt = reader.readVarSlice();
     }
 
-    if (this.HasEPK()) {
+    if (this.hasEPK()) {
       this.epk = reader.readVarSlice();
     }
 
-    if (this.HasIVK()) {
+    if (this.hasIVK()) {
       this.ivk = reader.readVarSlice();
     }
 
-    if (this.HasSSK()) {
+    if (this.hasSSK()) {
       this.ssk = reader.readVarSlice();
     }
     return reader.offset;
 
   }
 
-  HasEncryptedData(): boolean {
+  hasEncryptedData(): boolean {
     return this.flags.and(DataDescriptor.FLAG_ENCRYPTED_DATA).gt(new BN(0));
   }
 
-  HasSalt(): boolean {
+  hasSalt(): boolean {
     return this.flags.and(DataDescriptor.FLAG_SALT_PRESENT).gt(new BN(0));
   }
 
-  HasEPK(): boolean {
+  hasEPK(): boolean {
     return this.flags.and(DataDescriptor.FLAG_ENCRYPTION_PUBLIC_KEY_PRESENT).gt(new BN(0));
   }
 
-  HasMIME(): boolean {
+  hasMIME(): boolean {
     return this.flags.and(DataDescriptor.FLAG_MIME_TYPE_PRESENT).gt(new BN(0));
   }
 
-  HasIVK(): boolean {
+  hasIVK(): boolean {
     return this.flags.and(DataDescriptor.FLAG_INCOMING_VIEWING_KEY_PRESENT).gt(new BN(0));
   }
 
-  HasSSK(): boolean {
+  hasSSK(): boolean {
     return this.flags.and(DataDescriptor.FLAG_SYMMETRIC_ENCRYPTION_KEY_PRESENT).gt(new BN(0));
   }
 
-  HasLabel(): boolean {
+  hasLabel(): boolean {
     return this.flags.and(DataDescriptor.FLAG_LABEL_PRESENT).gt(new BN(0));
   }
 
-  CalcFlags(): BigNumber {
+  calcFlags(): BigNumber {
     return this.flags.and(DataDescriptor.FLAG_ENCRYPTED_DATA).add
       (this.label ? DataDescriptor.FLAG_LABEL_PRESENT : new BN(0)).add
       (this.mimeType ? DataDescriptor.FLAG_MIME_TYPE_PRESENT : new BN(0)).add
@@ -291,8 +287,8 @@ export class DataDescriptor implements SerializableEntity {
       (this.ssk ? DataDescriptor.FLAG_SYMMETRIC_ENCRYPTION_KEY_PRESENT : new BN(0));
   }
 
-  SetFlags() {
-    this.flags = this.CalcFlags();
+  setFlags() {
+    this.flags = this.calcFlags();
   }
 
   isValid(): boolean {
@@ -394,36 +390,36 @@ export class VDXFDataDescriptor extends BufferDataVdxfObject {
     return reader.offset;
   }
 
-  HasEncryptedData(): boolean {
-    return this.dataDescriptor.HasEncryptedData();
+  hasEncryptedData(): boolean {
+    return this.dataDescriptor.hasEncryptedData();
   }
 
-  HasLabel(): boolean {
-    return this.dataDescriptor.HasLabel();
+  hasLabel(): boolean {
+    return this.dataDescriptor.hasLabel();
   }
 
-  HasSalt(): boolean {
-    return this.dataDescriptor.HasSalt();
+  hasSalt(): boolean {
+    return this.dataDescriptor.hasSalt();
   }
 
-  HasEPK(): boolean {
-    return this.dataDescriptor.HasEPK();
+  hasEPK(): boolean {
+    return this.dataDescriptor.hasEPK();
   }
 
-  HasIVK(): boolean {
-    return this.dataDescriptor.HasIVK();
+  hasIVK(): boolean {
+    return this.dataDescriptor.hasIVK();
   }
 
-  HasSSK(): boolean {
-    return this.dataDescriptor.HasSSK();
+  hasSSK(): boolean {
+    return this.dataDescriptor.hasSSK();
   }
 
-  CalcFlags(): BigNumber {
-    return this.dataDescriptor.CalcFlags();
+  calcFlags(): BigNumber {
+    return this.dataDescriptor.calcFlags();
   }
 
-  SetFlags() {
-    return this.dataDescriptor.SetFlags();
+  setFlags() {
+    return this.dataDescriptor.setFlags();
   }
 
 };

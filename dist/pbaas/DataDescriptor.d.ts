@@ -49,19 +49,19 @@ export declare class DataDescriptor implements SerializableEntity {
         ssk?: Buffer;
     });
     static fromJson(data: any): DataDescriptor;
-    DecodeHashVector(): Array<Buffer>;
+    decodeHashVector(): Array<Buffer>;
     getByteLength(): number;
     toBuffer(): Buffer;
     fromBuffer(buffer: Buffer, offset?: number): number;
-    HasEncryptedData(): boolean;
-    HasSalt(): boolean;
-    HasEPK(): boolean;
-    HasMIME(): boolean;
-    HasIVK(): boolean;
-    HasSSK(): boolean;
-    HasLabel(): boolean;
-    CalcFlags(): BigNumber;
-    SetFlags(): void;
+    hasEncryptedData(): boolean;
+    hasSalt(): boolean;
+    hasEPK(): boolean;
+    hasMIME(): boolean;
+    hasIVK(): boolean;
+    hasSSK(): boolean;
+    hasLabel(): boolean;
+    calcFlags(): BigNumber;
+    setFlags(): void;
     isValid(): boolean;
     toJson(): DataDescriptorJson;
 }
@@ -72,14 +72,14 @@ export declare class VDXFDataDescriptor extends BufferDataVdxfObject {
     dataByteLength(): number;
     toDataBuffer(): Buffer;
     fromDataBuffer(buffer: Buffer, offset?: number): number;
-    HasEncryptedData(): boolean;
-    HasLabel(): boolean;
-    HasSalt(): boolean;
-    HasEPK(): boolean;
-    HasIVK(): boolean;
-    HasSSK(): boolean;
-    CalcFlags(): BigNumber;
-    SetFlags(): void;
+    hasEncryptedData(): boolean;
+    hasLabel(): boolean;
+    hasSalt(): boolean;
+    hasEPK(): boolean;
+    hasIVK(): boolean;
+    hasSSK(): boolean;
+    calcFlags(): BigNumber;
+    setFlags(): void;
 }
 export declare enum EHashTypes {
     HASH_INVALID,
