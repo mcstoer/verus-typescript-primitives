@@ -417,7 +417,7 @@ class VdxfUniValue extends SerializableEntityBase_1.SerializableEntityBase {
                 objectUni = undefined;
             }
             bytesLeft = reader.buffer.length - reader.offset;
-            if ((objectUni === null || objectUni === void 0 ? void 0 : objectUni.key) && (objectUni === null || objectUni === void 0 ? void 0 : objectUni.value)) {
+            if ((objectUni === null || objectUni === void 0 ? void 0 : objectUni.key) && objectUni.value !== undefined) {
                 this.values.push({ [objectUni.key]: objectUni.value });
             }
             else {

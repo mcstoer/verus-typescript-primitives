@@ -115,6 +115,7 @@ describe.each(wrappers)('$name canonical complex payloads', ({ Parser, compact, 
 // controls distinguish their two-length framing from the complex-object case.
 describe.each(wrappers)('$name nested string/vector length controls', ({ Parser, compact, fqn }) => {
   test.each([
+    { length: 0, innerSize: '00', outerSize: '01' },
     { length: 251, innerSize: 'fb', outerSize: 'fc' },
     { length: 252, innerSize: 'fc', outerSize: 'fdfd00' },
     { length: 253, innerSize: 'fdfd00', outerSize: 'fd0001' },
@@ -139,4 +140,21 @@ describe.each(wrappers)('$name nested string/vector length controls', ({ Parser,
       expect(decoded.toBuffer()).toEqual(expected);
     }
   });
+});
+
+test.each([
+  { name: 'string', key: DataStringKey.vdxfid, hash: stringHash },
+  { name: 'byte vector', key: DataByteVectorKey.vdxfid, hash: byteVectorHash },
+])('VdxfUniValue preserves an empty $name and the following typed entry', ({ key, hash }) => {
+  // Version 1, one-byte payload containing the empty vector's length byte.
+  const empty = Buffer.from(hash + '010100', 'hex');
+  const following = Buffer.from(stringHash + '0106056166746572', 'hex');
+  const wire = Buffer.concat([empty, following]);
+  const expected = [{ [key]: '' }, { [DataStringKey.vdxfid]: 'after' }];
+  const decoded = new VdxfUniValue();
+
+  expect(decoded.fromBuffer(wire)).toBe(wire.length);
+  expect(decoded.values).toEqual(expected);
+  expect(decoded.toJson()).toEqual(expected);
+  expect(decoded.toBuffer()).toEqual(wire);
 });

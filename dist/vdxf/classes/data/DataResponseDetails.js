@@ -91,8 +91,7 @@ class DataResponseDetails extends SerializableEntityBase_1.SerializableEntityBas
             reader.offset = this.requestID.fromBuffer(reader.buffer, reader.offset);
         }
         this.data = new pbaas_1.DataDescriptor();
-        this.data.fromBuffer(reader.buffer, reader.offset);
-        reader.offset += this.data.getByteLength();
+        reader.offset = this.data.fromBuffer(reader.buffer, reader.offset);
         return reader.offset;
     }
     toJson() {

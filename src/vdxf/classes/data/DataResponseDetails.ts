@@ -132,8 +132,7 @@ export class DataResponseDetails extends SerializableEntityBase implements Seria
     }
 
     this.data = new DataDescriptor();
-    this.data.fromBuffer(reader.buffer, reader.offset);
-    reader.offset += this.data.getByteLength();
+    reader.offset = this.data.fromBuffer(reader.buffer, reader.offset);
 
     return reader.offset;
   }

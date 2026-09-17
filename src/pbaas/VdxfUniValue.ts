@@ -439,7 +439,7 @@ export class VdxfUniValue extends SerializableEntityBase implements Serializable
 
       bytesLeft = reader.buffer.length - reader.offset;
 
-      if (objectUni?.key && objectUni?.value) {
+      if (objectUni?.key && objectUni.value !== undefined) {
         this.values.push({ [objectUni.key]: objectUni.value });
       } else {
         // add the remaining data as a hex string
